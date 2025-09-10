@@ -1,17 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Match 3 Game</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="game-container">
-        <h1>Match 3 Game</h1>
-        <div class="score">Score: <span id="score">0</span></div>
-        <div class="game-board" id="gameBoard"></div>
-    </div>
-    <script src="script.js"></script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Match 2048</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="game-container">
+            <div class="flex-spacer"></div>
+
+            <h1>Match 2048</h1>
+
+            <div class="flex-spacer half"></div>
+
+            <div class="game-info">
+                <div class="info-item">
+                    <span class="label">Level</span>
+                    <span id="level">1</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Moves</span>
+                    <span id="moves">0/20</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Score</span>
+                    <span id="score">0</span>
+                </div>
+            </div>
+
+            <div class="flex-spacer quarter"></div>
+
+            <div class="goals-container">
+                <h3>Level Goals</h3>
+                <div id="goals" class="goals"></div>
+            </div>
+
+            <div class="flex-spacer"></div>
+
+            <div class="game-board" id="gameBoard"></div>
+
+            <div class="flex-spacer"></div>
+
+            <div class="controls">
+                <button id="restartBtn" class="control-btn">Restart Level</button>
+                <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button>
+            </div>
+
+            <div class="flex-spacer half"></div>
+        </div>
+        <script src="script.js"></script>
+    </body>
 </html>

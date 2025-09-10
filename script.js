@@ -8,13 +8,115 @@ class Match3Game {
         this.isDragging = false;
         this.dragStartPos = null;
 
+        this.currentLevel = 1;
+        this.levelGoals = [];
+        this.tileCounts = {};
+        this.movesUsed = 0;
+        this.maxMoves = 0;
+        this.gameActive = true;
+
+        this.initializeLevels();
         this.init();
+    }
+
+    initializeLevels() {
+        this.levels = [
+            {
+                level: 1,
+                maxMoves: 20,
+                goals: [{ tileValue: 32, target: 1, current: 0 }],
+            },
+            {
+                level: 2,
+                maxMoves: 25,
+                goals: [{ tileValue: 32, target: 2, current: 0 }],
+            },
+            {
+                level: 3,
+                maxMoves: 30,
+                goals: [
+                    { tileValue: 64, target: 1, current: 0 },
+                    { tileValue: 32, target: 3, current: 0 },
+                ],
+            },
+            {
+                level: 4,
+                maxMoves: 35,
+                goals: [
+                    { tileValue: 64, target: 2, current: 0 },
+                    { tileValue: 32, target: 5, current: 0 },
+                ],
+            },
+            {
+                level: 5,
+                maxMoves: 40,
+                goals: [
+                    { tileValue: 128, target: 1, current: 0 },
+                    { tileValue: 32, target: 8, current: 0 },
+                ],
+            },
+            {
+                level: 6,
+                maxMoves: 45,
+                goals: [
+                    { tileValue: 256, target: 1, current: 0 },
+                    { tileValue: 128, target: 2, current: 0 },
+                    { tileValue: 64, target: 4, current: 0 },
+                ],
+            },
+            {
+                level: 7,
+                maxMoves: 50,
+                goals: [
+                    { tileValue: 512, target: 1, current: 0 },
+                    { tileValue: 128, target: 2, current: 0 },
+                    { tileValue: 32, target: 10, current: 0 },
+                ],
+            },
+            {
+                level: 8,
+                maxMoves: 55,
+                goals: [
+                    { tileValue: 1024, target: 1, current: 0 },
+                    { tileValue: 128, target: 6, current: 0 },
+                    { tileValue: 64, target: 12, current: 0 },
+                ],
+            },
+            {
+                level: 9,
+                maxMoves: 60,
+                goals: [
+                    { tileValue: 2048, target: 1, current: 0 },
+                    { tileValue: 1024, target: 1, current: 0 },
+                    { tileValue: 512, target: 2, current: 0 },
+                ],
+            },
+        ];
+
+        this.loadLevel(this.currentLevel);
+    }
+
+    loadLevel(levelNum) {
+        const level = this.levels[levelNum - 1];
+        if (!level) return;
+
+        this.currentLevel = levelNum;
+        this.maxMoves = level.maxMoves;
+        this.movesUsed = 0;
+        this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0 }));
+        this.gameActive = true;
+
+        this.renderGoals();
+        this.updateMovesDisplay();
     }
 
     init() {
         this.createBoard();
         this.renderBoard();
         this.setupEventListeners();
+        this.setupControlButtons();
+        this.renderGoals();
+        this.updateMovesDisplay();
     }
 
     createBoard() {
@@ -49,6 +151,69 @@ class Match3Game {
         return false;
     }
 
+    updateTileCounts() {
+        this.tileCounts = {};
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                const value = this.board[row][col];
+                if (value !== null) {
+                    this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
+                }
+            }
+        }
+
+        this.levelGoals.forEach((goal) => {
+            goal.current = this.tileCounts[goal.tileValue] || 0;
+        });
+
+        this.renderGoals();
+        this.checkLevelComplete();
+    }
+
+    checkLevelComplete() {
+        if (!this.gameActive) return;
+
+        const allGoalsComplete = this.levelGoals.every((goal) => goal.current >= goal.target);
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (allGoalsComplete) {
+            this.gameActive = false;
+            if (this.currentLevel < this.levels.length) {
+                nextBtn.style.display = "inline-block";
+            }
+            setTimeout(() => {
+                alert(`Level ${this.currentLevel} Complete! 🎉`);
+            }, 500);
+        } else if (this.movesUsed >= this.maxMoves) {
+            this.gameActive = false;
+            setTimeout(() => {
+                alert(`Game Over! You ran out of moves. Try again!`);
+            }, 500);
+        } else {
+            nextBtn.style.display = "none";
+        }
+    }
+
+    nextLevel() {
+        const nextBtn = document.getElementById("nextBtn");
+        nextBtn.style.display = "none";
+
+        if (this.currentLevel < this.levels.length) {
+            this.currentLevel++;
+            this.loadLevel(this.currentLevel);
+            this.createBoard();
+            this.renderBoard();
+        } else {
+            alert("Congratulations! You've completed all levels! 🏆");
+        }
+    }
+
+    restartLevel() {
+        this.loadLevel(this.currentLevel);
+        this.createBoard();
+        this.renderBoard();
+    }
+
     renderBoard() {
         const gameBoard = document.getElementById("gameBoard");
         gameBoard.innerHTML = "";
@@ -64,6 +229,8 @@ class Match3Game {
                 gameBoard.appendChild(gem);
             }
         }
+
+        this.updateTileCounts();
     }
 
     setupEventListeners() {
@@ -79,6 +246,23 @@ class Match3Game {
         gameBoard.addEventListener("mousemove", this.handleMouseMove.bind(this));
         gameBoard.addEventListener("mouseup", this.handleMouseUp.bind(this));
         gameBoard.addEventListener("mouseleave", this.handleMouseUp.bind(this));
+    }
+
+    setupControlButtons() {
+        const restartBtn = document.getElementById("restartBtn");
+        const nextBtn = document.getElementById("nextBtn");
+
+        if (restartBtn) {
+            restartBtn.addEventListener("click", () => {
+                this.restartLevel();
+            });
+        }
+
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                this.nextLevel();
+            });
+        }
     }
 
     handleTouchStart(e) {
@@ -106,7 +290,7 @@ class Match3Game {
         this.updateDrag(e.clientX, e.clientY);
     }
 
-    handleMouseUp(e) {
+    handleMouseUp() {
         this.endDrag();
     }
 
@@ -185,6 +369,8 @@ class Match3Game {
     }
 
     trySwap(row1, col1, row2, col2) {
+        if (!this.gameActive) return;
+
         // Temporarily swap gems
         const temp = this.board[row1][col1];
         this.board[row1][col1] = this.board[row2][col2];
@@ -192,13 +378,54 @@ class Match3Game {
 
         // Check if this creates any matches
         if (this.hasMatches()) {
-            this.renderBoard();
-            this.processMatches();
+            this.movesUsed++;
+            this.updateMovesDisplay();
+            this.animateSwap(row1, col1, row2, col2, () => {
+                this.renderBoard();
+                this.processMatches();
+            });
         } else {
             // Revert the swap
             this.board[row2][col2] = this.board[row1][col1];
             this.board[row1][col1] = temp;
             this.animateRevert(row1, col1, row2, col2);
+        }
+    }
+
+    animateSwap(row1, col1, row2, col2, callback) {
+        const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+        const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+
+        if (gem1 && gem2) {
+            const rect1 = gem1.getBoundingClientRect();
+            const rect2 = gem2.getBoundingClientRect();
+
+            const deltaX = rect2.left - rect1.left;
+            const deltaY = rect2.top - rect1.top;
+
+            // Animate both gems swapping positions
+            gem1.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            gem2.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+            gem1.style.transition = "transform 0.3s ease-out";
+            gem2.style.transition = "transform 0.3s ease-out";
+            gem1.style.zIndex = "100";
+            gem2.style.zIndex = "100";
+
+            setTimeout(() => {
+                // Clean up transform and transition
+                gem1.style.transform = "";
+                gem2.style.transform = "";
+                gem1.style.transition = "";
+                gem2.style.transition = "";
+                gem1.style.zIndex = "";
+                gem2.style.zIndex = "";
+
+                // Execute callback (render board and process matches)
+                if (callback) callback();
+            }, 300);
+        } else {
+            // Fallback if elements not found
+            if (callback) callback();
         }
     }
 
@@ -321,7 +548,7 @@ class Match3Game {
             outerTiles.forEach((outerTile, index) => {
                 const targetPos = middlePositions[index % middlePositions.length];
                 if (targetPos) {
-                    this.slideGemTo(outerTile, targetPos, group.direction);
+                    this.slideGemTo(outerTile, targetPos);
                 }
             });
 
@@ -337,7 +564,7 @@ class Match3Game {
         // Process merges after animation
         setTimeout(() => {
             this.processMerges(matchGroups);
-        }, 600);
+        }, 400);
     }
 
     getOuterTiles(allTiles, middleTiles) {
@@ -346,7 +573,7 @@ class Match3Game {
         );
     }
 
-    slideGemTo(fromTile, toTile, direction) {
+    slideGemTo(fromTile, toTile) {
         const fromElement = document.querySelector(`[data-row="${fromTile.row}"][data-col="${fromTile.col}"]`);
         const toElement = document.querySelector(`[data-row="${toTile.row}"][data-col="${toTile.col}"]`);
 
@@ -479,10 +706,42 @@ class Match3Game {
                 gem.style.animationDelay = "";
             });
 
-            if (this.hasMatches()) {
+            if (this.gameActive && this.hasMatches()) {
                 this.processMatches();
             }
         }, 600);
+    }
+
+    renderGoals() {
+        const goalsContainer = document.getElementById("goals");
+        if (!goalsContainer) return;
+
+        goalsContainer.innerHTML = "";
+
+        this.levelGoals.forEach((goal) => {
+            const goalCard = document.createElement("div");
+            goalCard.className = `goal-card ${goal.current >= goal.target ? "completed" : ""}`;
+
+            goalCard.innerHTML = `
+                <div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>
+                <div class="goal-progress">${goal.current}/${goal.target}</div>
+                ${goal.current >= goal.target ? '<div class="goal-check">✓</div>' : ""}
+            `;
+
+            goalsContainer.appendChild(goalCard);
+        });
+    }
+
+    updateMovesDisplay() {
+        const movesElement = document.getElementById("moves");
+        if (movesElement) {
+            movesElement.textContent = `${this.movesUsed}/${this.maxMoves}`;
+        }
+
+        const levelElement = document.getElementById("level");
+        if (levelElement) {
+            levelElement.textContent = this.currentLevel;
+        }
     }
 
     updateScore(points) {

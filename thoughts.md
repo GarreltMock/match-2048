@@ -18,3 +18,4 @@
 
 ## Highscore
 - schaffe in x Zügen y Punkte
+- ergibt gerade nicht so viel Sinn, da das mergen weniger Punkte hinterlässt
