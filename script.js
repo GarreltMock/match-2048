@@ -2,7 +2,7 @@ class Match3Game {
     constructor() {
         this.board = [];
         this.boardSize = 8;
-        this.colors = ['red', 'blue', 'green', 'yellow'];
+        this.tileValues = [2, 4, 8, 16];
         this.score = 0;
         this.selectedGem = null;
         this.isDragging = false;
@@ -23,30 +23,30 @@ class Match3Game {
             this.board[row] = [];
             for (let col = 0; col < this.boardSize; col++) {
                 do {
-                    this.board[row][col] = this.getRandomColor();
+                    this.board[row][col] = this.getRandomTileValue();
                 } while (this.hasInitialMatch(row, col));
             }
         }
     }
     
-    getRandomColor() {
-        return this.colors[Math.floor(Math.random() * this.colors.length)];
+    getRandomTileValue() {
+        return this.tileValues[Math.floor(Math.random() * this.tileValues.length)];
     }
     
     hasInitialMatch(row, col) {
-        const color = this.board[row][col];
+        const value = this.board[row][col];
         
         // Check horizontal matches
         if (col >= 2 && 
-            this.board[row][col-1] === color && 
-            this.board[row][col-2] === color) {
+            this.board[row][col-1] === value && 
+            this.board[row][col-2] === value) {
             return true;
         }
         
         // Check vertical matches
         if (row >= 2 && 
-            this.board[row-1][col] === color && 
-            this.board[row-2][col] === color) {
+            this.board[row-1][col] === value && 
+            this.board[row-2][col] === value) {
             return true;
         }
         
@@ -60,9 +60,11 @@ class Match3Game {
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 const gem = document.createElement('div');
-                gem.className = `gem ${this.board[row][col]}`;
+                const value = this.board[row][col];
+                gem.className = `gem tile-${value}`;
                 gem.dataset.row = row;
                 gem.dataset.col = col;
+                gem.textContent = value;
                 gameBoard.appendChild(gem);
             }
         }
@@ -224,90 +226,144 @@ class Match3Game {
     }
     
     findMatches() {
-        const matches = [];
+        const matchGroups = [];
         
         // Check horizontal matches
         for (let row = 0; row < this.boardSize; row++) {
             let count = 1;
-            let currentColor = this.board[row][0];
+            let currentValue = this.board[row][0];
+            let startCol = 0;
             
             for (let col = 1; col < this.boardSize; col++) {
-                if (this.board[row][col] === currentColor) {
+                if (this.board[row][col] === currentValue) {
                     count++;
                 } else {
                     if (count >= 3) {
-                        for (let i = col - count; i < col; i++) {
-                            matches.push({ row, col: i });
+                        const matchGroup = [];
+                        for (let i = startCol; i < col; i++) {
+                            matchGroup.push({ row, col: i });
                         }
+                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: 'horizontal' });
                     }
                     count = 1;
-                    currentColor = this.board[row][col];
+                    currentValue = this.board[row][col];
+                    startCol = col;
                 }
             }
             
             if (count >= 3) {
-                for (let i = this.boardSize - count; i < this.boardSize; i++) {
-                    matches.push({ row, col: i });
+                const matchGroup = [];
+                for (let i = startCol; i < this.boardSize; i++) {
+                    matchGroup.push({ row, col: i });
                 }
+                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: 'horizontal' });
             }
         }
         
         // Check vertical matches
         for (let col = 0; col < this.boardSize; col++) {
             let count = 1;
-            let currentColor = this.board[0][col];
+            let currentValue = this.board[0][col];
+            let startRow = 0;
             
             for (let row = 1; row < this.boardSize; row++) {
-                if (this.board[row][col] === currentColor) {
+                if (this.board[row][col] === currentValue) {
                     count++;
                 } else {
                     if (count >= 3) {
-                        for (let i = row - count; i < row; i++) {
-                            matches.push({ row: i, col });
+                        const matchGroup = [];
+                        for (let i = startRow; i < row; i++) {
+                            matchGroup.push({ row: i, col });
                         }
+                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: 'vertical' });
                     }
                     count = 1;
-                    currentColor = this.board[row][col];
+                    currentValue = this.board[row][col];
+                    startRow = row;
                 }
             }
             
             if (count >= 3) {
-                for (let i = this.boardSize - count; i < this.boardSize; i++) {
-                    matches.push({ row: i, col });
+                const matchGroup = [];
+                for (let i = startRow; i < this.boardSize; i++) {
+                    matchGroup.push({ row: i, col });
                 }
+                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: 'vertical' });
             }
         }
         
-        return matches;
+        return matchGroups;
     }
     
     processMatches() {
-        const matches = this.findMatches();
+        const matchGroups = this.findMatches();
         
-        if (matches.length === 0) {
+        if (matchGroups.length === 0) {
             return;
         }
         
-        // Add matched class for animation
-        matches.forEach(match => {
-            const gem = document.querySelector(`[data-row="${match.row}"][data-col="${match.col}"]`);
-            if (gem) {
-                gem.classList.add('matched');
-            }
+        // Add matched class for animation and calculate score
+        let totalScore = 0;
+        matchGroups.forEach(group => {
+            group.tiles.forEach(tile => {
+                const gem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
+                if (gem) {
+                    gem.classList.add('matched');
+                }
+            });
+            totalScore += group.value * group.tiles.length;
         });
         
         // Update score
-        this.score += matches.length * 10;
+        this.score += totalScore;
         document.getElementById('score').textContent = this.score;
         
-        // Remove matched gems after animation
+        // Process merges after animation
         setTimeout(() => {
-            matches.forEach(match => {
-                this.board[match.row][match.col] = null;
-            });
-            
-            this.dropGems();
+            this.processMerges(matchGroups);
         }, 500);
+    }
+    
+    processMerges(matchGroups) {
+        // Clear all matched tiles first
+        matchGroups.forEach(group => {
+            group.tiles.forEach(tile => {
+                this.board[tile.row][tile.col] = null;
+            });
+        });
+        
+        // Create new merged tiles in middle positions
+        matchGroups.forEach(group => {
+            const middlePositions = this.calculateMiddlePositions(group.tiles);
+            const newValue = group.value * 2; // Next power of 2
+            
+            middlePositions.forEach(pos => {
+                this.board[pos.row][pos.col] = newValue;
+            });
+        });
+        
+        this.dropGems();
+    }
+    
+    calculateMiddlePositions(tiles) {
+        const positions = [];
+        const length = tiles.length;
+        
+        if (length === 3) {
+            // 3 tiles: middle position
+            positions.push(tiles[1]);
+        } else if (length === 4) {
+            // 4 tiles: two middle positions
+            positions.push(tiles[1]);
+            positions.push(tiles[2]);
+        } else if (length >= 5) {
+            // 5+ tiles: two middle positions
+            const mid = Math.floor(length / 2);
+            positions.push(tiles[mid - 1]);
+            positions.push(tiles[mid]);
+        }
+        
+        return positions;
     }
     
     dropGems() {
@@ -336,7 +392,7 @@ class Match3Game {
             
             // Fill empty spaces from top with new gems
             for (let i = 0; i < emptySpaces; i++) {
-                this.board[i][col] = this.getRandomColor();
+                this.board[i][col] = this.getRandomTileValue();
                 newGems.push({ row: i, col });
             }
         }

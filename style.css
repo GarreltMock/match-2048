@@ -6,7 +6,7 @@
 
 body {
     font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #303030; /* linear-gradient(135deg, #667eea 0%, #764ba2 100%); */
     min-height: 100vh;
     display: flex;
     justify-content: center;
@@ -52,26 +52,28 @@ h1 {
 
 .gem {
     aspect-ratio: 1;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
     position: relative;
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 24px;
+    font-weight: bold;
+    color: #776e65;
 }
 
 .gem:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .gem.dragging {
     z-index: 10;
     transform: scale(1.1);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
 .gem.preview {
@@ -79,40 +81,66 @@ h1 {
     transform: scale(0.95);
 }
 
-.gem.red {
-    background: linear-gradient(135deg, #ff4757, #ff3838);
+/* 2048-style tile colors */
+.gem.tile-2 {
+    background: #eee4da;
+    color: #776e65;
 }
 
-.gem.blue {
-    background: linear-gradient(135deg, #3742fa, #2f3542);
+.gem.tile-4 {
+    background: #ede0c8;
+    color: #776e65;
 }
 
-.gem.green {
-    background: linear-gradient(135deg, #2ed573, #1e90ff);
+.gem.tile-8 {
+    background: #f2b179;
+    color: #f9f6f2;
 }
 
-.gem.yellow {
-    background: linear-gradient(135deg, #ffa502, #ff6348);
+.gem.tile-16 {
+    background: #f59563;
+    color: #f9f6f2;
 }
 
-.gem.red::after {
-    content: '💎';
+.gem.tile-32 {
+    background: #f67c5f;
+    color: #f9f6f2;
+}
+
+.gem.tile-64 {
+    background: #f65e3b;
+    color: #f9f6f2;
+}
+
+.gem.tile-128 {
+    background: #edcf72;
+    color: #f9f6f2;
     font-size: 20px;
 }
 
-.gem.blue::after {
-    content: '🔷';
+.gem.tile-256 {
+    background: #edcc61;
+    color: #f9f6f2;
     font-size: 20px;
 }
 
-.gem.green::after {
-    content: '💚';
+.gem.tile-512 {
+    background: #edc850;
+    color: #f9f6f2;
     font-size: 20px;
 }
 
-.gem.yellow::after {
-    content: '⭐';
-    font-size: 20px;
+.gem.tile-1024 {
+    background: #edc53f;
+    color: #f9f6f2;
+    font-size: 18px;
+}
+
+.gem.tile-2048 {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: 18px;
+    box-shadow: 0 4px 8px rgba(237, 194, 46, 0.4);
 }
 
 .gem.matched {
@@ -172,17 +200,17 @@ h1 {
     .game-container {
         padding: 15px;
     }
-    
+
     h1 {
         font-size: 1.5rem;
     }
-    
+
     .game-board {
         max-width: 300px;
         gap: 1px;
         padding: 8px;
     }
-    
+
     .gem::after {
         font-size: 16px;
     }
@@ -192,7 +220,7 @@ h1 {
     .game-board {
         max-width: 260px;
     }
-    
+
     .gem::after {
         font-size: 14px;
     }
