@@ -17,6 +17,7 @@ class Match3Game {
 
         this.initializeLevels();
         this.showIntroDialog();
+        this.setupInfoButton();
         this.init();
     }
 
@@ -1097,6 +1098,52 @@ class Match3Game {
             },
             { once: true }
         );
+    }
+
+    setupInfoButton() {
+        const infoBtn = document.getElementById('infoBtn');
+        if (infoBtn) {
+            infoBtn.addEventListener('click', () => {
+                // Force show the dialog, ignoring localStorage preference
+                const introDialog = document.getElementById('introDialog');
+                introDialog.classList.remove('hidden');
+                
+                // Set up event listeners (reuse the same logic as showIntroDialog)
+                const closeBtn = document.getElementById('closeIntro');
+                const startBtn = document.getElementById('startGame');
+                const dontShowCheckbox = document.getElementById('dontShowAgain');
+
+                const closeDialog = () => {
+                    if (dontShowCheckbox.checked) {
+                        localStorage.setItem('match2048_dontShowIntro', 'true');
+                    }
+                    introDialog.classList.add('hidden');
+                };
+
+                // Remove any existing listeners and add new ones
+                const newCloseBtn = closeBtn.cloneNode(true);
+                const newStartBtn = startBtn.cloneNode(true);
+                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+                startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+
+                newCloseBtn.addEventListener('click', closeDialog);
+                newStartBtn.addEventListener('click', closeDialog);
+
+                // Close on overlay click
+                introDialog.addEventListener('click', (e) => {
+                    if (e.target === introDialog) {
+                        closeDialog();
+                    }
+                }, { once: true });
+
+                // Close on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && !introDialog.classList.contains('hidden')) {
+                        closeDialog();
+                    }
+                }, { once: true });
+            });
+        }
     }
 }
 
