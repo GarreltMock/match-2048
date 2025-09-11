@@ -20,3 +20,9 @@
 ## Highscore
 - schaffe in x Zügen y Punkte
 - ergibt gerade nicht so viel Sinn, da das mergen weniger Punkte hinterlässt
+
+
+# Power-Ups Ideen
+- Free Tile-Switch (nebeneinander / komplett frei)
+- Hammer
+- Tile Wert verdoppeln

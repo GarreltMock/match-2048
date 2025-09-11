@@ -49,6 +49,149 @@
 
             <div class="flex-spacer half"></div>
         </div>
+
+        <!-- Introduction Dialog -->
+        <div id="introDialog" class="intro-dialog-overlay hidden">
+            <div class="intro-dialog">
+                <div class="intro-header">
+                    <h2>🎮 Welcome to Match 2048!</h2>
+                    <button class="intro-close" id="closeIntro">×</button>
+                </div>
+
+                <div class="intro-content">
+                    <div class="intro-section">
+                        <h3>🎯 How to Play</h3>
+                        <p>
+                            Match 3 or more tiles of the same number by swapping adjacent tiles. Create higher numbers
+                            to reach your level goals!
+                        </p>
+
+                        <h4>📋 Level Goals</h4>
+                        <p>
+                            Each level has specific tile goals you must achieve.
+                            <strong>All required tiles must be present on the board at the same time</strong> to
+                            complete the level.
+                        </p>
+                    </div>
+
+                    <div class="intro-section">
+                        <h3>✨ Special Formations</h3>
+
+                        <div class="formation-example">
+                            <h4>Regular Match (3+ in a row)</h4>
+                            <div class="example-tiles">
+                                <div class="example-tile">2</div>
+                                <div class="example-tile">2</div>
+                                <div class="example-tile">2</div>
+                                <span class="arrow">→</span>
+                                <div class="example-tile highlight">4</div>
+                            </div>
+                            <p>3 tiles → 1 tile (2x value)</p>
+                            <p style="margin: 0">4 tiles → 2 tile (2x value)</p>
+                            <p style="margin: 0">5 tiles → 1 tile (4x value)</p>
+                        </div>
+
+                        <div class="formation-example">
+                            <h4>T-Formation</h4>
+                            <div class="example-grid">
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="example-result">
+                                <div class="example-tile highlight">8</div>
+                            </div>
+                            <p>5 tiles → 1 tile (4x value)</p>
+                        </div>
+
+                        <div class="formation-example">
+                            <h4>L-Formation</h4>
+                            <div class="example-grid">
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="example-result">
+                                <div class="example-tile highlight">8</div>
+                            </div>
+                            <p>5 tiles → 1 tile (4x value)</p>
+                        </div>
+
+                        <div class="formation-example">
+                            <h4>Block Formation (2×2)</h4>
+                            <div class="example-grid">
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
+                            </div>
+                            <span class="arrow">→</span>
+                            <div class="example-grid">
+                                <div class="grid-row">
+                                    <span></span>
+                                    <div class="example-tile highlight">4</div>
+                                </div>
+                                <div class="grid-row">
+                                    <div class="example-tile highlight">4</div>
+                                    <span></span>
+                                </div>
+                            </div>
+                            <p>4 tiles → 2 tiles (2x value each)</p>
+                        </div>
+                    </div>
+
+                    <div class="intro-section">
+                        <h3>🎲 Tips</h3>
+                        <ul>
+                            <li>Plan your moves carefully - you have limited moves per level!</li>
+                            <li>Special formations give better value than regular matches</li>
+                            <li>Look for opportunities to create T, L, and block patterns</li>
+                            <li>Complete all level goals to advance</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="intro-footer">
+                    <label class="intro-checkbox">
+                        <input type="checkbox" id="dontShowAgain" />
+                        <span class="checkmark"></span>
+                        Don't show this again
+                    </label>
+                    <button class="intro-button" id="startGame">Let's Play!</button>
+                </div>
+            </div>
+        </div>
+
         <script src="script.js"></script>
     </body>
 </html>

@@ -16,6 +16,7 @@ class Match3Game {
         this.gameActive = true;
 
         this.initializeLevels();
+        this.showIntroDialog();
         this.init();
     }
 
@@ -50,18 +51,23 @@ class Match3Game {
             {
                 level: 5,
                 maxMoves: 40,
+                goals: [{ tileValue: 128, target: 4, current: 0 }],
+            },
+            {
+                level: 6,
+                maxMoves: 45,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 64, target: 4, current: 0 },
                 ],
             },
             {
-                level: 6,
+                level: 7,
                 maxMoves: 30,
-                goals: [{ tileValue: 32, target: 20, current: 0 }],
+                goals: [{ tileValue: 32, target: 16, current: 0 }],
             },
             {
-                level: 7, // das war das harte mit Anne
+                level: 8, // das war das harte mit Anne
                 maxMoves: 50,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
@@ -70,25 +76,17 @@ class Match3Game {
                 ],
             },
             {
-                level: 8,
-                maxMoves: 55,
+                level: 9,
+                maxMoves: 60,
                 goals: [
                     { tileValue: 512, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
                 ],
             },
             {
-                level: 9,
-                maxMoves: 60,
-                goals: [
-                    { tileValue: 1024, target: 1, current: 0 },
-                    { tileValue: 128, target: 6, current: 0 },
-                ],
-            },
-            {
                 level: 10,
-                maxMoves: 65,
-                goals: [{ tileValue: 2048, target: 1, current: 0 }],
+                maxMoves: 70,
+                goals: [{ tileValue: 1024, target: 1, current: 0 }],
             },
         ];
 
@@ -584,57 +582,92 @@ class Match3Game {
         return specialMatches;
     }
 
-    checkTFormation(centerRow, centerCol, value) {
-        // T-formation: 3 horizontal + 2 vertical through center
-        // Check if we can form: xxx
-        //                           x
-        //                           x
+    checkTFormation(intersectionRow, intersectionCol, value) {
+        // T-formation: 4 different orientations
+        // 1. xxx  2.  x   3.  x   4.   x
+        //     x      xxx      x       xxx
+        //     x       x      xxx       x
 
-        const positions = [];
+        const tFormations = [
+            // 1. T pointing down: xxx
+            //                      x
+            //                      x
+            {
+                horizontal: [-1, 0, 1], // 3 tiles horizontally through intersection
+                vertical: [1, 2], // 2 tiles down from intersection
+            },
+            // 2. T pointing right: x
+            //                      xxx
+            //                      x
+            {
+                vertical: [-1, 0, 1], // 3 tiles vertically through intersection
+                horizontal: [1, 2], // 2 tiles right from intersection
+            },
+            // 3. T pointing up:  x
+            //                    x
+            //                   xxx
+            {
+                horizontal: [-1, 0, 1], // 3 tiles horizontally through intersection
+                vertical: [-2, -1], // 2 tiles up from intersection
+            },
+            // 4. T pointing left: x
+            //                   xxx
+            //                     x
+            {
+                vertical: [-1, 0, 1], // 3 tiles vertically through intersection
+                horizontal: [-2, -1], // 2 tiles left from intersection
+            },
+        ];
 
-        // Check horizontal line (3 tiles: left, center, right)
-        if (centerCol >= 1 && centerCol < this.boardSize - 1) {
-            if (
-                this.board[centerRow][centerCol - 1] === value &&
-                this.board[centerRow][centerCol] === value &&
-                this.board[centerRow][centerCol + 1] === value
-            ) {
-                positions.push({ row: centerRow, col: centerCol - 1 });
-                positions.push({ row: centerRow, col: centerCol });
-                positions.push({ row: centerRow, col: centerCol + 1 });
+        for (const formation of tFormations) {
+            const positions = [];
+            let validT = true;
 
-                // Check vertical extension (2 more tiles: up or down from center)
+            // Check horizontal line (3 tiles including intersection)
+            for (const colOffset of formation.horizontal) {
+                const row = intersectionRow;
+                const col = intersectionCol + colOffset;
+
                 if (
-                    centerRow >= 2 &&
-                    this.board[centerRow - 1][centerCol] === value &&
-                    this.board[centerRow - 2][centerCol] === value
+                    row < 0 ||
+                    row >= this.boardSize ||
+                    col < 0 ||
+                    col >= this.boardSize ||
+                    this.board[row][col] !== value
                 ) {
-                    // T pointing up
-                    positions.push({ row: centerRow - 1, col: centerCol });
-                    positions.push({ row: centerRow - 2, col: centerCol });
-
-                    return {
-                        tiles: positions,
-                        value: value,
-                        direction: "T-formation",
-                        intersection: { row: centerRow, col: centerCol },
-                    };
-                } else if (
-                    centerRow < this.boardSize - 2 &&
-                    this.board[centerRow + 1][centerCol] === value &&
-                    this.board[centerRow + 2][centerCol] === value
-                ) {
-                    // T pointing down
-                    positions.push({ row: centerRow + 1, col: centerCol });
-                    positions.push({ row: centerRow + 2, col: centerCol });
-
-                    return {
-                        tiles: positions,
-                        value: value,
-                        direction: "T-formation",
-                        intersection: { row: centerRow, col: centerCol },
-                    };
+                    validT = false;
+                    break;
                 }
+                positions.push({ row: row, col: col });
+            }
+
+            if (!validT) continue;
+
+            // Check vertical extension (2 additional tiles)
+            for (const rowOffset of formation.vertical) {
+                const row = intersectionRow + rowOffset;
+                const col = intersectionCol;
+
+                if (
+                    row < 0 ||
+                    row >= this.boardSize ||
+                    col < 0 ||
+                    col >= this.boardSize ||
+                    this.board[row][col] !== value
+                ) {
+                    validT = false;
+                    break;
+                }
+                positions.push({ row: row, col: col });
+            }
+
+            if (validT && positions.length === 5) {
+                return {
+                    tiles: positions,
+                    value: value,
+                    direction: "T-formation",
+                    intersection: { row: intersectionRow, col: intersectionCol },
+                };
             }
         }
 
@@ -657,8 +690,8 @@ class Match3Game {
             { horizontal: [0, -1, -2], vertical: [0, 1, 2] },
 
             // L pointing right-up:   xxx
-            //                          x
-            //                          x
+            //                        x
+            //                        x
             { horizontal: [0, 1, 2], vertical: [0, -1, -2] },
 
             // L pointing left-up:   xxx
@@ -1018,6 +1051,52 @@ class Match3Game {
     updateScore(points) {
         this.score += points;
         document.getElementById("score").textContent = this.score;
+    }
+
+    showIntroDialog() {
+        // Check if user has opted to not show the dialog
+        const dontShowAgain = localStorage.getItem("match2048_dontShowIntro") === "true";
+        if (dontShowAgain) {
+            return;
+        }
+
+        const introDialog = document.getElementById("introDialog");
+        const closeBtn = document.getElementById("closeIntro");
+        const startBtn = document.getElementById("startGame");
+        const dontShowCheckbox = document.getElementById("dontShowAgain");
+
+        // Show the dialog
+        introDialog.classList.remove("hidden");
+
+        // Close dialog function
+        const closeDialog = () => {
+            if (dontShowCheckbox.checked) {
+                localStorage.setItem("match2048_dontShowIntro", "true");
+            }
+            introDialog.classList.add("hidden");
+        };
+
+        // Event listeners
+        closeBtn.addEventListener("click", closeDialog);
+        startBtn.addEventListener("click", closeDialog);
+
+        // Close on overlay click (but not on dialog content)
+        introDialog.addEventListener("click", (e) => {
+            if (e.target === introDialog) {
+                closeDialog();
+            }
+        });
+
+        // Close on Escape key
+        document.addEventListener(
+            "keydown",
+            (e) => {
+                if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
+                    closeDialog();
+                }
+            },
+            { once: true }
+        );
     }
 }
 
