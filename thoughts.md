@@ -15,6 +15,7 @@
 ## Zahl erreichen
 - man muss eine/mehrere bestimmte Zahl erreichen
 - "mache 3x die 128"
+- Interessant Variante: Man muss wirklich genau diese Anzahl erreichen
 
 ## Highscore
 - schaffe in x Zügen y Punkte

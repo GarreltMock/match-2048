@@ -23,41 +23,46 @@ class Match3Game {
         this.levels = [
             {
                 level: 1,
-                maxMoves: 20,
-                goals: [{ tileValue: 32, target: 1, current: 0 }],
-            },
-            {
-                level: 2,
-                maxMoves: 25,
+                maxMoves: 10,
                 goals: [{ tileValue: 32, target: 2, current: 0 }],
             },
             {
-                level: 3,
-                maxMoves: 30,
+                level: 2,
+                maxMoves: 15,
                 goals: [
                     { tileValue: 64, target: 1, current: 0 },
                     { tileValue: 32, target: 3, current: 0 },
                 ],
             },
             {
-                level: 4,
-                maxMoves: 35,
+                level: 3,
+                maxMoves: 20,
                 goals: [
                     { tileValue: 64, target: 2, current: 0 },
                     { tileValue: 32, target: 5, current: 0 },
                 ],
             },
             {
+                level: 4,
+                maxMoves: 30,
+                goals: [{ tileValue: 128, target: 1, current: 0 }],
+            },
+            {
                 level: 5,
                 maxMoves: 40,
                 goals: [
-                    { tileValue: 128, target: 1, current: 0 },
-                    { tileValue: 32, target: 8, current: 0 },
+                    { tileValue: 256, target: 1, current: 0 },
+                    { tileValue: 64, target: 4, current: 0 },
                 ],
             },
             {
                 level: 6,
-                maxMoves: 45,
+                maxMoves: 30,
+                goals: [{ tileValue: 32, target: 20, current: 0 }],
+            },
+            {
+                level: 7, // das war das harte mit Anne
+                maxMoves: 50,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
@@ -65,31 +70,25 @@ class Match3Game {
                 ],
             },
             {
-                level: 7,
-                maxMoves: 50,
-                goals: [
-                    { tileValue: 512, target: 1, current: 0 },
-                    { tileValue: 128, target: 2, current: 0 },
-                    { tileValue: 32, target: 10, current: 0 },
-                ],
-            },
-            {
                 level: 8,
                 maxMoves: 55,
                 goals: [
-                    { tileValue: 1024, target: 1, current: 0 },
-                    { tileValue: 128, target: 6, current: 0 },
-                    { tileValue: 64, target: 12, current: 0 },
+                    { tileValue: 512, target: 1, current: 0 },
+                    { tileValue: 128, target: 2, current: 0 },
                 ],
             },
             {
                 level: 9,
                 maxMoves: 60,
                 goals: [
-                    { tileValue: 2048, target: 1, current: 0 },
                     { tileValue: 1024, target: 1, current: 0 },
-                    { tileValue: 512, target: 2, current: 0 },
+                    { tileValue: 128, target: 6, current: 0 },
                 ],
+            },
+            {
+                level: 10,
+                maxMoves: 65,
+                goals: [{ tileValue: 2048, target: 1, current: 0 }],
             },
         ];
 
@@ -146,6 +145,32 @@ class Match3Game {
         // Check vertical matches
         if (row >= 2 && this.board[row - 1][col] === value && this.board[row - 2][col] === value) {
             return true;
+        }
+
+        // Check special formations that could be created by placing this tile
+
+        // Check if this position completes a T-formation
+        if (this.checkTFormation(row, col, value)) {
+            return true;
+        }
+
+        // Check if this position completes an L-formation
+        if (this.checkLFormation(row, col, value)) {
+            return true;
+        }
+
+        // Check if this position completes a block formation (check all possible 2x2 blocks this tile could be part of)
+        const blockPositions = [
+            [row - 1, col - 1], // This tile is bottom-right of block
+            [row - 1, col], // This tile is bottom-left of block
+            [row, col - 1], // This tile is top-right of block
+            [row, col], // This tile is top-left of block
+        ];
+
+        for (const [blockRow, blockCol] of blockPositions) {
+            if (this.checkBlockFormation(blockRow, blockCol, value)) {
+                return true;
+            }
         }
 
         return false;
@@ -451,6 +476,15 @@ class Match3Game {
     findMatches() {
         const matchGroups = [];
 
+        // Check for special T and L formations first (they take priority)
+        const specialMatches = this.findSpecialFormations();
+        matchGroups.push(...specialMatches);
+
+        // If special formations found, don't check for regular matches to avoid overlaps
+        if (specialMatches.length > 0) {
+            return matchGroups;
+        }
+
         // Check horizontal matches
         for (let row = 0; row < this.boardSize; row++) {
             let count = 1;
@@ -518,6 +552,215 @@ class Match3Game {
         return matchGroups;
     }
 
+    findSpecialFormations() {
+        const specialMatches = [];
+
+        // Check every position as a potential center/corner for formations
+        for (let row = 0; row < this.boardSize; row++) {
+            for (let col = 0; col < this.boardSize; col++) {
+                const value = this.board[row][col];
+                if (!value) continue;
+
+                // Check T-formation with this position as center
+                const tFormation = this.checkTFormation(row, col, value);
+                if (tFormation) {
+                    specialMatches.push(tFormation);
+                }
+
+                // Check L-formation with this position as corner
+                const lFormation = this.checkLFormation(row, col, value);
+                if (lFormation) {
+                    specialMatches.push(lFormation);
+                }
+
+                // Check block formation with this position as top-left corner
+                const blockFormation = this.checkBlockFormation(row, col, value);
+                if (blockFormation) {
+                    specialMatches.push(blockFormation);
+                }
+            }
+        }
+
+        return specialMatches;
+    }
+
+    checkTFormation(centerRow, centerCol, value) {
+        // T-formation: 3 horizontal + 2 vertical through center
+        // Check if we can form: xxx
+        //                           x
+        //                           x
+
+        const positions = [];
+
+        // Check horizontal line (3 tiles: left, center, right)
+        if (centerCol >= 1 && centerCol < this.boardSize - 1) {
+            if (
+                this.board[centerRow][centerCol - 1] === value &&
+                this.board[centerRow][centerCol] === value &&
+                this.board[centerRow][centerCol + 1] === value
+            ) {
+                positions.push({ row: centerRow, col: centerCol - 1 });
+                positions.push({ row: centerRow, col: centerCol });
+                positions.push({ row: centerRow, col: centerCol + 1 });
+
+                // Check vertical extension (2 more tiles: up or down from center)
+                if (
+                    centerRow >= 2 &&
+                    this.board[centerRow - 1][centerCol] === value &&
+                    this.board[centerRow - 2][centerCol] === value
+                ) {
+                    // T pointing up
+                    positions.push({ row: centerRow - 1, col: centerCol });
+                    positions.push({ row: centerRow - 2, col: centerCol });
+
+                    return {
+                        tiles: positions,
+                        value: value,
+                        direction: "T-formation",
+                        intersection: { row: centerRow, col: centerCol },
+                    };
+                } else if (
+                    centerRow < this.boardSize - 2 &&
+                    this.board[centerRow + 1][centerCol] === value &&
+                    this.board[centerRow + 2][centerCol] === value
+                ) {
+                    // T pointing down
+                    positions.push({ row: centerRow + 1, col: centerCol });
+                    positions.push({ row: centerRow + 2, col: centerCol });
+
+                    return {
+                        tiles: positions,
+                        value: value,
+                        direction: "T-formation",
+                        intersection: { row: centerRow, col: centerCol },
+                    };
+                }
+            }
+        }
+
+        return null;
+    }
+
+    checkLFormation(cornerRow, cornerCol, value) {
+        // L-formation: 3 tiles in one direction + 3 tiles in perpendicular direction with shared corner
+        // Check 4 possible L orientations from this corner
+
+        const lShapes = [
+            // L pointing right-down:   x
+            //                          x
+            //                          xxx
+            { horizontal: [0, 1, 2], vertical: [0, 1, 2] },
+
+            // L pointing left-down:     x
+            //                           x
+            //                         xxx
+            { horizontal: [0, -1, -2], vertical: [0, 1, 2] },
+
+            // L pointing right-up:   xxx
+            //                          x
+            //                          x
+            { horizontal: [0, 1, 2], vertical: [0, -1, -2] },
+
+            // L pointing left-up:   xxx
+            //                         x
+            //                         x
+            { horizontal: [0, -1, -2], vertical: [0, -1, -2] },
+        ];
+
+        for (const shape of lShapes) {
+            const positions = [];
+            let validL = true;
+
+            // Check horizontal part (3 tiles from corner)
+            for (const colOffset of shape.horizontal) {
+                const col = cornerCol + colOffset;
+                const row = cornerRow;
+
+                if (
+                    col < 0 ||
+                    col >= this.boardSize ||
+                    row < 0 ||
+                    row >= this.boardSize ||
+                    this.board[row][col] !== value
+                ) {
+                    validL = false;
+                    break;
+                }
+                positions.push({ row: row, col: col });
+            }
+
+            if (!validL) continue;
+
+            // Check vertical part (3 tiles from corner, but corner is already added, so 2 more)
+            for (let i = 1; i < shape.vertical.length; i++) {
+                const rowOffset = shape.vertical[i];
+                const row = cornerRow + rowOffset;
+                const col = cornerCol;
+
+                if (
+                    row < 0 ||
+                    row >= this.boardSize ||
+                    col < 0 ||
+                    col >= this.boardSize ||
+                    this.board[row][col] !== value
+                ) {
+                    validL = false;
+                    break;
+                }
+                positions.push({ row: row, col: col });
+            }
+
+            if (validL && positions.length === 5) {
+                return {
+                    tiles: positions,
+                    value: value,
+                    direction: "L-formation",
+                    intersection: { row: cornerRow, col: cornerCol },
+                };
+            }
+        }
+
+        return null;
+    }
+
+    checkBlockFormation(topRow, leftCol, value) {
+        // Block formation: 2x2 square of same tiles
+        // Check if we can form: xx
+        //                       xx
+
+        // Check bounds
+        if (topRow >= this.boardSize - 1 || leftCol >= this.boardSize - 1) {
+            return null;
+        }
+
+        const positions = [
+            { row: topRow, col: leftCol }, // top-left
+            { row: topRow, col: leftCol + 1 }, // top-right
+            { row: topRow + 1, col: leftCol }, // bottom-left
+            { row: topRow + 1, col: leftCol + 1 }, // bottom-right
+        ];
+
+        // Check if all 4 positions have the same value
+        for (const pos of positions) {
+            if (pos.row < 0 || pos.row >= this.boardSize || pos.col < 0 || pos.col >= this.boardSize) {
+                return null; // Out of bounds
+            }
+            if (!this.board[pos.row] || this.board[pos.row][pos.col] !== value) {
+                return null; // Position doesn't exist or doesn't match
+            }
+        }
+
+        return {
+            tiles: positions,
+            value: value,
+            direction: "block-formation",
+            intersections: [
+                { row: topRow, col: leftCol + 1 }, // top-right becomes one merge point
+                { row: topRow + 1, col: leftCol }, // bottom-left becomes other merge point
+            ],
+        };
+    }
+
     processMatches() {
         const matchGroups = this.findMatches();
 
@@ -541,7 +784,7 @@ class Match3Game {
 
     animateMerges(matchGroups) {
         matchGroups.forEach((group) => {
-            const middlePositions = this.calculateMiddlePositions(group.tiles);
+            const middlePositions = this.calculateMiddlePositions(group.tiles, group);
             const outerTiles = this.getOuterTiles(group.tiles, middlePositions);
 
             // Animate outer tiles sliding to middle positions
@@ -605,12 +848,26 @@ class Match3Game {
 
         // Create new merged tiles in middle positions
         matchGroups.forEach((group) => {
-            const middlePositions = this.calculateMiddlePositions(group.tiles);
-            const newValue = group.value * 2; // Next power of 2
+            if (group.direction === "T-formation" || group.direction === "L-formation") {
+                // Special formations: create one tile with 4x value at intersection
+                const newValue = group.value * 4; // 5 tiles -> 1 tile (roughly 2.5x per tile, rounded to 4x total)
+                const intersection = group.intersection;
+                this.board[intersection.row][intersection.col] = newValue;
+            } else if (group.direction === "block-formation") {
+                // Block formation: create two tiles with 2x value at intersection points
+                const newValue = group.value * 2; // 4 tiles -> 2 tiles (2x each)
+                group.intersections.forEach((intersection) => {
+                    this.board[intersection.row][intersection.col] = newValue;
+                });
+            } else {
+                // Regular matches: use existing logic
+                const middlePositions = this.calculateMiddlePositions(group.tiles);
+                const newValue = group.value * 2; // Next power of 2
 
-            middlePositions.forEach((pos) => {
-                this.board[pos.row][pos.col] = newValue;
-            });
+                middlePositions.forEach((pos) => {
+                    this.board[pos.row][pos.col] = newValue;
+                });
+            }
         });
 
         // Clean up animation classes
@@ -624,10 +881,24 @@ class Match3Game {
         this.dropGems();
     }
 
-    calculateMiddlePositions(tiles) {
+    calculateMiddlePositions(tiles, group = null) {
         const positions = [];
         const length = tiles.length;
 
+        // Special handling for T and L formations
+        if (group && (group.direction === "T-formation" || group.direction === "L-formation")) {
+            // For special formations, the "middle" position is the intersection
+            positions.push(group.intersection);
+            return positions;
+        }
+
+        // Special handling for block formations
+        if (group && group.direction === "block-formation") {
+            // For block formations, the "middle" positions are the two intersections
+            return group.intersections;
+        }
+
+        // Regular match logic
         if (length === 3) {
             // 3 tiles: middle position (3-2=1 tile)
             positions.push(tiles[1]);
@@ -724,7 +995,7 @@ class Match3Game {
 
             goalCard.innerHTML = `
                 <div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>
-                <div class="goal-progress">${goal.current}/${goal.target}</div>
+                <div class="goal-progress">${goal.current} / ${goal.target}</div>
                 ${goal.current >= goal.target ? '<div class="goal-check">✓</div>' : ""}
             `;
 
@@ -735,7 +1006,7 @@ class Match3Game {
     updateMovesDisplay() {
         const movesElement = document.getElementById("moves");
         if (movesElement) {
-            movesElement.textContent = `${this.movesUsed}/${this.maxMoves}`;
+            movesElement.textContent = `${this.maxMoves - this.movesUsed}`; //`${this.movesUsed}/${this.maxMoves}`;
         }
 
         const levelElement = document.getElementById("level");
