@@ -7,6 +7,7 @@ class Match3Game {
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
+        this.animating = false;
 
         this.currentLevel = this.loadCurrentLevel();
         this.levelGoals = [];
@@ -78,7 +79,7 @@ class Match3Game {
             },
             {
                 level: 9,
-                maxMoves: 60,
+                maxMoves: 80,
                 goals: [
                     { tileValue: 512, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
@@ -86,7 +87,7 @@ class Match3Game {
             },
             {
                 level: 10,
-                maxMoves: 70,
+                maxMoves: 100,
                 goals: [{ tileValue: 1024, target: 1, current: 0 }],
             },
         ];
@@ -344,6 +345,8 @@ class Match3Game {
     }
 
     startDrag(x, y) {
+        if (!this.gameActive || this.animating) return;
+
         const element = document.elementFromPoint(x, y);
         if (element && element.classList.contains("gem")) {
             this.selectedGem = {
@@ -418,7 +421,7 @@ class Match3Game {
     }
 
     trySwap(row1, col1, row2, col2) {
-        if (!this.gameActive) return;
+        if (!this.gameActive || this.animating) return;
 
         // Temporarily swap gems
         const temp = this.board[row1][col1];
@@ -442,6 +445,8 @@ class Match3Game {
     }
 
     animateSwap(row1, col1, row2, col2, callback) {
+        this.animating = true;
+
         const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
         const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
 
@@ -474,11 +479,14 @@ class Match3Game {
             }, 300);
         } else {
             // Fallback if elements not found
+            this.animating = false;
             if (callback) callback();
         }
     }
 
     animateRevert(row1, col1, row2, col2) {
+        this.animating = true;
+
         const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
         const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
 
@@ -513,7 +521,10 @@ class Match3Game {
                 gem2.style.transition = "";
                 gem1.classList.remove("invalid-swap");
                 gem2.classList.remove("invalid-swap");
+                this.animating = false;
             }, 400);
+        } else {
+            this.animating = false;
         }
     }
 
@@ -1086,6 +1097,8 @@ class Match3Game {
 
             if (this.gameActive && this.hasMatches()) {
                 this.processMatches();
+            } else {
+                this.animating = false;
             }
         }, 600);
     }
