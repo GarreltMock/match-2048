@@ -8,7 +8,8 @@
     </head>
     <body>
         <div class="game-container">
-            <button id="infoBtn" class="info-btn" title="Show Tutorial">ℹ</button>
+            <button id="resetBtn" class="reset-btn" title="Reset Progress" tabindex="3">Reset</button>
+            <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
 
             <div class="flex-spacer"></div>
 
@@ -45,7 +46,7 @@
             <div class="flex-spacer"></div>
 
             <div class="controls">
-                <button id="restartBtn" class="control-btn">Restart Level</button>
+                <button id="restartBtn" class="control-btn" tabindex="1">Restart Level</button>
                 <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button>
             </div>
 
@@ -57,7 +58,6 @@
             <div class="intro-dialog">
                 <div class="intro-header">
                     <h2>🎮 Welcome to Match 2048!</h2>
-                    <button class="intro-close" id="closeIntro">×</button>
                 </div>
 
                 <div class="intro-content">
@@ -70,105 +70,116 @@
 
                         <h4>📋 Level Goals</h4>
                         <p>
-                            Each level has specific tile goals you must achieve.
+                            Each level has specific tile goals you must achieve with a limited number of moves.
                             <strong>All required tiles must be present on the board at the same time</strong> to
                             complete the level.
                         </p>
                     </div>
 
                     <div class="intro-section">
-                        <h3>✨ Special Formations</h3>
+                        <h3>✨ Valid Matches</h3>
 
                         <div class="formation-example">
-                            <h4>Regular Match (3+ in a row)</h4>
-                            <div class="example-tiles">
-                                <div class="example-tile">2</div>
-                                <div class="example-tile">2</div>
-                                <div class="example-tile">2</div>
+                            <h4>3 tiles → 1 tile (2x value)</h4>
+                            <div class="example-tiles" style="margin-bottom: 0">
+                                <div class="example-grid example-tiles">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile target-highlight">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
                                 <span class="arrow">→</span>
                                 <div class="example-tile highlight">4</div>
                             </div>
-                            <p>3 tiles → 1 tile (2x value)</p>
-                            <p style="margin: 0">4 tiles → 2 tile (2x value)</p>
-                            <p style="margin: 0">5 tiles → 1 tile (4x value)</p>
+                            <!-- <p>3 tiles → 1 tile (2x value)</p> -->
                         </div>
 
                         <div class="formation-example">
-                            <h4>T-Formation</h4>
-                            <div class="example-grid">
-                                <div class="grid-row">
+                            <h4>4 tiles → 2 tiles (2x value)</h4>
+
+                            <div class="example-formations-row">
+                                <div class="example-grid example-tiles">
                                     <div class="example-tile">2</div>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <div class="example-tile">2</div>
+                                    <div class="example-tile target-highlight">2</div>
+                                    <div class="example-tile target-highlight">2</div>
                                     <div class="example-tile">2</div>
                                 </div>
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <span></span>
-                                    <span></span>
+
+                                <div class="example-grid">
+                                    <div class="grid-row">
+                                        <div class="example-tile">2</div>
+                                        <div class="example-tile">2</div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="example-tile target-highlight">2</div>
+                                        <div class="example-tile target-highlight">2</div>
+                                    </div>
                                 </div>
                             </div>
-                            <span class="arrow">→</span>
-                            <div class="example-result">
+
+                            <div class="example-result-row">
+                                <span class="arrow">→</span>
+                                <div class="example-tile highlight" style="margin-right: 2px">4</div>
+                                <div class="example-tile highlight">4</div>
+                            </div>
+                            <!-- <p>4 tiles → 2 tile (2x value)</p> -->
+                        </div>
+
+                        <div class="formation-example">
+                            <h4>5 tiles → 1 tile (4x value)</h4>
+
+                            <div class="example-formations-row">
+                                <div class="example-grid example-tiles">
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile target-highlight">2</div>
+                                    <div class="example-tile">2</div>
+                                    <div class="example-tile">2</div>
+                                </div>
+                            </div>
+
+                            <div class="example-formations-row">
+                                <div class="example-grid">
+                                    <div class="grid-row">
+                                        <div class="example-tile target-highlight">2</div>
+                                        <div class="example-tile">2</div>
+                                        <div class="example-tile">2</div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="example-tile">2</div>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="example-tile">2</div>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+
+                                <div class="example-grid">
+                                    <div class="grid-row">
+                                        <div class="example-tile">2</div>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="example-tile target-highlight">2</div>
+                                        <div class="example-tile">2</div>
+                                        <div class="example-tile">2</div>
+                                    </div>
+                                    <div class="grid-row">
+                                        <div class="example-tile">2</div>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-result-row">
+                                <span class="arrow">→</span>
                                 <div class="example-tile highlight">8</div>
                             </div>
-                            <p>5 tiles → 1 tile (4x value)</p>
-                        </div>
-
-                        <div class="formation-example">
-                            <h4>L-Formation</h4>
-                            <div class="example-grid">
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <div class="example-tile">2</div>
-                                    <div class="example-tile">2</div>
-                                </div>
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <span></span>
-                                    <span></span>
-                                </div>
-                            </div>
-                            <span class="arrow">→</span>
-                            <div class="example-result">
-                                <div class="example-tile highlight">8</div>
-                            </div>
-                            <p>5 tiles → 1 tile (4x value)</p>
-                        </div>
-
-                        <div class="formation-example">
-                            <h4>Block Formation (2×2)</h4>
-                            <div class="example-grid">
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <div class="example-tile">2</div>
-                                </div>
-                                <div class="grid-row">
-                                    <div class="example-tile">2</div>
-                                    <div class="example-tile">2</div>
-                                </div>
-                            </div>
-                            <span class="arrow">→</span>
-                            <div class="example-grid">
-                                <div class="grid-row">
-                                    <span></span>
-                                    <div class="example-tile highlight">4</div>
-                                </div>
-                                <div class="grid-row">
-                                    <div class="example-tile highlight">4</div>
-                                    <span></span>
-                                </div>
-                            </div>
-                            <p>4 tiles → 2 tiles (2x value each)</p>
+                            <!-- <p>5 tiles → 1 tile (4x value)</p> -->
                         </div>
                     </div>
 

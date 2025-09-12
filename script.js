@@ -3,12 +3,12 @@ class Match3Game {
         this.board = [];
         this.boardSize = 8;
         this.tileValues = [2, 4, 8, 16];
-        this.score = 0;
+        this.score = this.loadScore();
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
 
-        this.currentLevel = 1;
+        this.currentLevel = this.loadCurrentLevel();
         this.levelGoals = [];
         this.tileCounts = {};
         this.movesUsed = 0;
@@ -56,7 +56,7 @@ class Match3Game {
             },
             {
                 level: 6,
-                maxMoves: 45,
+                maxMoves: 50,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 64, target: 4, current: 0 },
@@ -69,7 +69,7 @@ class Match3Game {
             },
             {
                 level: 8, // das war das harte mit Anne
-                maxMoves: 50,
+                maxMoves: 55,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
@@ -94,11 +94,32 @@ class Match3Game {
         this.loadLevel(this.currentLevel);
     }
 
+    loadCurrentLevel() {
+        // Load saved level from localStorage, default to level 1
+        const savedLevel = localStorage.getItem("match2048_currentLevel");
+        return savedLevel ? parseInt(savedLevel, 10) : 1;
+    }
+
+    saveCurrentLevel() {
+        localStorage.setItem("match2048_currentLevel", this.currentLevel.toString());
+    }
+
+    loadScore() {
+        // Load saved score from localStorage, default to 0
+        const savedScore = localStorage.getItem("match2048_score");
+        return savedScore ? parseInt(savedScore, 10) : 0;
+    }
+
+    saveScore() {
+        localStorage.setItem("match2048_score", this.score.toString());
+    }
+
     loadLevel(levelNum) {
         const level = this.levels[levelNum - 1];
         if (!level) return;
 
         this.currentLevel = levelNum;
+        this.saveCurrentLevel(); // Save progress to localStorage
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
         this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0 }));
@@ -106,6 +127,9 @@ class Match3Game {
 
         this.renderGoals();
         this.updateMovesDisplay();
+
+        // Update score display on level load
+        document.getElementById("score").textContent = this.score;
     }
 
     init() {
@@ -224,6 +248,7 @@ class Match3Game {
 
         if (this.currentLevel < this.levels.length) {
             this.currentLevel++;
+            this.saveCurrentLevel(); // Save progress to localStorage
             this.loadLevel(this.currentLevel);
             this.createBoard();
             this.renderBoard();
@@ -458,13 +483,37 @@ class Match3Game {
         const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
 
         if (gem1 && gem2) {
-            gem1.style.animation = "shake 0.5s ease-in-out";
-            gem2.style.animation = "shake 0.5s ease-in-out";
+            const gem1Rect = gem1.getBoundingClientRect();
+            const gem2Rect = gem2.getBoundingClientRect();
 
+            const deltaX = gem2Rect.left - gem1Rect.left;
+            const deltaY = gem2Rect.top - gem1Rect.top;
+
+            // Apply initial swap animation (fast)
+            gem1.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            gem2.style.transform = `translate(${-deltaX}px, ${-deltaY}px)`;
+            gem1.style.transition = "transform 0.20s ease-out";
+            gem2.style.transition = "transform 0.20s ease-out";
+            gem1.classList.add("invalid-swap");
+            gem2.classList.add("invalid-swap");
+
+            // Revert back to original position (fast)
             setTimeout(() => {
-                gem1.style.animation = "";
-                gem2.style.animation = "";
-            }, 500);
+                gem1.style.transform = "translate(0, 0)";
+                gem2.style.transform = "translate(0, 0)";
+                gem1.style.transition = "transform 0.20s ease-in";
+                gem2.style.transition = "transform 0.20s ease-in";
+            }, 200);
+
+            // Clean up after animation
+            setTimeout(() => {
+                gem1.style.transform = "";
+                gem2.style.transform = "";
+                gem1.style.transition = "";
+                gem2.style.transition = "";
+                gem1.classList.remove("invalid-swap");
+                gem2.classList.remove("invalid-swap");
+            }, 400);
         }
     }
 
@@ -552,35 +601,58 @@ class Match3Game {
     }
 
     findSpecialFormations() {
-        const specialMatches = [];
+        const allFormations = [];
 
-        // Check every position as a potential center/corner for formations
+        // Find all possible formations first
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
                 const value = this.board[row][col];
                 if (!value) continue;
 
-                // Check T-formation with this position as center
+                // Check T-formation
                 const tFormation = this.checkTFormation(row, col, value);
                 if (tFormation) {
-                    specialMatches.push(tFormation);
+                    tFormation.priority = 1; // Highest priority
+                    allFormations.push(tFormation);
                 }
 
-                // Check L-formation with this position as corner
+                // Check L-formation
                 const lFormation = this.checkLFormation(row, col, value);
                 if (lFormation) {
-                    specialMatches.push(lFormation);
+                    lFormation.priority = 2; // Medium priority
+                    allFormations.push(lFormation);
                 }
 
-                // Check block formation with this position as top-left corner
+                // Check block formation
                 const blockFormation = this.checkBlockFormation(row, col, value);
                 if (blockFormation) {
-                    specialMatches.push(blockFormation);
+                    blockFormation.priority = 3; // Lowest priority
+                    allFormations.push(blockFormation);
                 }
             }
         }
 
-        return specialMatches;
+        // Filter out overlapping formations based on priority (T > L > Block)
+        const selectedFormations = [];
+        const usedTiles = new Set();
+
+        // Sort by priority (lower number = higher priority)
+        allFormations.sort((a, b) => a.priority - b.priority);
+
+        for (const formation of allFormations) {
+            // Check if any tile in this formation is already used
+            const hasOverlap = formation.tiles.some((tile) => usedTiles.has(`${tile.row},${tile.col}`));
+
+            if (!hasOverlap) {
+                // No overlap, add this formation and mark tiles as used
+                selectedFormations.push(formation);
+                formation.tiles.forEach((tile) => {
+                    usedTiles.add(`${tile.row},${tile.col}`);
+                });
+            }
+        }
+
+        return selectedFormations;
     }
 
     checkTFormation(intersectionRow, intersectionCol, value) {
@@ -811,6 +883,7 @@ class Match3Game {
         // Update score
         this.score += totalScore;
         document.getElementById("score").textContent = this.score;
+        this.saveScore(); // Save score to localStorage
 
         // Start merge animations
         this.animateMerges(matchGroups);
@@ -1052,6 +1125,7 @@ class Match3Game {
     updateScore(points) {
         this.score += points;
         document.getElementById("score").textContent = this.score;
+        this.saveScore(); // Save score to localStorage
     }
 
     showIntroDialog() {
@@ -1062,7 +1136,6 @@ class Match3Game {
         }
 
         const introDialog = document.getElementById("introDialog");
-        const closeBtn = document.getElementById("closeIntro");
         const startBtn = document.getElementById("startGame");
         const dontShowCheckbox = document.getElementById("dontShowAgain");
 
@@ -1078,7 +1151,6 @@ class Match3Game {
         };
 
         // Event listeners
-        closeBtn.addEventListener("click", closeDialog);
         startBtn.addEventListener("click", closeDialog);
 
         // Close on overlay click (but not on dialog content)
@@ -1101,59 +1173,86 @@ class Match3Game {
     }
 
     setupInfoButton() {
-        const infoBtn = document.getElementById('infoBtn');
+        const infoBtn = document.getElementById("infoBtn");
         if (infoBtn) {
-            infoBtn.addEventListener('click', () => {
+            infoBtn.addEventListener("click", () => {
                 // Force show the dialog, ignoring localStorage preference
-                const introDialog = document.getElementById('introDialog');
-                introDialog.classList.remove('hidden');
-                
+                const introDialog = document.getElementById("introDialog");
+                introDialog.classList.remove("hidden");
+
                 // Set up event listeners (reuse the same logic as showIntroDialog)
-                const closeBtn = document.getElementById('closeIntro');
-                const startBtn = document.getElementById('startGame');
-                const dontShowCheckbox = document.getElementById('dontShowAgain');
+                const startBtn = document.getElementById("startGame");
+                const dontShowCheckbox = document.getElementById("dontShowAgain");
 
                 const closeDialog = () => {
                     if (dontShowCheckbox.checked) {
-                        localStorage.setItem('match2048_dontShowIntro', 'true');
+                        localStorage.setItem("match2048_dontShowIntro", "true");
                     }
-                    introDialog.classList.add('hidden');
+                    introDialog.classList.add("hidden");
                 };
 
                 // Remove any existing listeners and add new ones
-                const newCloseBtn = closeBtn.cloneNode(true);
                 const newStartBtn = startBtn.cloneNode(true);
-                closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
                 startBtn.parentNode.replaceChild(newStartBtn, startBtn);
 
-                newCloseBtn.addEventListener('click', closeDialog);
-                newStartBtn.addEventListener('click', closeDialog);
+                newStartBtn.addEventListener("click", closeDialog);
 
                 // Close on overlay click
-                introDialog.addEventListener('click', (e) => {
-                    if (e.target === introDialog) {
-                        closeDialog();
-                    }
-                }, { once: true });
+                introDialog.addEventListener(
+                    "click",
+                    (e) => {
+                        if (e.target === introDialog) {
+                            closeDialog();
+                        }
+                    },
+                    { once: true }
+                );
 
                 // Close on Escape key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && !introDialog.classList.contains('hidden')) {
-                        closeDialog();
-                    }
-                }, { once: true });
+                document.addEventListener(
+                    "keydown",
+                    (e) => {
+                        if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
+                            closeDialog();
+                        }
+                    },
+                    { once: true }
+                );
+            });
+        }
+
+        const resetBtn = document.getElementById("resetBtn");
+        if (resetBtn) {
+            resetBtn.addEventListener("click", () => {
+                if (
+                    confirm("Are you sure you want to reset all progress? This will delete your saved level and score.")
+                ) {
+                    // Clear localStorage data
+                    localStorage.removeItem("match2048_currentLevel");
+                    localStorage.removeItem("match2048_score");
+
+                    // Reset game state
+                    this.currentLevel = 1;
+                    this.score = 0;
+                    this.saveCurrentLevel();
+                    this.saveScore();
+
+                    // Load level 1 and restart the game
+                    this.loadLevel(1);
+                    this.init();
+                }
             });
         }
     }
 }
 
-// Add shake animation to CSS dynamically
+// Add invalid swap animation to CSS dynamically
 const style = document.createElement("style");
 style.textContent = `
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
+    .invalid-swap {
+        z-index: 100;
+        box-shadow: 0 4px 12px rgba(255, 100, 100, 0.4);
+        filter: brightness(1.1);
     }
 `;
 document.head.appendChild(style);
