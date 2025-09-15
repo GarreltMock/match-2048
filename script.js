@@ -200,7 +200,7 @@ class Match3Game {
         return false;
     }
 
-    updateTileCounts() {
+    updateTileCounts(checkComplete = false) {
         this.tileCounts = {};
         for (let row = 0; row < this.boardSize; row++) {
             for (let col = 0; col < this.boardSize; col++) {
@@ -216,7 +216,9 @@ class Match3Game {
         });
 
         this.renderGoals();
-        this.checkLevelComplete();
+        if (checkComplete) {
+            this.checkLevelComplete();
+        }
     }
 
     checkLevelComplete() {
@@ -1099,6 +1101,8 @@ class Match3Game {
                 this.processMatches();
             } else {
                 this.animating = false;
+                // Check level completion only after all animations are finished
+                this.checkLevelComplete();
             }
         }, 600);
     }
