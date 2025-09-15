@@ -1252,7 +1252,8 @@ class Match3Game {
 
                     // Load level 1 and restart the game
                     this.loadLevel(1);
-                    this.init();
+                    this.createBoard();
+                    this.renderBoard();
                 }
             });
         }
