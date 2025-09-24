@@ -43,7 +43,7 @@ class Match3Game {
                 boardHeight: 6,
                 maxMoves: 10,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
-                goals: [{ tileValue: 32, target: 3, current: 0 }],
+                goals: [{ tileValue: 32, target: 1, current: 0, goalType: "created" }],
                 spawnableTiles: [2, 4, 8],
             },
             {
@@ -53,8 +53,8 @@ class Match3Game {
                 maxMoves: 15,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [
-                    { tileValue: 64, target: 1, current: 0 },
-                    { tileValue: 32, target: 3, current: 0 },
+                    { tileValue: 64, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 32, target: 3, current: 0, goalType: "created" },
                 ],
             },
             {
@@ -64,61 +64,61 @@ class Match3Game {
                 boardHeight: 6,
                 blockedTiles: [{ row: 4 }, { row: 5 }],
                 goals: [
-                    { tileValue: 64, target: 2, current: 0 },
-                    { tileValue: 32, target: 5, current: 0 },
+                    { tileValue: 64, target: 2, current: 0, goalType: "created" },
+                    { tileValue: 32, target: 5, current: 0, goalType: "created" },
                 ],
             },
             {
                 level: 4,
                 maxMoves: 30,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-                goals: [{ tileValue: 128, target: 1, current: 0 }],
+                goals: [{ tileValue: 128, target: 1, current: 0, goalType: "created" }],
             },
             {
                 level: 5,
                 maxMoves: 40,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-                goals: [{ tileValue: 128, target: 4, current: 0 }],
+                goals: [{ tileValue: 128, target: 4, current: 0, goalType: "created" }],
             },
             {
                 level: 6,
                 maxMoves: 50,
                 blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
-                    { tileValue: 256, target: 1, current: 0 },
-                    { tileValue: 64, target: 4, current: 0 },
+                    { tileValue: 256, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 64, target: 4, current: 0, goalType: "created" },
                 ],
             },
             {
                 level: 7,
                 maxMoves: 30,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-                goals: [{ tileValue: 32, target: 16, current: 0 }],
+                goals: [{ tileValue: 32, target: 16, current: 0, goalType: "current" }],
             },
             {
                 level: 8,
                 maxMoves: 55,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
-                    { tileValue: 256, target: 1, current: 0 },
-                    { tileValue: 128, target: 2, current: 0 },
-                    { tileValue: 64, target: 4, current: 0 },
+                    { tileValue: 256, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 128, target: 2, current: 0, goalType: "created" },
+                    { tileValue: 64, target: 4, current: 0, goalType: "created" },
                 ],
             },
             {
                 level: 9,
-                maxMoves: 80,
+                maxMoves: 60,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
-                    { tileValue: 512, target: 1, current: 0 },
-                    { tileValue: 128, target: 2, current: 0 },
+                    { tileValue: 512, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 128, target: 2, current: 0, goalType: "created" },
                 ],
             },
             {
                 level: 10,
-                maxMoves: 100,
+                maxMoves: 70,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-                goals: [{ tileValue: 1024, target: 1, current: 0 }],
+                goals: [{ tileValue: 1024, target: 1, current: 0, goalType: "created" }],
                 spawnableTiles: [4, 8, 16, 32],
             },
         ];
@@ -158,7 +158,12 @@ class Match3Game {
         this.tileValues = level.spawnableTiles || this.defaultTileValues; // Use level-specific spawnable tiles or default
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
-        this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0, created: 0 }));
+        this.levelGoals = level.goals.map((goal) => ({
+            ...goal,
+            current: 0,
+            created: 0,
+            goalType: goal.goalType || "created", // Default to "created" if not specified
+        }));
         this.gameActive = true;
 
         this.renderGoals();
@@ -287,8 +292,29 @@ class Match3Game {
         return false;
     }
 
+    updateTileCounts() {
+        // Count tiles currently on the board for "current" type goals
+        this.tileCounts = {};
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
+                const value = this.board[row][col];
+                if (value !== null && value !== this.BLOCKED_TILE) {
+                    this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
+                }
+            }
+        }
+
+        // Update current counts for "current" type goals
+        this.levelGoals.forEach((goal) => {
+            if (goal.goalType === "current") {
+                goal.current = this.tileCounts[goal.tileValue] || 0;
+            }
+        });
+    }
+
     updateGoalDisplay(checkComplete = false) {
-        // No longer count tiles on board - goals track created tiles instead
+        // Update tile counts for current-type goals
+        this.updateTileCounts();
         this.renderGoals();
         if (checkComplete) {
             this.checkLevelComplete();
@@ -298,7 +324,13 @@ class Match3Game {
     checkLevelComplete() {
         if (!this.gameActive) return;
 
-        const allGoalsComplete = this.levelGoals.every((goal) => goal.created >= goal.target);
+        const allGoalsComplete = this.levelGoals.every((goal) => {
+            if (goal.goalType === "current") {
+                return goal.current >= goal.target;
+            } else {
+                return goal.created >= goal.target;
+            }
+        });
         const nextBtn = document.getElementById("nextBtn");
         const restartBtn = document.getElementById("restartBtn");
 
@@ -1537,12 +1569,20 @@ class Match3Game {
 
         this.levelGoals.forEach((goal) => {
             const goalCard = document.createElement("div");
-            goalCard.className = `goal-card ${goal.created >= goal.target ? "completed" : ""}`;
+            const isCompleted = goal.goalType === "current" ? goal.current >= goal.target : goal.created >= goal.target;
+            const currentProgress = goal.goalType === "current" ? goal.current : goal.created;
+
+            // Add visual distinction for different goal types
+            const goalTypeClass = goal.goalType === "current" ? "goal-current" : "goal-created";
+            goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
+
+            // Different icons for different goal types
+            const goalIcon = goal.goalType === "current" ? "📍" : "⭐";
 
             goalCard.innerHTML = `
                 <div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>
-                <div class="goal-progress">${goal.created} / ${goal.target}</div>
-                ${goal.created >= goal.target ? '<div class="goal-check">✓</div>' : ""}
+                <div class="goal-progress">${goalIcon} ${currentProgress} / ${goal.target}</div>
+                ${isCompleted ? '<div class="goal-check">✓</div>' : ""}
             `;
 
             goalsContainer.appendChild(goalCard);
