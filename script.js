@@ -25,7 +25,7 @@ class Match3Game {
         this.powerUpUses = {
             hammer: 0,
             double: 0,
-            swap: 0
+            swap: 0,
         };
         this.maxPowerUpUses = 2;
 
@@ -108,6 +108,7 @@ class Match3Game {
             {
                 level: 9,
                 maxMoves: 80,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
                     { tileValue: 512, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
@@ -116,7 +117,9 @@ class Match3Game {
             {
                 level: 10,
                 maxMoves: 100,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 1024, target: 1, current: 0 }],
+                spawnableTiles: [4, 8, 16, 32],
             },
         ];
 
@@ -178,7 +181,7 @@ class Match3Game {
         this.powerUpUses = {
             hammer: 0,
             double: 0,
-            swap: 0
+            swap: 0,
         };
 
         // Deactivate any power-ups when loading a level
@@ -485,27 +488,27 @@ class Match3Game {
             const usesLeft = this.maxPowerUpUses - this.powerUpUses[powerUpType];
 
             // Remove existing use indicators
-            const existingIndicator = button.querySelector('.use-indicator');
+            const existingIndicator = button.querySelector(".use-indicator");
             if (existingIndicator) {
                 existingIndicator.remove();
             }
 
             if (usesLeft <= 0) {
                 // Power-up is used up
-                button.classList.add('disabled');
-                button.title = `${button.title.split(' - ')[0]} - No uses left`;
+                button.classList.add("disabled");
+                button.title = `${button.title.split(" - ")[0]} - No uses left`;
             } else {
                 // Power-up has uses left
-                button.classList.remove('disabled');
+                button.classList.remove("disabled");
 
                 // Add use indicator
-                const indicator = document.createElement('div');
-                indicator.className = 'use-indicator';
+                const indicator = document.createElement("div");
+                indicator.className = "use-indicator";
                 indicator.textContent = usesLeft;
                 button.appendChild(indicator);
 
                 // Update title
-                const baseTitle = button.title.split(' - ')[0];
+                const baseTitle = button.title.split(" - ")[0];
                 button.title = `${baseTitle} - ${usesLeft} uses left`;
             }
         });
