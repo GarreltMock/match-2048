@@ -4,7 +4,8 @@ class Match3Game {
         this.board = [];
         this.boardWidth = 8; // Default width, will be updated by loadLevel
         this.boardHeight = 8; // Default height, will be updated by loadLevel
-        this.tileValues = [2, 4, 8, 16];
+        this.defaultTileValues = [2, 4, 8, 16];
+        this.tileValues = this.defaultTileValues;
         this.score = this.loadScore();
         this.selectedGem = null;
         this.isDragging = false;
@@ -33,6 +34,7 @@ class Match3Game {
                 maxMoves: 10,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [{ tileValue: 32, target: 3, current: 0 }],
+                spawnableTiles: [2, 4, 8],
             },
             {
                 level: 2,
@@ -140,6 +142,7 @@ class Match3Game {
         this.boardWidth = level.boardWidth || 8; // Use level-specific board width or default to 8
         this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
         this.blockedTiles = level.blockedTiles || []; // Store blocked tile positions
+        this.tileValues = level.spawnableTiles || this.defaultTileValues; // Use level-specific spawnable tiles or default
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
         this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0, created: 0 }));
