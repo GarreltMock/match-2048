@@ -1,7 +1,8 @@
 class Match3Game {
     constructor() {
         this.board = [];
-        this.boardSize = 8;
+        this.boardWidth = 8; // Default width, will be updated by loadLevel
+        this.boardHeight = 8; // Default height, will be updated by loadLevel
         this.tileValues = [2, 4, 8, 16];
         this.score = this.loadScore();
         this.selectedGem = null;
@@ -26,11 +27,15 @@ class Match3Game {
         this.levels = [
             {
                 level: 1,
+                boardWidth: 6,
+                boardHeight: 6,
                 maxMoves: 10,
                 goals: [{ tileValue: 32, target: 2, current: 0 }],
             },
             {
                 level: 2,
+                boardWidth: 6,
+                boardHeight: 6,
                 maxMoves: 15,
                 goals: [
                     { tileValue: 64, target: 1, current: 0 },
@@ -39,6 +44,8 @@ class Match3Game {
             },
             {
                 level: 3,
+                boardWidth: 8,
+                boardHeight: 6,
                 maxMoves: 20,
                 goals: [
                     { tileValue: 64, target: 2, current: 0 },
@@ -47,16 +54,22 @@ class Match3Game {
             },
             {
                 level: 4,
+                boardWidth: 7,
+                boardHeight: 7,
                 maxMoves: 30,
                 goals: [{ tileValue: 128, target: 1, current: 0 }],
             },
             {
                 level: 5,
+                boardWidth: 8,
+                boardHeight: 8,
                 maxMoves: 40,
                 goals: [{ tileValue: 128, target: 4, current: 0 }],
             },
             {
                 level: 6,
+                boardWidth: 8,
+                boardHeight: 8,
                 maxMoves: 50,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
@@ -65,11 +78,15 @@ class Match3Game {
             },
             {
                 level: 7,
+                boardWidth: 6,
+                boardHeight: 10,
                 maxMoves: 30,
                 goals: [{ tileValue: 32, target: 16, current: 0 }],
             },
             {
                 level: 8, // das war das harte mit Anne
+                boardWidth: 9,
+                boardHeight: 9,
                 maxMoves: 55,
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
@@ -79,6 +96,8 @@ class Match3Game {
             },
             {
                 level: 9,
+                boardWidth: 10,
+                boardHeight: 8,
                 maxMoves: 80,
                 goals: [
                     { tileValue: 512, target: 1, current: 0 },
@@ -87,6 +106,8 @@ class Match3Game {
             },
             {
                 level: 10,
+                boardWidth: 10,
+                boardHeight: 10,
                 maxMoves: 100,
                 goals: [{ tileValue: 1024, target: 1, current: 0 }],
             },
@@ -121,6 +142,8 @@ class Match3Game {
 
         this.currentLevel = levelNum;
         this.saveCurrentLevel(); // Save progress to localStorage
+        this.boardWidth = level.boardWidth || 8; // Use level-specific board width or default to 8
+        this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
         this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0 }));
@@ -144,9 +167,9 @@ class Match3Game {
 
     createBoard() {
         this.board = [];
-        for (let row = 0; row < this.boardSize; row++) {
+        for (let row = 0; row < this.boardHeight; row++) {
             this.board[row] = [];
-            for (let col = 0; col < this.boardSize; col++) {
+            for (let col = 0; col < this.boardWidth; col++) {
                 do {
                     this.board[row][col] = this.getRandomTileValue();
                 } while (this.hasInitialMatch(row, col));
@@ -202,8 +225,8 @@ class Match3Game {
 
     updateTileCounts(checkComplete = false) {
         this.tileCounts = {};
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
                 const value = this.board[row][col];
                 if (value !== null) {
                     this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
@@ -270,8 +293,12 @@ class Match3Game {
         const gameBoard = document.getElementById("gameBoard");
         gameBoard.innerHTML = "";
 
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
+        // Update CSS grid template to match current board size
+        gameBoard.style.gridTemplateColumns = `repeat(${this.boardWidth}, 1fr)`;
+        gameBoard.style.gridTemplateRows = `repeat(${this.boardHeight}, 1fr)`;
+
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
                 const gem = document.createElement("div");
                 const value = this.board[row][col];
                 gem.className = `gem tile-${value}`;
@@ -547,12 +574,12 @@ class Match3Game {
         }
 
         // Check horizontal matches
-        for (let row = 0; row < this.boardSize; row++) {
+        for (let row = 0; row < this.boardHeight; row++) {
             let count = 1;
             let currentValue = this.board[row][0];
             let startCol = 0;
 
-            for (let col = 1; col < this.boardSize; col++) {
+            for (let col = 1; col < this.boardWidth; col++) {
                 if (this.board[row][col] === currentValue) {
                     count++;
                 } else {
@@ -571,7 +598,7 @@ class Match3Game {
 
             if (count >= 3) {
                 const matchGroup = [];
-                for (let i = startCol; i < this.boardSize; i++) {
+                for (let i = startCol; i < this.boardWidth; i++) {
                     matchGroup.push({ row, col: i });
                 }
                 matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "horizontal" });
@@ -579,12 +606,12 @@ class Match3Game {
         }
 
         // Check vertical matches
-        for (let col = 0; col < this.boardSize; col++) {
+        for (let col = 0; col < this.boardWidth; col++) {
             let count = 1;
             let currentValue = this.board[0][col];
             let startRow = 0;
 
-            for (let row = 1; row < this.boardSize; row++) {
+            for (let row = 1; row < this.boardHeight; row++) {
                 if (this.board[row][col] === currentValue) {
                     count++;
                 } else {
@@ -603,7 +630,7 @@ class Match3Game {
 
             if (count >= 3) {
                 const matchGroup = [];
-                for (let i = startRow; i < this.boardSize; i++) {
+                for (let i = startRow; i < this.boardHeight; i++) {
                     matchGroup.push({ row: i, col });
                 }
                 matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "vertical" });
@@ -617,8 +644,8 @@ class Match3Game {
         const allFormations = [];
 
         // Find all possible formations first
-        for (let row = 0; row < this.boardSize; row++) {
-            for (let col = 0; col < this.boardSize; col++) {
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
                 const value = this.board[row][col];
                 if (!value) continue;
 
@@ -716,9 +743,9 @@ class Match3Game {
 
                 if (
                     row < 0 ||
-                    row >= this.boardSize ||
+                    row >= this.boardHeight ||
                     col < 0 ||
-                    col >= this.boardSize ||
+                    col >= this.boardWidth ||
                     this.board[row][col] !== value
                 ) {
                     validT = false;
@@ -736,9 +763,9 @@ class Match3Game {
 
                 if (
                     row < 0 ||
-                    row >= this.boardSize ||
+                    row >= this.boardHeight ||
                     col < 0 ||
-                    col >= this.boardSize ||
+                    col >= this.boardWidth ||
                     this.board[row][col] !== value
                 ) {
                     validT = false;
@@ -797,9 +824,9 @@ class Match3Game {
 
                 if (
                     col < 0 ||
-                    col >= this.boardSize ||
+                    col >= this.boardWidth ||
                     row < 0 ||
-                    row >= this.boardSize ||
+                    row >= this.boardHeight ||
                     this.board[row][col] !== value
                 ) {
                     validL = false;
@@ -818,9 +845,9 @@ class Match3Game {
 
                 if (
                     row < 0 ||
-                    row >= this.boardSize ||
+                    row >= this.boardHeight ||
                     col < 0 ||
-                    col >= this.boardSize ||
+                    col >= this.boardWidth ||
                     this.board[row][col] !== value
                 ) {
                     validL = false;
@@ -848,7 +875,7 @@ class Match3Game {
         //                       xx
 
         // Check bounds
-        if (topRow >= this.boardSize - 1 || leftCol >= this.boardSize - 1) {
+        if (topRow >= this.boardHeight - 1 || leftCol >= this.boardWidth - 1) {
             return null;
         }
 
@@ -861,7 +888,7 @@ class Match3Game {
 
         // Check if all 4 positions have the same value
         for (const pos of positions) {
-            if (pos.row < 0 || pos.row >= this.boardSize || pos.col < 0 || pos.col >= this.boardSize) {
+            if (pos.row < 0 || pos.row >= this.boardHeight || pos.col < 0 || pos.col >= this.boardWidth) {
                 return null; // Out of bounds
             }
             if (!this.board[pos.row] || this.board[pos.row][pos.col] !== value) {
@@ -1044,12 +1071,12 @@ class Match3Game {
         const newGems = [];
 
         // Track which gems moved and which are new
-        for (let col = 0; col < this.boardSize; col++) {
-            let writePos = this.boardSize - 1;
+        for (let col = 0; col < this.boardWidth; col++) {
+            let writePos = this.boardHeight - 1;
             let emptySpaces = 0;
 
             // Count empty spaces and drop existing gems
-            for (let row = this.boardSize - 1; row >= 0; row--) {
+            for (let row = this.boardHeight - 1; row >= 0; row--) {
                 if (this.board[row][col] === null) {
                     emptySpaces++;
                 } else {
