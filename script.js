@@ -19,6 +19,10 @@ class Match3Game {
         this.maxMoves = 0;
         this.gameActive = true;
 
+        // Power-up system
+        this.activePowerUp = null;
+        this.powerUpSwapTiles = [];
+
         this.initializeLevels();
         this.showIntroDialog();
         this.setupInfoButton();
@@ -151,6 +155,22 @@ class Match3Game {
         this.renderGoals();
         this.updateMovesDisplay();
 
+        // Hide control buttons and show power-ups at start of level
+        const restartBtn = document.getElementById("restartBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        if (restartBtn) {
+            restartBtn.style.display = "none";
+        }
+        if (nextBtn) {
+            nextBtn.style.display = "none";
+        }
+
+        // Show power-ups during active gameplay
+        this.showPowerUps();
+
+        // Deactivate any power-ups when loading a level
+        this.deactivatePowerUp();
+
         // Update score display on level load
         document.getElementById("score").textContent = this.score;
     }
@@ -261,9 +281,15 @@ class Match3Game {
 
         const allGoalsComplete = this.levelGoals.every((goal) => goal.created >= goal.target);
         const nextBtn = document.getElementById("nextBtn");
+        const restartBtn = document.getElementById("restartBtn");
 
         if (allGoalsComplete) {
             this.gameActive = false;
+            this.deactivatePowerUp();
+
+            // Hide power-ups and show control buttons
+            this.hidePowerUps();
+            restartBtn.style.display = "inline-block";
             if (this.currentLevel < this.levels.length) {
                 nextBtn.style.display = "inline-block";
             }
@@ -272,11 +298,19 @@ class Match3Game {
             }, 500);
         } else if (this.movesUsed >= this.maxMoves) {
             this.gameActive = false;
+            this.deactivatePowerUp();
+
+            // Hide power-ups and show control buttons
+            this.hidePowerUps();
+            restartBtn.style.display = "inline-block";
             setTimeout(() => {
                 alert(`Game Over! You ran out of moves. Try again!`);
             }, 500);
         } else {
             nextBtn.style.display = "none";
+            restartBtn.style.display = "none";
+            // Show power-ups during active gameplay
+            this.showPowerUps();
         }
     }
 
@@ -359,6 +393,132 @@ class Match3Game {
                 this.nextLevel();
             });
         }
+
+        // Setup power-ups
+        this.setupPowerUps();
+    }
+
+    setupPowerUps() {
+        const powerUpButtons = document.querySelectorAll(".power-up-btn");
+
+        powerUpButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                if (!this.gameActive) return;
+
+                const powerUpType = button.dataset.powerup;
+
+                if (this.activePowerUp === powerUpType) {
+                    // Deselect power-up
+                    this.deactivatePowerUp();
+                } else {
+                    // Select power-up
+                    this.activatePowerUp(powerUpType);
+                }
+            });
+        });
+    }
+
+    activatePowerUp(type) {
+        this.deactivatePowerUp(); // Clear any active power-up first
+        this.activePowerUp = type;
+        this.powerUpSwapTiles = [];
+
+        // Add visual feedback
+        const button = document.querySelector(`[data-powerup="${type}"]`);
+        if (button) {
+            button.classList.add("active");
+        }
+    }
+
+    deactivatePowerUp() {
+        if (this.activePowerUp) {
+            const button = document.querySelector(`[data-powerup="${this.activePowerUp}"]`);
+            if (button) {
+                button.classList.remove("active");
+            }
+        }
+
+        this.activePowerUp = null;
+        this.powerUpSwapTiles = [];
+    }
+
+    showPowerUps() {
+        const powerUpsContainer = document.querySelector(".power-ups");
+        if (powerUpsContainer) {
+            powerUpsContainer.style.display = "flex";
+        }
+    }
+
+    hidePowerUps() {
+        const powerUpsContainer = document.querySelector(".power-ups");
+        if (powerUpsContainer) {
+            powerUpsContainer.style.display = "none";
+        }
+    }
+
+    handlePowerUpAction(row, col, element) {
+        const value = this.board[row][col];
+
+        // Skip blocked tiles
+        if (value === this.BLOCKED_TILE) return;
+
+        switch (this.activePowerUp) {
+            case "hammer":
+                this.usePowerUpHammer(row, col, element);
+                break;
+            case "double":
+                this.usePowerUpDouble(row, col, element);
+                break;
+            case "swap":
+                // For swap, we want to use normal drag behavior
+                // So we don't handle it here, just return to allow normal drag
+                return false;
+        }
+    }
+
+    usePowerUpHammer(row, col, element) {
+        // Remove the tile from the board
+        this.board[row][col] = null;
+
+        // Animate the tile shrinking away
+        element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+        element.style.opacity = "0";
+        element.style.transform = "scale(0)";
+
+        setTimeout(() => {
+            // Remove the element from DOM to prevent re-rendering issues
+            element.remove();
+
+            this.dropGems();
+            this.deactivatePowerUp();
+
+            // Process any matches after tiles drop
+            setTimeout(() => {
+                this.processMatches();
+            }, 600);
+        }, 300);
+    }
+
+    usePowerUpDouble(row, col, element) {
+        const currentValue = this.board[row][col];
+        if (currentValue && currentValue !== this.BLOCKED_TILE) {
+            const doubledValue = currentValue * 2;
+            this.board[row][col] = doubledValue;
+
+            // Update the visual element
+            element.textContent = doubledValue;
+            element.className = `gem tile-${doubledValue}`;
+            element.dataset.row = row;
+            element.dataset.col = col;
+
+            // Add animation effect
+            element.style.transform = "scale(1.2)";
+            setTimeout(() => {
+                element.style.transform = "scale(1)";
+            }, 200);
+
+            this.deactivatePowerUp();
+        }
     }
 
     handleTouchStart(e) {
@@ -395,10 +555,22 @@ class Match3Game {
 
         const element = document.elementFromPoint(x, y);
         if (element && element.classList.contains("gem")) {
+            const row = parseInt(element.dataset.row);
+            const col = parseInt(element.dataset.col);
+
+            // Handle power-ups
+            if (this.activePowerUp) {
+                const handled = this.handlePowerUpAction(row, col, element);
+                if (handled !== false) {
+                    return;
+                }
+                // If handlePowerUpAction returns false (swap case), continue with normal drag
+            }
+            // Normal drag behavior
             this.selectedGem = {
                 element: element,
-                row: parseInt(element.dataset.row),
-                col: parseInt(element.dataset.col),
+                row: row,
+                col: col,
             };
             this.isDragging = true;
             this.dragStartPos = { x, y };
@@ -425,6 +597,7 @@ class Match3Game {
         if (!this.isDragging || !this.selectedGem) return;
 
         const previewGems = document.querySelectorAll(".gem.preview");
+
         if (previewGems.length > 0) {
             const targetGem = Array.from(previewGems).find((g) => g !== this.selectedGem.element);
             if (targetGem) {
@@ -479,12 +652,20 @@ class Match3Game {
         this.board[row1][col1] = this.board[row2][col2];
         this.board[row2][col2] = temp;
 
-        // Check if this creates any matches
-        if (this.hasMatches()) {
+        // Check if this creates any matches (or if using swap power-up)
+        const isSwapPowerUp = this.activePowerUp === "swap";
+
+        if (this.hasMatches() || isSwapPowerUp) {
             this.movesUsed++;
             this.updateMovesDisplay();
             this.animateSwap(row1, col1, row2, col2, () => {
                 this.renderBoard();
+
+                if (isSwapPowerUp) {
+                    // Deactivate power-up after successful swap
+                    this.deactivatePowerUp();
+                }
+
                 this.processMatches();
             });
         } else {
@@ -524,6 +705,8 @@ class Match3Game {
                 gem2.style.transition = "";
                 gem1.style.zIndex = "";
                 gem2.style.zIndex = "";
+
+                this.animating = false;
 
                 // Execute callback (render board and process matches)
                 if (callback) callback();

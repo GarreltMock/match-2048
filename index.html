@@ -46,8 +46,20 @@
             <div class="flex-spacer"></div>
 
             <div class="controls">
-                <button id="restartBtn" class="control-btn" tabindex="1">Restart Level</button>
+                <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart Level</button>
                 <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button>
+            </div>
+
+            <div class="power-ups">
+                <button id="hammerPowerUp" class="power-up-btn" data-powerup="hammer" title="Remove a tile">
+                    🔨
+                </button>
+                <button id="doublePowerUp" class="power-up-btn" data-powerup="double" title="Double a tile's value">
+                    ✨
+                </button>
+                <button id="swapPowerUp" class="power-up-btn" data-powerup="swap" title="Swap any two tiles">
+                    🔄
+                </button>
             </div>
 
             <div class="flex-spacer half"></div>

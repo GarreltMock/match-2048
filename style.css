@@ -37,8 +37,6 @@ body {
     max-width: 600px;
     width: 100%;
     padding: clamp(10px, 3vw, 20px);
-    max-height: 100dvh;
-    overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -312,12 +310,12 @@ h1 {
 
 /* 2048-style tile colors */
 .gem.tile-2 {
-    background: #eee4da;
+    background: #f7efe8;
     color: #776e65;
 }
 
 .gem.tile-4 {
-    background: #ede0c8;
+    background: #fae6c1;
     color: #776e65;
 }
 
@@ -382,14 +380,14 @@ h1 {
 }
 
 .gem.tile-BLOCKED::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 50%;
     left: 50%;
     width: 60%;
     height: 60%;
     background: linear-gradient(45deg, transparent 30%, #666 30%, #666 70%, transparent 70%),
-                linear-gradient(-45deg, transparent 30%, #666 30%, #666 70%, transparent 70%);
+        linear-gradient(-45deg, transparent 30%, #666 30%, #666 70%, transparent 70%);
     transform: translate(-50%, -50%);
 }
 
@@ -452,6 +450,75 @@ h1 {
 
 .control-btn:active {
     transform: translateY(0);
+}
+
+/* Power-ups */
+.power-ups {
+    display: flex;
+    gap: clamp(8px, 2vw, 16px);
+    justify-content: center;
+}
+
+.power-up-btn {
+    width: clamp(50px, 12vw, 70px);
+    height: clamp(50px, 12vw, 70px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    font-size: clamp(20px, 5vw, 30px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.power-up-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.6);
+    transform: translateY(-2px) scale(1.05);
+}
+
+.power-up-btn:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.power-up-btn.active {
+    background: #4caf50;
+    border-color: #4caf50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.power-up-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.power-up-btn.disabled:hover {
+    transform: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Power-up visual feedback */
+.gem.selected {
+    border: 3px solid #4caf50;
+    box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @keyframes match-animation {
