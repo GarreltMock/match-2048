@@ -539,6 +539,9 @@ class Match3Game {
         this.powerUpUses.hammer++;
         this.updatePowerUpButtons();
 
+        // Block interactions during animation
+        this.animating = true;
+
         // Remove the tile from the board
         this.board[row][col] = null;
 
@@ -556,6 +559,7 @@ class Match3Game {
 
             // Process any matches after tiles drop
             setTimeout(() => {
+                this.animating = false; // Allow interactions again
                 this.processMatches();
             }, 600);
         }, 300);
@@ -567,6 +571,9 @@ class Match3Game {
             // Increment usage count
             this.powerUpUses.double++;
             this.updatePowerUpButtons();
+
+            // Block interactions during animation
+            this.animating = true;
 
             const doubledValue = currentValue * 2;
             this.board[row][col] = doubledValue;
@@ -584,6 +591,7 @@ class Match3Game {
 
                 // Process any matches after doubling
                 setTimeout(() => {
+                    this.animating = false; // Allow interactions again
                     this.processMatches();
                 }, 100);
             }, 200);
@@ -779,9 +787,8 @@ class Match3Game {
                 gem1.style.zIndex = "";
                 gem2.style.zIndex = "";
 
-                this.animating = false;
-
                 // Execute callback (render board and process matches)
+                // Note: callback (processMatches) will handle setting this.animating = false
                 if (callback) callback();
             }, 300);
         } else {
@@ -1189,6 +1196,8 @@ class Match3Game {
         const matchGroups = this.findMatches();
 
         if (matchGroups.length === 0) {
+            // No matches found, allow interactions again
+            this.animating = false;
             return;
         }
 
