@@ -20,3 +20,4 @@ Generell ist auch eine Kombination dieser Ideen denkbar
 
 Weitere Feature Ideen:
 - Freeze Mechanic kann bewegt aber nicht gemerkt werden
+- Bomben die sich nicht mergen dürfen

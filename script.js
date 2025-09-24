@@ -1,5 +1,6 @@
 class Match3Game {
     constructor() {
+        this.BLOCKED_TILE = "BLOCKED"; // Constant for blocked tiles
         this.board = [];
         this.boardWidth = 8; // Default width, will be updated by loadLevel
         this.boardHeight = 8; // Default height, will be updated by loadLevel
@@ -30,13 +31,15 @@ class Match3Game {
                 boardWidth: 6,
                 boardHeight: 6,
                 maxMoves: 10,
-                goals: [{ tileValue: 32, target: 2, current: 0 }],
+                blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
+                goals: [{ tileValue: 32, target: 3, current: 0 }],
             },
             {
                 level: 2,
                 boardWidth: 6,
                 boardHeight: 6,
                 maxMoves: 15,
+                blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [
                     { tileValue: 64, target: 1, current: 0 },
                     { tileValue: 32, target: 3, current: 0 },
@@ -44,9 +47,10 @@ class Match3Game {
             },
             {
                 level: 3,
-                boardWidth: 8,
-                boardHeight: 6,
                 maxMoves: 20,
+                boardWidth: 6,
+                boardHeight: 6,
+                blockedTiles: [{ row: 4 }, { row: 5 }],
                 goals: [
                     { tileValue: 64, target: 2, current: 0 },
                     { tileValue: 32, target: 5, current: 0 },
@@ -54,23 +58,20 @@ class Match3Game {
             },
             {
                 level: 4,
-                boardWidth: 7,
-                boardHeight: 7,
                 maxMoves: 30,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 128, target: 1, current: 0 }],
             },
             {
                 level: 5,
-                boardWidth: 8,
-                boardHeight: 8,
                 maxMoves: 40,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 128, target: 4, current: 0 }],
             },
             {
                 level: 6,
-                boardWidth: 8,
-                boardHeight: 8,
                 maxMoves: 50,
+                blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 64, target: 4, current: 0 },
@@ -78,16 +79,14 @@ class Match3Game {
             },
             {
                 level: 7,
-                boardWidth: 6,
-                boardHeight: 10,
                 maxMoves: 30,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 32, target: 16, current: 0 }],
             },
             {
-                level: 8, // das war das harte mit Anne
-                boardWidth: 9,
-                boardHeight: 9,
+                level: 8,
                 maxMoves: 55,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
                     { tileValue: 256, target: 1, current: 0 },
                     { tileValue: 128, target: 2, current: 0 },
@@ -96,8 +95,6 @@ class Match3Game {
             },
             {
                 level: 9,
-                boardWidth: 10,
-                boardHeight: 8,
                 maxMoves: 80,
                 goals: [
                     { tileValue: 512, target: 1, current: 0 },
@@ -106,8 +103,6 @@ class Match3Game {
             },
             {
                 level: 10,
-                boardWidth: 10,
-                boardHeight: 10,
                 maxMoves: 100,
                 goals: [{ tileValue: 1024, target: 1, current: 0 }],
             },
@@ -144,6 +139,7 @@ class Match3Game {
         this.saveCurrentLevel(); // Save progress to localStorage
         this.boardWidth = level.boardWidth || 8; // Use level-specific board width or default to 8
         this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
+        this.blockedTiles = level.blockedTiles || []; // Store blocked tile positions
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
         this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0 }));
@@ -174,6 +170,32 @@ class Match3Game {
                     this.board[row][col] = this.getRandomTileValue();
                 } while (this.hasInitialMatch(row, col));
             }
+        }
+
+        // Place blocked tiles
+        if (this.blockedTiles) {
+            this.blockedTiles.forEach((blockedPos) => {
+                if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
+                    // Specific position: { row: 2, col: 3 }
+                    if (blockedPos.row < this.boardHeight && blockedPos.col < this.boardWidth) {
+                        this.board[blockedPos.row][blockedPos.col] = this.BLOCKED_TILE;
+                    }
+                } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
+                    // Entire row: { row: 2 }
+                    if (blockedPos.row < this.boardHeight) {
+                        for (let col = 0; col < this.boardWidth; col++) {
+                            this.board[blockedPos.row][col] = this.BLOCKED_TILE;
+                        }
+                    }
+                } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
+                    // Entire column: { col: 3 }
+                    if (blockedPos.col < this.boardWidth) {
+                        for (let row = 0; row < this.boardHeight; row++) {
+                            this.board[row][blockedPos.col] = this.BLOCKED_TILE;
+                        }
+                    }
+                }
+            });
         }
     }
 
@@ -228,7 +250,7 @@ class Match3Game {
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const value = this.board[row][col];
-                if (value !== null) {
+                if (value !== null && value !== this.BLOCKED_TILE) {
                     this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
                 }
             }
@@ -304,7 +326,12 @@ class Match3Game {
                 gem.className = `gem tile-${value}`;
                 gem.dataset.row = row;
                 gem.dataset.col = col;
-                gem.textContent = value;
+
+                // Don't show text content for blocked tiles
+                if (value !== this.BLOCKED_TILE) {
+                    gem.textContent = value;
+                }
+
                 gameBoard.appendChild(gem);
             }
         }
@@ -452,6 +479,11 @@ class Match3Game {
     trySwap(row1, col1, row2, col2) {
         if (!this.gameActive || this.animating) return;
 
+        // Prevent swapping if either tile is blocked
+        if (this.board[row1][col1] === this.BLOCKED_TILE || this.board[row2][col2] === this.BLOCKED_TILE) {
+            return;
+        }
+
         // Temporarily swap gems
         const temp = this.board[row1][col1];
         this.board[row1][col1] = this.board[row2][col2];
@@ -580,10 +612,10 @@ class Match3Game {
             let startCol = 0;
 
             for (let col = 1; col < this.boardWidth; col++) {
-                if (this.board[row][col] === currentValue) {
+                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE) {
                     count++;
                 } else {
-                    if (count >= 3) {
+                    if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
                         const matchGroup = [];
                         for (let i = startCol; i < col; i++) {
                             matchGroup.push({ row, col: i });
@@ -596,7 +628,7 @@ class Match3Game {
                 }
             }
 
-            if (count >= 3) {
+            if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
                 const matchGroup = [];
                 for (let i = startCol; i < this.boardWidth; i++) {
                     matchGroup.push({ row, col: i });
@@ -612,10 +644,10 @@ class Match3Game {
             let startRow = 0;
 
             for (let row = 1; row < this.boardHeight; row++) {
-                if (this.board[row][col] === currentValue) {
+                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE) {
                     count++;
                 } else {
-                    if (count >= 3) {
+                    if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
                         const matchGroup = [];
                         for (let i = startRow; i < row; i++) {
                             matchGroup.push({ row: i, col });
@@ -628,7 +660,7 @@ class Match3Game {
                 }
             }
 
-            if (count >= 3) {
+            if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
                 const matchGroup = [];
                 for (let i = startRow; i < this.boardHeight; i++) {
                     matchGroup.push({ row: i, col });
@@ -647,7 +679,7 @@ class Match3Game {
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const value = this.board[row][col];
-                if (!value) continue;
+                if (!value || value === this.BLOCKED_TILE) continue;
 
                 // Check T-formation
                 const tFormation = this.checkTFormation(row, col, value);
@@ -925,6 +957,9 @@ class Match3Game {
         document.getElementById("score").textContent = this.score;
         this.saveScore(); // Save score to localStorage
 
+        // Check for blocked tiles adjacent to original match positions and unblock them
+        this.unblockAdjacentTiles(matchGroups);
+
         // Start merge animations
         this.animateMerges(matchGroups);
     }
@@ -1019,13 +1054,97 @@ class Match3Game {
 
         // Clean up animation classes
         document.querySelectorAll(".gem").forEach((gem) => {
-            gem.classList.remove("sliding", "merge-target");
+            gem.classList.remove("sliding", "merge-target", "unblocking");
             gem.style.transform = "";
             gem.style.transition = "";
             gem.style.opacity = "";
+            gem.style.zIndex = "";
         });
 
         this.dropGems();
+    }
+
+    unblockAdjacentTiles(matchGroups) {
+        const blockedTilesToRemove = [];
+
+        matchGroups.forEach((group) => {
+            // Get where the new merged tile(s) will be created
+            let targetPositions = [];
+            if (group.direction === "T-formation" || group.direction === "L-formation") {
+                targetPositions.push(group.intersection);
+            } else if (group.direction === "block-formation") {
+                targetPositions.push(...group.intersections);
+            } else {
+                const middlePositions = this.calculateMiddlePositions(group.tiles);
+                targetPositions.push(...middlePositions);
+            }
+
+            // Check each tile in the original match for adjacent blocked tiles
+            group.tiles.forEach((matchTile) => {
+                const adjacentPositions = [
+                    { row: matchTile.row - 1, col: matchTile.col }, // Up
+                    { row: matchTile.row + 1, col: matchTile.col }, // Down
+                    { row: matchTile.row, col: matchTile.col - 1 }, // Left
+                    { row: matchTile.row, col: matchTile.col + 1 }, // Right
+                ];
+
+                adjacentPositions.forEach((pos) => {
+                    // Check bounds and if tile is blocked
+                    if (
+                        pos.row >= 0 &&
+                        pos.row < this.boardHeight &&
+                        pos.col >= 0 &&
+                        pos.col < this.boardWidth &&
+                        this.board[pos.row][pos.col] === this.BLOCKED_TILE
+                    ) {
+                        // Avoid duplicates
+                        if (!blockedTilesToRemove.some((tile) => tile.row === pos.row && tile.col === pos.col)) {
+                            // Find the closest target position for animation
+                            let closestTarget = targetPositions[0];
+                            let closestDistance =
+                                Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
+
+                            targetPositions.forEach((target) => {
+                                const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
+                                if (distance < closestDistance) {
+                                    closestDistance = distance;
+                                    closestTarget = target;
+                                }
+                            });
+
+                            blockedTilesToRemove.push({
+                                row: pos.row,
+                                col: pos.col,
+                                targetPos: closestTarget,
+                            });
+                        }
+                    }
+                });
+            });
+        });
+
+        // Animate and remove blocked tiles
+        this.animateUnblocking(blockedTilesToRemove);
+    }
+
+    animateUnblocking(blockedTiles) {
+        if (blockedTiles.length === 0) return;
+
+        blockedTiles.forEach((blockedTile) => {
+            // Use the EXACT same approach as slideGemTo
+            // Animate blocked tile to the position of the target tile that exists NOW
+            this.slideGemTo(blockedTile, blockedTile.targetPos);
+
+            // Remove from board data after animation starts
+            setTimeout(() => {
+                this.board[blockedTile.row][blockedTile.col] = null;
+            }, 50);
+        });
+    }
+
+    cleanupUnblockingAnimations() {
+        // Main cleanup in processMerges now handles unblocking animations
+        // This method kept for compatibility but no longer needed
     }
 
     calculateMiddlePositions(tiles, group = null) {
