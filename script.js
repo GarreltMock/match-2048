@@ -142,7 +142,7 @@ class Match3Game {
         this.blockedTiles = level.blockedTiles || []; // Store blocked tile positions
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
-        this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0 }));
+        this.levelGoals = level.goals.map((goal) => ({ ...goal, current: 0, created: 0 }));
         this.gameActive = true;
 
         this.renderGoals();
@@ -245,21 +245,8 @@ class Match3Game {
         return false;
     }
 
-    updateTileCounts(checkComplete = false) {
-        this.tileCounts = {};
-        for (let row = 0; row < this.boardHeight; row++) {
-            for (let col = 0; col < this.boardWidth; col++) {
-                const value = this.board[row][col];
-                if (value !== null && value !== this.BLOCKED_TILE) {
-                    this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
-                }
-            }
-        }
-
-        this.levelGoals.forEach((goal) => {
-            goal.current = this.tileCounts[goal.tileValue] || 0;
-        });
-
+    updateGoalDisplay(checkComplete = false) {
+        // No longer count tiles on board - goals track created tiles instead
         this.renderGoals();
         if (checkComplete) {
             this.checkLevelComplete();
@@ -269,7 +256,7 @@ class Match3Game {
     checkLevelComplete() {
         if (!this.gameActive) return;
 
-        const allGoalsComplete = this.levelGoals.every((goal) => goal.current >= goal.target);
+        const allGoalsComplete = this.levelGoals.every((goal) => goal.created >= goal.target);
         const nextBtn = document.getElementById("nextBtn");
 
         if (allGoalsComplete) {
@@ -336,7 +323,7 @@ class Match3Game {
             }
         }
 
-        this.updateTileCounts();
+        this.updateGoalDisplay();
     }
 
     setupEventListeners() {
@@ -1035,12 +1022,14 @@ class Match3Game {
                 const newValue = group.value * 4; // 5 tiles -> 1 tile (roughly 2.5x per tile, rounded to 4x total)
                 const intersection = group.intersection;
                 this.board[intersection.row][intersection.col] = newValue;
+                this.trackGoalProgress(newValue, 1);
             } else if (group.direction === "block-formation") {
                 // Block formation: create two tiles with 2x value at intersection points
                 const newValue = group.value * 2; // 4 tiles -> 2 tiles (2x each)
                 group.intersections.forEach((intersection) => {
                     this.board[intersection.row][intersection.col] = newValue;
                 });
+                this.trackGoalProgress(newValue, group.intersections.length);
             } else {
                 // Regular matches: use existing logic
                 const middlePositions = this.calculateMiddlePositions(group.tiles);
@@ -1049,8 +1038,12 @@ class Match3Game {
                 middlePositions.forEach((pos) => {
                     this.board[pos.row][pos.col] = newValue;
                 });
+                this.trackGoalProgress(newValue, middlePositions.length);
             }
         });
+
+        // Update goal display after creating new tiles
+        this.updateGoalDisplay(true);
 
         // Clean up animation classes
         document.querySelectorAll(".gem").forEach((gem) => {
@@ -1062,6 +1055,15 @@ class Match3Game {
         });
 
         this.dropGems();
+    }
+
+    trackGoalProgress(newValue, count = 1) {
+        // Update goal progress when tiles are created
+        this.levelGoals.forEach((goal) => {
+            if (goal.tileValue === newValue) {
+                goal.created += count;
+            }
+        });
     }
 
     unblockAdjacentTiles(matchGroups) {
@@ -1261,12 +1263,12 @@ class Match3Game {
 
         this.levelGoals.forEach((goal) => {
             const goalCard = document.createElement("div");
-            goalCard.className = `goal-card ${goal.current >= goal.target ? "completed" : ""}`;
+            goalCard.className = `goal-card ${goal.created >= goal.target ? "completed" : ""}`;
 
             goalCard.innerHTML = `
                 <div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>
-                <div class="goal-progress">${goal.current} / ${goal.target}</div>
-                ${goal.current >= goal.target ? '<div class="goal-check">✓</div>' : ""}
+                <div class="goal-progress">${goal.created} / ${goal.target}</div>
+                ${goal.created >= goal.target ? '<div class="goal-check">✓</div>' : ""}
             `;
 
             goalsContainer.appendChild(goalCard);
