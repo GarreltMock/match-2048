@@ -36,17 +36,18 @@ body {
     text-align: center;
     max-width: 600px;
     width: 100%;
-    padding: clamp(10px, 3vw, 20px);
+    padding: 0 clamp(10px, 3vw, 20px);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     gap: clamp(8px, 2vw, 20px);
     position: relative;
+    overflow-y: auto;
 }
 
 .reset-btn {
     position: absolute;
-    top: 24px;
+    top: 12px;
     left: clamp(10px, 3vw, 20px);
     background: transparent;
     border: none;
@@ -63,7 +64,7 @@ body {
 
 .info-btn {
     position: absolute;
-    top: 22px;
+    top: 10px;
     right: clamp(10px, 3vw, 20px);
     background: rgba(255, 255, 255, 0.1);
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -936,7 +937,6 @@ h1 {
     }
 
     .game-container {
-        max-height: -webkit-fill-available;
         justify-content: flex-start;
     }
 }

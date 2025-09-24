@@ -578,6 +578,11 @@ class Match3Game {
             element.style.transform = "scale(1.2)";
             setTimeout(() => {
                 element.style.transform = "scale(1)";
+
+                // Process any matches after doubling
+                setTimeout(() => {
+                    this.processMatches();
+                }, 100);
             }, 200);
 
             this.deactivatePowerUp();
