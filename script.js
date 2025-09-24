@@ -22,6 +22,12 @@ class Match3Game {
         // Power-up system
         this.activePowerUp = null;
         this.powerUpSwapTiles = [];
+        this.powerUpUses = {
+            hammer: 0,
+            double: 0,
+            swap: 0
+        };
+        this.maxPowerUpUses = 2;
 
         this.initializeLevels();
         this.showIntroDialog();
@@ -168,8 +174,18 @@ class Match3Game {
         // Show power-ups during active gameplay
         this.showPowerUps();
 
+        // Reset power-up usage for new level
+        this.powerUpUses = {
+            hammer: 0,
+            double: 0,
+            swap: 0
+        };
+
         // Deactivate any power-ups when loading a level
         this.deactivatePowerUp();
+
+        // Update power-up button states
+        this.updatePowerUpButtons();
 
         // Update score display on level load
         document.getElementById("score").textContent = this.score;
@@ -407,6 +423,11 @@ class Match3Game {
 
                 const powerUpType = button.dataset.powerup;
 
+                // Check if power-up has uses remaining
+                if (this.powerUpUses[powerUpType] >= this.maxPowerUpUses) {
+                    return; // Power-up is used up
+                }
+
                 if (this.activePowerUp === powerUpType) {
                     // Deselect power-up
                     this.deactivatePowerUp();
@@ -456,6 +477,40 @@ class Match3Game {
         }
     }
 
+    updatePowerUpButtons() {
+        const powerUpButtons = document.querySelectorAll(".power-up-btn");
+
+        powerUpButtons.forEach((button) => {
+            const powerUpType = button.dataset.powerup;
+            const usesLeft = this.maxPowerUpUses - this.powerUpUses[powerUpType];
+
+            // Remove existing use indicators
+            const existingIndicator = button.querySelector('.use-indicator');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            if (usesLeft <= 0) {
+                // Power-up is used up
+                button.classList.add('disabled');
+                button.title = `${button.title.split(' - ')[0]} - No uses left`;
+            } else {
+                // Power-up has uses left
+                button.classList.remove('disabled');
+
+                // Add use indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'use-indicator';
+                indicator.textContent = usesLeft;
+                button.appendChild(indicator);
+
+                // Update title
+                const baseTitle = button.title.split(' - ')[0];
+                button.title = `${baseTitle} - ${usesLeft} uses left`;
+            }
+        });
+    }
+
     handlePowerUpAction(row, col, element) {
         const value = this.board[row][col];
 
@@ -477,6 +532,10 @@ class Match3Game {
     }
 
     usePowerUpHammer(row, col, element) {
+        // Increment usage count
+        this.powerUpUses.hammer++;
+        this.updatePowerUpButtons();
+
         // Remove the tile from the board
         this.board[row][col] = null;
 
@@ -502,6 +561,10 @@ class Match3Game {
     usePowerUpDouble(row, col, element) {
         const currentValue = this.board[row][col];
         if (currentValue && currentValue !== this.BLOCKED_TILE) {
+            // Increment usage count
+            this.powerUpUses.double++;
+            this.updatePowerUpButtons();
+
             const doubledValue = currentValue * 2;
             this.board[row][col] = doubledValue;
 
@@ -662,7 +725,9 @@ class Match3Game {
                 this.renderBoard();
 
                 if (isSwapPowerUp) {
-                    // Deactivate power-up after successful swap
+                    // Increment usage count and deactivate power-up after successful swap
+                    this.powerUpUses.swap++;
+                    this.updatePowerUpButtons();
                     this.deactivatePowerUp();
                 }
 
