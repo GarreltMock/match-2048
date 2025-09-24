@@ -578,6 +578,9 @@ class Match3Game {
             const doubledValue = currentValue * 2;
             this.board[row][col] = doubledValue;
 
+            // Track goal progress for the newly created tile
+            this.trackGoalProgress(doubledValue, 1);
+
             // Update the visual element
             element.textContent = doubledValue;
             element.className = `gem tile-${doubledValue}`;
@@ -588,6 +591,9 @@ class Match3Game {
             element.style.transform = "scale(1.2)";
             setTimeout(() => {
                 element.style.transform = "scale(1)";
+
+                // Update goal display and check for level completion
+                this.updateGoalDisplay(true);
 
                 // Process any matches after doubling
                 setTimeout(() => {
