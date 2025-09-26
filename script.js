@@ -64,7 +64,7 @@ class Match3Game {
                 boardHeight: 6,
                 blockedTiles: [{ row: 4 }, { row: 5 }],
                 goals: [
-                    { target: "all", current: 0, goalType: "blocked" }, // Clear all blocked tiles
+                    { tileValue: 64, target: 2, current: 0, goalType: "created" },
                     { tileValue: 32, target: 3, current: 0, goalType: "created" },
                 ],
             },
@@ -121,13 +121,118 @@ class Match3Game {
                 goals: [{ tileValue: 1024, target: 1, current: 0, goalType: "created" }],
                 spawnableTiles: [4, 8, 16, 32],
             },
+
+            {
+                level: 11,
+                maxMoves: 60,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+                goals: [
+                    { tileValue: 1024, target: 1, current: 0, goalType: "created" },
+                    { current: 0, goalType: "blocked" },
+                ],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 11,
+                boardWidth: 9,
+                maxMoves: 50,
+                blockedTiles: [
+                    { row: 4, col: 0 },
+                    { row: 4, col: 8 },
+                    { row: 5, col: [0, 1, 7, 8] },
+                    { row: 6, col: [0, 1, 2, 6, 7, 8] },
+                    { row: 7, col: [0, 1, 2, 3, 5, 6, 7, 8] },
+                    { row: 8 },
+                ],
+                goals: [
+                    { tileValue: 512, target: 2, current: 0, goalType: "created" },
+                    { tileValue: 256, target: 4, current: 0, goalType: "current" },
+                ],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 12,
+                maxMoves: 30,
+                blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+                goals: [{ current: 0, goalType: "blocked" }],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 13,
+                maxMoves: 40,
+                blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
+                goals: [
+                    { current: 0, goalType: "blocked" },
+                    { tileValue: 128, target: 4, current: 0, goalType: "current" },
+                ],
+                spawnableTiles: [4, 8, 16],
+            },
+            {
+                level: 14,
+                maxMoves: 50,
+                boardHeight: 10,
+                blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
+                goals: [
+                    { tileValue: 512, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 256, target: 3, current: 0, goalType: "current" },
+                ],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 15,
+                boardWidth: 6,
+                boardHeight: 10,
+                maxMoves: 20,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+                goals: [{ current: 0, goalType: "blocked" }],
+                spawnableTiles: [2, 4, 8],
+            },
+            {
+                level: 16,
+                boardWidth: 6,
+                boardHeight: 8,
+                maxMoves: 20,
+                goals: [{ tileValue: 64, target: 12, current: 0, goalType: "current" }],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 17,
+                boardWidth: 6,
+                boardHeight: 8,
+                maxMoves: 20,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+                goals: [{ tileValue: 64, target: 12, current: 0, goalType: "current" }],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 18,
+                boardWidth: 6,
+                boardHeight: 8,
+                maxMoves: 20,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+                goals: [
+                    { tileValue: 64, target: 12, current: 0, goalType: "current" },
+                    { current: 0, goalType: "blocked" },
+                ],
+                spawnableTiles: [4, 8, 16, 32],
+            },
+            {
+                level: 19,
+                boardHeight: 10,
+                maxMoves: 60,
+                blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+                goals: [
+                    { tileValue: 1024, target: 1, current: 0, goalType: "created" },
+                    { tileValue: 512, target: 1, current: 0, goalType: "current" },
+                ],
+                spawnableTiles: [4, 8, 16, 32],
+            },
         ];
 
         this.loadLevel(this.currentLevel);
     }
 
     loadCurrentLevel() {
-        // Load saved level from localStorage, default to level 1
         const savedLevel = localStorage.getItem("match2048_currentLevel");
         return savedLevel ? parseInt(savedLevel, 10) : 1;
     }
@@ -137,7 +242,6 @@ class Match3Game {
     }
 
     loadScore() {
-        // Load saved score from localStorage, default to 0
         const savedScore = localStorage.getItem("match2048_score");
         return savedScore ? parseInt(savedScore, 10) : 0;
     }
@@ -158,12 +262,23 @@ class Match3Game {
         this.tileValues = level.spawnableTiles || this.defaultTileValues; // Use level-specific spawnable tiles or default
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
-        this.levelGoals = level.goals.map((goal) => ({
-            ...goal,
-            current: 0,
-            created: 0,
-            goalType: goal.goalType || "created", // Default to "created" if not specified
-        }));
+
+        this.initialBlockedTileCount = this.countBlockedTiles();
+
+        this.levelGoals = level.goals.map((goal) => {
+            const levelGoal = {
+                ...goal,
+                current: 0,
+                created: 0,
+                goalType: goal.goalType || "created", // Default to "created" if not specified
+            };
+
+            if (goal.goalType === "blocked") {
+                levelGoal.target = this.initialBlockedTileCount;
+            }
+
+            return levelGoal;
+        });
         this.gameActive = true;
 
         this.renderGoals();
@@ -201,17 +316,6 @@ class Match3Game {
 
     init() {
         this.createBoard();
-
-        // Count initial blocked tiles for blocked clearing goals after board is created
-        this.initialBlockedTileCount = this.countBlockedTiles();
-
-        // Update blocked goals with calculated targets
-        this.levelGoals.forEach((goal) => {
-            if (goal.goalType === "blocked" && goal.target === "all") {
-                goal.target = this.initialBlockedTileCount;
-            }
-        });
-
         this.renderBoard();
         this.setupEventListeners();
         this.setupControlButtons();
@@ -234,9 +338,11 @@ class Match3Game {
         if (this.blockedTiles) {
             this.blockedTiles.forEach((blockedPos) => {
                 if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
-                    // Specific position: { row: 2, col: 3 }
-                    if (blockedPos.row < this.boardHeight && blockedPos.col < this.boardWidth) {
-                        this.board[blockedPos.row][blockedPos.col] = this.BLOCKED_TILE;
+                    const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
+                    for (const col of colArray) {
+                        if (blockedPos.row < this.boardHeight && col < this.boardWidth) {
+                            this.board[blockedPos.row][col] = this.BLOCKED_TILE;
+                        }
                     }
                 } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
                     // Entire row: { row: 2 }
@@ -324,16 +430,24 @@ class Match3Game {
     }
 
     countBlockedTiles() {
-        if (!this.board || !this.board[0]) return 0;
+        if (!this.blockedTiles || this.blockedTiles.length === 0) return 0;
 
         let count = 0;
-        for (let row = 0; row < this.boardHeight; row++) {
-            for (let col = 0; col < this.boardWidth; col++) {
-                if (this.board[row][col] === this.BLOCKED_TILE) {
+        this.blockedTiles.forEach((blockedPos) => {
+            if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
+                if (blockedPos.row < this.boardHeight && blockedPos.col < this.boardWidth) {
                     count++;
                 }
+            } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
+                if (blockedPos.row < this.boardHeight) {
+                    count += this.boardWidth;
+                }
+            } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
+                if (blockedPos.col < this.boardWidth) {
+                    count += this.boardHeight;
+                }
             }
-        }
+        });
         return count;
     }
 
