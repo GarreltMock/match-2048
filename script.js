@@ -24,7 +24,7 @@ class Match3Game {
         this.powerUpSwapTiles = [];
         this.powerUpUses = {
             hammer: 0,
-            double: 0,
+            halve: 0,
             swap: 0,
         };
         this.maxPowerUpUses = 2;
@@ -185,7 +185,7 @@ class Match3Game {
         // Reset power-up usage for new level
         this.powerUpUses = {
             hammer: 0,
-            double: 0,
+            halve: 0,
             swap: 0,
         };
 
@@ -604,8 +604,8 @@ class Match3Game {
             case "hammer":
                 this.usePowerUpHammer(row, col, element);
                 break;
-            case "double":
-                this.usePowerUpDouble(row, col, element);
+            case "halve":
+                this.usePowerUpHalve(row, col, element);
                 break;
             case "swap":
                 // For swap, we want to use normal drag behavior
@@ -645,25 +645,25 @@ class Match3Game {
         }, 300);
     }
 
-    usePowerUpDouble(row, col, element) {
+    usePowerUpHalve(row, col, element) {
         const currentValue = this.board[row][col];
         if (currentValue && currentValue !== this.BLOCKED_TILE) {
             // Increment usage count
-            this.powerUpUses.double++;
+            this.powerUpUses.halve++;
             this.updatePowerUpButtons();
 
             // Block interactions during animation
             this.animating = true;
 
-            const doubledValue = currentValue * 2;
-            this.board[row][col] = doubledValue;
+            const halvedValue = Math.floor(currentValue / 2);
+            this.board[row][col] = halvedValue;
 
             // Track goal progress for the newly created tile
-            this.trackGoalProgress(doubledValue, 1);
+            this.trackGoalProgress(halvedValue, 1);
 
             // Update the visual element
-            element.textContent = doubledValue;
-            element.className = `gem tile-${doubledValue}`;
+            element.textContent = halvedValue;
+            element.className = `gem tile-${halvedValue}`;
             element.dataset.row = row;
             element.dataset.col = col;
 
