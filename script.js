@@ -394,6 +394,16 @@ class Match3Game {
         gameBoard.style.gridTemplateColumns = `repeat(${this.boardWidth}, 1fr)`;
         gameBoard.style.gridTemplateRows = `repeat(${this.boardHeight}, 1fr)`;
 
+        // Calculate width based on board aspect ratio to fit within 50vh height
+        const aspectRatio = this.boardWidth / this.boardHeight;
+        const maxHeight = window.innerHeight * 0.5; // 50vh
+        const padding = 30; // Approximate padding from CSS clamp(6px, 3vw, 15px) * 2
+        const maxContentHeight = maxHeight - padding;
+        const calculatedWidth = maxContentHeight * aspectRatio + padding;
+        const maxWidth = Math.min(calculatedWidth, window.innerWidth * 0.9, 600);
+
+        gameBoard.style.width = `${maxWidth}px`;
+
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const gem = document.createElement("div");
