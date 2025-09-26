@@ -64,8 +64,8 @@ class Match3Game {
                 boardHeight: 6,
                 blockedTiles: [{ row: 4 }, { row: 5 }],
                 goals: [
-                    { tileValue: 64, target: 2, current: 0, goalType: "created" },
-                    { tileValue: 32, target: 5, current: 0, goalType: "created" },
+                    { target: "all", current: 0, goalType: "blocked" }, // Clear all blocked tiles
+                    { tileValue: 32, target: 3, current: 0, goalType: "created" },
                 ],
             },
             {
@@ -201,6 +201,17 @@ class Match3Game {
 
     init() {
         this.createBoard();
+
+        // Count initial blocked tiles for blocked clearing goals after board is created
+        this.initialBlockedTileCount = this.countBlockedTiles();
+
+        // Update blocked goals with calculated targets
+        this.levelGoals.forEach((goal) => {
+            if (goal.goalType === "blocked" && goal.target === "all") {
+                goal.target = this.initialBlockedTileCount;
+            }
+        });
+
         this.renderBoard();
         this.setupEventListeners();
         this.setupControlButtons();
@@ -312,6 +323,31 @@ class Match3Game {
         });
     }
 
+    countBlockedTiles() {
+        if (!this.board || !this.board[0]) return 0;
+
+        let count = 0;
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
+                if (this.board[row][col] === this.BLOCKED_TILE) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    updateBlockedTileGoals() {
+        const currentBlockedCount = this.countBlockedTiles();
+        const clearedCount = this.initialBlockedTileCount - currentBlockedCount;
+
+        this.levelGoals.forEach((goal) => {
+            if (goal.goalType === "blocked") {
+                goal.current = clearedCount;
+            }
+        });
+    }
+
     updateGoalDisplay(checkComplete = false) {
         // Update tile counts for current-type goals
         this.updateTileCounts();
@@ -326,6 +362,8 @@ class Match3Game {
 
         const allGoalsComplete = this.levelGoals.every((goal) => {
             if (goal.goalType === "current") {
+                return goal.current >= goal.target;
+            } else if (goal.goalType === "blocked") {
                 return goal.current >= goal.target;
             } else {
                 return goal.created >= goal.target;
@@ -1458,6 +1496,15 @@ class Match3Game {
                 this.board[blockedTile.row][blockedTile.col] = null;
             }, 50);
         });
+
+        // Update blocked tile clearing goals if any blocked tiles were cleared
+        if (blockedTiles.length > 0) {
+            // Update after a short delay to ensure board state is updated
+            setTimeout(() => {
+                this.updateBlockedTileGoals();
+                this.updateGoalDisplay(true); // Update display and check completion
+            }, 100);
+        }
     }
 
     cleanupUnblockingAnimations() {
@@ -1579,18 +1626,32 @@ class Match3Game {
 
         this.levelGoals.forEach((goal) => {
             const goalCard = document.createElement("div");
-            const isCompleted = goal.goalType === "current" ? goal.current >= goal.target : goal.created >= goal.target;
-            const currentProgress = goal.goalType === "current" ? goal.current : goal.created;
+            let isCompleted, currentProgress, goalTypeClass, goalIcon, goalContent;
 
-            // Add visual distinction for different goal types
-            const goalTypeClass = goal.goalType === "current" ? "goal-current" : "goal-created";
+            if (goal.goalType === "current") {
+                isCompleted = goal.current >= goal.target;
+                currentProgress = goal.current;
+                goalTypeClass = "goal-current";
+                goalIcon = "📍";
+                goalContent = `<div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>`;
+            } else if (goal.goalType === "blocked") {
+                isCompleted = goal.current >= goal.target;
+                currentProgress = goal.current;
+                goalTypeClass = "goal-blocked";
+                goalIcon = "♻️";
+                goalContent = `<div class="goal-tile blocked-goal-tile"></div>`;
+            } else {
+                isCompleted = goal.created >= goal.target;
+                currentProgress = goal.created;
+                goalTypeClass = "goal-created";
+                goalIcon = "⭐";
+                goalContent = `<div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>`;
+            }
+
             goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
 
-            // Different icons for different goal types
-            const goalIcon = goal.goalType === "current" ? "📍" : "⭐";
-
             goalCard.innerHTML = `
-                <div class="goal-tile tile-${goal.tileValue}">${goal.tileValue}</div>
+                ${goalContent}
                 <div class="goal-progress">${goalIcon} ${currentProgress} / ${goal.target}</div>
                 ${isCompleted ? '<div class="goal-check">✓</div>' : ""}
             `;

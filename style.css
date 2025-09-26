@@ -201,6 +201,37 @@ h1 {
     border-color: rgba(255, 152, 0, 0.6);
 }
 
+.goal-card.goal-blocked {
+    border-bottom: 4px solid #07c00a;
+    background: rgba(121, 85, 72, 0.1);
+}
+
+.goal-card.goal-blocked.completed {
+    background: rgba(121, 85, 72, 0.2);
+    border-color: rgba(121, 85, 72, 0.6);
+}
+
+.blocked-goal-tile {
+    background: #3c3c3c !important;
+    color: transparent !important;
+    border: 2px solid #666666 !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.blocked-goal-tile::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, transparent 30%, #666 30%, #666 70%, transparent 70%),
+        linear-gradient(-45deg, transparent 30%, #666 30%, #666 70%, transparent 70%);
+    transform: translate(-50%, -50%);
+}
+
 .goal-tile {
     width: clamp(25px, 8vw, 40px);
     height: clamp(25px, 8vw, 40px);
