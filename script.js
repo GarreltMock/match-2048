@@ -552,7 +552,7 @@ class Match3Game {
         const padding = 30; // Approximate padding from CSS clamp(6px, 3vw, 15px) * 2
         const maxContentHeight = maxHeight - padding;
         const calculatedWidth = maxContentHeight * aspectRatio + padding;
-        const maxWidth = Math.min(calculatedWidth, window.innerWidth * 0.9, 600);
+        const maxWidth = Math.min(calculatedWidth, window.innerWidth * 0.9, 550);
 
         gameBoard.style.width = `${maxWidth}px`;
 
