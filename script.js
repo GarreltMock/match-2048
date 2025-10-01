@@ -263,7 +263,7 @@ class Match3Game {
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
 
-        this.initialBlockedTileCount = this.countBlockedTiles();
+        this.initialBlockedTileCount = this.countBlockedLevelTiles();
 
         this.levelGoals = level.goals.map((goal) => {
             const levelGoal = {
@@ -429,7 +429,7 @@ class Match3Game {
         });
     }
 
-    countBlockedTiles() {
+    countBlockedLevelTiles() {
         if (!this.blockedTiles || this.blockedTiles.length === 0) return 0;
 
         let count = 0;
@@ -448,6 +448,20 @@ class Match3Game {
                 }
             }
         });
+        return count;
+    }
+
+    countBlockedTiles() {
+        if (!this.board || !this.board[0]) return 0;
+
+        let count = 0;
+        for (let row = 0; row < this.boardHeight; row++) {
+            for (let col = 0; col < this.boardWidth; col++) {
+                if (this.board[row][col] === this.BLOCKED_TILE) {
+                    count++;
+                }
+            }
+        }
         return count;
     }
 
