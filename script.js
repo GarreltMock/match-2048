@@ -75,7 +75,7 @@ class Match3Game {
                 level: 1,
                 boardWidth: 6,
                 boardHeight: 6,
-                maxMoves: 1,
+                maxMoves: 10,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }], // 32
                 spawnableTiles: [1, 2, 3], // 2, 4, 8
