@@ -62,6 +62,36 @@ body {
     color: rgba(255, 255, 255, 0.3);
 }
 
+.settings-btn {
+    position: absolute;
+    top: 10px;
+    right: calc(clamp(10px, 3vw, 20px) + 28px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
+    font-size: 10px;
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: scale(1.05);
+}
+
+.settings-btn:active {
+    transform: scale(0.95);
+}
+
 .info-btn {
     position: absolute;
     top: 10px;
@@ -245,46 +275,73 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Goal tile colors matching game tiles */
-.goal-tile.tile-32 {
+/* Goal tile colors based on internal value (1, 2, 3, 4...) */
+.goal-tile.tile-1 {
+    background: #f7efe8;
+    color: #776e65;
+}
+
+.goal-tile.tile-2 {
+    background: #fae6c1;
+    color: #776e65;
+}
+
+.goal-tile.tile-3 {
+    background: #f2b179;
+    color: #f9f6f2;
+}
+
+.goal-tile.tile-4 {
+    background: #f59563;
+    color: #f9f6f2;
+}
+
+.goal-tile.tile-5 {
     background: #f67c5f;
     color: #f9f6f2;
 }
 
-.goal-tile.tile-64 {
+.goal-tile.tile-6 {
     background: #f65e3b;
     color: #f9f6f2;
 }
 
-.goal-tile.tile-128 {
+.goal-tile.tile-7 {
     background: #edcf72;
     color: #f9f6f2;
     font-size: 16px;
 }
 
-.goal-tile.tile-256 {
+.goal-tile.tile-8 {
     background: #edcc61;
     color: #f9f6f2;
     font-size: 16px;
 }
 
-.goal-tile.tile-512 {
+.goal-tile.tile-9 {
     background: #edc850;
     color: #f9f6f2;
     font-size: 16px;
 }
 
-.goal-tile.tile-1024 {
+.goal-tile.tile-10 {
     background: #edc53f;
     color: #f9f6f2;
     font-size: 14px;
 }
 
-.goal-tile.tile-2048 {
+.goal-tile.tile-11 {
     background: #edc22e;
     color: #f9f6f2;
     font-size: 14px;
     box-shadow: 0 4px 8px rgba(237, 194, 46, 0.4);
+}
+
+.goal-tile.tile-12 {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: 12px;
+    box-shadow: 0 4px 8px rgba(237, 194, 46, 0.5);
 }
 
 .goal-progress {
@@ -359,66 +416,73 @@ h1 {
     transform: scale(0.95);
 }
 
-/* 2048-style tile colors */
-.gem.tile-2 {
+/* Tile colors based on internal value (1, 2, 3, 4...) */
+.gem.tile-1 {
     background: #f7efe8;
     color: #776e65;
 }
 
-.gem.tile-4 {
+.gem.tile-2 {
     background: #fae6c1;
     color: #776e65;
 }
 
-.gem.tile-8 {
+.gem.tile-3 {
     background: #f2b179;
     color: #f9f6f2;
 }
 
-.gem.tile-16 {
+.gem.tile-4 {
     background: #f59563;
     color: #f9f6f2;
 }
 
-.gem.tile-32 {
+.gem.tile-5 {
     background: #f67c5f;
     color: #f9f6f2;
 }
 
-.gem.tile-64 {
+.gem.tile-6 {
     background: #f65e3b;
     color: #f9f6f2;
 }
 
-.gem.tile-128 {
+.gem.tile-7 {
     background: #edcf72;
     color: #f9f6f2;
     font-size: clamp(10px, 2.5vw, 20px);
 }
 
-.gem.tile-256 {
+.gem.tile-8 {
     background: #edcc61;
     color: #f9f6f2;
     font-size: clamp(10px, 2.5vw, 20px);
 }
 
-.gem.tile-512 {
+.gem.tile-9 {
     background: #edc850;
     color: #f9f6f2;
     font-size: clamp(10px, 2.5vw, 20px);
 }
 
-.gem.tile-1024 {
+.gem.tile-10 {
     background: #edc53f;
     color: #f9f6f2;
     font-size: clamp(9px, 2.2vw, 18px);
 }
 
-.gem.tile-2048 {
+.gem.tile-11 {
     background: #edc22e;
     color: #f9f6f2;
     font-size: clamp(9px, 2.2vw, 18px);
     box-shadow: 0 4px 8px rgba(237, 194, 46, 0.4);
+}
+
+.gem.tile-12 {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: clamp(8px, 2vw, 16px);
+    box-shadow: 0 4px 8px rgba(237, 194, 46, 0.5);
 }
 
 .gem.tile-BLOCKED {
@@ -976,6 +1040,114 @@ h1 {
 /* Hide dialog by default */
 .intro-dialog-overlay.hidden {
     display: none;
+}
+
+/* Settings Dialog Styles */
+.settings-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+}
+
+.settings-dialog-overlay.hidden {
+    display: none;
+}
+
+.settings-dialog {
+    background: #ffffff;
+    border-radius: 20px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease-out;
+}
+
+.settings-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 20px 20px 0 0;
+}
+
+.settings-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.settings-content {
+    padding: 30px 20px;
+}
+
+.setting-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.setting-item label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.setting-item select {
+    padding: 10px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.setting-item select:hover {
+    border-color: #667eea;
+}
+
+.setting-item select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.settings-footer {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 0 0 20px 20px;
+    display: flex;
+    justify-content: flex-end;
+    border-top: 1px solid #e9ecef;
+}
+
+.settings-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.settings-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.settings-button:active {
+    transform: translateY(0);
 }
 
 /* Safari-specific viewport fixes */

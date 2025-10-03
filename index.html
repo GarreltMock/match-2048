@@ -9,6 +9,7 @@
     <body>
         <div class="game-container">
             <button id="resetBtn" class="reset-btn" title="Reset Progress" tabindex="3">Reset</button>
+            <button id="settingsBtn" class="settings-btn" title="Settings" tabindex="2">⚙️</button>
             <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
 
             <div class="flex-spacer"></div>
@@ -59,6 +60,29 @@
             </div>
 
             <div class="flex-spacer half"></div>
+        </div>
+
+        <!-- Settings Dialog -->
+        <div id="settingsDialog" class="settings-dialog-overlay hidden">
+            <div class="settings-dialog">
+                <div class="settings-header">
+                    <h2>⚙️ Settings</h2>
+                </div>
+
+                <div class="settings-content">
+                    <div class="setting-item">
+                        <label for="numberBase">Number Base:</label>
+                        <select id="numberBase">
+                            <option value="2">Powers of 2 (2, 4, 8, 16...)</option>
+                            <option value="3">Powers of 3 (3, 9, 27, 81...)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-footer">
+                    <button class="settings-button" id="saveSettings">Save</button>
+                </div>
+            </div>
         </div>
 
         <!-- Introduction Dialog -->
