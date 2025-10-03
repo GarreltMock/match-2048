@@ -7,6 +7,7 @@ class Match3Game {
         this.defaultTileValues = [1, 2, 3, 4]; // Internal representation: 1=2, 2=4, 3=8, 4=16
         this.tileValues = this.defaultTileValues;
         this.numberBase = this.loadNumberBase(); // 2 or 3
+        this.showReviewBoard = this.loadShowReviewBoard(); // true or false
         this.score = this.loadScore();
         this.selectedGem = null;
         this.isDragging = false;
@@ -34,6 +35,7 @@ class Match3Game {
         this.showIntroDialog();
         this.setupInfoButton();
         this.setupSettingsButton();
+        this.setupExtraMovesDialog();
         this.init();
     }
 
@@ -57,6 +59,15 @@ class Match3Game {
         localStorage.setItem("match2048_numberBase", this.numberBase.toString());
     }
 
+    loadShowReviewBoard() {
+        const saved = localStorage.getItem("match2048_showReviewBoard");
+        return saved === null ? true : saved === "true";
+    }
+
+    saveShowReviewBoard() {
+        localStorage.setItem("match2048_showReviewBoard", this.showReviewBoard.toString());
+    }
+
     initializeLevels() {
         // Internal representation: 1=2, 2=4, 3=8, 4=16, 5=32, 6=64, 7=128, 8=256, 9=512, 10=1024
         this.levels = [
@@ -64,7 +75,7 @@ class Match3Game {
                 level: 1,
                 boardWidth: 6,
                 boardHeight: 6,
-                maxMoves: 10,
+                maxMoves: 1,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }], // 32
                 spawnableTiles: [1, 2, 3], // 2, 4, 8
@@ -509,7 +520,8 @@ class Match3Game {
     }
 
     checkLevelComplete() {
-        if (!this.gameActive) return;
+        // Don't check while animations are running
+        if (this.animating) return;
 
         const allGoalsComplete = this.levelGoals.every((goal) => {
             if (goal.goalType === "current") {
@@ -536,17 +548,19 @@ class Match3Game {
             setTimeout(() => {
                 alert(`Level ${this.currentLevel} Complete! 🎉`);
             }, 500);
-        } else if (this.movesUsed >= this.maxMoves) {
+        } else if (this.movesUsed >= this.maxMoves && !this.hasMatches()) {
+            // Only trigger game over if there are no more cascading matches AND no animations running
             this.gameActive = false;
             this.deactivatePowerUp();
 
-            // Hide power-ups and show control buttons
+            // Hide power-ups
             this.hidePowerUps();
-            restartBtn.style.display = "inline-block";
+
+            // Show extra moves dialog after a delay to let final animations settle
             setTimeout(() => {
-                alert(`Game Over! You ran out of moves. Try again!`);
-            }, 500);
-        } else {
+                this.showExtraMovesDialog();
+            }, 800);
+        } else if (this.gameActive) {
             nextBtn.style.display = "none";
             restartBtn.style.display = "none";
             // Show power-ups during active gameplay
@@ -1661,11 +1675,6 @@ class Match3Game {
         }
     }
 
-    cleanupUnblockingAnimations() {
-        // Main cleanup in processMerges now handles unblocking animations
-        // This method kept for compatibility but no longer needed
-    }
-
     calculateMiddlePositions(tiles, group = null) {
         const positions = [];
         const length = tiles.length;
@@ -1762,7 +1771,8 @@ class Match3Game {
                 gem.style.animationDelay = "";
             });
 
-            if (this.gameActive && this.hasMatches()) {
+            // Check for matches regardless of gameActive state to handle cascading after running out of moves
+            if (this.hasMatches()) {
                 this.processMatches();
             } else {
                 this.animating = false;
@@ -1878,16 +1888,88 @@ class Match3Game {
         );
     }
 
+    setupExtraMovesDialog() {
+        const extraMovesDialog = document.getElementById("extraMovesDialog");
+        const extraMoves5Btn = document.getElementById("extraMoves5");
+        const extraMoves5WithSwapBtn = document.getElementById("extraMoves5WithSwap");
+        const loseProgressBtn = document.getElementById("loseProgress");
+        const showBoardBtn = document.getElementById("showBoardBtn");
+        const continueBtn = document.getElementById("continueBtn");
+
+        if (extraMoves5Btn) {
+            extraMoves5Btn.addEventListener("click", () => {
+                this.maxMoves += 5;
+                this.updateMovesDisplay();
+                extraMovesDialog.classList.add("hidden");
+                continueBtn.style.display = "none";
+                this.gameActive = true;
+                this.showPowerUps();
+            });
+        }
+
+        if (extraMoves5WithSwapBtn) {
+            extraMoves5WithSwapBtn.addEventListener("click", () => {
+                this.maxMoves += 5;
+                this.powerUpUses.swap = Math.max(0, this.powerUpUses.swap - 1); // Add one use back (by decrementing usage)
+                this.updatePowerUpButtons();
+                this.updateMovesDisplay();
+                extraMovesDialog.classList.add("hidden");
+                continueBtn.style.display = "none";
+                this.gameActive = true;
+                this.showPowerUps();
+            });
+        }
+
+        if (loseProgressBtn) {
+            loseProgressBtn.addEventListener("click", () => {
+                extraMovesDialog.classList.add("hidden");
+                continueBtn.style.display = "none";
+                this.restartLevel();
+            });
+        }
+
+        if (showBoardBtn) {
+            showBoardBtn.addEventListener("click", () => {
+                extraMovesDialog.classList.add("hidden");
+                continueBtn.style.display = "inline-block";
+            });
+        }
+
+        if (continueBtn) {
+            continueBtn.addEventListener("click", () => {
+                this.showExtraMovesDialog();
+            });
+        }
+    }
+
+    showExtraMovesDialog() {
+        const extraMovesDialog = document.getElementById("extraMovesDialog");
+        const showBoardBtn = document.getElementById("showBoardBtn");
+
+        // Toggle show board button based on setting
+        if (showBoardBtn) {
+            if (this.showReviewBoard) {
+                showBoardBtn.classList.remove("hidden");
+            } else {
+                showBoardBtn.classList.add("hidden");
+            }
+        }
+
+        extraMovesDialog.classList.remove("hidden");
+    }
+
     setupSettingsButton() {
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
         const numberBaseSelect = document.getElementById("numberBase");
+        const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
 
         if (settingsBtn && settingsDialog) {
             settingsBtn.addEventListener("click", () => {
-                // Set current value
+                // Set current values
                 numberBaseSelect.value = this.numberBase.toString();
+                showReviewBoardCheckbox.checked = this.showReviewBoard;
                 settingsDialog.classList.remove("hidden");
             });
 
@@ -1897,6 +1979,10 @@ class Match3Game {
                     const newBase = parseInt(numberBaseSelect.value, 10);
                     this.numberBase = newBase;
                     this.saveNumberBase();
+
+                    this.showReviewBoard = showReviewBoardCheckbox.checked;
+                    this.saveShowReviewBoard();
+
                     settingsDialog.classList.add("hidden");
 
                     // Re-render to show new number base

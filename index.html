@@ -47,6 +47,7 @@
             <div class="flex-spacer"></div>
 
             <div class="controls">
+                <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">Continue?</button>
                 <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart Level</button>
                 <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button>
             </div>
@@ -60,6 +61,42 @@
             </div>
 
             <div class="flex-spacer half"></div>
+        </div>
+
+        <!-- Extra Moves Dialog -->
+        <div id="extraMovesDialog" class="extra-moves-dialog-overlay hidden">
+            <div class="extra-moves-dialog">
+                <div class="extra-moves-header">
+                    <h2>😰 Out of Moves!</h2>
+                    <p>You've run out of moves, but you're so close! Want to keep going?</p>
+                </div>
+
+                <div class="extra-moves-content">
+                    <button class="extra-move-option primary" id="extraMoves5">
+                        <div class="option-icon">🎯</div>
+                        <div class="option-title">+5 Moves</div>
+                        <div class="option-subtitle">Keep playing</div>
+                    </button>
+
+                    <button class="extra-move-option primary-alt" id="extraMoves5WithSwap">
+                        <div class="option-icon">🔄</div>
+                        <div class="option-title">+5 Moves + Swap</div>
+                        <div class="option-subtitle">Extra power-up included!</div>
+                    </button>
+
+                    <button class="extra-move-option secondary" id="loseProgress">
+                        <div class="option-icon">❌</div>
+                        <div class="option-title">Give Up</div>
+                        <div class="option-subtitle">Restart level</div>
+                    </button>
+
+                    <button class="extra-move-option tertiary" id="showBoardBtn">
+                        <div class="option-icon">👁️</div>
+                        <div class="option-title">Review Board</div>
+                        <div class="option-subtitle">Take another look</div>
+                    </button>
+                </div>
+            </div>
         </div>
 
         <!-- Settings Dialog -->
@@ -76,6 +113,14 @@
                             <option value="2">Powers of 2 (2, 4, 8, 16...)</option>
                             <option value="3">Powers of 3 (3, 9, 27, 81...)</option>
                         </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="showReviewBoard" checked />
+                            <span class="checkbox-custom"></span>
+                            Show "Review Board" button
+                        </label>
                     </div>
                 </div>
 

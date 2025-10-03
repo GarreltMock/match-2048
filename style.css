@@ -557,10 +557,13 @@ h1 {
     border-color: #4caf50;
 }
 
+.continue {
+    background: linear-gradient(135deg, #ff9800 0%, #ff6f00 100%);
+    border-color: #ff9800;
+}
+
 .control-btn:hover {
     background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
 }
 
 .control-btn:active {
@@ -1042,6 +1045,151 @@ h1 {
     display: none;
 }
 
+/* Extra Moves Dialog Styles */
+.extra-moves-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1001;
+    backdrop-filter: blur(8px);
+}
+
+.extra-moves-dialog-overlay.hidden {
+    display: none;
+}
+
+.extra-moves-dialog {
+    background: #ffffff;
+    border-radius: 24px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    animation: slideIn 0.3s ease-out;
+    overflow: hidden;
+}
+
+.extra-moves-header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    padding: 30px 20px;
+    text-align: center;
+}
+
+.extra-moves-header h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.8rem;
+    font-weight: bold;
+}
+
+.extra-moves-header p {
+    margin: 0;
+    font-size: 1rem;
+    opacity: 0.95;
+}
+
+.extra-moves-content {
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.extra-move-option {
+    border: none;
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.extra-move-option::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 100%);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.extra-move-option:hover::before {
+    opacity: 1;
+}
+
+.extra-move-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.extra-move-option:active {
+    transform: translateY(0);
+}
+
+.extra-move-option.primary {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+    color: white;
+}
+
+.extra-move-option.primary-alt {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.extra-move-option.secondary {
+    background: #e0e0e0;
+    color: #666;
+}
+
+.extra-move-option.secondary:hover {
+    background: #d5d5d5;
+}
+
+.extra-move-option.tertiary {
+    background: #f5f5f5;
+    color: #555;
+    border: 2px solid #ddd;
+}
+
+.extra-move-option.tertiary:hover {
+    background: #eee;
+    border-color: #ccc;
+}
+
+.extra-move-option.tertiary.hidden {
+    display: none;
+}
+
+.option-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.option-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.option-subtitle {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
 /* Settings Dialog Styles */
 .settings-dialog-overlay {
     position: fixed;
@@ -1085,6 +1233,9 @@ h1 {
 
 .settings-content {
     padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .setting-item {
@@ -1148,6 +1299,51 @@ h1 {
 
 .settings-button:active {
     transform: translateY(0);
+}
+
+/* Checkbox styling for settings */
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    gap: 12px;
+}
+
+.checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+.checkbox-custom {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    position: relative;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
+    content: "✓";
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    line-height: 1;
+}
+
+.checkbox-label:hover .checkbox-custom {
+    border-color: #667eea;
 }
 
 /* Safari-specific viewport fixes */
