@@ -1250,6 +1250,9 @@ h1:hover {
     border-radius: 20px;
     max-width: 400px;
     width: 90%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease-out;
 }
@@ -1272,6 +1275,8 @@ h1:hover {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    overflow-y: auto;
+    flex: 1;
 }
 
 .settings-section-title {
