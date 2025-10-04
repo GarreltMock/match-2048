@@ -760,7 +760,7 @@ class Match3Game {
                     gem.className = `gem tile-BLOCKED`;
                 } else if (this.isJoker(tile)) {
                     gem.className = `gem tile-JOKER`;
-                    gem.textContent = "*"; //"🃏";
+                    gem.textContent = "🃏";
                     gem.classList.add("joker-tile");
                 } else if (this.isNormal(tile)) {
                     const value = this.getTileValue(tile);
@@ -1580,15 +1580,15 @@ class Match3Game {
         }
 
         // Separate line matches by size
-        const line5Matches = allLineMatches.filter(m => m.tiles.length === 5);
-        const line4Matches = allLineMatches.filter(m => m.tiles.length === 4);
-        const line3Matches = allLineMatches.filter(m => m.tiles.length === 3);
+        const line5Matches = allLineMatches.filter((m) => m.tiles.length === 5);
+        const line4Matches = allLineMatches.filter((m) => m.tiles.length === 4);
+        const line3Matches = allLineMatches.filter((m) => m.tiles.length === 3);
 
         // Get all special formations
         const allSpecialFormations = this.findAllSpecialFormations();
-        const tFormations = allSpecialFormations.filter(f => f.direction === 'T-formation');
-        const lFormations = allSpecialFormations.filter(f => f.direction === 'L-formation');
-        const blockFormations = allSpecialFormations.filter(f => f.direction === 'block_4_formation');
+        const tFormations = allSpecialFormations.filter((f) => f.direction === "T-formation");
+        const lFormations = allSpecialFormations.filter((f) => f.direction === "L-formation");
+        const blockFormations = allSpecialFormations.filter((f) => f.direction === "block_4_formation");
 
         // Apply matches in priority order: 5-line > T > L > 4-line > Block > 3-line
         const allMatchesByPriority = [
@@ -1597,7 +1597,7 @@ class Match3Game {
             ...lFormations,
             ...line4Matches,
             ...blockFormations,
-            ...line3Matches
+            ...line3Matches,
         ];
 
         // Add matches that don't overlap with already-used tiles

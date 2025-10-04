@@ -1397,6 +1397,23 @@ h1:hover {
     border-color: #667eea;
 }
 
+/* Special tile help text */
+.special-tile-help {
+    background: #f8f9fa;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #555;
+    margin-top: -10px;
+}
+
+.special-tile-help strong {
+    color: #333;
+    font-weight: 600;
+}
+
 /* Safari-specific viewport fixes */
 @supports (-webkit-touch-callout: none) {
     body {
