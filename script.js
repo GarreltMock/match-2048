@@ -2548,6 +2548,7 @@ class Match3Game {
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
+        const levelSelect = document.getElementById("levelSelect");
         const numberBaseSelect = document.getElementById("numberBase");
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const titleElement = document.querySelector("h1");
@@ -2559,8 +2560,22 @@ class Match3Game {
         const tFormationSelect = document.getElementById("tFormationReward");
         const lFormationSelect = document.getElementById("lFormationReward");
 
+        // Populate level selector
+        if (levelSelect) {
+            levelSelect.innerHTML = "";
+            for (let i = 1; i <= this.levels.length; i++) {
+                const option = document.createElement("option");
+                option.value = i;
+                option.textContent = `Level ${i}`;
+                levelSelect.appendChild(option);
+            }
+        }
+
         const openSettings = () => {
             // Set current values
+            if (levelSelect) {
+                levelSelect.value = this.currentLevel.toString();
+            }
             numberBaseSelect.value = this.numberBase.toString();
             showReviewBoardCheckbox.checked = this.showReviewBoard;
 
@@ -2585,10 +2600,23 @@ class Match3Game {
             // Save settings
             if (saveSettingsBtn) {
                 saveSettingsBtn.addEventListener("click", () => {
+                    // Check if level changed
+                    let levelChanged = false;
+                    if (levelSelect) {
+                        const newLevel = parseInt(levelSelect.value, 10);
+                        if (newLevel !== this.currentLevel) {
+                            levelChanged = true;
+                            this.currentLevel = newLevel;
+                            this.saveCurrentLevel();
+                        }
+                    }
+
+                    // Save number base
                     const newBase = parseInt(numberBaseSelect.value, 10);
                     this.numberBase = newBase;
                     this.saveNumberBase();
 
+                    // Save review board preference
                     this.showReviewBoard = showReviewBoardCheckbox.checked;
                     this.saveShowReviewBoard();
 
@@ -2600,11 +2628,14 @@ class Match3Game {
                     this.specialTileConfig.l_formation = lFormationSelect.value;
                     this.saveSpecialTileConfig();
 
-                    settingsDialog.classList.add("hidden");
-
-                    // Re-render to show new number base
-                    this.renderBoard();
-                    this.renderGoals();
+                    // Reload page if level changed, otherwise just close and re-render
+                    if (levelChanged) {
+                        location.reload();
+                    } else {
+                        settingsDialog.classList.add("hidden");
+                        this.renderBoard();
+                        this.renderGoals();
+                    }
                 });
             }
 
