@@ -90,12 +90,12 @@ class Match3Game {
         if (saved) {
             return JSON.parse(saved);
         }
-        // Default configuration: T-formation gets joker, others get none
+        // Default configuration: all special tiles disabled
         return {
             line_4: "none",
             block_4: "none",
             line_5: "none",
-            t_formation: "joker",
+            t_formation: "none",
             l_formation: "none",
         };
     }
