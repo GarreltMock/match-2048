@@ -468,35 +468,10 @@ h1:hover {
 .gem.tile-JOKER {
     background: linear-gradient(135deg, #9c27b0 0%, #e91e63 50%, #ff9800 100%);
     color: white;
-    border: 3px solid #fff;
-    box-shadow: 0 0 15px rgba(156, 39, 176, 0.6), 0 4px 8px rgba(0, 0, 0, 0.3);
-    font-size: clamp(18px, 4vw, 28px);
-    animation: joker-glow 2s infinite;
+    border: 3px solid #fffa;
+    font-size: clamp(22px, 4.5vw, 32px);
     cursor: pointer;
     position: relative;
-}
-
-.gem.tile-JOKER::before {
-    content: "";
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    background: linear-gradient(45deg, #9c27b0, #e91e63, #ff9800, #9c27b0);
-    border-radius: inherit;
-    z-index: -1;
-    filter: blur(8px);
-    opacity: 0.7;
-}
-
-@keyframes joker-glow {
-    0%, 100% {
-        box-shadow: 0 0 15px rgba(156, 39, 176, 0.6), 0 4px 8px rgba(0, 0, 0, 0.3);
-    }
-    50% {
-        box-shadow: 0 0 25px rgba(233, 30, 99, 0.8), 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
 }
 
 .gem.tile-BLOCKED {
@@ -1264,8 +1239,13 @@ h1:hover {
 
 .setting-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: 10px;
+}
+
+.setting-item > * {
+    flex: 1;
 }
 
 .setting-item label {
