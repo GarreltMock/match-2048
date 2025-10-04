@@ -1,7 +1,11 @@
 class Match3Game {
     constructor() {
-        this.BLOCKED_TILE = "BLOCKED"; // Constant for blocked tiles
-        this.JOKER_TILE = "JOKER"; // Constant for joker tiles
+        // Tile type constants
+        this.TILE_TYPE = {
+            NORMAL: "normal",
+            BLOCKED: "blocked",
+            JOKER: "joker",
+        };
         this.board = [];
         this.boardWidth = 8; // Default width, will be updated by loadLevel
         this.boardHeight = 8; // Default height, will be updated by loadLevel
@@ -39,6 +43,7 @@ class Match3Game {
         this.SPECIAL_TILE_TYPES = {
             NONE: "none",
             JOKER: "joker",
+            POWER: "power",
         };
         this.FORMATION_TYPES = {
             LINE_4: "line_4",
@@ -54,6 +59,59 @@ class Match3Game {
         this.setupSettingsButton();
         this.setupExtraMovesDialog();
         this.init();
+    }
+
+    // Helper methods for tile objects
+    createTile(value, isPowerTile = false) {
+        return {
+            type: this.TILE_TYPE.NORMAL,
+            value: value,
+            isPowerTile: isPowerTile,
+        };
+    }
+
+    createBlockedTile() {
+        return {
+            type: this.TILE_TYPE.BLOCKED,
+            value: null,
+            isPowerTile: false,
+        };
+    }
+
+    createJokerTile() {
+        return {
+            type: this.TILE_TYPE.JOKER,
+            value: null,
+            isPowerTile: false,
+        };
+    }
+
+    getTileValue(tile) {
+        if (!tile || tile.type !== this.TILE_TYPE.NORMAL) {
+            return null;
+        }
+        return tile.value;
+    }
+
+    getTileType(tile) {
+        if (!tile) return null;
+        return tile.type;
+    }
+
+    isBlocked(tile) {
+        return tile && tile.type === this.TILE_TYPE.BLOCKED;
+    }
+
+    isJoker(tile) {
+        return tile && tile.type === this.TILE_TYPE.JOKER;
+    }
+
+    isNormal(tile) {
+        return tile && tile.type === this.TILE_TYPE.NORMAL;
+    }
+
+    isTilePowerTile(tile) {
+        return tile && tile.type === this.TILE_TYPE.NORMAL && tile.isPowerTile === true;
     }
 
     // Convert internal value (1, 2, 3...) to display value based on numberBase
@@ -112,7 +170,7 @@ class Match3Game {
                 boardWidth: 6,
                 boardHeight: 6,
                 maxMoves: 10,
-                blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
+                // blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
                 goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }], // 32
                 spawnableTiles: [1, 2, 3], // 2, 4, 8
             },
@@ -399,7 +457,7 @@ class Match3Game {
             this.board[row] = [];
             for (let col = 0; col < this.boardWidth; col++) {
                 do {
-                    this.board[row][col] = this.getRandomTileValue();
+                    this.board[row][col] = this.createTile(this.getRandomTileValue());
                 } while (this.hasInitialMatch(row, col));
             }
         }
@@ -411,21 +469,21 @@ class Match3Game {
                     const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
                     for (const col of colArray) {
                         if (blockedPos.row < this.boardHeight && col < this.boardWidth) {
-                            this.board[blockedPos.row][col] = this.BLOCKED_TILE;
+                            this.board[blockedPos.row][col] = this.createBlockedTile();
                         }
                     }
                 } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
                     // Entire row: { row: 2 }
                     if (blockedPos.row < this.boardHeight) {
                         for (let col = 0; col < this.boardWidth; col++) {
-                            this.board[blockedPos.row][col] = this.BLOCKED_TILE;
+                            this.board[blockedPos.row][col] = this.createBlockedTile();
                         }
                     }
                 } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
                     // Entire column: { col: 3 }
                     if (blockedPos.col < this.boardWidth) {
                         for (let row = 0; row < this.boardHeight; row++) {
-                            this.board[row][blockedPos.col] = this.BLOCKED_TILE;
+                            this.board[row][blockedPos.col] = this.createBlockedTile();
                         }
                     }
                 }
@@ -437,17 +495,44 @@ class Match3Game {
         return this.tileValues[Math.floor(Math.random() * this.tileValues.length)];
     }
 
+    canMatch(tile1, tile2) {
+        // Helper function to check if two tiles can match
+        const val1 = this.getTileValue(tile1);
+        const val2 = this.getTileValue(tile2);
+
+        if (val1 === val2) return true;
+
+        // Check if either tile is a power tile
+        const isPower1 = this.isTilePowerTile(tile1);
+        const isPower2 = this.isTilePowerTile(tile2);
+
+        // Power tile matches with its value or higher
+        if (isPower1 && val2 >= val1) return true;
+        if (isPower2 && val1 >= val2) return true;
+
+        return false;
+    }
+
     hasInitialMatch(row, col) {
-        const value = this.board[row][col];
+        const tile = this.board[row][col];
+        const value = this.getTileValue(tile);
 
         // Check horizontal matches
-        if (col >= 2 && this.board[row][col - 1] === value && this.board[row][col - 2] === value) {
-            return true;
+        if (col >= 2 && this.board[row][col - 1] && this.board[row][col - 2]) {
+            const val1 = this.getTileValue(this.board[row][col - 1]);
+            const val2 = this.getTileValue(this.board[row][col - 2]);
+            if (value === val1 && value === val2) {
+                return true;
+            }
         }
 
         // Check vertical matches
-        if (row >= 2 && this.board[row - 1][col] === value && this.board[row - 2][col] === value) {
-            return true;
+        if (row >= 2 && this.board[row - 1][col] && this.board[row - 2][col]) {
+            const val1 = this.getTileValue(this.board[row - 1][col]);
+            const val2 = this.getTileValue(this.board[row - 2][col]);
+            if (value === val1 && value === val2) {
+                return true;
+            }
         }
 
         // Check special formations that could be created by placing this tile
@@ -484,8 +569,9 @@ class Match3Game {
         this.tileCounts = {};
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
-                const value = this.board[row][col];
-                if (value !== null && value !== this.BLOCKED_TILE) {
+                const tile = this.board[row][col];
+                if (this.isNormal(tile)) {
+                    const value = this.getTileValue(tile);
                     this.tileCounts[value] = (this.tileCounts[value] || 0) + 1;
                 }
             }
@@ -527,7 +613,7 @@ class Match3Game {
         let count = 0;
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
-                if (this.board[row][col] === this.BLOCKED_TILE) {
+                if (this.isBlocked(this.board[row][col])) {
                     count++;
                 }
             }
@@ -646,18 +732,27 @@ class Match3Game {
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const gem = document.createElement("div");
-                const value = this.board[row][col];
-                gem.className = `gem tile-${value}`;
+                const tile = this.board[row][col];
                 gem.dataset.row = row;
                 gem.dataset.col = col;
 
-                // Handle special tile display
-                if (value === this.JOKER_TILE) {
+                // Set CSS class based on tile type
+                if (this.isBlocked(tile)) {
+                    gem.className = `gem tile-BLOCKED`;
+                } else if (this.isJoker(tile)) {
+                    gem.className = `gem tile-JOKER`;
                     gem.textContent = "🃏";
                     gem.classList.add("joker-tile");
-                } else if (value !== this.BLOCKED_TILE) {
+                } else if (this.isNormal(tile)) {
+                    const value = this.getTileValue(tile);
+                    gem.className = `gem tile-${value}`;
                     const displayValue = this.getDisplayValue(value);
                     gem.textContent = displayValue;
+
+                    // Add power-tile class if this is a power tile
+                    if (this.isTilePowerTile(tile)) {
+                        gem.classList.add("power-tile");
+                    }
                 }
 
                 gameBoard.appendChild(gem);
@@ -800,10 +895,12 @@ class Match3Game {
     }
 
     handlePowerUpAction(row, col, element) {
-        const value = this.board[row][col];
+        const tile = this.board[row][col];
 
         // Skip blocked tiles
-        if (value === this.BLOCKED_TILE) return;
+        if (this.isBlocked(tile)) return;
+
+        const value = this.getTileValue(tile);
 
         switch (this.activePowerUp) {
             case "hammer":
@@ -851,8 +948,9 @@ class Match3Game {
     }
 
     usePowerUpHalve(row, col, element) {
-        const currentValue = this.board[row][col];
-        if (currentValue && currentValue !== this.BLOCKED_TILE && currentValue > 1) {
+        const tile = this.board[row][col];
+        const currentValue = this.getTileValue(tile);
+        if (currentValue && this.isNormal(tile) && currentValue > 1) {
             // Increment usage count
             this.powerUpUses.halve++;
             this.updatePowerUpButtons();
@@ -862,7 +960,7 @@ class Match3Game {
 
             // Decrement by 1 to go to previous level (halving in display terms)
             const halvedValue = currentValue - 1;
-            this.board[row][col] = halvedValue;
+            this.board[row][col] = this.createTile(halvedValue);
 
             // Track goal progress for the newly created tile
             this.trackGoalProgress(halvedValue, 1);
@@ -927,8 +1025,9 @@ class Match3Game {
         const allValues = [];
         for (let r = 0; r < this.boardHeight; r++) {
             for (let c = 0; c < this.boardWidth; c++) {
-                const val = this.board[r][c];
-                if (val !== null && val !== this.BLOCKED_TILE && val !== this.JOKER_TILE) {
+                const tile = this.board[r][c];
+                if (this.isNormal(tile)) {
+                    const val = this.getTileValue(tile);
                     if (!allValues.includes(val)) {
                         allValues.push(val);
                     }
@@ -950,7 +1049,7 @@ class Match3Game {
         // Try each value from highest to lowest
         for (const testValue of allValues) {
             // Temporarily set joker to this value
-            this.board[jokerRow][jokerCol] = testValue;
+            this.board[jokerRow][jokerCol] = this.createTile(testValue);
 
             // Use existing findMatches to check if this creates a valid match
             const matches = this.findMatches();
@@ -967,7 +1066,7 @@ class Match3Game {
                     // Skip the joker we're testing
                     if (tile.row === jokerRow && tile.col === jokerCol) return false;
                     // Check if this tile is a joker
-                    return this.board[tile.row][tile.col] === this.JOKER_TILE;
+                    return this.isJoker(this.board[tile.row][tile.col]);
                 });
 
                 return !hasOtherJokers;
@@ -979,11 +1078,11 @@ class Match3Game {
             }
 
             // No match, try next value
-            this.board[jokerRow][jokerCol] = this.JOKER_TILE;
+            this.board[jokerRow][jokerCol] = this.createJokerTile();
         }
 
         // No valid matches found, restore joker
-        this.board[jokerRow][jokerCol] = this.JOKER_TILE;
+        this.board[jokerRow][jokerCol] = this.createJokerTile();
         return null;
     }
 
@@ -994,7 +1093,8 @@ class Match3Game {
         if (element && element.classList.contains("gem")) {
             const row = parseInt(element.dataset.row);
             const col = parseInt(element.dataset.col);
-            const value = this.board[row][col];
+            const tile = this.board[row][col];
+            const value = this.getTileValue(tile);
 
             // Handle power-ups
             if (this.activePowerUp) {
@@ -1009,7 +1109,7 @@ class Match3Game {
                 element: element,
                 row: row,
                 col: col,
-                value: value, // Store value to detect joker taps later
+                tile: value, // Store tile to detect joker taps later
             };
             this.isDragging = true;
             this.dragStartPos = { x, y };
@@ -1045,7 +1145,7 @@ class Match3Game {
                 const targetCol = parseInt(targetGem.dataset.col);
                 this.trySwap(this.selectedGem.row, this.selectedGem.col, targetRow, targetCol);
             }
-        } else if (this.selectedGem.value === this.JOKER_TILE) {
+        } else if (this.isJoker(this.selectedGem.tile)) {
             // User tapped on joker without dragging - try to activate it
             this.activateJokerByTap(this.selectedGem.row, this.selectedGem.col, this.selectedGem.element);
         }
@@ -1073,7 +1173,7 @@ class Match3Game {
 
             setTimeout(() => {
                 element.style.transform = "scale(1)";
-                this.board[row][col] = bestValue; // Update board
+                this.board[row][col] = this.createTile(bestValue); // Update board
                 setTimeout(() => {
                     this.animating = false;
                     this.isUserSwap = true; // Treat tap as user action
@@ -1109,7 +1209,7 @@ class Match3Game {
         if (!this.gameActive || this.animating) return;
 
         // Prevent swapping if either tile is blocked
-        if (this.board[row1][col1] === this.BLOCKED_TILE || this.board[row2][col2] === this.BLOCKED_TILE) {
+        if (this.isBlocked(this.board[row1][col1]) || this.isBlocked(this.board[row2][col2])) {
             return;
         }
 
@@ -1248,11 +1348,12 @@ class Match3Game {
         if (this.isUserSwap) {
             for (let row = 0; row < this.boardHeight; row++) {
                 for (let col = 0; col < this.boardWidth; col++) {
-                    if (this.board[row][col] === this.JOKER_TILE) {
+                    const tile = this.board[row][col];
+                    if (this.isJoker(tile)) {
                         const bestValue = this.findBestJokerValue(row, col);
                         if (bestValue !== null) {
                             // Transform joker to the best value
-                            this.board[row][col] = bestValue;
+                            this.board[row][col] = this.createTile(bestValue);
                         }
                     }
                 }
@@ -1270,80 +1371,133 @@ class Match3Game {
 
         // Check horizontal matches (track formation types)
         for (let row = 0; row < this.boardHeight; row++) {
-            let count = 1;
-            let currentValue = this.board[row][0];
-            let startCol = 0;
+            let matchGroup = [];
+            let baseValue = null; // The lowest value in the match (for power tiles)
 
-            for (let col = 1; col < this.boardWidth; col++) {
-                if (
-                    this.board[row][col] === currentValue &&
-                    currentValue !== this.BLOCKED_TILE &&
-                    currentValue !== this.JOKER_TILE
-                ) {
-                    count++;
-                } else {
-                    if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
-                        const matchGroup = [];
-                        for (let i = startCol; i < col; i++) {
-                            matchGroup.push({ row, col: i });
-                        }
+            for (let col = 0; col < this.boardWidth; col++) {
+                const currentTile = this.board[row][col];
+                const currentValue = this.getTileValue(currentTile);
+
+                if (!this.isNormal(currentTile)) {
+                    // End current match
+                    if (matchGroup.length >= 3) {
                         const formationType =
-                            count === 4 ? "line_4_horizontal" : count === 5 ? "line_5_horizontal" : "horizontal";
-                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
+                            matchGroup.length === 4
+                                ? "line_4_horizontal"
+                                : matchGroup.length === 5
+                                ? "line_5_horizontal"
+                                : "horizontal";
+                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
                     }
-                    count = 1;
-                    currentValue = this.board[row][col];
-                    startCol = col;
+                    matchGroup = [];
+                    baseValue = null;
+                    continue;
+                }
+
+                // Check if this tile can be added to the current match
+                if (matchGroup.length === 0) {
+                    // Start new match
+                    matchGroup.push({ row, col });
+                    baseValue = currentValue;
+                } else {
+                    // Check if current tile matches with the previous tile
+                    const prevTile = matchGroup[matchGroup.length - 1];
+                    if (this.canMatch(currentTile, this.board[prevTile.row][prevTile.col])) {
+                        matchGroup.push({ row, col });
+                        // Update base value to the minimum
+                        baseValue = Math.min(baseValue, currentValue);
+                    } else {
+                        // End current match and start new one
+                        if (matchGroup.length >= 3) {
+                            const formationType =
+                                matchGroup.length === 4
+                                    ? "line_4_horizontal"
+                                    : matchGroup.length === 5
+                                    ? "line_5_horizontal"
+                                    : "horizontal";
+                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                        }
+                        matchGroup = [{ row, col }];
+                        baseValue = currentValue;
+                    }
                 }
             }
 
-            if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
-                const matchGroup = [];
-                for (let i = startCol; i < this.boardWidth; i++) {
-                    matchGroup.push({ row, col: i });
-                }
+            // Check remaining match at end of row
+            if (matchGroup.length >= 3) {
                 const formationType =
-                    count === 4 ? "line_4_horizontal" : count === 5 ? "line_5_horizontal" : "horizontal";
-                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
+                    matchGroup.length === 4
+                        ? "line_4_horizontal"
+                        : matchGroup.length === 5
+                        ? "line_5_horizontal"
+                        : "horizontal";
+                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType });
             }
         }
 
         // Check vertical matches (track formation types)
         for (let col = 0; col < this.boardWidth; col++) {
-            let count = 1;
-            let currentValue = this.board[0][col];
-            let startRow = 0;
+            let matchGroup = [];
+            let baseValue = null; // The lowest value in the match (for power tiles)
 
-            for (let row = 1; row < this.boardHeight; row++) {
-                if (
-                    this.board[row][col] === currentValue &&
-                    currentValue !== this.BLOCKED_TILE &&
-                    currentValue !== this.JOKER_TILE
-                ) {
-                    count++;
-                } else {
-                    if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
-                        const matchGroup = [];
-                        for (let i = startRow; i < row; i++) {
-                            matchGroup.push({ row: i, col });
-                        }
+            for (let row = 0; row < this.boardHeight; row++) {
+                const currentTile = this.board[row][col];
+                const currentValue = this.getTileValue(currentTile);
+
+                if (!this.isNormal(currentTile)) {
+                    // End current match
+                    if (matchGroup.length >= 3) {
                         const formationType =
-                            count === 4 ? "line_4_vertical" : count === 5 ? "line_5_vertical" : "vertical";
-                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
+                            matchGroup.length === 4
+                                ? "line_4_vertical"
+                                : matchGroup.length === 5
+                                ? "line_5_vertical"
+                                : "vertical";
+                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
                     }
-                    count = 1;
-                    currentValue = this.board[row][col];
-                    startRow = row;
+                    matchGroup = [];
+                    baseValue = null;
+                    continue;
+                }
+
+                // Check if this tile can be added to the current match
+                if (matchGroup.length === 0) {
+                    // Start new match
+                    matchGroup.push({ row, col });
+                    baseValue = currentValue;
+                } else {
+                    // Check if current tile matches with the previous tile
+                    const prevTile = matchGroup[matchGroup.length - 1];
+                    if (this.canMatch(currentTile, this.board[prevTile.row][prevTile.col])) {
+                        matchGroup.push({ row, col });
+                        // Update base value to the minimum
+                        baseValue = Math.min(baseValue, currentValue);
+                    } else {
+                        // End current match and start new one
+                        if (matchGroup.length >= 3) {
+                            const formationType =
+                                matchGroup.length === 4
+                                    ? "line_4_vertical"
+                                    : matchGroup.length === 5
+                                    ? "line_5_vertical"
+                                    : "vertical";
+                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                        }
+                        matchGroup = [{ row, col }];
+                        baseValue = currentValue;
+                    }
                 }
             }
 
-            if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
-                const matchGroup = [];
-                for (let i = startRow; i < this.boardHeight; i++) {
-                    matchGroup.push({ row: i, col });
-                }
-                const formationType = count === 4 ? "line_4_vertical" : count === 5 ? "line_5_vertical" : "vertical";
-                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
+            // Check remaining match at end of column
+            if (matchGroup.length >= 3) {
+                const formationType =
+                    matchGroup.length === 4
+                        ? "line_4_vertical"
+                        : matchGroup.length === 5
+                        ? "line_5_vertical"
+                        : "vertical";
+                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType });
             }
         }
 
@@ -1356,8 +1510,9 @@ class Match3Game {
         // Find all possible formations first
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
-                const value = this.board[row][col];
-                if (!value || value === this.BLOCKED_TILE || value === this.JOKER_TILE) continue;
+                const tile = this.board[row][col];
+                if (!this.isNormal(tile)) continue;
+                const value = this.getTileValue(tile);
 
                 // Check T-formation
                 const tFormation = this.checkTFormation(row, col, value);
@@ -1456,8 +1611,15 @@ class Match3Game {
                     row >= this.boardHeight ||
                     col < 0 ||
                     col >= this.boardWidth ||
-                    this.board[row][col] !== value
+                    !this.board[row] ||
+                    this.board[row][col] === undefined
                 ) {
+                    validT = false;
+                    break;
+                }
+                const tile = this.board[row][col];
+                const tileValue = this.getTileValue(tile);
+                if (tileValue !== value) {
                     validT = false;
                     break;
                 }
@@ -1476,8 +1638,15 @@ class Match3Game {
                     row >= this.boardHeight ||
                     col < 0 ||
                     col >= this.boardWidth ||
-                    this.board[row][col] !== value
+                    !this.board[row] ||
+                    this.board[row][col] === undefined
                 ) {
+                    validT = false;
+                    break;
+                }
+                const tile = this.board[row][col];
+                const tileValue = this.getTileValue(tile);
+                if (tileValue !== value) {
                     validT = false;
                     break;
                 }
@@ -1537,8 +1706,15 @@ class Match3Game {
                     col >= this.boardWidth ||
                     row < 0 ||
                     row >= this.boardHeight ||
-                    this.board[row][col] !== value
+                    !this.board[row] ||
+                    this.board[row][col] === undefined
                 ) {
+                    validL = false;
+                    break;
+                }
+                const tile = this.board[row][col];
+                const tileValue = this.getTileValue(tile);
+                if (tileValue !== value) {
                     validL = false;
                     break;
                 }
@@ -1558,8 +1734,15 @@ class Match3Game {
                     row >= this.boardHeight ||
                     col < 0 ||
                     col >= this.boardWidth ||
-                    this.board[row][col] !== value
+                    !this.board[row] ||
+                    this.board[row][col] === undefined
                 ) {
+                    validL = false;
+                    break;
+                }
+                const tile = this.board[row][col];
+                const tileValue = this.getTileValue(tile);
+                if (tileValue !== value) {
                     validL = false;
                     break;
                 }
@@ -1601,8 +1784,13 @@ class Match3Game {
             if (pos.row < 0 || pos.row >= this.boardHeight || pos.col < 0 || pos.col >= this.boardWidth) {
                 return null; // Out of bounds
             }
-            if (!this.board[pos.row] || this.board[pos.row][pos.col] !== value) {
-                return null; // Position doesn't exist or doesn't match
+            if (!this.board[pos.row] || this.board[pos.row][pos.col] === undefined) {
+                return null; // Position doesn't exist
+            }
+            const tile = this.board[pos.row][pos.col];
+            const tileValue = this.getTileValue(tile);
+            if (tileValue !== value) {
+                return null; // Doesn't match
             }
         }
 
@@ -1718,75 +1906,47 @@ class Match3Game {
     }
 
     createMergedTiles(group) {
-        // Create merged tiles for a match group based on formation type and special tile config
         const formationType = this.getFormationConfig(group.direction);
         const specialTileType = formationType ? this.specialTileConfig[formationType] : null;
 
-        if (group.direction === "T-formation" || group.direction === "L-formation") {
-            // 5-tile special formations -> 1 tile
-            const intersection = group.intersection;
-            if (specialTileType === "joker") {
-                this.board[intersection.row][intersection.col] = this.JOKER_TILE;
+        // Calculate positions and value based on formation type
+        const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
+        const positions = isTLFormation ? [group.intersection] : this.calculateMiddlePositions(group.tiles);
+        const valueIncrement = isTLFormation ? 2 : 1;
+        const newValue = group.value + valueIncrement;
+
+        // Handle special tile types
+        if (specialTileType === "joker") {
+            if (positions.length > 1) {
+                const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+                const specialPos = this.determineSpecialTilePosition(group, formationKey);
+                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+
+                this.board[specialPos.row][specialPos.col] = this.createJokerTile();
+                this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
+                this.trackGoalProgress(newValue, 1);
             } else {
-                const newValue = group.value + 2; // 2 levels up
-                this.board[intersection.row][intersection.col] = newValue;
+                this.board[positions[0].row][positions[0].col] = this.createJokerTile();
+            }
+        } else if (specialTileType === "power") {
+            if (positions.length > 1) {
+                const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+                const specialPos = this.determineSpecialTilePosition(group, formationKey);
+                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+
+                this.board[specialPos.row][specialPos.col] = this.createTile(newValue, true);
+                this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
+                this.trackGoalProgress(newValue, 2);
+            } else {
+                this.board[positions[0].row][positions[0].col] = this.createTile(newValue, true);
                 this.trackGoalProgress(newValue, 1);
             }
-        } else if (group.direction === "block_4_formation") {
-            // 4-tile block -> 2 tiles
-            if (specialTileType === "joker") {
-                const specialTilePos = this.determineSpecialTilePosition(group, "block_4");
-                const normalTilePos = group.intersections.find(
-                    (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
-                );
-                this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
-                this.trackGoalProgress(group.value + 1, 1);
-            } else {
-                const newValue = group.value + 1;
-                group.intersections.forEach((intersection) => {
-                    this.board[intersection.row][intersection.col] = newValue;
-                });
-                this.trackGoalProgress(newValue, group.intersections.length);
-            }
-        } else if (group.direction === "line_4_horizontal" || group.direction === "line_4_vertical") {
-            // 4-tile line -> 2 tiles
-            const middlePositions = this.calculateMiddlePositions(group.tiles);
-            if (specialTileType === "joker") {
-                const specialTilePos = this.determineSpecialTilePosition(group, "line_4");
-                const normalTilePos = middlePositions.find(
-                    (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
-                );
-                this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
-                this.trackGoalProgress(group.value + 1, 1);
-            } else {
-                const newValue = group.value + 1;
-                middlePositions.forEach((pos) => {
-                    this.board[pos.row][pos.col] = newValue;
-                });
-                this.trackGoalProgress(newValue, middlePositions.length);
-            }
-        } else if (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical") {
-            // 5-tile line -> varies
-            const middlePositions = this.calculateMiddlePositions(group.tiles);
-            if (specialTileType === "joker") {
-                this.board[middlePositions[0].row][middlePositions[0].col] = this.JOKER_TILE;
-            } else {
-                const newValue = group.value + 1;
-                middlePositions.forEach((pos) => {
-                    this.board[pos.row][pos.col] = newValue;
-                });
-                this.trackGoalProgress(newValue, middlePositions.length);
-            }
         } else {
-            // Regular 3-tile matches
-            const middlePositions = this.calculateMiddlePositions(group.tiles);
-            const newValue = group.value + 1;
-            middlePositions.forEach((pos) => {
-                this.board[pos.row][pos.col] = newValue;
+            // No special tile - create normal tiles at all positions
+            positions.forEach(pos => {
+                this.board[pos.row][pos.col] = this.createTile(newValue);
             });
-            this.trackGoalProgress(newValue, middlePositions.length);
+            this.trackGoalProgress(newValue, positions.length);
         }
     }
 
@@ -1868,9 +2028,7 @@ class Match3Game {
     }
 
     trackGoalProgress(newValue, count = 1) {
-        // Update goal progress when tiles are created (skip for special tiles)
-        if (newValue === this.JOKER_TILE) return;
-
+        // Update goal progress when tiles are created
         this.levelGoals.forEach((goal) => {
             if (goal.tileValue === newValue) {
                 goal.created += count;
@@ -1909,7 +2067,7 @@ class Match3Game {
                         pos.row < this.boardHeight &&
                         pos.col >= 0 &&
                         pos.col < this.boardWidth &&
-                        this.board[pos.row][pos.col] === this.BLOCKED_TILE
+                        this.isBlocked(this.board[pos.row][pos.col])
                     ) {
                         // Avoid duplicates
                         if (!blockedTilesToRemove.some((tile) => tile.row === pos.row && tile.col === pos.col)) {
@@ -2029,7 +2187,7 @@ class Match3Game {
 
             // Fill empty spaces from top with new gems
             for (let i = 0; i < emptySpaces; i++) {
-                this.board[i][col] = this.getRandomTileValue();
+                this.board[i][col] = this.createTile(this.getRandomTileValue());
                 newGems.push({ row: i, col });
             }
         }

@@ -474,6 +474,22 @@ h1:hover {
     position: relative;
 }
 
+.gem.power-tile {
+    border: 3px solid #4caf50;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+    position: relative;
+}
+
+.gem.power-tile::after {
+    content: "+";
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: clamp(12px, 3vw, 16px);
+    color: #4caf50;
+    font-weight: bold;
+}
+
 .gem.tile-BLOCKED {
     background: #3c3c3c;
     color: transparent;
