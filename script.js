@@ -44,6 +44,7 @@ class Match3Game {
             NONE: "none",
             JOKER: "joker",
             POWER: "power",
+            GOLDEN: "golden",
         };
         this.FORMATION_TYPES = {
             LINE_4: "line_4",
@@ -62,11 +63,12 @@ class Match3Game {
     }
 
     // Helper methods for tile objects
-    createTile(value, isPowerTile = false) {
+    createTile(value, isPowerTile = false, isGoldenTile = false) {
         return {
             type: this.TILE_TYPE.NORMAL,
             value: value,
             isPowerTile: isPowerTile,
+            isGoldenTile: isGoldenTile,
         };
     }
 
@@ -75,6 +77,7 @@ class Match3Game {
             type: this.TILE_TYPE.BLOCKED,
             value: null,
             isPowerTile: false,
+            isGoldenTile: false,
         };
     }
 
@@ -83,6 +86,7 @@ class Match3Game {
             type: this.TILE_TYPE.JOKER,
             value: null,
             isPowerTile: false,
+            isGoldenTile: false,
         };
     }
 
@@ -112,6 +116,10 @@ class Match3Game {
 
     isTilePowerTile(tile) {
         return tile && tile.type === this.TILE_TYPE.NORMAL && tile.isPowerTile === true;
+    }
+
+    isTileGoldenTile(tile) {
+        return tile && tile.type === this.TILE_TYPE.NORMAL && tile.isGoldenTile === true;
     }
 
     // Convert internal value (1, 2, 3...) to display value based on numberBase
@@ -753,6 +761,11 @@ class Match3Game {
                     if (this.isTilePowerTile(tile)) {
                         gem.classList.add("power-tile");
                     }
+
+                    // Add golden-tile class if this is a golden tile
+                    if (this.isTileGoldenTile(tile)) {
+                        gem.classList.add("golden-tile");
+                    }
                 }
 
                 gameBoard.appendChild(gem);
@@ -1373,6 +1386,7 @@ class Match3Game {
         for (let row = 0; row < this.boardHeight; row++) {
             let matchGroup = [];
             let baseValue = null; // The lowest value in the match (for power tiles)
+            let hasGoldenTile = false;
 
             for (let col = 0; col < this.boardWidth; col++) {
                 const currentTile = this.board[row][col];
@@ -1387,10 +1401,11 @@ class Match3Game {
                                 : matchGroup.length === 5
                                 ? "line_5_horizontal"
                                 : "horizontal";
-                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
                     }
                     matchGroup = [];
                     baseValue = null;
+                    hasGoldenTile = false;
                     continue;
                 }
 
@@ -1399,6 +1414,7 @@ class Match3Game {
                     // Start new match
                     matchGroup.push({ row, col });
                     baseValue = currentValue;
+                    hasGoldenTile = this.isTileGoldenTile(currentTile);
                 } else {
                     // Check if current tile matches with the previous tile
                     const prevTile = matchGroup[matchGroup.length - 1];
@@ -1406,6 +1422,10 @@ class Match3Game {
                         matchGroup.push({ row, col });
                         // Update base value to the minimum
                         baseValue = Math.min(baseValue, currentValue);
+                        // Track if any tile is golden
+                        if (this.isTileGoldenTile(currentTile)) {
+                            hasGoldenTile = true;
+                        }
                     } else {
                         // End current match and start new one
                         if (matchGroup.length >= 3) {
@@ -1415,10 +1435,11 @@ class Match3Game {
                                     : matchGroup.length === 5
                                     ? "line_5_horizontal"
                                     : "horizontal";
-                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
                         }
                         matchGroup = [{ row, col }];
                         baseValue = currentValue;
+                        hasGoldenTile = this.isTileGoldenTile(currentTile);
                     }
                 }
             }
@@ -1431,7 +1452,7 @@ class Match3Game {
                         : matchGroup.length === 5
                         ? "line_5_horizontal"
                         : "horizontal";
-                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType });
+                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
             }
         }
 
@@ -1439,6 +1460,7 @@ class Match3Game {
         for (let col = 0; col < this.boardWidth; col++) {
             let matchGroup = [];
             let baseValue = null; // The lowest value in the match (for power tiles)
+            let hasGoldenTile = false;
 
             for (let row = 0; row < this.boardHeight; row++) {
                 const currentTile = this.board[row][col];
@@ -1453,10 +1475,11 @@ class Match3Game {
                                 : matchGroup.length === 5
                                 ? "line_5_vertical"
                                 : "vertical";
-                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
                     }
                     matchGroup = [];
                     baseValue = null;
+                    hasGoldenTile = false;
                     continue;
                 }
 
@@ -1465,6 +1488,7 @@ class Match3Game {
                     // Start new match
                     matchGroup.push({ row, col });
                     baseValue = currentValue;
+                    hasGoldenTile = this.isTileGoldenTile(currentTile);
                 } else {
                     // Check if current tile matches with the previous tile
                     const prevTile = matchGroup[matchGroup.length - 1];
@@ -1472,6 +1496,10 @@ class Match3Game {
                         matchGroup.push({ row, col });
                         // Update base value to the minimum
                         baseValue = Math.min(baseValue, currentValue);
+                        // Track if any tile is golden
+                        if (this.isTileGoldenTile(currentTile)) {
+                            hasGoldenTile = true;
+                        }
                     } else {
                         // End current match and start new one
                         if (matchGroup.length >= 3) {
@@ -1481,10 +1509,11 @@ class Match3Game {
                                     : matchGroup.length === 5
                                     ? "line_5_vertical"
                                     : "vertical";
-                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType });
+                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
                         }
                         matchGroup = [{ row, col }];
                         baseValue = currentValue;
+                        hasGoldenTile = this.isTileGoldenTile(currentTile);
                     }
                 }
             }
@@ -1497,7 +1526,7 @@ class Match3Game {
                         : matchGroup.length === 5
                         ? "line_5_vertical"
                         : "vertical";
-                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType });
+                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
             }
         }
 
@@ -1600,6 +1629,7 @@ class Match3Game {
         for (const formation of tFormations) {
             const positions = [];
             let validT = true;
+            let hasGoldenTile = false;
 
             // Check horizontal line (3 tiles including intersection)
             for (const colOffset of formation.horizontal) {
@@ -1622,6 +1652,9 @@ class Match3Game {
                 if (tileValue !== value) {
                     validT = false;
                     break;
+                }
+                if (this.isTileGoldenTile(tile)) {
+                    hasGoldenTile = true;
                 }
                 positions.push({ row: row, col: col });
             }
@@ -1650,6 +1683,9 @@ class Match3Game {
                     validT = false;
                     break;
                 }
+                if (this.isTileGoldenTile(tile)) {
+                    hasGoldenTile = true;
+                }
                 positions.push({ row: row, col: col });
             }
 
@@ -1659,6 +1695,7 @@ class Match3Game {
                     value: value,
                     direction: "T-formation",
                     intersection: { row: intersectionRow, col: intersectionCol },
+                    hasGoldenTile,
                 };
             }
         }
@@ -1695,6 +1732,7 @@ class Match3Game {
         for (const shape of lShapes) {
             const positions = [];
             let validL = true;
+            let hasGoldenTile = false;
 
             // Check horizontal part (3 tiles from corner)
             for (const colOffset of shape.horizontal) {
@@ -1717,6 +1755,9 @@ class Match3Game {
                 if (tileValue !== value) {
                     validL = false;
                     break;
+                }
+                if (this.isTileGoldenTile(tile)) {
+                    hasGoldenTile = true;
                 }
                 positions.push({ row: row, col: col });
             }
@@ -1746,6 +1787,9 @@ class Match3Game {
                     validL = false;
                     break;
                 }
+                if (this.isTileGoldenTile(tile)) {
+                    hasGoldenTile = true;
+                }
                 positions.push({ row: row, col: col });
             }
 
@@ -1755,6 +1799,7 @@ class Match3Game {
                     value: value,
                     direction: "L-formation",
                     intersection: { row: cornerRow, col: cornerCol },
+                    hasGoldenTile,
                 };
             }
         }
@@ -1779,6 +1824,8 @@ class Match3Game {
             { row: topRow + 1, col: leftCol + 1 }, // bottom-right
         ];
 
+        let hasGoldenTile = false;
+
         // Check if all 4 positions have the same value
         for (const pos of positions) {
             if (pos.row < 0 || pos.row >= this.boardHeight || pos.col < 0 || pos.col >= this.boardWidth) {
@@ -1792,6 +1839,9 @@ class Match3Game {
             if (tileValue !== value) {
                 return null; // Doesn't match
             }
+            if (this.isTileGoldenTile(tile)) {
+                hasGoldenTile = true;
+            }
         }
 
         return {
@@ -1802,6 +1852,7 @@ class Match3Game {
                 { row: topRow, col: leftCol + 1 }, // top-right becomes one merge point
                 { row: topRow + 1, col: leftCol }, // bottom-left becomes other merge point
             ],
+            hasGoldenTile,
         };
     }
 
@@ -1913,7 +1964,10 @@ class Match3Game {
         const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
         const positions = isTLFormation ? [group.intersection] : this.calculateMiddlePositions(group.tiles);
         const valueIncrement = isTLFormation ? 2 : 1;
-        const newValue = group.value + valueIncrement;
+
+        // Check if any tile in the match was a golden tile - if so, add +1 to the result
+        const goldenBonus = group.hasGoldenTile ? 1 : 0;
+        const newValue = group.value + valueIncrement + goldenBonus;
 
         // Handle special tile types
         if (specialTileType === "joker") {
@@ -1939,6 +1993,19 @@ class Match3Game {
                 this.trackGoalProgress(newValue, 2);
             } else {
                 this.board[positions[0].row][positions[0].col] = this.createTile(newValue, true);
+                this.trackGoalProgress(newValue, 1);
+            }
+        } else if (specialTileType === "golden") {
+            if (positions.length > 1) {
+                const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+                const specialPos = this.determineSpecialTilePosition(group, formationKey);
+                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+
+                this.board[specialPos.row][specialPos.col] = this.createTile(newValue, false, true);
+                this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
+                this.trackGoalProgress(newValue, 2);
+            } else {
+                this.board[positions[0].row][positions[0].col] = this.createTile(newValue, false, true);
                 this.trackGoalProgress(newValue, 1);
             }
         } else {
