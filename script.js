@@ -760,7 +760,7 @@ class Match3Game {
                     gem.className = `gem tile-BLOCKED`;
                 } else if (this.isJoker(tile)) {
                     gem.className = `gem tile-JOKER`;
-                    gem.textContent = "🃏";
+                    gem.textContent = "*"; //"🃏";
                     gem.classList.add("joker-tile");
                 } else if (this.isNormal(tile)) {
                     const value = this.getTileValue(tile);
@@ -1435,7 +1435,12 @@ class Match3Game {
                                 : matchGroup.length === 5
                                 ? "line_5_horizontal"
                                 : "horizontal";
-                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
+                        matchGroups.push({
+                            tiles: [...matchGroup],
+                            value: baseValue,
+                            direction: formationType,
+                            hasGoldenTile,
+                        });
                     }
                     matchGroup = [];
                     baseValue = null;
@@ -1469,7 +1474,12 @@ class Match3Game {
                                     : matchGroup.length === 5
                                     ? "line_5_horizontal"
                                     : "horizontal";
-                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
+                            matchGroups.push({
+                                tiles: [...matchGroup],
+                                value: baseValue,
+                                direction: formationType,
+                                hasGoldenTile,
+                            });
                         }
                         matchGroup = [{ row, col }];
                         baseValue = currentValue;
@@ -1509,7 +1519,12 @@ class Match3Game {
                                 : matchGroup.length === 5
                                 ? "line_5_vertical"
                                 : "vertical";
-                        matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
+                        matchGroups.push({
+                            tiles: [...matchGroup],
+                            value: baseValue,
+                            direction: formationType,
+                            hasGoldenTile,
+                        });
                     }
                     matchGroup = [];
                     baseValue = null;
@@ -1543,7 +1558,12 @@ class Match3Game {
                                     : matchGroup.length === 5
                                     ? "line_5_vertical"
                                     : "vertical";
-                            matchGroups.push({ tiles: [...matchGroup], value: baseValue, direction: formationType, hasGoldenTile });
+                            matchGroups.push({
+                                tiles: [...matchGroup],
+                                value: baseValue,
+                                direction: formationType,
+                                hasGoldenTile,
+                            });
                         }
                         matchGroup = [{ row, col }];
                         baseValue = currentValue;
@@ -2008,7 +2028,7 @@ class Match3Game {
             if (positions.length > 1) {
                 const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
                 const specialPos = this.determineSpecialTilePosition(group, formationKey);
-                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+                const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
                 this.board[specialPos.row][specialPos.col] = this.createJokerTile();
                 this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
@@ -2020,7 +2040,7 @@ class Match3Game {
             if (positions.length > 1) {
                 const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
                 const specialPos = this.determineSpecialTilePosition(group, formationKey);
-                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+                const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
                 this.board[specialPos.row][specialPos.col] = this.createTile(newValue, true);
                 this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
@@ -2033,7 +2053,7 @@ class Match3Game {
             if (positions.length > 1) {
                 const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
                 const specialPos = this.determineSpecialTilePosition(group, formationKey);
-                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+                const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
                 this.board[specialPos.row][specialPos.col] = this.createTile(newValue, false, true);
                 this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
@@ -2046,7 +2066,7 @@ class Match3Game {
             if (positions.length > 1) {
                 const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
                 const specialPos = this.determineSpecialTilePosition(group, formationKey);
-                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+                const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
                 this.board[specialPos.row][specialPos.col] = this.createTile(newValue, false, false, true);
                 this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
@@ -2057,7 +2077,7 @@ class Match3Game {
             }
         } else {
             // No special tile - create normal tiles at all positions
-            positions.forEach(pos => {
+            positions.forEach((pos) => {
                 this.board[pos.row][pos.col] = this.createTile(newValue);
             });
             this.trackGoalProgress(newValue, positions.length);
