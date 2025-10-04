@@ -1,6 +1,7 @@
 class Match3Game {
     constructor() {
         this.BLOCKED_TILE = "BLOCKED"; // Constant for blocked tiles
+        this.JOKER_TILE = "JOKER"; // Constant for joker tiles
         this.board = [];
         this.boardWidth = 8; // Default width, will be updated by loadLevel
         this.boardHeight = 8; // Default height, will be updated by loadLevel
@@ -8,11 +9,13 @@ class Match3Game {
         this.tileValues = this.defaultTileValues;
         this.numberBase = this.loadNumberBase(); // 2 or 3
         this.showReviewBoard = this.loadShowReviewBoard(); // true or false
+        this.jokerActivation = this.loadJokerActivation(); // "swap", "tap", or "both"
         this.score = this.loadScore();
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
         this.animating = false;
+        this.lastSwapPosition = null; // Track last swap position for special tile placement
 
         this.currentLevel = this.loadCurrentLevel();
         this.levelGoals = [];
@@ -30,6 +33,20 @@ class Match3Game {
             swap: 0,
         };
         this.maxPowerUpUses = 2;
+
+        // Special tiles configuration
+        this.specialTileConfig = this.loadSpecialTileConfig();
+        this.SPECIAL_TILE_TYPES = {
+            NONE: "none",
+            JOKER: "joker",
+        };
+        this.FORMATION_TYPES = {
+            LINE_4: "line_4",
+            BLOCK_4: "block_4",
+            LINE_5: "line_5",
+            T_FORMATION: "t_formation",
+            L_FORMATION: "l_formation",
+        };
 
         this.initializeLevels();
         this.showIntroDialog();
@@ -66,6 +83,34 @@ class Match3Game {
 
     saveShowReviewBoard() {
         localStorage.setItem("match2048_showReviewBoard", this.showReviewBoard.toString());
+    }
+
+    loadSpecialTileConfig() {
+        const saved = localStorage.getItem("match2048_specialTileConfig");
+        if (saved) {
+            return JSON.parse(saved);
+        }
+        // Default configuration: T-formation gets joker, others get none
+        return {
+            line_4: "none",
+            block_4: "none",
+            line_5: "none",
+            t_formation: "joker",
+            l_formation: "none",
+        };
+    }
+
+    saveSpecialTileConfig() {
+        localStorage.setItem("match2048_specialTileConfig", JSON.stringify(this.specialTileConfig));
+    }
+
+    loadJokerActivation() {
+        const saved = localStorage.getItem("match2048_jokerActivation");
+        return saved ? saved : "both"; // Default: both swap and tap
+    }
+
+    saveJokerActivation() {
+        localStorage.setItem("match2048_jokerActivation", this.jokerActivation);
     }
 
     initializeLevels() {
@@ -615,8 +660,11 @@ class Match3Game {
                 gem.dataset.row = row;
                 gem.dataset.col = col;
 
-                // Don't show text content for blocked tiles
-                if (value !== this.BLOCKED_TILE) {
+                // Handle special tile display
+                if (value === this.JOKER_TILE) {
+                    gem.textContent = "🃏";
+                    gem.classList.add("joker-tile");
+                } else if (value !== this.BLOCKED_TILE) {
                     const displayValue = this.getDisplayValue(value);
                     gem.textContent = displayValue;
                 }
@@ -883,6 +931,97 @@ class Match3Game {
         this.endDrag();
     }
 
+    findBestJokerValue(jokerRow, jokerCol) {
+        // Find the best value to transform the joker into
+        // Returns the value if a match is found, null otherwise
+
+        const allValues = [];
+        for (let r = 0; r < this.boardHeight; r++) {
+            for (let c = 0; c < this.boardWidth; c++) {
+                const val = this.board[r][c];
+                if (val !== null && val !== this.BLOCKED_TILE && val !== this.JOKER_TILE) {
+                    if (!allValues.includes(val)) {
+                        allValues.push(val);
+                    }
+                }
+            }
+        }
+
+        // Sort from highest to lowest
+        allValues.sort((a, b) => b - a);
+
+        // Try each value from highest to lowest
+        for (const testValue of allValues) {
+            // Temporarily set joker to this value
+            this.board[jokerRow][jokerCol] = testValue;
+
+            // Use existing findMatches to check if this creates a valid match
+            const matches = this.findMatches();
+
+            // Check if any match includes our joker position AND has no other jokers
+            const validMatch = matches.find((match) => {
+                // Check if this match includes our joker position
+                const includesJokerPos = match.tiles.some((tile) => tile.row === jokerRow && tile.col === jokerCol);
+
+                if (!includesJokerPos) return false;
+
+                // Check that no other jokers are in this match
+                const hasOtherJokers = match.tiles.some((tile) => {
+                    // Skip the joker we're testing
+                    if (tile.row === jokerRow && tile.col === jokerCol) return false;
+                    // Check if this tile is a joker
+                    return this.board[tile.row][tile.col] === this.JOKER_TILE;
+                });
+
+                return !hasOtherJokers;
+            });
+
+            if (validMatch) {
+                // Found a valid match! Return the value (board is already set)
+                return testValue;
+            }
+
+            // No match, try next value
+            this.board[jokerRow][jokerCol] = this.JOKER_TILE;
+        }
+
+        // No valid matches found, restore joker
+        this.board[jokerRow][jokerCol] = this.JOKER_TILE;
+        return null;
+    }
+
+    tryActivateJokerBySwap(jokerRow, jokerCol) {
+        // Try to activate joker after a swap
+        const bestValue = this.findBestJokerValue(jokerRow, jokerCol);
+        return bestValue !== null;
+    }
+
+    activateJokerTile(row, col, element) {
+        // Try to activate joker when tapped
+        const bestValue = this.findBestJokerValue(row, col);
+
+        if (bestValue !== null) {
+            // Found a valid match! Animate and process
+            this.animating = true;
+
+            // Visual feedback
+            element.style.transform = "scale(1.2)";
+            element.textContent = this.getDisplayValue(bestValue);
+            element.className = `gem tile-${bestValue}`;
+
+            setTimeout(() => {
+                element.style.transform = "scale(1)";
+                setTimeout(() => {
+                    this.animating = false;
+                    this.processMatches();
+                }, 200);
+            }, 300);
+        } else {
+            // No valid matches found
+            console.log("No valid merges found for joker");
+        }
+    }
+
     startDrag(x, y) {
         if (!this.gameActive || this.animating) return;
 
@@ -890,6 +1029,7 @@ class Match3Game {
         if (element && element.classList.contains("gem")) {
             const row = parseInt(element.dataset.row);
             const col = parseInt(element.dataset.col);
+            const value = this.board[row][col];
 
             // Handle power-ups
             if (this.activePowerUp) {
@@ -899,11 +1039,12 @@ class Match3Game {
                 }
                 // If handlePowerUpAction returns false (swap case), continue with normal drag
             }
-            // Normal drag behavior
+            // Normal drag behavior (including joker)
             this.selectedGem = {
                 element: element,
                 row: row,
                 col: col,
+                value: value, // Store value to detect joker taps later
             };
             this.isDragging = true;
             this.dragStartPos = { x, y };
@@ -932,12 +1073,16 @@ class Match3Game {
         const previewGems = document.querySelectorAll(".gem.preview");
 
         if (previewGems.length > 0) {
+            // User dragged to swap
             const targetGem = Array.from(previewGems).find((g) => g !== this.selectedGem.element);
             if (targetGem) {
                 const targetRow = parseInt(targetGem.dataset.row);
                 const targetCol = parseInt(targetGem.dataset.col);
                 this.trySwap(this.selectedGem.row, this.selectedGem.col, targetRow, targetCol);
             }
+        } else if (this.selectedGem.value === this.JOKER_TILE && (this.jokerActivation === "tap" || this.jokerActivation === "both")) {
+            // User tapped on joker without dragging - activate it if tap is enabled
+            this.activateJokerTile(this.selectedGem.row, this.selectedGem.col, this.selectedGem.element);
         }
 
         // Clean up
@@ -980,10 +1125,51 @@ class Match3Game {
             return;
         }
 
+        // Check if either tile is a joker
+        const tile1IsJoker = this.board[row1][col1] === this.JOKER_TILE;
+        const tile2IsJoker = this.board[row2][col2] === this.JOKER_TILE;
+
+        // If a joker is being swapped and swap activation is enabled, try to activate it
+        if ((tile1IsJoker || tile2IsJoker) && (this.jokerActivation === "swap" || this.jokerActivation === "both")) {
+            const targetRow = tile1IsJoker ? row2 : row1;
+            const targetCol = tile1IsJoker ? col2 : col1;
+
+            // Temporarily swap to test
+            const temp = this.board[row1][col1];
+            this.board[row1][col1] = this.board[row2][col2];
+            this.board[row2][col2] = temp;
+
+            // Try to activate the joker at its new position
+            const activated = this.tryActivateJokerBySwap(targetRow, targetCol);
+
+            if (activated) {
+                // Joker was activated, proceed with the swap
+                this.movesUsed++;
+                this.updateMovesDisplay();
+                this.lastSwapPosition = { row: row2, col: col2, movedFrom: { row: row1, col: col1 } };
+
+                this.animateSwap(row1, col1, row2, col2, () => {
+                    this.renderBoard();
+                    this.processMatches();
+                });
+                return;
+            } else {
+                // Joker couldn't be activated, revert
+                this.board[row2][col2] = this.board[row1][col1];
+                this.board[row1][col1] = temp;
+                this.animateRevert(row1, col1, row2, col2);
+                return;
+            }
+        }
+
+        // Normal swap (no joker involved)
         // Temporarily swap gems
         const temp = this.board[row1][col1];
         this.board[row1][col1] = this.board[row2][col2];
         this.board[row2][col2] = temp;
+
+        // Track which tile was moved (the one that changed position)
+        this.lastSwapPosition = { row: row2, col: col2, movedFrom: { row: row1, col: col1 } };
 
         // Check if this creates any matches (or if using swap power-up)
         const isSwapPowerUp = this.activePowerUp === "swap";
@@ -1007,6 +1193,7 @@ class Match3Game {
             // Revert the swap
             this.board[row2][col2] = this.board[row1][col1];
             this.board[row1][col1] = temp;
+            this.lastSwapPosition = null;
             this.animateRevert(row1, col1, row2, col2);
         }
     }
@@ -1112,22 +1299,23 @@ class Match3Game {
             return matchGroups;
         }
 
-        // Check horizontal matches
+        // Check horizontal matches (track formation types)
         for (let row = 0; row < this.boardHeight; row++) {
             let count = 1;
             let currentValue = this.board[row][0];
             let startCol = 0;
 
             for (let col = 1; col < this.boardWidth; col++) {
-                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE) {
+                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                     count++;
                 } else {
-                    if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
+                    if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                         const matchGroup = [];
                         for (let i = startCol; i < col; i++) {
                             matchGroup.push({ row, col: i });
                         }
-                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "horizontal" });
+                        const formationType = count === 4 ? "line_4_horizontal" : count === 5 ? "line_5_horizontal" : "horizontal";
+                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
                     }
                     count = 1;
                     currentValue = this.board[row][col];
@@ -1135,31 +1323,33 @@ class Match3Game {
                 }
             }
 
-            if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
+            if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                 const matchGroup = [];
                 for (let i = startCol; i < this.boardWidth; i++) {
                     matchGroup.push({ row, col: i });
                 }
-                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "horizontal" });
+                const formationType = count === 4 ? "line_4_horizontal" : count === 5 ? "line_5_horizontal" : "horizontal";
+                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
             }
         }
 
-        // Check vertical matches
+        // Check vertical matches (track formation types)
         for (let col = 0; col < this.boardWidth; col++) {
             let count = 1;
             let currentValue = this.board[0][col];
             let startRow = 0;
 
             for (let row = 1; row < this.boardHeight; row++) {
-                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE) {
+                if (this.board[row][col] === currentValue && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                     count++;
                 } else {
-                    if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
+                    if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                         const matchGroup = [];
                         for (let i = startRow; i < row; i++) {
                             matchGroup.push({ row: i, col });
                         }
-                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "vertical" });
+                        const formationType = count === 4 ? "line_4_vertical" : count === 5 ? "line_5_vertical" : "vertical";
+                        matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
                     }
                     count = 1;
                     currentValue = this.board[row][col];
@@ -1167,12 +1357,13 @@ class Match3Game {
                 }
             }
 
-            if (count >= 3 && currentValue !== this.BLOCKED_TILE) {
+            if (count >= 3 && currentValue !== this.BLOCKED_TILE && currentValue !== this.JOKER_TILE) {
                 const matchGroup = [];
                 for (let i = startRow; i < this.boardHeight; i++) {
                     matchGroup.push({ row: i, col });
                 }
-                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: "vertical" });
+                const formationType = count === 4 ? "line_4_vertical" : count === 5 ? "line_5_vertical" : "vertical";
+                matchGroups.push({ tiles: matchGroup, value: currentValue, direction: formationType });
             }
         }
 
@@ -1202,10 +1393,11 @@ class Match3Game {
                     allFormations.push(lFormation);
                 }
 
-                // Check block formation
+                // Check block formation (4-tile 2x2)
                 const blockFormation = this.checkBlockFormation(row, col, value);
                 if (blockFormation) {
                     blockFormation.priority = 3; // Lowest priority
+                    blockFormation.direction = "block_4_formation"; // Mark as 4-block
                     allFormations.push(blockFormation);
                 }
             }
@@ -1540,20 +1732,85 @@ class Match3Game {
         // Create new merged tiles in middle positions
         matchGroups.forEach((group) => {
             if (group.direction === "T-formation" || group.direction === "L-formation") {
-                // Special formations: create one tile with +2 value at intersection (5 tiles -> 1 tile, 2 levels up)
-                const newValue = group.value + 2;
-                const intersection = group.intersection;
-                this.board[intersection.row][intersection.col] = newValue;
-                this.trackGoalProgress(newValue, 1);
-            } else if (group.direction === "block-formation") {
-                // Block formation: create two tiles with +1 value at intersection points (4 tiles -> 2 tiles, 1 level up each)
-                const newValue = group.value + 1;
-                group.intersections.forEach((intersection) => {
+                // Check if this formation should create a special tile
+                const formationType = group.direction === "T-formation" ? "t_formation" : "l_formation";
+                const specialTileType = this.specialTileConfig[formationType];
+
+                if (specialTileType === "joker") {
+                    // Create joker tile at intersection
+                    const intersection = group.intersection;
+                    this.board[intersection.row][intersection.col] = this.JOKER_TILE;
+                } else {
+                    // Normal behavior: create one tile with +2 value at intersection (5 tiles -> 1 tile, 2 levels up)
+                    const newValue = group.value + 2;
+                    const intersection = group.intersection;
                     this.board[intersection.row][intersection.col] = newValue;
-                });
-                this.trackGoalProgress(newValue, group.intersections.length);
+                    this.trackGoalProgress(newValue, 1);
+                }
+            } else if (group.direction === "block_4_formation") {
+                // Check if block formation should create special tiles
+                const specialTileType = this.specialTileConfig["block_4"];
+
+                if (specialTileType === "joker") {
+                    // Create one joker tile at the side where the swap was made
+                    const specialTilePos = this.determineSpecialTilePosition(group, "block_4");
+                    const normalTilePos = group.intersections.find(
+                        (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
+                    );
+
+                    this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
+                    this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
+                    this.trackGoalProgress(group.value + 1, 1);
+                } else {
+                    // Normal: create two tiles with +1 value at intersection points
+                    const newValue = group.value + 1;
+                    group.intersections.forEach((intersection) => {
+                        this.board[intersection.row][intersection.col] = newValue;
+                    });
+                    this.trackGoalProgress(newValue, group.intersections.length);
+                }
+            } else if (group.direction === "line_4_horizontal" || group.direction === "line_4_vertical") {
+                // Check if 4-line formation should create special tiles
+                const specialTileType = this.specialTileConfig["line_4"];
+
+                if (specialTileType === "joker") {
+                    const middlePositions = this.calculateMiddlePositions(group.tiles);
+                    const specialTilePos = this.determineSpecialTilePosition(group, "line_4");
+                    const normalTilePos = middlePositions.find(
+                        (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
+                    );
+
+                    this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
+                    this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
+                    this.trackGoalProgress(group.value + 1, 1);
+                } else {
+                    // Normal: 4 tiles -> 2 tiles
+                    const middlePositions = this.calculateMiddlePositions(group.tiles);
+                    const newValue = group.value + 1;
+                    middlePositions.forEach((pos) => {
+                        this.board[pos.row][pos.col] = newValue;
+                    });
+                    this.trackGoalProgress(newValue, middlePositions.length);
+                }
+            } else if (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical") {
+                // Check if 5-line formation should create special tiles
+                const specialTileType = this.specialTileConfig["line_5"];
+
+                if (specialTileType === "joker") {
+                    // Create joker tile at middle position
+                    const middlePositions = this.calculateMiddlePositions(group.tiles);
+                    this.board[middlePositions[0].row][middlePositions[0].col] = this.JOKER_TILE;
+                } else {
+                    // Normal: 5+ tiles behavior (middle-2 tiles)
+                    const middlePositions = this.calculateMiddlePositions(group.tiles);
+                    const newValue = group.value + 1;
+                    middlePositions.forEach((pos) => {
+                        this.board[pos.row][pos.col] = newValue;
+                    });
+                    this.trackGoalProgress(newValue, middlePositions.length);
+                }
             } else {
-                // Regular matches: increment by 1 (next level)
+                // Regular 3-tile matches: increment by 1 (next level)
                 const middlePositions = this.calculateMiddlePositions(group.tiles);
                 const newValue = group.value + 1;
 
@@ -1563,6 +1820,9 @@ class Match3Game {
                 this.trackGoalProgress(newValue, middlePositions.length);
             }
         });
+
+        // Clear swap position after processing
+        this.lastSwapPosition = null;
 
         // Update goal display after creating new tiles
         this.updateGoalDisplay(true);
@@ -1579,8 +1839,58 @@ class Match3Game {
         this.dropGems();
     }
 
+    determineSpecialTilePosition(group, formationType) {
+        // For 4-tile formations, determine which of the 2 middle positions should get the special tile
+        // based on where the last swap was made
+        if (!this.lastSwapPosition) {
+            // If no swap info, default to first middle position
+            if (formationType === "block_4") {
+                return group.intersections[0];
+            } else {
+                const middlePositions = this.calculateMiddlePositions(group.tiles);
+                return middlePositions[0];
+            }
+        }
+
+        const swapPos = this.lastSwapPosition;
+
+        if (formationType === "block_4") {
+            // For block formation, choose the intersection closest to swap position
+            const distances = group.intersections.map((pos) => {
+                const dist = Math.abs(pos.row - swapPos.row) + Math.abs(pos.col - swapPos.col);
+                return { pos, dist };
+            });
+            distances.sort((a, b) => a.dist - b.dist);
+            return distances[0].pos;
+        } else if (formationType === "line_4") {
+            // For line formation, choose the middle position that contains the swapped tile
+            const middlePositions = this.calculateMiddlePositions(group.tiles);
+
+            // Check if swap position matches one of the middle positions
+            const matchingPos = middlePositions.find(
+                (pos) => pos.row === swapPos.row && pos.col === swapPos.col
+            );
+
+            if (matchingPos) {
+                return matchingPos;
+            }
+
+            // If swap position doesn't match, choose closest middle position
+            const distances = middlePositions.map((pos) => {
+                const dist = Math.abs(pos.row - swapPos.row) + Math.abs(pos.col - swapPos.col);
+                return { pos, dist };
+            });
+            distances.sort((a, b) => a.dist - b.dist);
+            return distances[0].pos;
+        }
+
+        return null;
+    }
+
     trackGoalProgress(newValue, count = 1) {
-        // Update goal progress when tiles are created
+        // Update goal progress when tiles are created (skip for special tiles)
+        if (newValue === this.JOKER_TILE) return;
+
         this.levelGoals.forEach((goal) => {
             if (goal.tileValue === newValue) {
                 goal.created += count;
@@ -1966,23 +2276,37 @@ class Match3Game {
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const titleElement = document.querySelector("h1");
 
+        // Special tile reward selects
+        const jokerActivationSelect = document.getElementById("jokerActivation");
+        const line4Select = document.getElementById("line4Reward");
+        const block4Select = document.getElementById("block4Reward");
+        const line5Select = document.getElementById("line5Reward");
+        const tFormationSelect = document.getElementById("tFormationReward");
+        const lFormationSelect = document.getElementById("lFormationReward");
+
+        const openSettings = () => {
+            // Set current values
+            numberBaseSelect.value = this.numberBase.toString();
+            showReviewBoardCheckbox.checked = this.showReviewBoard;
+            jokerActivationSelect.value = this.jokerActivation;
+
+            // Set special tile configuration values
+            line4Select.value = this.specialTileConfig.line_4;
+            block4Select.value = this.specialTileConfig.block_4;
+            line5Select.value = this.specialTileConfig.line_5;
+            tFormationSelect.value = this.specialTileConfig.t_formation;
+            lFormationSelect.value = this.specialTileConfig.l_formation;
+
+            settingsDialog.classList.remove("hidden");
+        };
+
         // Open settings when clicking the title
         if (titleElement && settingsDialog) {
-            titleElement.addEventListener("click", () => {
-                // Set current values
-                numberBaseSelect.value = this.numberBase.toString();
-                showReviewBoardCheckbox.checked = this.showReviewBoard;
-                settingsDialog.classList.remove("hidden");
-            });
+            titleElement.addEventListener("click", openSettings);
         }
 
         if (settingsBtn && settingsDialog) {
-            settingsBtn.addEventListener("click", () => {
-                // Set current values
-                numberBaseSelect.value = this.numberBase.toString();
-                showReviewBoardCheckbox.checked = this.showReviewBoard;
-                settingsDialog.classList.remove("hidden");
-            });
+            settingsBtn.addEventListener("click", openSettings);
 
             // Save settings
             if (saveSettingsBtn) {
@@ -1993,6 +2317,17 @@ class Match3Game {
 
                     this.showReviewBoard = showReviewBoardCheckbox.checked;
                     this.saveShowReviewBoard();
+
+                    this.jokerActivation = jokerActivationSelect.value;
+                    this.saveJokerActivation();
+
+                    // Save special tile configuration
+                    this.specialTileConfig.line_4 = line4Select.value;
+                    this.specialTileConfig.block_4 = block4Select.value;
+                    this.specialTileConfig.line_5 = line5Select.value;
+                    this.specialTileConfig.t_formation = tFormationSelect.value;
+                    this.specialTileConfig.l_formation = lFormationSelect.value;
+                    this.saveSpecialTileConfig();
 
                     settingsDialog.classList.add("hidden");
 
