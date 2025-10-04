@@ -1390,6 +1390,7 @@ class Match3Game {
 
     findMatches() {
         const matchGroups = [];
+        const usedTiles = new Set();
 
         // During user swap, try to activate jokers first
         if (this.isUserSwap) {
@@ -1407,14 +1408,8 @@ class Match3Game {
             }
         }
 
-        // Check for special T and L formations first (they take priority)
-        const specialMatches = this.findSpecialFormations();
-        matchGroups.push(...specialMatches);
-
-        // If special formations found, don't check for regular matches to avoid overlaps
-        if (specialMatches.length > 0) {
-            return matchGroups;
-        }
+        // First, collect all regular line matches (horizontal and vertical)
+        const allLineMatches = [];
 
         // Check horizontal matches (track formation types)
         for (let row = 0; row < this.boardHeight; row++) {
@@ -1496,7 +1491,7 @@ class Match3Game {
                         : matchGroup.length === 5
                         ? "line_5_horizontal"
                         : "horizontal";
-                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
+                allLineMatches.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
             }
         }
 
@@ -1580,17 +1575,49 @@ class Match3Game {
                         : matchGroup.length === 5
                         ? "line_5_vertical"
                         : "vertical";
-                matchGroups.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
+                allLineMatches.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
+            }
+        }
+
+        // Separate line matches by size
+        const line5Matches = allLineMatches.filter(m => m.tiles.length === 5);
+        const line4Matches = allLineMatches.filter(m => m.tiles.length === 4);
+        const line3Matches = allLineMatches.filter(m => m.tiles.length === 3);
+
+        // Get all special formations
+        const allSpecialFormations = this.findAllSpecialFormations();
+        const tFormations = allSpecialFormations.filter(f => f.direction === 'T-formation');
+        const lFormations = allSpecialFormations.filter(f => f.direction === 'L-formation');
+        const blockFormations = allSpecialFormations.filter(f => f.direction === 'block_4_formation');
+
+        // Apply matches in priority order: 5-line > T > L > 4-line > Block > 3-line
+        const allMatchesByPriority = [
+            ...line5Matches,
+            ...tFormations,
+            ...lFormations,
+            ...line4Matches,
+            ...blockFormations,
+            ...line3Matches
+        ];
+
+        // Add matches that don't overlap with already-used tiles
+        for (const match of allMatchesByPriority) {
+            const hasOverlap = match.tiles.some((tile) => usedTiles.has(`${tile.row},${tile.col}`));
+            if (!hasOverlap) {
+                matchGroups.push(match);
+                match.tiles.forEach((tile) => {
+                    usedTiles.add(`${tile.row},${tile.col}`);
+                });
             }
         }
 
         return matchGroups;
     }
 
-    findSpecialFormations() {
+    findAllSpecialFormations() {
         const allFormations = [];
 
-        // Find all possible formations first
+        // Find all possible formations
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const tile = this.board[row][col];
@@ -1600,47 +1627,24 @@ class Match3Game {
                 // Check T-formation
                 const tFormation = this.checkTFormation(row, col, value);
                 if (tFormation) {
-                    tFormation.priority = 1; // Highest priority
                     allFormations.push(tFormation);
                 }
 
                 // Check L-formation
                 const lFormation = this.checkLFormation(row, col, value);
                 if (lFormation) {
-                    lFormation.priority = 2; // Medium priority
                     allFormations.push(lFormation);
                 }
 
                 // Check block formation (4-tile 2x2)
                 const blockFormation = this.checkBlockFormation(row, col, value);
                 if (blockFormation) {
-                    blockFormation.priority = 3; // Lowest priority
                     allFormations.push(blockFormation);
                 }
             }
         }
 
-        // Filter out overlapping formations based on priority (T > L > Block)
-        const selectedFormations = [];
-        const usedTiles = new Set();
-
-        // Sort by priority (lower number = higher priority)
-        allFormations.sort((a, b) => a.priority - b.priority);
-
-        for (const formation of allFormations) {
-            // Check if any tile in this formation is already used
-            const hasOverlap = formation.tiles.some((tile) => usedTiles.has(`${tile.row},${tile.col}`));
-
-            if (!hasOverlap) {
-                // No overlap, add this formation and mark tiles as used
-                selectedFormations.push(formation);
-                formation.tiles.forEach((tile) => {
-                    usedTiles.add(`${tile.row},${tile.col}`);
-                });
-            }
-        }
-
-        return selectedFormations;
+        return allFormations;
     }
 
     checkTFormation(intersectionRow, intersectionCol, value) {
