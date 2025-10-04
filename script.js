@@ -15,7 +15,6 @@ class Match3Game {
         this.dragStartPos = null;
         this.animating = false;
         this.lastSwapPosition = null; // Track last swap position for special tile placement
-        this.dormantJokers = new Set(); // Track jokers that are dormant (just created)
         this.isUserSwap = false; // Track if we're processing a user swap
 
         this.currentLevel = this.loadCurrentLevel();
@@ -943,11 +942,6 @@ class Match3Game {
         // Find the best value to transform the joker into
         // Returns the value if a match is found, null otherwise
 
-        // Skip if joker is dormant (just created)
-        if (this.dormantJokers.has(`${jokerRow},${jokerCol}`)) {
-            return null;
-        }
-
         const allValues = this.getUniqueTileValues();
 
         // Sort from highest to lowest
@@ -1067,8 +1061,7 @@ class Match3Game {
     }
 
     activateJokerByTap(row, col, element) {
-        // Activate joker when tapped (if not dormant)
-        this.dormantJokers.clear(); // Activate all jokers
+        // Activate joker when tapped
         const bestValue = this.findBestJokerValue(row, col);
 
         if (bestValue !== null) {
@@ -1119,9 +1112,6 @@ class Match3Game {
         if (this.board[row1][col1] === this.BLOCKED_TILE || this.board[row2][col2] === this.BLOCKED_TILE) {
             return;
         }
-
-        // Activate all dormant jokers before processing this swap
-        this.dormantJokers.clear();
 
         // Temporarily swap gems
         const temp = this.board[row1][col1];
@@ -1737,7 +1727,6 @@ class Match3Game {
             const intersection = group.intersection;
             if (specialTileType === "joker") {
                 this.board[intersection.row][intersection.col] = this.JOKER_TILE;
-                this.dormantJokers.add(`${intersection.row},${intersection.col}`);
             } else {
                 const newValue = group.value + 2; // 2 levels up
                 this.board[intersection.row][intersection.col] = newValue;
@@ -1751,7 +1740,6 @@ class Match3Game {
                     (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
                 );
                 this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                this.dormantJokers.add(`${specialTilePos.row},${specialTilePos.col}`);
                 this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
                 this.trackGoalProgress(group.value + 1, 1);
             } else {
@@ -1770,7 +1758,6 @@ class Match3Game {
                     (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
                 );
                 this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                this.dormantJokers.add(`${specialTilePos.row},${specialTilePos.col}`);
                 this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
                 this.trackGoalProgress(group.value + 1, 1);
             } else {
@@ -1785,7 +1772,6 @@ class Match3Game {
             const middlePositions = this.calculateMiddlePositions(group.tiles);
             if (specialTileType === "joker") {
                 this.board[middlePositions[0].row][middlePositions[0].col] = this.JOKER_TILE;
-                this.dormantJokers.add(`${middlePositions[0].row},${middlePositions[0].col}`);
             } else {
                 const newValue = group.value + 1;
                 middlePositions.forEach((pos) => {
