@@ -1964,6 +1964,17 @@ class Match3Game {
         const saveSettingsBtn = document.getElementById("saveSettings");
         const numberBaseSelect = document.getElementById("numberBase");
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
+        const titleElement = document.querySelector("h1");
+
+        // Open settings when clicking the title
+        if (titleElement && settingsDialog) {
+            titleElement.addEventListener("click", () => {
+                // Set current values
+                numberBaseSelect.value = this.numberBase.toString();
+                showReviewBoardCheckbox.checked = this.showReviewBoard;
+                settingsDialog.classList.remove("hidden");
+            });
+        }
 
         if (settingsBtn && settingsDialog) {
             settingsBtn.addEventListener("click", () => {
