@@ -931,10 +931,8 @@ class Match3Game {
         this.endDrag();
     }
 
-    findBestJokerValue(jokerRow, jokerCol) {
-        // Find the best value to transform the joker into
-        // Returns the value if a match is found, null otherwise
-
+    getUniqueTileValues() {
+        // Get all unique tile values on the board (excluding blocked and joker tiles)
         const allValues = [];
         for (let r = 0; r < this.boardHeight; r++) {
             for (let c = 0; c < this.boardWidth; c++) {
@@ -946,6 +944,14 @@ class Match3Game {
                 }
             }
         }
+        return allValues;
+    }
+
+    findBestJokerValue(jokerRow, jokerCol) {
+        // Find the best value to transform the joker into
+        // Returns the value if a match is found, null otherwise
+
+        const allValues = this.getUniqueTileValues();
 
         // Sort from highest to lowest
         allValues.sort((a, b) => b - a);
@@ -1377,7 +1383,7 @@ class Match3Game {
         for (let row = 0; row < this.boardHeight; row++) {
             for (let col = 0; col < this.boardWidth; col++) {
                 const value = this.board[row][col];
-                if (!value || value === this.BLOCKED_TILE) continue;
+                if (!value || value === this.BLOCKED_TILE || value === this.JOKER_TILE) continue;
 
                 // Check T-formation
                 const tFormation = this.checkTFormation(row, col, value);
@@ -1397,7 +1403,6 @@ class Match3Game {
                 const blockFormation = this.checkBlockFormation(row, col, value);
                 if (blockFormation) {
                     blockFormation.priority = 3; // Lowest priority
-                    blockFormation.direction = "block_4_formation"; // Mark as 4-block
                     allFormations.push(blockFormation);
                 }
             }
@@ -1630,7 +1635,7 @@ class Match3Game {
         return {
             tiles: positions,
             value: value,
-            direction: "block-formation",
+            direction: "block_4_formation",
             intersections: [
                 { row: topRow, col: leftCol + 1 }, // top-right becomes one merge point
                 { row: topRow + 1, col: leftCol }, // bottom-left becomes other merge point
@@ -1721,6 +1726,93 @@ class Match3Game {
         }
     }
 
+    getFormationConfig(direction) {
+        // Map direction to formation type for special tile config
+        const formationMap = {
+            "T-formation": "t_formation",
+            "L-formation": "l_formation",
+            "block_4_formation": "block_4",
+            "line_4_horizontal": "line_4",
+            "line_4_vertical": "line_4",
+            "line_5_horizontal": "line_5",
+            "line_5_vertical": "line_5",
+        };
+        return formationMap[direction] || null;
+    }
+
+    createMergedTiles(group) {
+        // Create merged tiles for a match group based on formation type and special tile config
+        const formationType = this.getFormationConfig(group.direction);
+        const specialTileType = formationType ? this.specialTileConfig[formationType] : null;
+
+        if (group.direction === "T-formation" || group.direction === "L-formation") {
+            // 5-tile special formations -> 1 tile
+            const intersection = group.intersection;
+            if (specialTileType === "joker") {
+                this.board[intersection.row][intersection.col] = this.JOKER_TILE;
+            } else {
+                const newValue = group.value + 2; // 2 levels up
+                this.board[intersection.row][intersection.col] = newValue;
+                this.trackGoalProgress(newValue, 1);
+            }
+        } else if (group.direction === "block_4_formation") {
+            // 4-tile block -> 2 tiles
+            if (specialTileType === "joker") {
+                const specialTilePos = this.determineSpecialTilePosition(group, "block_4");
+                const normalTilePos = group.intersections.find(
+                    (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
+                );
+                this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
+                this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
+                this.trackGoalProgress(group.value + 1, 1);
+            } else {
+                const newValue = group.value + 1;
+                group.intersections.forEach((intersection) => {
+                    this.board[intersection.row][intersection.col] = newValue;
+                });
+                this.trackGoalProgress(newValue, group.intersections.length);
+            }
+        } else if (group.direction === "line_4_horizontal" || group.direction === "line_4_vertical") {
+            // 4-tile line -> 2 tiles
+            const middlePositions = this.calculateMiddlePositions(group.tiles);
+            if (specialTileType === "joker") {
+                const specialTilePos = this.determineSpecialTilePosition(group, "line_4");
+                const normalTilePos = middlePositions.find(
+                    (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
+                );
+                this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
+                this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
+                this.trackGoalProgress(group.value + 1, 1);
+            } else {
+                const newValue = group.value + 1;
+                middlePositions.forEach((pos) => {
+                    this.board[pos.row][pos.col] = newValue;
+                });
+                this.trackGoalProgress(newValue, middlePositions.length);
+            }
+        } else if (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical") {
+            // 5-tile line -> varies
+            const middlePositions = this.calculateMiddlePositions(group.tiles);
+            if (specialTileType === "joker") {
+                this.board[middlePositions[0].row][middlePositions[0].col] = this.JOKER_TILE;
+            } else {
+                const newValue = group.value + 1;
+                middlePositions.forEach((pos) => {
+                    this.board[pos.row][pos.col] = newValue;
+                });
+                this.trackGoalProgress(newValue, middlePositions.length);
+            }
+        } else {
+            // Regular 3-tile matches
+            const middlePositions = this.calculateMiddlePositions(group.tiles);
+            const newValue = group.value + 1;
+            middlePositions.forEach((pos) => {
+                this.board[pos.row][pos.col] = newValue;
+            });
+            this.trackGoalProgress(newValue, middlePositions.length);
+        }
+    }
+
     processMerges(matchGroups) {
         // Clear all matched tiles first
         matchGroups.forEach((group) => {
@@ -1729,96 +1821,9 @@ class Match3Game {
             });
         });
 
-        // Create new merged tiles in middle positions
+        // Create new merged tiles
         matchGroups.forEach((group) => {
-            if (group.direction === "T-formation" || group.direction === "L-formation") {
-                // Check if this formation should create a special tile
-                const formationType = group.direction === "T-formation" ? "t_formation" : "l_formation";
-                const specialTileType = this.specialTileConfig[formationType];
-
-                if (specialTileType === "joker") {
-                    // Create joker tile at intersection
-                    const intersection = group.intersection;
-                    this.board[intersection.row][intersection.col] = this.JOKER_TILE;
-                } else {
-                    // Normal behavior: create one tile with +2 value at intersection (5 tiles -> 1 tile, 2 levels up)
-                    const newValue = group.value + 2;
-                    const intersection = group.intersection;
-                    this.board[intersection.row][intersection.col] = newValue;
-                    this.trackGoalProgress(newValue, 1);
-                }
-            } else if (group.direction === "block_4_formation") {
-                // Check if block formation should create special tiles
-                const specialTileType = this.specialTileConfig["block_4"];
-
-                if (specialTileType === "joker") {
-                    // Create one joker tile at the side where the swap was made
-                    const specialTilePos = this.determineSpecialTilePosition(group, "block_4");
-                    const normalTilePos = group.intersections.find(
-                        (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
-                    );
-
-                    this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                    this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
-                    this.trackGoalProgress(group.value + 1, 1);
-                } else {
-                    // Normal: create two tiles with +1 value at intersection points
-                    const newValue = group.value + 1;
-                    group.intersections.forEach((intersection) => {
-                        this.board[intersection.row][intersection.col] = newValue;
-                    });
-                    this.trackGoalProgress(newValue, group.intersections.length);
-                }
-            } else if (group.direction === "line_4_horizontal" || group.direction === "line_4_vertical") {
-                // Check if 4-line formation should create special tiles
-                const specialTileType = this.specialTileConfig["line_4"];
-
-                if (specialTileType === "joker") {
-                    const middlePositions = this.calculateMiddlePositions(group.tiles);
-                    const specialTilePos = this.determineSpecialTilePosition(group, "line_4");
-                    const normalTilePos = middlePositions.find(
-                        (pos) => pos.row !== specialTilePos.row || pos.col !== specialTilePos.col
-                    );
-
-                    this.board[specialTilePos.row][specialTilePos.col] = this.JOKER_TILE;
-                    this.board[normalTilePos.row][normalTilePos.col] = group.value + 1;
-                    this.trackGoalProgress(group.value + 1, 1);
-                } else {
-                    // Normal: 4 tiles -> 2 tiles
-                    const middlePositions = this.calculateMiddlePositions(group.tiles);
-                    const newValue = group.value + 1;
-                    middlePositions.forEach((pos) => {
-                        this.board[pos.row][pos.col] = newValue;
-                    });
-                    this.trackGoalProgress(newValue, middlePositions.length);
-                }
-            } else if (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical") {
-                // Check if 5-line formation should create special tiles
-                const specialTileType = this.specialTileConfig["line_5"];
-
-                if (specialTileType === "joker") {
-                    // Create joker tile at middle position
-                    const middlePositions = this.calculateMiddlePositions(group.tiles);
-                    this.board[middlePositions[0].row][middlePositions[0].col] = this.JOKER_TILE;
-                } else {
-                    // Normal: 5+ tiles behavior (middle-2 tiles)
-                    const middlePositions = this.calculateMiddlePositions(group.tiles);
-                    const newValue = group.value + 1;
-                    middlePositions.forEach((pos) => {
-                        this.board[pos.row][pos.col] = newValue;
-                    });
-                    this.trackGoalProgress(newValue, middlePositions.length);
-                }
-            } else {
-                // Regular 3-tile matches: increment by 1 (next level)
-                const middlePositions = this.calculateMiddlePositions(group.tiles);
-                const newValue = group.value + 1;
-
-                middlePositions.forEach((pos) => {
-                    this.board[pos.row][pos.col] = newValue;
-                });
-                this.trackGoalProgress(newValue, middlePositions.length);
-            }
+            this.createMergedTiles(group);
         });
 
         // Clear swap position after processing
@@ -1906,7 +1911,7 @@ class Match3Game {
             let targetPositions = [];
             if (group.direction === "T-formation" || group.direction === "L-formation") {
                 targetPositions.push(group.intersection);
-            } else if (group.direction === "block-formation") {
+            } else if (group.direction === "block_4_formation") {
                 targetPositions.push(...group.intersections);
             } else {
                 const middlePositions = this.calculateMiddlePositions(group.tiles);
@@ -1997,7 +2002,7 @@ class Match3Game {
         }
 
         // Special handling for block formations
-        if (group && group.direction === "block-formation") {
+        if (group && group.direction === "block_4_formation") {
             // For block formations, the "middle" positions are the two intersections
             return group.intersections;
         }
