@@ -505,6 +505,22 @@ h1:hover {
     font-weight: bold;
 }
 
+.gem.freeswap-tile {
+    border: 3px solid #00bcd4;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
+    position: relative;
+}
+
+.gem.freeswap-tile::after {
+    content: "↔";
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: clamp(12px, 3vw, 16px);
+    color: #00bcd4;
+    font-weight: bold;
+}
+
 .gem.tile-BLOCKED {
     background: #3c3c3c;
     color: transparent;

@@ -45,6 +45,7 @@ class Match3Game {
             JOKER: "joker",
             POWER: "power",
             GOLDEN: "golden",
+            FREESWAP: "freeswap",
         };
         this.FORMATION_TYPES = {
             LINE_4: "line_4",
@@ -63,12 +64,14 @@ class Match3Game {
     }
 
     // Helper methods for tile objects
-    createTile(value, isPowerTile = false, isGoldenTile = false) {
+    createTile(value, isPowerTile = false, isGoldenTile = false, isFreeSwapTile = false) {
         return {
             type: this.TILE_TYPE.NORMAL,
             value: value,
             isPowerTile: isPowerTile,
             isGoldenTile: isGoldenTile,
+            isFreeSwapTile: isFreeSwapTile,
+            hasBeenSwapped: false,
         };
     }
 
@@ -78,6 +81,8 @@ class Match3Game {
             value: null,
             isPowerTile: false,
             isGoldenTile: false,
+            isFreeSwapTile: false,
+            hasBeenSwapped: false,
         };
     }
 
@@ -87,6 +92,8 @@ class Match3Game {
             value: null,
             isPowerTile: false,
             isGoldenTile: false,
+            isFreeSwapTile: false,
+            hasBeenSwapped: false,
         };
     }
 
@@ -120,6 +127,10 @@ class Match3Game {
 
     isTileGoldenTile(tile) {
         return tile && tile.type === this.TILE_TYPE.NORMAL && tile.isGoldenTile === true;
+    }
+
+    isTileFreeSwapTile(tile) {
+        return tile && tile.type === this.TILE_TYPE.NORMAL && tile.isFreeSwapTile === true;
     }
 
     // Convert internal value (1, 2, 3...) to display value based on numberBase
@@ -766,6 +777,11 @@ class Match3Game {
                     if (this.isTileGoldenTile(tile)) {
                         gem.classList.add("golden-tile");
                     }
+
+                    // Add freeswap-tile class if this is a free swap tile that hasn't been used
+                    if (this.isTileFreeSwapTile(tile) && !tile.hasBeenSwapped) {
+                        gem.classList.add("freeswap-tile");
+                    }
                 }
 
                 gameBoard.appendChild(gem);
@@ -1226,6 +1242,13 @@ class Match3Game {
             return;
         }
 
+        // Check if either tile is a free swap tile that hasn't been used
+        const tile1 = this.board[row1][col1];
+        const tile2 = this.board[row2][col2];
+        const isFreeSwap1 = this.isTileFreeSwapTile(tile1) && !tile1.hasBeenSwapped;
+        const isFreeSwap2 = this.isTileFreeSwapTile(tile2) && !tile2.hasBeenSwapped;
+        const hasFreeSwap = isFreeSwap1 || isFreeSwap2;
+
         // Temporarily swap gems
         const temp = this.board[row1][col1];
         this.board[row1][col1] = this.board[row2][col2];
@@ -1237,12 +1260,23 @@ class Match3Game {
         // Mark this as a user swap for match detection
         this.isUserSwap = true;
 
-        // Check if this creates any matches (or if using swap power-up)
+        // Check if this creates any matches (or if using swap power-up or free swap tile)
         const isSwapPowerUp = this.activePowerUp === "swap";
 
-        if (this.hasMatches() || isSwapPowerUp) {
+        if (this.hasMatches() || isSwapPowerUp || hasFreeSwap) {
             this.movesUsed++;
             this.updateMovesDisplay();
+
+            // Mark free swap tile as used
+            if (hasFreeSwap) {
+                if (isFreeSwap1) {
+                    this.board[row2][col2].hasBeenSwapped = true;
+                }
+                if (isFreeSwap2) {
+                    this.board[row1][col1].hasBeenSwapped = true;
+                }
+            }
+
             this.animateSwap(row1, col1, row2, col2, () => {
                 this.renderBoard();
 
@@ -2006,6 +2040,19 @@ class Match3Game {
                 this.trackGoalProgress(newValue, 2);
             } else {
                 this.board[positions[0].row][positions[0].col] = this.createTile(newValue, false, true);
+                this.trackGoalProgress(newValue, 1);
+            }
+        } else if (specialTileType === "freeswap") {
+            if (positions.length > 1) {
+                const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+                const specialPos = this.determineSpecialTilePosition(group, formationKey);
+                const normalPos = positions.find(p => p.row !== specialPos.row || p.col !== specialPos.col);
+
+                this.board[specialPos.row][specialPos.col] = this.createTile(newValue, false, false, true);
+                this.board[normalPos.row][normalPos.col] = this.createTile(newValue);
+                this.trackGoalProgress(newValue, 2);
+            } else {
+                this.board[positions[0].row][positions[0].col] = this.createTile(newValue, false, false, true);
                 this.trackGoalProgress(newValue, 1);
             }
         } else {
