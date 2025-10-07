@@ -8,7 +8,7 @@ import { createTile, createBlockedTile, createJokerTile, getTileValue } from "./
  * @returns {object} A tile object
  */
 function parsePresetTile(notation) {
-    if (typeof notation === 'number') {
+    if (typeof notation === "number") {
         // Just a number - create a normal tile with that value
         return createTile(notation);
     }
@@ -16,12 +16,12 @@ function parsePresetTile(notation) {
     const str = String(notation);
 
     // Check for blocked tile (just "B")
-    if (str === 'B') {
+    if (str === "B") {
         return createBlockedTile();
     }
 
     // Check for joker tile (just "J")
-    if (str === 'J') {
+    if (str === "J") {
         return createJokerTile();
     }
 
@@ -32,11 +32,11 @@ function parsePresetTile(notation) {
         const type = match[2];
 
         switch (type) {
-            case 'B': // Bonus (Power tile)
+            case "B": // Bonus (Power tile)
                 return createTile(value, true, false, false);
-            case 'G': // Golden
+            case "G": // Golden
                 return createTile(value, false, true, false);
-            case 'S': // Swap (Free swap)
+            case "S": // Swap (Free swap)
                 return createTile(value, false, false, true);
             default:
                 return createTile(value);
@@ -65,9 +65,7 @@ export function createBoard(game) {
                     game.board[row][col] = parsePresetTile(boardPreset[row][col]);
                 } else {
                     // Fill with random tile if preset doesn't cover this position
-                    do {
-                        game.board[row][col] = createTile(getRandomTileValue(game));
-                    } while (hasInitialMatch(game, row, col));
+                    game.board[row][col] = createTile(getRandomTileValue(game));
                 }
             }
         }

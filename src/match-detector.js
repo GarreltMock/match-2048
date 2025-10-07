@@ -41,8 +41,8 @@ export function findMatches(game) {
             const currentTile = game.board[row][col];
             const currentValue = getTileValue(currentTile);
 
-            if (!isNormal(currentTile)) {
-                // End current match
+            if (!isNormal(currentTile) || currentValue === 0) {
+                // End current match (don't match non-normal tiles or tiles with value 0)
                 if (matchGroup.length >= 3) {
                     const formationType =
                         matchGroup.length === 4
@@ -128,8 +128,8 @@ export function findMatches(game) {
             const currentTile = game.board[row][col];
             const currentValue = getTileValue(currentTile);
 
-            if (!isNormal(currentTile)) {
-                // End current match
+            if (!isNormal(currentTile) || currentValue === 0) {
+                // End current match (don't match non-normal tiles or tiles with value 0)
                 if (matchGroup.length >= 3) {
                     const formationType =
                         matchGroup.length === 4
@@ -249,6 +249,7 @@ export function findAllSpecialFormations(game) {
             const tile = game.board[row][col];
             if (!isNormal(tile)) continue;
             const value = getTileValue(tile);
+            if (value === 0) continue; // Don't match tiles with value 0
 
             // Check T-formation
             const tFormation = checkTFormation(game, row, col, value);
