@@ -34,7 +34,7 @@ export function findMatches(game) {
     // Check horizontal matches (track formation types)
     for (let row = 0; row < game.boardHeight; row++) {
         let matchGroup = [];
-        let baseValue = null; // The lowest value in the match (for power tiles)
+        let baseValue = null; // The value for the match (NOT affected by golden tiles)
         let hasGoldenTile = false;
 
         for (let col = 0; col < game.boardWidth; col++) {
@@ -74,8 +74,11 @@ export function findMatches(game) {
                 const prevTile = matchGroup[matchGroup.length - 1];
                 if (canMatch(currentTile, game.board[prevTile.row][prevTile.col], game)) {
                     matchGroup.push({ row, col });
-                    // Update base value to the minimum
-                    baseValue = Math.min(baseValue, currentValue);
+                    // For power tiles, update base value to maximum (e.g., 8-8-4+ should be an 8-match)
+                    const isPower = game.board[prevTile.row][prevTile.col].isPowerTile || currentTile.isPowerTile;
+                    if (isPower) {
+                        baseValue = Math.max(baseValue, currentValue);
+                    }
                     // Track if any tile is golden
                     if (isTileGoldenTile(currentTile)) {
                         hasGoldenTile = true;
@@ -118,7 +121,7 @@ export function findMatches(game) {
     // Check vertical matches (track formation types)
     for (let col = 0; col < game.boardWidth; col++) {
         let matchGroup = [];
-        let baseValue = null; // The lowest value in the match (for power tiles)
+        let baseValue = null; // The value for the match (NOT affected by golden tiles)
         let hasGoldenTile = false;
 
         for (let row = 0; row < game.boardHeight; row++) {
@@ -158,8 +161,11 @@ export function findMatches(game) {
                 const prevTile = matchGroup[matchGroup.length - 1];
                 if (canMatch(currentTile, game.board[prevTile.row][prevTile.col], game)) {
                     matchGroup.push({ row, col });
-                    // Update base value to the minimum
-                    baseValue = Math.min(baseValue, currentValue);
+                    // For power tiles, update base value to maximum (e.g., 8-8-4+ should be an 8-match)
+                    const isPower = game.board[prevTile.row][prevTile.col].isPowerTile || currentTile.isPowerTile;
+                    if (isPower) {
+                        baseValue = Math.max(baseValue, currentValue);
+                    }
                     // Track if any tile is golden
                     if (isTileGoldenTile(currentTile)) {
                         hasGoldenTile = true;
@@ -204,7 +210,7 @@ export function findMatches(game) {
     const line4Matches = allLineMatches.filter((m) => m.tiles.length === 4);
     const line3Matches = allLineMatches.filter((m) => m.tiles.length === 3);
 
-    // Get all special formations
+    // Get all special formations - but only check positions not already in line matches
     const allSpecialFormations = findAllSpecialFormations(game);
     const tFormations = allSpecialFormations.filter((f) => f.direction === "T-formation");
     const lFormations = allSpecialFormations.filter((f) => f.direction === "L-formation");

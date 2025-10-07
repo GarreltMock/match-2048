@@ -215,22 +215,24 @@ function calculateMiddlePositions(game, tiles, group = null) {
         return group.intersections;
     }
 
+    // Special handling for 5-tile lines (should create 1 tile with 4x value)
+    if (group && (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical")) {
+        // 5 tiles: middle position only (creates 1 tile with 4x value)
+        positions.push(tiles[2]);
+        return positions;
+    }
+
     // Regular match logic
     if (length === 3) {
-        // 3 tiles: middle position (3-2=1 tile)
+        // 3 tiles: middle position (creates 1 tile with 2x value)
         positions.push(tiles[1]);
     } else if (length === 4) {
-        // 4 tiles: two middle positions (4-2=2 tiles)
+        // 4 tiles: two middle positions (creates 2 tiles with 2x value)
         positions.push(tiles[1]);
         positions.push(tiles[2]);
     } else if (length >= 5) {
-        // 5+ tiles: length-2 middle positions
-        const newTileCount = length - 2;
-        const startIndex = Math.floor((length - newTileCount) / 2);
-
-        for (let i = 0; i < newTileCount; i++) {
-            positions.push(tiles[startIndex + i]);
-        }
+        // 5+ tiles: single middle position (creates 1 tile with 4x value)
+        positions.push(tiles[Math.floor(length / 2)]);
     }
 
     return positions;

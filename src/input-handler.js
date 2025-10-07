@@ -171,8 +171,9 @@ function endDrag(game) {
             const targetCol = parseInt(targetGem.dataset.col);
             trySwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
         }
-    } else if (isJoker(game.selectedGem.tile)) {
+    } else if (isJoker(game.selectedGem.tile) && !game.activePowerUp) {
         // User tapped on joker without dragging - try to activate it
+        // Only activate if not in power-up mode
         activateJokerByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
     }
 
@@ -200,11 +201,17 @@ function activateJokerByTap(game, row, col, element) {
         setTimeout(() => {
             element.style.transform = "scale(1)";
             game.board[row][col] = createTile(bestValue); // Update board
+            game.renderBoard(); // Re-render to show the updated tile
             setTimeout(() => {
-                game.animating = false;
                 game.isUserSwap = true; // Treat tap as user action
                 game.processMatches();
             }, 200);
+        }, 300);
+    } else {
+        // No valid match found - indicate to user with a shake animation
+        element.style.animation = "shake 0.3s";
+        setTimeout(() => {
+            element.style.animation = "";
         }, 300);
     }
 }
