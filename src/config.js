@@ -238,7 +238,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -254,7 +257,10 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -270,7 +276,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 2, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -287,7 +296,10 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 2, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -304,7 +316,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 2, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -320,7 +335,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -338,7 +356,10 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -355,7 +376,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -372,23 +396,29 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
         level: 10,
         title: "Power Tile Match",
-        boardWidth: 6,
+        boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, "5B", 6, 6, 6, 0],
-            [0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, "5B", 6, 6, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -404,7 +434,11 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -420,7 +454,10 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [
+            { tileValue: 1, target: 1, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
         spawnableTiles: [0],
     },
     {
@@ -436,7 +473,7 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 1, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
 ];
