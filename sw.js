@@ -1,4 +1,4 @@
-const CACHE_NAME = 'match-2048-v1';
+const CACHE_NAME = 'match-2048-v2';
 const urlsToCache = [
   './',
   './index.html',
