@@ -668,9 +668,7 @@ export class Match3Game {
                     let levelSetChanged = false;
 
                     // Save test levels preference first
-                    console.log("SELECTED LEVELS:", selectedLevels, this.useTestLevels);
                     if (selectedLevels !== this.useTestLevels) {
-                        console.log("HERE");
                         this.useTestLevels = selectedLevels;
                         saveUseTestLevels(this.useTestLevels);
                         levelSetChanged = true;

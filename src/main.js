@@ -2,13 +2,16 @@
 
 import { Match3Game } from "./game.js";
 
-// Register service worker for PWA
+// Register service worker for PWA (but not on localhost)
 if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-        navigator.serviceWorker.register("sw.js").catch(() => {
-            // Silently fail if service worker registration fails
+    const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
+    if (!isLocalhost) {
+        window.addEventListener("load", () => {
+            navigator.serviceWorker.register("sw.js").catch(() => {
+                // Silently fail if service worker registration fails
+            });
         });
-    });
+    }
 }
 
 // Initialize the game when the page loads
