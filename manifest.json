@@ -2,7 +2,7 @@
   "name": "Match 2048",
   "short_name": "Match 2048",
   "description": "A puzzle game combining match-3 mechanics with 2048-style tile merging",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#2c2c2c",
   "theme_color": "#2c2c2c",

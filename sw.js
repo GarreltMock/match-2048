@@ -1,21 +1,21 @@
 const CACHE_NAME = 'match-2048-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/style.css',
-  '/src/main.js',
-  '/src/game.js',
-  '/src/config.js',
-  '/src/storage.js',
-  '/src/tile-helpers.js',
-  '/src/board.js',
-  '/src/input-handler.js',
-  '/src/match-detector.js',
-  '/src/merge-processor.js',
-  '/src/animator.js',
-  '/src/renderer.js',
-  '/src/goal-tracker.js',
-  '/assets/logo.png'
+  './',
+  './index.html',
+  './style.css',
+  './src/main.js',
+  './src/game.js',
+  './src/config.js',
+  './src/storage.js',
+  './src/tile-helpers.js',
+  './src/board.js',
+  './src/input-handler.js',
+  './src/match-detector.js',
+  './src/merge-processor.js',
+  './src/animator.js',
+  './src/renderer.js',
+  './src/goal-tracker.js',
+  './assets/logo.png'
 ];
 
 self.addEventListener('install', event => {
