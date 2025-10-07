@@ -9,7 +9,14 @@
         <link rel="icon" type="image/png" href="/assets/logo.png" />
         <link rel="apple-touch-icon" href="/assets/logo.png" />
         <link rel="stylesheet" href="style.css" />
-        <base href="/match-2048/" />
+        <script>
+            // Set base href dynamically based on environment
+            const base = document.createElement('base');
+            base.href = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
+                ? '/'
+                : '/match-2048/';
+            document.head.appendChild(base);
+        </script>
     </head>
     <body>
         <div class="game-container">
