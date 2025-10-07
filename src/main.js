@@ -7,7 +7,10 @@ if ("serviceWorker" in navigator) {
     const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
     if (!isLocalhost) {
         window.addEventListener("load", () => {
-            navigator.serviceWorker.register("sw.js").catch(() => {
+            navigator.serviceWorker.register("sw.js", { updateViaCache: 'none' }).then(reg => {
+                // Check for updates every time the page loads
+                reg.update();
+            }).catch(() => {
                 // Silently fail if service worker registration fails
             });
         });
