@@ -1,0 +1,18 @@
+{
+  "name": "Match 2048",
+  "short_name": "Match 2048",
+  "description": "A puzzle game combining match-3 mechanics with 2048-style tile merging",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2c2c2c",
+  "theme_color": "#2c2c2c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
