@@ -9,378 +9,179 @@ export function hasMatches(game) {
 }
 
 export function findMatches(game) {
-    const matchGroups = [];
-    const usedTiles = new Set();
-
-    // During user swap, try to activate jokers first
+    // During user swap, activate jokers first
     if (game.isUserSwap) {
-        for (let row = 0; row < game.boardHeight; row++) {
-            for (let col = 0; col < game.boardWidth; col++) {
-                const tile = game.board[row][col];
-                if (isJoker(tile)) {
-                    const bestValue = findBestJokerValue(game, row, col);
-                    if (bestValue !== null) {
-                        // Transform joker to the best value
-                        game.board[row][col] = createTile(bestValue);
-                    }
-                }
-            }
-        }
+        activateJokers(game);
     }
 
-    // First, collect all regular line matches (horizontal and vertical)
-    const allLineMatches = [];
-
-    // Check horizontal matches (track formation types)
-    for (let row = 0; row < game.boardHeight; row++) {
-        let matchGroup = [];
-        let baseValue = null; // The value for the match (NOT affected by golden tiles)
-        let hasGoldenTile = false;
-
-        for (let col = 0; col < game.boardWidth; col++) {
-            const currentTile = game.board[row][col];
-            const currentValue = getTileValue(currentTile);
-
-            if (!isNormal(currentTile) || currentValue === 0) {
-                // End current match (don't match non-normal tiles or tiles with value 0)
-                if (matchGroup.length >= 3) {
-                    const formationType =
-                        matchGroup.length === 4
-                            ? "line_4_horizontal"
-                            : matchGroup.length === 5
-                            ? "line_5_horizontal"
-                            : "horizontal";
-                    matchGroups.push({
-                        tiles: [...matchGroup],
-                        value: baseValue,
-                        direction: formationType,
-                        hasGoldenTile,
-                    });
-                }
-                matchGroup = [];
-                baseValue = null;
-                hasGoldenTile = false;
-                continue;
-            }
-
-            // Check if this tile can be added to the current match
-            if (matchGroup.length === 0) {
-                // Start new match
-                matchGroup.push({ row, col });
-                baseValue = currentValue;
-                hasGoldenTile = isTileGoldenTile(currentTile);
-            } else {
-                // Check if current tile matches with the previous tile
-                const prevTile = matchGroup[matchGroup.length - 1];
-                if (canMatch(currentTile, game.board[prevTile.row][prevTile.col], game)) {
-                    matchGroup.push({ row, col });
-                    // For power tiles, update base value to maximum (e.g., 8-8-4+ should be an 8-match)
-                    const isPower = game.board[prevTile.row][prevTile.col].isPowerTile || currentTile.isPowerTile;
-                    if (isPower) {
-                        baseValue = Math.max(baseValue, currentValue);
-                    }
-                    // Track if any tile is golden
-                    if (isTileGoldenTile(currentTile)) {
-                        hasGoldenTile = true;
-                    }
-                } else {
-                    // End current match and start new one
-                    if (matchGroup.length >= 3) {
-                        const formationType =
-                            matchGroup.length === 4
-                                ? "line_4_horizontal"
-                                : matchGroup.length === 5
-                                ? "line_5_horizontal"
-                                : "horizontal";
-                        matchGroups.push({
-                            tiles: [...matchGroup],
-                            value: baseValue,
-                            direction: formationType,
-                            hasGoldenTile,
-                        });
-                    }
-                    matchGroup = [{ row, col }];
-                    baseValue = currentValue;
-                    hasGoldenTile = isTileGoldenTile(currentTile);
-                }
-            }
-        }
-
-        // Check remaining match at end of row
-        if (matchGroup.length >= 3) {
-            const formationType =
-                matchGroup.length === 4
-                    ? "line_4_horizontal"
-                    : matchGroup.length === 5
-                    ? "line_5_horizontal"
-                    : "horizontal";
-            allLineMatches.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
-        }
-    }
-
-    // Check vertical matches (track formation types)
-    for (let col = 0; col < game.boardWidth; col++) {
-        let matchGroup = [];
-        let baseValue = null; // The value for the match (NOT affected by golden tiles)
-        let hasGoldenTile = false;
-
-        for (let row = 0; row < game.boardHeight; row++) {
-            const currentTile = game.board[row][col];
-            const currentValue = getTileValue(currentTile);
-
-            if (!isNormal(currentTile) || currentValue === 0) {
-                // End current match (don't match non-normal tiles or tiles with value 0)
-                if (matchGroup.length >= 3) {
-                    const formationType =
-                        matchGroup.length === 4
-                            ? "line_4_vertical"
-                            : matchGroup.length === 5
-                            ? "line_5_vertical"
-                            : "vertical";
-                    matchGroups.push({
-                        tiles: [...matchGroup],
-                        value: baseValue,
-                        direction: formationType,
-                        hasGoldenTile,
-                    });
-                }
-                matchGroup = [];
-                baseValue = null;
-                hasGoldenTile = false;
-                continue;
-            }
-
-            // Check if this tile can be added to the current match
-            if (matchGroup.length === 0) {
-                // Start new match
-                matchGroup.push({ row, col });
-                baseValue = currentValue;
-                hasGoldenTile = isTileGoldenTile(currentTile);
-            } else {
-                // Check if current tile matches with the previous tile
-                const prevTile = matchGroup[matchGroup.length - 1];
-                if (canMatch(currentTile, game.board[prevTile.row][prevTile.col], game)) {
-                    matchGroup.push({ row, col });
-                    // For power tiles, update base value to maximum (e.g., 8-8-4+ should be an 8-match)
-                    const isPower = game.board[prevTile.row][prevTile.col].isPowerTile || currentTile.isPowerTile;
-                    if (isPower) {
-                        baseValue = Math.max(baseValue, currentValue);
-                    }
-                    // Track if any tile is golden
-                    if (isTileGoldenTile(currentTile)) {
-                        hasGoldenTile = true;
-                    }
-                } else {
-                    // End current match and start new one
-                    if (matchGroup.length >= 3) {
-                        const formationType =
-                            matchGroup.length === 4
-                                ? "line_4_vertical"
-                                : matchGroup.length === 5
-                                ? "line_5_vertical"
-                                : "vertical";
-                        matchGroups.push({
-                            tiles: [...matchGroup],
-                            value: baseValue,
-                            direction: formationType,
-                            hasGoldenTile,
-                        });
-                    }
-                    matchGroup = [{ row, col }];
-                    baseValue = currentValue;
-                    hasGoldenTile = isTileGoldenTile(currentTile);
-                }
-            }
-        }
-
-        // Check remaining match at end of column
-        if (matchGroup.length >= 3) {
-            const formationType =
-                matchGroup.length === 4
-                    ? "line_4_vertical"
-                    : matchGroup.length === 5
-                    ? "line_5_vertical"
-                    : "vertical";
-            allLineMatches.push({ tiles: matchGroup, value: baseValue, direction: formationType, hasGoldenTile });
-        }
-    }
-
-    // Separate line matches by size
-    const line5Matches = allLineMatches.filter((m) => m.tiles.length === 5);
-    const line4Matches = allLineMatches.filter((m) => m.tiles.length === 4);
-    const line3Matches = allLineMatches.filter((m) => m.tiles.length === 3);
-
-    // Get all special formations - but only check positions not already in line matches
-    const allSpecialFormations = findAllSpecialFormations(game);
-    const tFormations = allSpecialFormations.filter((f) => f.direction === "T-formation");
-    const lFormations = allSpecialFormations.filter((f) => f.direction === "L-formation");
-    const blockFormations = allSpecialFormations.filter((f) => f.direction === "block_4_formation");
-
-    // Apply matches in priority order: 5-line > T > L > 4-line > Block > 3-line
-    const allMatchesByPriority = [
-        ...line5Matches,
-        ...tFormations,
-        ...lFormations,
-        ...line4Matches,
-        ...blockFormations,
-        ...line3Matches,
+    // Find all matches with priority: 5-line > T > L > 4-line > Block > 3-line
+    const allMatches = [
+        ...findLineMatches(game, 5),
+        ...findSpecialFormations(game, "T"),
+        ...findSpecialFormations(game, "L"),
+        ...findLineMatches(game, 4),
+        ...findSpecialFormations(game, "Block"),
+        ...findLineMatches(game, 3),
     ];
 
-    // Add matches that don't overlap with already-used tiles
-    for (const match of allMatchesByPriority) {
-        const hasOverlap = match.tiles.some((tile) => usedTiles.has(`${tile.row},${tile.col}`));
-        if (!hasOverlap) {
-            matchGroups.push(match);
-            match.tiles.forEach((tile) => {
-                usedTiles.add(`${tile.row},${tile.col}`);
-            });
+    // Remove overlapping matches (keep higher priority)
+    return filterOverlappingMatches(allMatches);
+}
+
+function activateJokers(game) {
+    for (let row = 0; row < game.boardHeight; row++) {
+        for (let col = 0; col < game.boardWidth; col++) {
+            const tile = game.board[row][col];
+            if (isJoker(tile)) {
+                const bestValue = findBestJokerValue(game, row, col);
+                if (bestValue !== null) {
+                    game.board[row][col] = createTile(bestValue);
+                }
+            }
+        }
+    }
+}
+
+function findLineMatches(game, targetLength) {
+    const matches = [];
+
+    // Scan horizontally
+    for (let row = 0; row < game.boardHeight; row++) {
+        matches.push(...scanLine(game, row, true, targetLength));
+    }
+
+    // Scan vertically
+    for (let col = 0; col < game.boardWidth; col++) {
+        matches.push(...scanLine(game, col, false, targetLength));
+    }
+
+    return matches;
+}
+
+function scanLine(game, index, isHorizontal, targetLength) {
+    const matches = [];
+    const length = isHorizontal ? game.boardWidth : game.boardHeight;
+
+    let matchGroup = [];
+    let baseValue = null;
+    let hasGoldenTile = false;
+
+    for (let i = 0; i < length; i++) {
+        const [row, col] = isHorizontal ? [index, i] : [i, index];
+        const tile = game.board[row][col];
+        const value = getTileValue(tile);
+
+        // Check if tile can be part of current match
+        if (isNormal(tile) && value !== 0) {
+            if (matchGroup.length === 0) {
+                // Start new match
+                matchGroup.push({ row, col });
+                baseValue = value;
+                hasGoldenTile = isTileGoldenTile(tile);
+            } else {
+                // Try to extend match
+                const prevPos = matchGroup[matchGroup.length - 1];
+                const prevTile = game.board[prevPos.row][prevPos.col];
+
+                if (canMatch(tile, prevTile, game)) {
+                    matchGroup.push({ row, col });
+                    // For power tiles, use maximum value
+                    if (prevTile.isPowerTile || tile.isPowerTile) {
+                        baseValue = Math.max(baseValue, value);
+                    }
+                    if (isTileGoldenTile(tile)) {
+                        hasGoldenTile = true;
+                    }
+                } else {
+                    // End current match and start new one
+                    if (matchGroup.length >= targetLength) {
+                        matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+                    }
+                    matchGroup = [{ row, col }];
+                    baseValue = value;
+                    hasGoldenTile = isTileGoldenTile(tile);
+                }
+            }
+        } else {
+            // End current match
+            if (matchGroup.length >= targetLength) {
+                matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+            }
+            matchGroup = [];
+            baseValue = null;
+            hasGoldenTile = false;
         }
     }
 
-    return matchGroups;
+    // Check remaining match at end
+    if (matchGroup.length >= targetLength) {
+        matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+    }
+
+    return matches;
 }
 
-export function findAllSpecialFormations(game) {
-    const allFormations = [];
+function createLineMatch(tiles, value, hasGoldenTile, isHorizontal) {
+    const direction = isHorizontal ? "horizontal" : "vertical";
+    const formationType = tiles.length === 4 ? `line_4_${direction}` :
+                         tiles.length === 5 ? `line_5_${direction}` :
+                         direction;
 
-    // Find all possible formations
+    return {
+        tiles: [...tiles],
+        value,
+        direction: formationType,
+        hasGoldenTile,
+    };
+}
+
+function findSpecialFormations(game, type) {
+    const formations = [];
+
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
             if (!isNormal(tile)) continue;
+
             const value = getTileValue(tile);
-            if (value === 0) continue; // Don't match tiles with value 0
+            if (value === 0) continue;
 
-            // Check T-formation
-            const tFormation = checkTFormation(game, row, col, value);
-            if (tFormation) {
-                allFormations.push(tFormation);
+            let formation = null;
+            if (type === "T") {
+                formation = checkTFormation(game, row, col, value);
+            } else if (type === "L") {
+                formation = checkLFormation(game, row, col, value);
+            } else if (type === "Block") {
+                formation = checkBlockFormation(game, row, col, value);
             }
 
-            // Check L-formation
-            const lFormation = checkLFormation(game, row, col, value);
-            if (lFormation) {
-                allFormations.push(lFormation);
-            }
-
-            // Check block formation (4-tile 2x2)
-            const blockFormation = checkBlockFormation(game, row, col, value);
-            if (blockFormation) {
-                allFormations.push(blockFormation);
+            if (formation) {
+                formations.push(formation);
             }
         }
     }
 
-    return allFormations;
+    return formations;
 }
 
-export function checkTFormation(game, intersectionRow, intersectionCol, value) {
-    // T-formation: 4 different orientations
-    // 1. xxx  2.  x   3.  x   4.   x
-    //     x      xxx      x       xxx
-    //     x       x      xxx       x
-
-    const tFormations = [
-        // 1. T pointing down: xxx
-        //                      x
-        //                      x
-        {
-            horizontal: [-1, 0, 1], // 3 tiles horizontally through intersection
-            vertical: [1, 2], // 2 tiles down from intersection
-        },
-        // 2. T pointing right: x
-        //                      xxx
-        //                      x
-        {
-            vertical: [-1, 0, 1], // 3 tiles vertically through intersection
-            horizontal: [1, 2], // 2 tiles right from intersection
-        },
-        // 3. T pointing up:  x
-        //                    x
-        //                   xxx
-        {
-            horizontal: [-1, 0, 1], // 3 tiles horizontally through intersection
-            vertical: [-2, -1], // 2 tiles up from intersection
-        },
-        // 4. T pointing left: x
-        //                   xxx
-        //                     x
-        {
-            vertical: [-1, 0, 1], // 3 tiles vertically through intersection
-            horizontal: [-2, -1], // 2 tiles left from intersection
-        },
+export function checkTFormation(game, row, col, value) {
+    // T-formation: 3 tiles in one direction + 2 tiles perpendicular at center
+    const patterns = [
+        { horizontal: [-1, 0, 1], vertical: [1, 2] },   // T down
+        { vertical: [-1, 0, 1], horizontal: [1, 2] },   // T right
+        { horizontal: [-1, 0, 1], vertical: [-2, -1] }, // T up
+        { vertical: [-1, 0, 1], horizontal: [-2, -1] }, // T left
     ];
 
-    for (const formation of tFormations) {
-        const positions = [];
-        let validT = true;
-        let hasGoldenTile = false;
-
-        // Check horizontal line (3 tiles including intersection)
-        for (const colOffset of formation.horizontal) {
-            const row = intersectionRow;
-            const col = intersectionCol + colOffset;
-
-            if (
-                row < 0 ||
-                row >= game.boardHeight ||
-                col < 0 ||
-                col >= game.boardWidth ||
-                !game.board[row] ||
-                game.board[row][col] === undefined
-            ) {
-                validT = false;
-                break;
-            }
-            const tile = game.board[row][col];
-            const tileValue = getTileValue(tile);
-            if (tileValue !== value) {
-                validT = false;
-                break;
-            }
-            if (isTileGoldenTile(tile)) {
-                hasGoldenTile = true;
-            }
-            positions.push({ row: row, col: col });
-        }
-
-        if (!validT) continue;
-
-        // Check vertical extension (2 additional tiles)
-        for (const rowOffset of formation.vertical) {
-            const row = intersectionRow + rowOffset;
-            const col = intersectionCol;
-
-            if (
-                row < 0 ||
-                row >= game.boardHeight ||
-                col < 0 ||
-                col >= game.boardWidth ||
-                !game.board[row] ||
-                game.board[row][col] === undefined
-            ) {
-                validT = false;
-                break;
-            }
-            const tile = game.board[row][col];
-            const tileValue = getTileValue(tile);
-            if (tileValue !== value) {
-                validT = false;
-                break;
-            }
-            if (isTileGoldenTile(tile)) {
-                hasGoldenTile = true;
-            }
-            positions.push({ row: row, col: col });
-        }
-
-        if (validT && positions.length === 5) {
+    for (const pattern of patterns) {
+        const result = checkPattern(game, row, col, value, pattern);
+        if (result && result.positions.length === 5) {
             return {
-                tiles: positions,
-                value: value,
+                tiles: result.positions,
+                value,
                 direction: "T-formation",
-                intersection: { row: intersectionRow, col: intersectionCol },
-                hasGoldenTile,
+                intersection: { row, col },
+                hasGoldenTile: result.hasGoldenTile,
             };
         }
     }
@@ -388,102 +189,51 @@ export function checkTFormation(game, intersectionRow, intersectionCol, value) {
     return null;
 }
 
-export function checkLFormation(game, cornerRow, cornerCol, value) {
-    // L-formation: 3 tiles in one direction + 3 tiles in perpendicular direction with shared corner
-    // Check 4 possible L orientations from this corner
-
-    const lShapes = [
-        // L pointing right-down:   x
-        //                          x
-        //                          xxx
-        { horizontal: [0, 1, 2], vertical: [0, 1, 2] },
-
-        // L pointing left-down:     x
-        //                           x
-        //                         xxx
-        { horizontal: [0, -1, -2], vertical: [0, 1, 2] },
-
-        // L pointing right-up:   xxx
-        //                        x
-        //                        x
-        { horizontal: [0, 1, 2], vertical: [0, -1, -2] },
-
-        // L pointing left-up:   xxx
-        //                         x
-        //                         x
-        { horizontal: [0, -1, -2], vertical: [0, -1, -2] },
+export function checkLFormation(game, row, col, value) {
+    // L-formation: 3 tiles horizontal + 3 tiles vertical with shared corner
+    const patterns = [
+        { horizontal: [0, 1, 2], vertical: [0, 1, 2] },    // L right-down
+        { horizontal: [0, -1, -2], vertical: [0, 1, 2] },  // L left-down
+        { horizontal: [0, 1, 2], vertical: [0, -1, -2] },  // L right-up
+        { horizontal: [0, -1, -2], vertical: [0, -1, -2] },// L left-up
     ];
 
-    for (const shape of lShapes) {
+    for (const pattern of patterns) {
+        // For L, vertical should skip first offset (corner already counted)
         const positions = [];
-        let validL = true;
         let hasGoldenTile = false;
+        let valid = true;
 
-        // Check horizontal part (3 tiles from corner)
-        for (const colOffset of shape.horizontal) {
-            const col = cornerCol + colOffset;
-            const row = cornerRow;
-
-            if (
-                col < 0 ||
-                col >= game.boardWidth ||
-                row < 0 ||
-                row >= game.boardHeight ||
-                !game.board[row] ||
-                game.board[row][col] === undefined
-            ) {
-                validL = false;
+        // Check horizontal
+        for (const offset of pattern.horizontal) {
+            const result = getTileAt(game, row, col + offset);
+            if (!result || getTileValue(result.tile) !== value) {
+                valid = false;
                 break;
             }
-            const tile = game.board[row][col];
-            const tileValue = getTileValue(tile);
-            if (tileValue !== value) {
-                validL = false;
-                break;
-            }
-            if (isTileGoldenTile(tile)) {
-                hasGoldenTile = true;
-            }
-            positions.push({ row: row, col: col });
+            positions.push(result.pos);
+            if (isTileGoldenTile(result.tile)) hasGoldenTile = true;
         }
 
-        if (!validL) continue;
+        if (!valid) continue;
 
-        // Check vertical part (3 tiles from corner, but corner is already added, so 2 more)
-        for (let i = 1; i < shape.vertical.length; i++) {
-            const rowOffset = shape.vertical[i];
-            const row = cornerRow + rowOffset;
-            const col = cornerCol;
-
-            if (
-                row < 0 ||
-                row >= game.boardHeight ||
-                col < 0 ||
-                col >= game.boardWidth ||
-                !game.board[row] ||
-                game.board[row][col] === undefined
-            ) {
-                validL = false;
+        // Check vertical (skip first - it's the corner)
+        for (let i = 1; i < pattern.vertical.length; i++) {
+            const result = getTileAt(game, row + pattern.vertical[i], col);
+            if (!result || getTileValue(result.tile) !== value) {
+                valid = false;
                 break;
             }
-            const tile = game.board[row][col];
-            const tileValue = getTileValue(tile);
-            if (tileValue !== value) {
-                validL = false;
-                break;
-            }
-            if (isTileGoldenTile(tile)) {
-                hasGoldenTile = true;
-            }
-            positions.push({ row: row, col: col });
+            positions.push(result.pos);
+            if (isTileGoldenTile(result.tile)) hasGoldenTile = true;
         }
 
-        if (validL && positions.length === 5) {
+        if (valid && positions.length === 5) {
             return {
                 tiles: positions,
-                value: value,
+                value,
                 direction: "L-formation",
-                intersection: { row: cornerRow, col: cornerCol },
+                intersection: { row, col },
                 hasGoldenTile,
             };
         }
@@ -492,37 +242,25 @@ export function checkLFormation(game, cornerRow, cornerCol, value) {
     return null;
 }
 
-export function checkBlockFormation(game, topRow, leftCol, value) {
-    // Block formation: 2x2 square of same tiles
-    // Check if we can form: xx
-    //                       xx
-
-    // Check bounds
-    if (topRow >= game.boardHeight - 1 || leftCol >= game.boardWidth - 1) {
+export function checkBlockFormation(game, row, col, value) {
+    // Block: 2x2 square
+    if (row >= game.boardHeight - 1 || col >= game.boardWidth - 1) {
         return null;
     }
 
     const positions = [
-        { row: topRow, col: leftCol }, // top-left
-        { row: topRow, col: leftCol + 1 }, // top-right
-        { row: topRow + 1, col: leftCol }, // bottom-left
-        { row: topRow + 1, col: leftCol + 1 }, // bottom-right
+        { row, col },
+        { row, col: col + 1 },
+        { row: row + 1, col },
+        { row: row + 1, col: col + 1 },
     ];
 
     let hasGoldenTile = false;
 
-    // Check if all 4 positions have the same value
     for (const pos of positions) {
-        if (pos.row < 0 || pos.row >= game.boardHeight || pos.col < 0 || pos.col >= game.boardWidth) {
-            return null; // Out of bounds
-        }
-        if (!game.board[pos.row] || game.board[pos.row][pos.col] === undefined) {
-            return null; // Position doesn't exist
-        }
-        const tile = game.board[pos.row][pos.col];
-        const tileValue = getTileValue(tile);
-        if (tileValue !== value) {
-            return null; // Doesn't match
+        const tile = game.board[pos.row]?.[pos.col];
+        if (!tile || getTileValue(tile) !== value) {
+            return null;
         }
         if (isTileGoldenTile(tile)) {
             hasGoldenTile = true;
@@ -531,12 +269,70 @@ export function checkBlockFormation(game, topRow, leftCol, value) {
 
     return {
         tiles: positions,
-        value: value,
+        value,
         direction: "block_4_formation",
         intersections: [
-            { row: topRow, col: leftCol + 1 }, // top-right becomes one merge point
-            { row: topRow + 1, col: leftCol }, // bottom-left becomes other merge point
+            { row, col: col + 1 },      // top-right
+            { row: row + 1, col },      // bottom-left
         ],
         hasGoldenTile,
     };
+}
+
+function checkPattern(game, centerRow, centerCol, value, pattern) {
+    const positions = [];
+    let hasGoldenTile = false;
+
+    // Check horizontal offsets
+    for (const offset of pattern.horizontal) {
+        const result = getTileAt(game, centerRow, centerCol + offset);
+        if (!result || getTileValue(result.tile) !== value) {
+            return null;
+        }
+        positions.push(result.pos);
+        if (isTileGoldenTile(result.tile)) hasGoldenTile = true;
+    }
+
+    // Check vertical offsets
+    for (const offset of pattern.vertical) {
+        const result = getTileAt(game, centerRow + offset, centerCol);
+        if (!result || getTileValue(result.tile) !== value) {
+            return null;
+        }
+        positions.push(result.pos);
+        if (isTileGoldenTile(result.tile)) hasGoldenTile = true;
+    }
+
+    return { positions, hasGoldenTile };
+}
+
+function getTileAt(game, row, col) {
+    if (row < 0 || row >= game.boardHeight || col < 0 || col >= game.boardWidth) {
+        return null;
+    }
+    const tile = game.board[row]?.[col];
+    if (!tile || !isNormal(tile)) {
+        return null;
+    }
+    return { tile, pos: { row, col } };
+}
+
+function filterOverlappingMatches(matches) {
+    const result = [];
+    const usedTiles = new Set();
+
+    for (const match of matches) {
+        const hasOverlap = match.tiles.some(tile =>
+            usedTiles.has(`${tile.row},${tile.col}`)
+        );
+
+        if (!hasOverlap) {
+            result.push(match);
+            match.tiles.forEach(tile => {
+                usedTiles.add(`${tile.row},${tile.col}`);
+            });
+        }
+    }
+
+    return result;
 }
