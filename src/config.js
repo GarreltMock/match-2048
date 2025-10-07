@@ -320,7 +320,7 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
@@ -338,7 +338,7 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
@@ -355,7 +355,7 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
@@ -372,7 +372,7 @@ export const TEST_LEVELS = [
             [0, 0, 6, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
@@ -388,13 +388,13 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
         level: 11,
         title: "Golden Tile Match",
-        boardWidth: 6,
+        boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
@@ -404,13 +404,13 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
-        goals: [{ tileValue: 4, target: 1, current: 0, goalType: "created" }],
+        goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
     {
         level: 12,
         title: "Joker Tile",
-        boardWidth: 6,
+        boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
@@ -426,7 +426,7 @@ export const TEST_LEVELS = [
     {
         level: 13,
         title: "Free Swap Tile",
-        boardWidth: 6,
+        boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
