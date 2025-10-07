@@ -70,12 +70,26 @@ export function createMergedTiles(game, group) {
 
     // Calculate positions and value based on formation type
     const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
+    const is5LineFormation = group.direction === "line_5_horizontal" || group.direction === "line_5_vertical";
     const positions = isTLFormation ? [group.intersection] : calculateMiddlePositions(game, group.tiles, group);
-    const valueIncrement = isTLFormation ? 2 : 1;
+    const valueIncrement = (isTLFormation || is5LineFormation) ? 2 : 1;
 
     // Check if any tile in the match was a golden tile - if so, add +1 to the result
     const goldenBonus = group.hasGoldenTile ? 1 : 0;
     const newValue = group.value + valueIncrement + goldenBonus;
+
+    // Calculate goal tracking count:
+    // - For 5-line formations: count as 3 tiles (represents 3 intermediate merges)
+    // - For golden bonus: count the intermediate value as well
+    // - Otherwise: count based on positions created
+    if (is5LineFormation) {
+        // 5-line creates 1 tile but should count as 3 for goals
+        trackGoalProgress(game, newValue - 1, 3);
+    }
+    // Track intermediate value if golden bonus was applied
+    if (goldenBonus > 0) {
+        trackGoalProgress(game, newValue - goldenBonus, 1);
+    }
 
     // Handle special tile types
     if (specialTileType === "joker") {
@@ -298,7 +312,12 @@ function unblockAdjacentTiles(game, matchGroups) {
     });
 
     // Animate and remove blocked tiles
-    animateUnblocking(game, blockedTilesToRemove, () => game.updateBlockedTileGoals(), (check) => game.updateGoalDisplay(check));
+    animateUnblocking(
+        game,
+        blockedTilesToRemove,
+        () => game.updateBlockedTileGoals(),
+        (check) => game.updateGoalDisplay(check)
+    );
 }
 
 function trackGoalProgress(game, newValue, count = 1) {
