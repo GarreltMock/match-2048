@@ -1,6 +1,14 @@
 // Main Match3Game class - orchestrates all game modules
 
-import { TILE_TYPE, SPECIAL_TILE_TYPES, FORMATION_TYPES, DEFAULT_TILE_VALUES, MAX_POWER_UP_USES, LEVELS } from "./config.js";
+import {
+    TILE_TYPE,
+    SPECIAL_TILE_TYPES,
+    FORMATION_TYPES,
+    DEFAULT_TILE_VALUES,
+    MAX_POWER_UP_USES,
+    LEVELS,
+    TEST_LEVELS,
+} from "./config.js";
 import {
     loadNumberBase,
     saveNumberBase,
@@ -12,6 +20,8 @@ import {
     saveCurrentLevel,
     loadScore,
     saveScore,
+    loadUseTestLevels,
+    saveUseTestLevels,
 } from "./storage.js";
 import { createTile, createBlockedTile, createJokerTile } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
@@ -41,6 +51,7 @@ export class Match3Game {
         this.tileValues = this.defaultTileValues;
         this.numberBase = loadNumberBase(); // 2 or 3
         this.showReviewBoard = loadShowReviewBoard(); // true or false
+        this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
         this.selectedGem = null;
         this.isDragging = false;
@@ -80,7 +91,7 @@ export class Match3Game {
     }
 
     initializeLevels() {
-        this.levels = LEVELS;
+        this.levels = this.useTestLevels ? TEST_LEVELS : LEVELS;
         this.loadLevel(this.currentLevel);
     }
 
@@ -90,6 +101,7 @@ export class Match3Game {
 
         this.currentLevel = levelNum;
         saveCurrentLevel(this.currentLevel); // Save progress to localStorage
+        this.levelConfig = level; // Store level config for board.js to access boardPreset
         this.boardWidth = level.boardWidth || 8; // Use level-specific board width or default to 8
         this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
         this.blockedTiles = level.blockedTiles || []; // Store blocked tile positions
@@ -573,6 +585,8 @@ export class Match3Game {
         const levelSelect = document.getElementById("levelSelect");
         const numberBaseSelect = document.getElementById("numberBase");
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
+        const useTestLevelsCheckbox = document.getElementById("useTestLevels");
+        let selectedLevels = this.useTestLevels;
         const titleElement = document.querySelector("h1");
 
         // Special tile reward selects
@@ -582,27 +596,51 @@ export class Match3Game {
         const tFormationSelect = document.getElementById("tFormationReward");
         const lFormationSelect = document.getElementById("lFormationReward");
 
-        // Populate level selector
-        if (levelSelect) {
-            levelSelect.innerHTML = "";
-            for (let i = 1; i <= this.levels.length; i++) {
-                const option = document.createElement("option");
-                option.value = i;
-                const levelConfig = this.levels[i - 1];
-                option.textContent = levelConfig.title
-                    ? `Level ${i} - ${levelConfig.title}`
-                    : `Level ${i}`;
-                levelSelect.appendChild(option);
+        // Function to populate level selector based on current levels
+        const populateLevelSelect = () => {
+            if (levelSelect) {
+                levelSelect.innerHTML = "";
+                for (let i = 1; i <= this.levels.length; i++) {
+                    const option = document.createElement("option");
+                    option.value = i;
+                    const levelConfig = this.levels[i - 1];
+                    option.textContent = levelConfig.title ? `Level ${i} - ${levelConfig.title}` : `Level ${i}`;
+                    levelSelect.appendChild(option);
+                }
             }
+        };
+
+        // Populate level selector initially
+        populateLevelSelect();
+
+        // Handle test levels checkbox change
+        if (useTestLevelsCheckbox) {
+            useTestLevelsCheckbox.addEventListener("change", () => {
+                selectedLevels = useTestLevelsCheckbox.checked;
+                this.levels = selectedLevels ? TEST_LEVELS : LEVELS;
+                populateLevelSelect();
+                if (levelSelect) {
+                    levelSelect.value = "1"; // Reset to level 1 when switching
+                }
+            });
         }
 
         const openSettings = () => {
+            // Repopulate level selector in case levels changed
+            populateLevelSelect();
+
             // Set current values
             if (levelSelect) {
+                // Ensure current level is valid for current level set
+                const maxLevel = this.levels.length;
+                if (this.currentLevel > maxLevel) {
+                    this.currentLevel = 1;
+                }
                 levelSelect.value = this.currentLevel.toString();
             }
             numberBaseSelect.value = this.numberBase.toString();
             showReviewBoardCheckbox.checked = this.showReviewBoard;
+            useTestLevelsCheckbox.checked = selectedLevels;
 
             // Set special tile configuration values
             line4Select.value = this.specialTileConfig.line_4;
@@ -627,9 +665,22 @@ export class Match3Game {
                 saveSettingsBtn.addEventListener("click", () => {
                     // Check if level changed
                     let levelChanged = false;
+                    let levelSetChanged = false;
+
+                    // Save test levels preference first
+                    console.log("SELECTED LEVELS:", selectedLevels, this.useTestLevels);
+                    if (selectedLevels !== this.useTestLevels) {
+                        console.log("HERE");
+                        this.useTestLevels = selectedLevels;
+                        saveUseTestLevels(this.useTestLevels);
+                        levelSetChanged = true;
+                        levelChanged = true; // Force reload when switching level sets
+                    }
+
+                    // Get selected level and save it
                     if (levelSelect) {
                         const newLevel = parseInt(levelSelect.value, 10);
-                        if (newLevel !== this.currentLevel) {
+                        if (newLevel !== this.currentLevel || levelSetChanged) {
                             levelChanged = true;
                             this.currentLevel = newLevel;
                             saveCurrentLevel(this.currentLevel);

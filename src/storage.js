@@ -54,3 +54,12 @@ export function loadScore() {
 export function saveScore(score) {
     localStorage.setItem("match2048_score", score.toString());
 }
+
+export function loadUseTestLevels() {
+    const saved = localStorage.getItem("match2048_useTestLevels");
+    return saved === "true";
+}
+
+export function saveUseTestLevels(useTestLevels) {
+    localStorage.setItem("match2048_useTestLevels", useTestLevels.toString());
+}

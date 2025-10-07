@@ -222,3 +222,24 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
 ];
+
+// Test levels for development and testing
+export const TEST_LEVELS = [
+    {
+        level: 1,
+        title: "Test Level 1",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 20,
+        boardPreset: [
+            [1, 2, 3, 1, 2, 3],
+            [2, 3, 1, 2, 3, 1],
+            [3, 1, 2, 3, 1, 2],
+            [1, 2, 3, 1, 2, 3],
+            [2, 3, 1, 2, 3, 1],
+            [3, 1, 2, 3, 1, 2],
+        ],
+        goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3],
+    },
+];

@@ -1,44 +1,114 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, getTileValue } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createJokerTile, getTileValue } from "./tile-helpers.js";
 
-export function createBoard(game) {
-    game.board = [];
-    for (let row = 0; row < game.boardHeight; row++) {
-        game.board[row] = [];
-        for (let col = 0; col < game.boardWidth; col++) {
-            do {
-                game.board[row][col] = createTile(getRandomTileValue(game));
-            } while (hasInitialMatch(game, row, col));
+/**
+ * Parse preset tile notation into a tile object
+ * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "B", "J", or just a number)
+ * @returns {object} A tile object
+ */
+function parsePresetTile(notation) {
+    if (typeof notation === 'number') {
+        // Just a number - create a normal tile with that value
+        return createTile(notation);
+    }
+
+    const str = String(notation);
+
+    // Check for blocked tile (just "B")
+    if (str === 'B') {
+        return createBlockedTile();
+    }
+
+    // Check for joker tile (just "J")
+    if (str === 'J') {
+        return createJokerTile();
+    }
+
+    // Parse special tiles with value prefix (e.g., "2B", "2G", "2S")
+    const match = str.match(/^(\d+)([BGSP])$/);
+    if (match) {
+        const value = parseInt(match[1], 10);
+        const type = match[2];
+
+        switch (type) {
+            case 'B': // Bonus (Power tile)
+                return createTile(value, true, false, false);
+            case 'G': // Golden
+                return createTile(value, false, true, false);
+            case 'S': // Swap (Free swap)
+                return createTile(value, false, false, true);
+            default:
+                return createTile(value);
         }
     }
 
-    // Place blocked tiles
-    if (game.blockedTiles) {
-        game.blockedTiles.forEach((blockedPos) => {
-            if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
-                const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
-                for (const col of colArray) {
-                    if (blockedPos.row < game.boardHeight && col < game.boardWidth) {
-                        game.board[blockedPos.row][col] = createBlockedTile();
-                    }
-                }
-            } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
-                // Entire row: { row: 2 }
-                if (blockedPos.row < game.boardHeight) {
-                    for (let col = 0; col < game.boardWidth; col++) {
-                        game.board[blockedPos.row][col] = createBlockedTile();
-                    }
-                }
-            } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
-                // Entire column: { col: 3 }
-                if (blockedPos.col < game.boardWidth) {
-                    for (let row = 0; row < game.boardHeight; row++) {
-                        game.board[row][blockedPos.col] = createBlockedTile();
-                    }
+    // If we can't parse it, return a normal tile with default value
+    console.warn(`Could not parse preset tile notation: ${notation}`);
+    return createTile(1);
+}
+
+export function createBoard(game) {
+    game.board = [];
+
+    // Check if there's a boardPreset in the level config
+    const levelConfig = game.levelConfig || {};
+    const boardPreset = levelConfig.boardPreset;
+
+    if (boardPreset && Array.isArray(boardPreset)) {
+        // Use the preset board configuration
+        for (let row = 0; row < game.boardHeight; row++) {
+            game.board[row] = [];
+            for (let col = 0; col < game.boardWidth; col++) {
+                if (boardPreset[row] && boardPreset[row][col] !== undefined) {
+                    // Use preset tile
+                    game.board[row][col] = parsePresetTile(boardPreset[row][col]);
+                } else {
+                    // Fill with random tile if preset doesn't cover this position
+                    do {
+                        game.board[row][col] = createTile(getRandomTileValue(game));
+                    } while (hasInitialMatch(game, row, col));
                 }
             }
-        });
+        }
+    } else {
+        // Generate random board as before
+        for (let row = 0; row < game.boardHeight; row++) {
+            game.board[row] = [];
+            for (let col = 0; col < game.boardWidth; col++) {
+                do {
+                    game.board[row][col] = createTile(getRandomTileValue(game));
+                } while (hasInitialMatch(game, row, col));
+            }
+        }
+
+        // Place blocked tiles from blockedTiles config
+        if (game.blockedTiles) {
+            game.blockedTiles.forEach((blockedPos) => {
+                if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
+                    const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
+                    for (const col of colArray) {
+                        if (blockedPos.row < game.boardHeight && col < game.boardWidth) {
+                            game.board[blockedPos.row][col] = createBlockedTile();
+                        }
+                    }
+                } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
+                    // Entire row: { row: 2 }
+                    if (blockedPos.row < game.boardHeight) {
+                        for (let col = 0; col < game.boardWidth; col++) {
+                            game.board[blockedPos.row][col] = createBlockedTile();
+                        }
+                    }
+                } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
+                    // Entire column: { col: 3 }
+                    if (blockedPos.col < game.boardWidth) {
+                        for (let row = 0; row < game.boardHeight; row++) {
+                            game.board[row][blockedPos.col] = createBlockedTile();
+                        }
+                    }
+                }
+            });
+        }
     }
 }
 
