@@ -83,6 +83,7 @@ export const LEVELS = [
     },
     {
         level: 7,
+        title: "Current Goal",
         maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ tileValue: 5, target: 16, current: 0, goalType: "current" }], // 32
@@ -116,6 +117,7 @@ export const LEVELS = [
 
     {
         level: 11,
+        title: "Blocked Tile Goal",
         maxMoves: 60,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [

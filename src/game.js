@@ -588,7 +588,10 @@ export class Match3Game {
             for (let i = 1; i <= this.levels.length; i++) {
                 const option = document.createElement("option");
                 option.value = i;
-                option.textContent = `Level ${i}`;
+                const levelConfig = this.levels[i - 1];
+                option.textContent = levelConfig.title
+                    ? `Level ${i} - ${levelConfig.title}`
+                    : `Level ${i}`;
                 levelSelect.appendChild(option);
             }
         }
