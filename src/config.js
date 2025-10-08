@@ -12,6 +12,7 @@ export const SPECIAL_TILE_TYPES = {
     POWER: "power",
     GOLDEN: "golden",
     FREESWAP: "freeswap",
+    STICKY_FREESWAP: "sticky_freeswap",
 };
 
 export const FORMATION_TYPES = {
@@ -470,6 +471,22 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, "6S", 7, 7, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
+        goals: [{ tileValue: 1, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [0],
+    },
+    {
+        level: 13,
+        title: "Sticky Free Swap Tile",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 5,
+        boardPreset: [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, "7K", 7, 7, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],

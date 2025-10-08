@@ -4,7 +4,7 @@ import { createTile, createBlockedTile, createJokerTile, getTileValue } from "./
 
 /**
  * Parse preset tile notation into a tile object
- * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "B", "J", or just a number)
+ * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "2K", "B", "J", or just a number)
  * @returns {object} A tile object
  */
 function parsePresetTile(notation) {
@@ -25,19 +25,21 @@ function parsePresetTile(notation) {
         return createJokerTile();
     }
 
-    // Parse special tiles with value prefix (e.g., "2B", "2G", "2S")
-    const match = str.match(/^(\d+)([BGSP])$/);
+    // Parse special tiles with value prefix (e.g., "2B", "2G", "2S", "2K")
+    const match = str.match(/^(\d+)([BGSPK])$/);
     if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
 
         switch (type) {
             case "B": // Bonus (Power tile)
-                return createTile(value, true, false, false);
+                return createTile(value, true, false, false, false);
             case "G": // Golden
-                return createTile(value, false, true, false);
+                return createTile(value, false, true, false, false);
             case "S": // Swap (Free swap)
-                return createTile(value, false, false, true);
+                return createTile(value, false, false, true, false);
+            case "K": // sticKy free swap
+                return createTile(value, false, false, false, true);
             default:
                 return createTile(value);
         }

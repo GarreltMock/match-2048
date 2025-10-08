@@ -1,6 +1,6 @@
 // DOM rendering and display updates
 
-import { getTileValue, isBlocked, isJoker, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { getTileValue, isBlocked, isJoker, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 
 export function renderBoard(game) {
@@ -56,6 +56,11 @@ export function renderBoard(game) {
                 // Add freeswap-tile class if this is a free swap tile that hasn't been used
                 if (isTileFreeSwapTile(tile) && !tile.hasBeenSwapped) {
                     gem.classList.add("freeswap-tile");
+                }
+
+                // Add sticky-freeswap-tile class if this is a sticky free swap tile that hasn't been used
+                if (isTileStickyFreeSwapTile(tile) && !tile.hasBeenSwapped) {
+                    gem.classList.add("sticky-freeswap-tile");
                 }
             }
 

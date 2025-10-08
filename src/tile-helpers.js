@@ -2,13 +2,14 @@
 
 import { TILE_TYPE } from "./config.js";
 
-export function createTile(value, isPowerTile = false, isGoldenTile = false, isFreeSwapTile = false) {
+export function createTile(value, isPowerTile = false, isGoldenTile = false, isFreeSwapTile = false, isStickyFreeSwapTile = false) {
     return {
         type: TILE_TYPE.NORMAL,
         value: value,
         isPowerTile: isPowerTile,
         isGoldenTile: isGoldenTile,
         isFreeSwapTile: isFreeSwapTile,
+        isStickyFreeSwapTile: isStickyFreeSwapTile,
         hasBeenSwapped: false,
     };
 }
@@ -20,6 +21,7 @@ export function createBlockedTile() {
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -31,6 +33,7 @@ export function createJokerTile() {
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -69,6 +72,10 @@ export function isTileGoldenTile(tile) {
 
 export function isTileFreeSwapTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapTile === true;
+}
+
+export function isTileStickyFreeSwapTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.isStickyFreeSwapTile === true;
 }
 
 // Convert internal value (1, 2, 3...) to display value based on numberBase

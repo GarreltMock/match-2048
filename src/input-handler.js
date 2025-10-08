@@ -1,6 +1,6 @@
 // User input processing and drag-to-swap mechanics
 
-import { getTileValue, createTile, createJokerTile, isBlocked, isJoker, isTileFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { getTileValue, createTile, createJokerTile, isBlocked, isJoker, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -246,11 +246,11 @@ function trySwap(game, row1, col1, row2, col2) {
         return;
     }
 
-    // Check if either tile is a free swap tile that hasn't been used
+    // Check if either tile is a free swap tile (or sticky free swap) that hasn't been used
     const tile1 = game.board[row1][col1];
     const tile2 = game.board[row2][col2];
-    const isFreeSwap1 = isTileFreeSwapTile(tile1) && !tile1.hasBeenSwapped;
-    const isFreeSwap2 = isTileFreeSwapTile(tile2) && !tile2.hasBeenSwapped;
+    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
+    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
     const hasFreeSwap = isFreeSwap1 || isFreeSwap2;
 
     // Temporarily swap gems

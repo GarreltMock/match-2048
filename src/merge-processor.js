@@ -1,6 +1,6 @@
 // Match processing and tile merging logic
 
-import { createTile, createJokerTile, isBlocked, getTileValue } from "./tile-helpers.js";
+import { createTile, createJokerTile, isBlocked, getTileValue, isTileStickyFreeSwapTile } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
 
 export function processMatches(game) {
@@ -34,6 +34,14 @@ export function processMatches(game) {
 }
 
 export function processMerges(game, matchGroups) {
+    // Check for sticky free swap tiles BEFORE clearing the board
+    matchGroups.forEach((group) => {
+        group.hasStickyFreeSwap = group.tiles.some(tile => {
+            const boardTile = game.board[tile.row][tile.col];
+            return isTileStickyFreeSwapTile(boardTile);
+        });
+    });
+
     // Clear all matched tiles first
     matchGroups.forEach((group) => {
         group.tiles.forEach((tile) => {
@@ -78,6 +86,11 @@ export function createMergedTiles(game, group) {
     const goldenBonus = group.hasGoldenTile ? 1 : 0;
     const newValue = group.value + valueIncrement + goldenBonus;
 
+    // Check if sticky free swap should transfer (detected before tiles were cleared)
+    // If so, and this was NOT a user swap, transfer the sticky free swap to the merged tile
+    const hasStickyFreeSwap = group.hasStickyFreeSwap || false;
+    const transferStickyFreeSwap = hasStickyFreeSwap && !game.isUserSwap;
+
     // Track intermediate value if golden bonus was applied
     if (goldenBonus > 0) {
         trackGoalProgress(game, newValue - goldenBonus, 1);
@@ -91,7 +104,7 @@ export function createMergedTiles(game, group) {
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
             game.board[specialPos.row][specialPos.col] = createJokerTile();
-            game.board[normalPos.row][normalPos.col] = createTile(newValue);
+            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 1);
         } else {
             game.board[positions[0].row][positions[0].col] = createJokerTile();
@@ -102,11 +115,11 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, true);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue);
+            game.board[specialPos.row][specialPos.col] = createTile(newValue, true, false, false, transferStickyFreeSwap);
+            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, true);
+            game.board[positions[0].row][positions[0].col] = createTile(newValue, true, false, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 1);
         }
     } else if (specialTileType === "golden") {
@@ -115,11 +128,11 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, true);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue);
+            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, true, false, transferStickyFreeSwap);
+            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, true);
+            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, true, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 1);
         }
     } else if (specialTileType === "freeswap") {
@@ -128,17 +141,31 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, false, true);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue);
+            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, false, true, transferStickyFreeSwap);
+            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, true);
+            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, true, transferStickyFreeSwap);
+            trackGoalProgress(game, newValue, 1);
+        }
+    } else if (specialTileType === "sticky_freeswap") {
+        if (positions.length > 1) {
+            const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+            const specialPos = determineSpecialTilePosition(game, group, formationKey);
+            const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
+
+            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, false, false, true);
+            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            trackGoalProgress(game, newValue, 2);
+        } else {
+            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, false, true);
             trackGoalProgress(game, newValue, 1);
         }
     } else {
         // No special tile - create normal tiles at all positions
+        // However, if transferStickyFreeSwap is true, the merged tiles should inherit the sticky free swap ability
         positions.forEach((pos) => {
-            game.board[pos.row][pos.col] = createTile(newValue);
+            game.board[pos.row][pos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
         });
         trackGoalProgress(game, newValue, positions.length);
     }
