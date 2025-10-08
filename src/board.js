@@ -1,10 +1,10 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, createJokerTile, getTileValue } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createJokerTile, getTileValue } from "./tile-helpers.js";
 
 /**
  * Parse preset tile notation into a tile object
- * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "2K", "B", "J", or just a number)
+ * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "2K", "B", "J", "64L" for goal with life value, or just a number)
  * @returns {object} A tile object
  */
 function parsePresetTile(notation) {
@@ -23,6 +23,13 @@ function parsePresetTile(notation) {
     // Check for joker tile (just "J")
     if (str === "J") {
         return createJokerTile();
+    }
+
+    // Parse blocked tile with life value (e.g., "64L" for blocked with 64 life)
+    const blockedWithLifeMatch = str.match(/^(\d+)L$/);
+    if (blockedWithLifeMatch) {
+        const lifeValue = parseInt(blockedWithLifeMatch[1], 10);
+        return createBlockedWithLifeTile(lifeValue);
     }
 
     // Parse special tiles with value prefix (e.g., "2B", "2G", "2S", "2K")
@@ -82,28 +89,32 @@ export function createBoard(game) {
             }
         }
 
-        // Place blocked tiles from blockedTiles config
+        // Place blocked tiles (with or without life) from blockedTiles config
         if (game.blockedTiles) {
             game.blockedTiles.forEach((blockedPos) => {
+                // If lifeValue is specified, create a blocked with life tile instead of regular blocked tile
+                const hasLifeValue = blockedPos.lifeValue !== undefined;
+                const tileCreator = hasLifeValue ? () => createBlockedWithLifeTile(blockedPos.lifeValue) : createBlockedTile;
+
                 if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
                     const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
                     for (const col of colArray) {
                         if (blockedPos.row < game.boardHeight && col < game.boardWidth) {
-                            game.board[blockedPos.row][col] = createBlockedTile();
+                            game.board[blockedPos.row][col] = tileCreator();
                         }
                     }
                 } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
-                    // Entire row: { row: 2 }
+                    // Entire row: { row: 2 } or { row: 2, lifeValue: 128 }
                     if (blockedPos.row < game.boardHeight) {
                         for (let col = 0; col < game.boardWidth; col++) {
-                            game.board[blockedPos.row][col] = createBlockedTile();
+                            game.board[blockedPos.row][col] = tileCreator();
                         }
                     }
                 } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
-                    // Entire column: { col: 3 }
+                    // Entire column: { col: 3 } or { col: 3, lifeValue: 128 }
                     if (blockedPos.col < game.boardWidth) {
                         for (let row = 0; row < game.boardHeight; row++) {
-                            game.board[row][blockedPos.col] = createBlockedTile();
+                            game.board[row][blockedPos.col] = tileCreator();
                         }
                     }
                 }

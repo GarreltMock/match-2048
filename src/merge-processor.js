@@ -1,6 +1,6 @@
 // Match processing and tile merging logic
 
-import { createTile, createJokerTile, isBlocked, getTileValue, isTileStickyFreeSwapTile } from "./tile-helpers.js";
+import { createTile, createJokerTile, isBlocked, isBlockedWithLife, getTileValue, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
 
 export function processMatches(game) {
@@ -294,6 +294,7 @@ function calculateMiddlePositions(game, tiles, group = null) {
 
 function unblockAdjacentTiles(game, matchGroups) {
     const blockedTilesToRemove = [];
+    const goalTilesToDamage = [];
 
     matchGroups.forEach((group) => {
         // Get where the new merged tile(s) will be created
@@ -307,7 +308,10 @@ function unblockAdjacentTiles(game, matchGroups) {
             targetPositions.push(...middlePositions);
         }
 
-        // Check each tile in the original match for adjacent blocked tiles
+        // Calculate the damage value from this match (the value of tiles being matched, not the merged result)
+        const damageValue = getDisplayValue(group.value, game.numberBase);
+
+        // Check each tile in the original match for adjacent blocked/goal tiles
         group.tiles.forEach((matchTile) => {
             const adjacentPositions = [
                 { row: matchTile.row - 1, col: matchTile.col }, // Up
@@ -317,38 +321,86 @@ function unblockAdjacentTiles(game, matchGroups) {
             ];
 
             adjacentPositions.forEach((pos) => {
-                // Check bounds and if tile is blocked
+                // Check bounds
                 if (
                     pos.row >= 0 &&
                     pos.row < game.boardHeight &&
                     pos.col >= 0 &&
-                    pos.col < game.boardWidth &&
-                    isBlocked(game.board[pos.row][pos.col])
+                    pos.col < game.boardWidth
                 ) {
-                    // Avoid duplicates
-                    if (!blockedTilesToRemove.some((tile) => tile.row === pos.row && tile.col === pos.col)) {
-                        // Find the closest target position for animation
-                        let closestTarget = targetPositions[0];
-                        let closestDistance =
-                            Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
+                    const tile = game.board[pos.row][pos.col];
 
-                        targetPositions.forEach((target) => {
-                            const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
-                            if (distance < closestDistance) {
-                                closestDistance = distance;
-                                closestTarget = target;
-                            }
-                        });
+                    // Handle blocked tiles (remove immediately)
+                    if (isBlocked(tile)) {
+                        // Avoid duplicates
+                        if (!blockedTilesToRemove.some((t) => t.row === pos.row && t.col === pos.col)) {
+                            // Find the closest target position for animation
+                            let closestTarget = targetPositions[0];
+                            let closestDistance =
+                                Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
 
-                        blockedTilesToRemove.push({
-                            row: pos.row,
-                            col: pos.col,
-                            targetPos: closestTarget,
-                        });
+                            targetPositions.forEach((target) => {
+                                const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
+                                if (distance < closestDistance) {
+                                    closestDistance = distance;
+                                    closestTarget = target;
+                                }
+                            });
+
+                            blockedTilesToRemove.push({
+                                row: pos.row,
+                                col: pos.col,
+                                targetPos: closestTarget,
+                            });
+                        }
+                    }
+                    // Handle blocked tiles with life (apply damage)
+                    else if (isBlockedWithLife(tile)) {
+                        // Avoid duplicates - if already in list, add damage to existing entry
+                        const existingEntry = goalTilesToDamage.find((t) => t.row === pos.row && t.col === pos.col);
+                        if (existingEntry) {
+                            existingEntry.damage += damageValue;
+                        } else {
+                            // Find the closest target position for animation
+                            let closestTarget = targetPositions[0];
+                            let closestDistance =
+                                Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
+
+                            targetPositions.forEach((target) => {
+                                const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
+                                if (distance < closestDistance) {
+                                    closestDistance = distance;
+                                    closestTarget = target;
+                                }
+                            });
+
+                            goalTilesToDamage.push({
+                                row: pos.row,
+                                col: pos.col,
+                                damage: damageValue,
+                                targetPos: closestTarget,
+                            });
+                        }
                     }
                 }
             });
         });
+    });
+
+    // Apply damage to blocked tiles with life
+    goalTilesToDamage.forEach((entry) => {
+        const tile = game.board[entry.row][entry.col];
+        if (isBlockedWithLife(tile)) {
+            tile.lifeValue -= entry.damage;
+            // If life goes below or equal to 0, mark for removal
+            if (tile.lifeValue <= 0) {
+                blockedTilesToRemove.push({
+                    row: entry.row,
+                    col: entry.col,
+                    targetPos: entry.targetPos,
+                });
+            }
+        }
     });
 
     // Animate and remove blocked tiles

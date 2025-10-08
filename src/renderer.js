@@ -1,6 +1,6 @@
 // DOM rendering and display updates
 
-import { getTileValue, isBlocked, isJoker, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { getTileValue, isBlocked, isBlockedWithLife, isJoker, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 
 export function renderBoard(game) {
@@ -33,6 +33,9 @@ export function renderBoard(game) {
             // Set CSS class based on tile type
             if (isBlocked(tile)) {
                 gem.className = `gem tile-BLOCKED`;
+            } else if (isBlockedWithLife(tile)) {
+                gem.className = `gem tile-BLOCKED_WITH_LIFE`;
+                gem.dataset.life = tile.lifeValue;
             } else if (isJoker(tile)) {
                 gem.className = `gem tile-JOKER`;
                 gem.textContent = "🃏";

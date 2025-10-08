@@ -1,6 +1,6 @@
 // Goal and level progression tracking
 
-import { isNormal, isBlocked, getTileValue } from "./tile-helpers.js";
+import { isNormal, isBlocked, isBlockedWithLife, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel } from "./storage.js";
 
 export function checkLevelComplete(game) {
@@ -100,7 +100,9 @@ export function countBlockedTiles(game) {
     let count = 0;
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
-            if (isBlocked(game.board[row][col])) {
+            const tile = game.board[row][col];
+            // Count both blocked tiles and blocked with life tiles
+            if (isBlocked(tile) || isBlockedWithLife(tile)) {
                 count++;
             }
         }
@@ -110,11 +112,13 @@ export function countBlockedTiles(game) {
 
 export function updateBlockedTileGoals(game) {
     const currentBlockedCount = countBlockedTiles(game);
-    const clearedCount = game.initialBlockedTileCount - currentBlockedCount;
+    const totalBlockedTiles = game.initialBlockedTileCount;
+    const clearedCount = totalBlockedTiles - currentBlockedCount;
 
     game.levelGoals.forEach((goal) => {
         if (goal.goalType === "blocked") {
             goal.current = clearedCount;
+            goal.target = totalBlockedTiles;
         }
     });
 }

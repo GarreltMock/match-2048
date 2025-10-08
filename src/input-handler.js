@@ -1,6 +1,6 @@
 // User input processing and drag-to-swap mechanics
 
-import { getTileValue, createTile, createJokerTile, isBlocked, isJoker, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { getTileValue, createTile, createJokerTile, isBlocked, isBlockedWithLife, isJoker, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -241,8 +241,9 @@ function previewSwap(row1, col1, row2, col2) {
 function trySwap(game, row1, col1, row2, col2) {
     if (!game.gameActive || game.animating) return;
 
-    // Prevent swapping if either tile is blocked
-    if (isBlocked(game.board[row1][col1]) || isBlocked(game.board[row2][col2])) {
+    // Prevent swapping if either tile is blocked or blocked with life
+    if (isBlocked(game.board[row1][col1]) || isBlocked(game.board[row2][col2]) ||
+        isBlockedWithLife(game.board[row1][col1]) || isBlockedWithLife(game.board[row2][col2])) {
         return;
     }
 

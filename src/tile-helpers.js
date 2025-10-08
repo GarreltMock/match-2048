@@ -26,6 +26,19 @@ export function createBlockedTile() {
     };
 }
 
+export function createBlockedWithLifeTile(lifeValue) {
+    return {
+        type: TILE_TYPE.BLOCKED_WITH_LIFE,
+        value: null,
+        lifeValue: lifeValue,
+        isPowerTile: false,
+        isGoldenTile: false,
+        isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
+        hasBeenSwapped: false,
+    };
+}
+
 export function createJokerTile() {
     return {
         type: TILE_TYPE.JOKER,
@@ -52,6 +65,10 @@ export function getTileType(tile) {
 
 export function isBlocked(tile) {
     return tile && tile.type === TILE_TYPE.BLOCKED;
+}
+
+export function isBlockedWithLife(tile) {
+    return tile && tile.type === TILE_TYPE.BLOCKED_WITH_LIFE;
 }
 
 export function isJoker(tile) {

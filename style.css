@@ -595,6 +595,46 @@ h1:hover {
     z-index: 200;
 }
 
+.gem.tile-BLOCKED_WITH_LIFE {
+    background: #3c3c3c;
+    color: #fff;
+    border: 2px solid #666;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.gem.tile-BLOCKED_WITH_LIFE::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(45deg, transparent 30%, #666 30%, #666 70%, transparent 70%),
+        linear-gradient(-45deg, transparent 30%, #666 30%, #666 70%, transparent 70%);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+.gem.tile-BLOCKED_WITH_LIFE::after {
+    content: attr(data-life);
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    font-size: clamp(1.2rem, 4vw, 1.8rem);
+    font-weight: bold;
+}
+
+.gem.tile-BLOCKED_WITH_LIFE.unblocking {
+    animation: unblock-move 0.6s ease-out forwards;
+    z-index: 200;
+}
+
 .gem.matched {
     animation: match-animation 0.5s ease-out forwards;
 }

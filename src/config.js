@@ -3,6 +3,7 @@
 export const TILE_TYPE = {
     NORMAL: "normal",
     BLOCKED: "blocked",
+    BLOCKED_WITH_LIFE: "blocked_with_life",
     JOKER: "joker",
 };
 
@@ -222,6 +223,23 @@ export const LEVELS = [
         ],
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
+    // {
+    //     level: 20,
+    //     title: "Goal Tiles with Life",
+    //     boardWidth: 6,
+    //     boardHeight: 8,
+    //     maxMoves: 25,
+    //     blockedTiles: [
+    //         { row: 4, lifeValue: 64 }, // Entire row 4 as goal tiles with 64 life each
+    //         { row: 5, col: [2, 3], lifeValue: 128 }, // Two goal tiles with 128 life each
+    //         { row: 6 }, // Regular blocked tiles (entire row)
+    //         { row: 7, col: 0 }, // Single blocked tile
+    //     ],
+    //     goals: [
+    //         { tileValue: 6, target: 8, current: 0, goalType: "current" }, // 64
+    //     ],
+    //     spawnableTiles: [2, 3, 4], // 4, 8, 16
+    // },
 ];
 
 // Test levels for development and testing
@@ -478,7 +496,7 @@ export const TEST_LEVELS = [
         spawnableTiles: [0],
     },
     {
-        level: 13,
+        level: 14,
         title: "Sticky Free Swap Tile",
         boardWidth: 5,
         boardHeight: 5,
@@ -492,5 +510,17 @@ export const TEST_LEVELS = [
         ],
         goals: [{ tileValue: 1, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
+    },
+    {
+        level: 15,
+        title: "Life-based Goal Tile",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 10,
+        blockedTiles: [
+            { row: 4, lifeValue: 16 }, // Single blocked tile
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3],
     },
 ];

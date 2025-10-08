@@ -104,7 +104,7 @@ export class Match3Game {
         this.levelConfig = level; // Store level config for board.js to access boardPreset
         this.boardWidth = level.boardWidth || 8; // Use level-specific board width or default to 8
         this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
-        this.blockedTiles = level.blockedTiles || []; // Store blocked tile positions
+        this.blockedTiles = level.blockedTiles || []; // Store blocked/goal tile positions (goal tiles have lifeValue)
         this.tileValues = level.spawnableTiles || this.defaultTileValues; // Use level-specific spawnable tiles or default
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
