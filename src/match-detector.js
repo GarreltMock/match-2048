@@ -272,8 +272,8 @@ export function checkBlockFormation(game, row, col, value) {
         value,
         direction: "block_4_formation",
         intersections: [
-            { row, col: col + 1 },      // top-right
-            { row: row + 1, col },      // bottom-left
+            { row: row + 1, col },          // bottom-left
+            { row: row + 1, col: col + 1 }, // bottom-right
         ],
         hasGoldenTile,
     };

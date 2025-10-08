@@ -188,6 +188,27 @@ export function determineSpecialTilePosition(game, group, formationType) {
 
     if (formationType === "block_4") {
         // For block formation, choose the intersection closest to swap position
+        // First check if the swapped tile is one of the intersections
+        const matchingIntersection = group.intersections.find((pos) => pos.row === swapPos.row && pos.col === swapPos.col);
+        if (matchingIntersection) {
+            return matchingIntersection;
+        }
+
+        // Otherwise, find which intersection is adjacent to the swapped position
+        // The 2x2 block has positions at [r,c], [r,c+1], [r+1,c], [r+1,c+1]
+        // Intersections are at [r,c+1] (top-right) and [r+1,c] (bottom-left)
+        const adjacentIntersection = group.intersections.find((pos) => {
+            const isAdjacent =
+                (Math.abs(pos.row - swapPos.row) === 1 && pos.col === swapPos.col) ||
+                (Math.abs(pos.col - swapPos.col) === 1 && pos.row === swapPos.row);
+            return isAdjacent;
+        });
+
+        if (adjacentIntersection) {
+            return adjacentIntersection;
+        }
+
+        // Fallback to distance-based (shouldn't reach here in normal gameplay)
         const distances = group.intersections.map((pos) => {
             const dist = Math.abs(pos.row - swapPos.row) + Math.abs(pos.col - swapPos.col);
             return { pos, dist };
