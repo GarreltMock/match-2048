@@ -23,7 +23,7 @@ import {
     loadUseTestLevels,
     saveUseTestLevels,
 } from "./storage.js";
-import { createTile, createBlockedTile, createJokerTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createJokerTile, createCursedTile, isCursed, getTileValue } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -38,6 +38,7 @@ import {
     updateBlockedTileGoals,
     nextLevel,
     restartLevel,
+    decrementCursedTileTimers,
 } from "./goal-tracker.js";
 
 export class Match3Game {
@@ -66,6 +67,11 @@ export class Match3Game {
         this.movesUsed = 0;
         this.maxMoves = 0;
         this.gameActive = true;
+
+        // Cursed tile tracking
+        this.cursedTileCreatedCount = {}; // Track how many tiles of each cursed value have been created
+        this.shouldDecrementCursedTimers = false; // Flag to decrement after turn ends
+        this.cursedTileCreatedThisTurn = {}; // Track if cursed tile was created this turn for frequency:0
 
         // Power-up system
         this.activePowerUp = null;
@@ -125,6 +131,9 @@ export class Match3Game {
 
             return levelGoal;
         });
+
+        // Reset cursed tile tracking for new level
+        this.cursedTileCreatedCount = {};
         this.gameActive = true;
 
         renderGoals(this);
@@ -252,6 +261,10 @@ export class Match3Game {
 
     updateBlockedTileGoals() {
         updateBlockedTileGoals(this);
+    }
+
+    decrementCursedTileTimers() {
+        decrementCursedTileTimers(this);
     }
 
     nextLevel() {
@@ -417,7 +430,9 @@ export class Match3Game {
 
     usePowerUpHalve(row, col, element) {
         const tile = this.board[row][col];
-        const currentValue = tile && tile.type === TILE_TYPE.NORMAL ? tile.value : null;
+        const isCursedTile = isCursed(tile);
+        const currentValue = tile && (tile.type === TILE_TYPE.NORMAL || isCursedTile) ? tile.value : null;
+
         if (currentValue && currentValue > 1) {
             // Increment usage count
             this.powerUpUses.halve++;
@@ -428,7 +443,13 @@ export class Match3Game {
 
             // Decrement by 1 to go to previous level (halving in display terms)
             const halvedValue = currentValue - 1;
-            this.board[row][col] = createTile(halvedValue);
+
+            // If tile is cursed, keep it cursed but halve the value
+            if (isCursedTile) {
+                this.board[row][col] = createCursedTile(halvedValue, tile.cursedMovesRemaining);
+            } else {
+                this.board[row][col] = createTile(halvedValue);
+            }
 
             // Track goal progress for the newly created tile (via merge-processor)
             this.levelGoals.forEach((goal) => {
@@ -441,6 +462,10 @@ export class Match3Game {
             const displayValue = Math.pow(this.numberBase, halvedValue);
             element.textContent = displayValue;
             element.className = `gem tile-${halvedValue}`;
+            if (isCursedTile) {
+                element.classList.add("cursed-tile");
+                element.dataset.cursedMoves = tile.cursedMovesRemaining;
+            }
             element.dataset.row = row;
             element.dataset.col = col;
 

@@ -1,6 +1,16 @@
 // Match processing and tile merging logic
 
-import { createTile, createJokerTile, isBlocked, isBlockedWithLife, getTileValue, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import {
+    createTile,
+    createJokerTile,
+    createCursedTile,
+    isBlocked,
+    isBlockedWithLife,
+    isCursed,
+    getTileValue,
+    isTileStickyFreeSwapTile,
+    getDisplayValue,
+} from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
 
 export function processMatches(game) {
@@ -36,10 +46,33 @@ export function processMatches(game) {
 export function processMerges(game, matchGroups) {
     // Check for sticky free swap tiles BEFORE clearing the board
     matchGroups.forEach((group) => {
-        group.hasStickyFreeSwap = group.tiles.some(tile => {
+        group.hasStickyFreeSwap = group.tiles.some((tile) => {
             const boardTile = game.board[tile.row][tile.col];
             return isTileStickyFreeSwapTile(boardTile);
         });
+    });
+
+    // Track cursed tiles that were successfully merged
+    const mergedCursedTiles = [];
+    matchGroups.forEach((group) => {
+        group.tiles.forEach((tile) => {
+            const boardTile = game.board[tile.row][tile.col];
+            if (isCursed(boardTile)) {
+                mergedCursedTiles.push({ row: tile.row, col: tile.col });
+            }
+        });
+    });
+
+    // Update cursed goal progress for successfully merged cursed tiles
+    mergedCursedTiles.forEach((pos) => {
+        const tile = game.board[pos.row][pos.col];
+        const value = getTileValue(tile);
+        game.levelGoals.forEach((goal) => {
+            if (goal.goalType === "cursed" && goal.tileValue === value) {
+                goal.current++;
+            }
+        });
+
     });
 
     // Clear all matched tiles first
@@ -104,7 +137,13 @@ export function createMergedTiles(game, group) {
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
             game.board[specialPos.row][specialPos.col] = createJokerTile();
-            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 1);
         } else {
             game.board[positions[0].row][positions[0].col] = createJokerTile();
@@ -115,11 +154,29 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, true, false, false, transferStickyFreeSwap);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            game.board[specialPos.row][specialPos.col] = createTile(
+                newValue,
+                true,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, true, false, false, transferStickyFreeSwap);
+            game.board[positions[0].row][positions[0].col] = createTile(
+                newValue,
+                true,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 1);
         }
     } else if (specialTileType === "golden") {
@@ -128,11 +185,29 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, true, false, transferStickyFreeSwap);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            game.board[specialPos.row][specialPos.col] = createTile(
+                newValue,
+                false,
+                true,
+                false,
+                transferStickyFreeSwap
+            );
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, true, false, transferStickyFreeSwap);
+            game.board[positions[0].row][positions[0].col] = createTile(
+                newValue,
+                false,
+                true,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 1);
         }
     } else if (specialTileType === "freeswap") {
@@ -141,11 +216,29 @@ export function createMergedTiles(game, group) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createTile(newValue, false, false, true, transferStickyFreeSwap);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            game.board[specialPos.row][specialPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                true,
+                transferStickyFreeSwap
+            );
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 2);
         } else {
-            game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, true, transferStickyFreeSwap);
+            game.board[positions[0].row][positions[0].col] = createTile(
+                newValue,
+                false,
+                false,
+                true,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 1);
         }
     } else if (specialTileType === "sticky_freeswap") {
@@ -155,7 +248,13 @@ export function createMergedTiles(game, group) {
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
             game.board[specialPos.row][specialPos.col] = createTile(newValue, false, false, false, true);
-            game.board[normalPos.row][normalPos.col] = createTile(newValue, false, false, false, transferStickyFreeSwap);
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
             trackGoalProgress(game, newValue, 2);
         } else {
             game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, false, true);
@@ -169,6 +268,11 @@ export function createMergedTiles(game, group) {
         });
         trackGoalProgress(game, newValue, positions.length);
     }
+
+    // After creating merged tiles, check if any should become cursed
+    positions.forEach((pos) => {
+        checkAndCreateCursedTile(game, newValue, pos);
+    });
 }
 
 export function determineSpecialTilePosition(game, group, formationType) {
@@ -189,7 +293,9 @@ export function determineSpecialTilePosition(game, group, formationType) {
     if (formationType === "block_4") {
         // For block formation, choose the intersection closest to swap position
         // First check if the swapped tile is one of the intersections
-        const matchingIntersection = group.intersections.find((pos) => pos.row === swapPos.row && pos.col === swapPos.col);
+        const matchingIntersection = group.intersections.find(
+            (pos) => pos.row === swapPos.row && pos.col === swapPos.col
+        );
         if (matchingIntersection) {
             return matchingIntersection;
         }
@@ -322,12 +428,7 @@ function unblockAdjacentTiles(game, matchGroups) {
 
             adjacentPositions.forEach((pos) => {
                 // Check bounds
-                if (
-                    pos.row >= 0 &&
-                    pos.row < game.boardHeight &&
-                    pos.col >= 0 &&
-                    pos.col < game.boardWidth
-                ) {
+                if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {
                     const tile = game.board[pos.row][pos.col];
 
                     // Handle blocked tiles (remove immediately)
@@ -419,4 +520,72 @@ function trackGoalProgress(game, newValue, count = 1) {
             goal.created += count;
         }
     });
+}
+
+export function checkAndCreateCursedTile(game, value, position) {
+    // Check if this value has a cursed goal
+    const cursedGoal = game.levelGoals.find((goal) => goal.goalType === "cursed" && goal.tileValue === value);
+
+    if (!cursedGoal) {
+        return false; // No cursed goal for this value
+    }
+
+    // Check if cursed goal is already complete
+    if (cursedGoal.current >= cursedGoal.target) {
+        return false; // Goal complete, no more cursed tiles
+    }
+
+    // Special handling for frequency: 0
+    // Always keep exactly one cursed tile on the board
+    if (cursedGoal.frequency === 0) {
+        // Check if we already created one this turn (to prevent multiple during cascades)
+        if (game.cursedTileCreatedThisTurn[value]) {
+            return false;
+        }
+
+        // Scan the entire board to count cursed tiles of this value
+        let cursedCount = 0;
+        for (let row = 0; row < game.boardHeight; row++) {
+            for (let col = 0; col < game.boardWidth; col++) {
+                const tile = game.board[row][col];
+                if (tile && isCursed(tile) && getTileValue(tile) === value) {
+                    cursedCount++;
+                }
+            }
+        }
+
+        // Only create if none exist
+        if (cursedCount === 0) {
+            const currentTile = game.board[position.row][position.col];
+            if (currentTile && getTileValue(currentTile) === value) {
+                const cursedTile = createCursedTile(value, cursedGoal.strength);
+                game.board[position.row][position.col] = cursedTile;
+                game.cursedTileCreatedThisTurn[value] = true; // Mark as created this turn
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Normal frequency handling (frequency >= 1)
+    // Track how many tiles of this value have been created
+    if (!game.cursedTileCreatedCount[value]) {
+        game.cursedTileCreatedCount[value] = 0;
+    }
+    game.cursedTileCreatedCount[value]++;
+
+    // Check if frequency is met (every Nth tile becomes cursed)
+    if (game.cursedTileCreatedCount[value] % cursedGoal.frequency === 0) {
+        // Convert the tile at this position to a cursed tile
+        const currentTile = game.board[position.row][position.col];
+        if (currentTile && getTileValue(currentTile) === value) {
+            // Create cursed tile with full strength - decrement will happen at end of turn
+            const cursedTile = createCursedTile(value, cursedGoal.strength);
+            game.board[position.row][position.col] = cursedTile;
+
+            return true; // Cursed tile created
+        }
+    }
+
+    return false; // Not cursed
 }

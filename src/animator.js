@@ -208,6 +208,127 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
     }
 }
 
+export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesToImplode, dropGemsCallback) {
+    // Animate disappearing cursed tiles
+    if (cursedTilesToRemove.length > 0) {
+        cursedTilesToRemove.forEach((pos) => {
+            const gem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+            if (gem) {
+                gem.classList.add("cursed-disappear");
+            }
+        });
+
+        // Remove from board after animation
+        setTimeout(() => {
+            cursedTilesToRemove.forEach((pos) => {
+                game.board[pos.row][pos.col] = null;
+            });
+            dropGemsCallback();
+        }, 400);
+    }
+
+    // Animate imploding cursed tiles (adjacent tiles slide in)
+    if (cursedTilesToImplode.length > 0) {
+        cursedTilesToImplode.forEach((pos) => {
+            const adjacentPositions = [
+                { row: pos.row - 1, col: pos.col }, // Up
+                { row: pos.row + 1, col: pos.col }, // Down
+                { row: pos.row, col: pos.col - 1 }, // Left
+                { row: pos.row, col: pos.col + 1 }, // Right
+            ];
+
+            // First, mark adjacent tiles with purple background
+            adjacentPositions.forEach((adjPos) => {
+                if (
+                    adjPos.row >= 0 &&
+                    adjPos.row < game.boardHeight &&
+                    adjPos.col >= 0 &&
+                    adjPos.col < game.boardWidth
+                ) {
+                    const adjTile = game.board[adjPos.row][adjPos.col];
+                    if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
+                        const adjGem = document.querySelector(`[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`);
+                        if (adjGem) {
+                            adjGem.classList.add("cursed-sucked");
+                        }
+                    }
+                }
+            });
+
+            // After 100ms delay, animate sliding toward cursed tile
+            setTimeout(() => {
+                adjacentPositions.forEach((adjPos) => {
+                    if (
+                        adjPos.row >= 0 &&
+                        adjPos.row < game.boardHeight &&
+                        adjPos.col >= 0 &&
+                        adjPos.col < game.boardWidth
+                    ) {
+                        const adjTile = game.board[adjPos.row][adjPos.col];
+                        if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
+                            const adjGem = document.querySelector(`[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`);
+                            const cursedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+
+                            if (adjGem && cursedGem) {
+                                const adjRect = adjGem.getBoundingClientRect();
+                                const cursedRect = cursedGem.getBoundingClientRect();
+
+                                const deltaX = cursedRect.left - adjRect.left;
+                                const deltaY = cursedRect.top - adjRect.top;
+
+                                adjGem.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                                adjGem.style.transition = "transform 0.4s ease-out, opacity 0.4s ease-out";
+                                adjGem.classList.add("sliding");
+
+                                // Fade out the sliding tile
+                                setTimeout(() => {
+                                    adjGem.style.opacity = "0";
+                                }, 300);
+                            }
+                        }
+                    }
+                });
+            }, 100);
+
+            // Mark cursed tile for implosion effect
+            const cursedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+            if (cursedGem) {
+                cursedGem.classList.add("cursed-implode");
+            }
+        });
+
+        // Remove tiles from board after animation (400ms slide + 100ms delay)
+        setTimeout(() => {
+            cursedTilesToImplode.forEach((pos) => {
+                const adjacentPositions = [
+                    { row: pos.row - 1, col: pos.col },
+                    { row: pos.row + 1, col: pos.col },
+                    { row: pos.row, col: pos.col - 1 },
+                    { row: pos.row, col: pos.col + 1 },
+                ];
+
+                adjacentPositions.forEach((adjPos) => {
+                    if (
+                        adjPos.row >= 0 &&
+                        adjPos.row < game.boardHeight &&
+                        adjPos.col >= 0 &&
+                        adjPos.col < game.boardWidth
+                    ) {
+                        const adjTile = game.board[adjPos.row][adjPos.col];
+                        if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
+                            game.board[adjPos.row][adjPos.col] = null;
+                        }
+                    }
+                });
+
+                // Remove the cursed tile itself
+                game.board[pos.row][pos.col] = null;
+            });
+            dropGemsCallback();
+        }, 500);
+    }
+}
+
 export function dropGems(game) {
     const movedGems = [];
     const newGems = [];
@@ -271,6 +392,13 @@ export function dropGems(game) {
             game.processMatches();
         } else {
             game.animating = false;
+
+            // Decrement cursed timers after all cascades complete
+            if (game.shouldDecrementCursedTimers) {
+                game.decrementCursedTileTimers();
+                game.shouldDecrementCursedTimers = false;
+            }
+
             // Check level completion only after all animations are finished
             game.checkLevelComplete();
         }

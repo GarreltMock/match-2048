@@ -272,6 +272,12 @@ function trySwap(game, row1, col1, row2, col2) {
         game.movesUsed++;
         game.updateMovesDisplay();
 
+        // Flag that we should decrement cursed timers after this turn completes
+        game.shouldDecrementCursedTimers = true;
+
+        // Reset cursed tile creation flag for frequency:0 goals
+        game.cursedTileCreatedThisTurn = {};
+
         // Mark free swap tile as used
         if (hasFreeSwap) {
             if (isFreeSwap1) {

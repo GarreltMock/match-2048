@@ -51,8 +51,22 @@ export function createJokerTile() {
     };
 }
 
+export function createCursedTile(value, movesRemaining) {
+    return {
+        type: TILE_TYPE.CURSED,
+        value: value,
+        cursedMovesRemaining: movesRemaining,
+        createdThisTurn: true, // Skip decrement on the turn this tile was created
+        isPowerTile: false,
+        isGoldenTile: false,
+        isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
+        hasBeenSwapped: false,
+    };
+}
+
 export function getTileValue(tile) {
-    if (!tile || tile.type !== TILE_TYPE.NORMAL) {
+    if (!tile || (tile.type !== TILE_TYPE.NORMAL && tile.type !== TILE_TYPE.CURSED)) {
         return null;
     }
     return tile.value;
@@ -93,6 +107,10 @@ export function isTileFreeSwapTile(tile) {
 
 export function isTileStickyFreeSwapTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.isStickyFreeSwapTile === true;
+}
+
+export function isCursed(tile) {
+    return tile && tile.type === TILE_TYPE.CURSED;
 }
 
 // Convert internal value (1, 2, 3...) to display value based on numberBase

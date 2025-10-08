@@ -1,6 +1,6 @@
 // Match finding logic for detecting tile matches and special formations
 
-import { getTileValue, isNormal, isJoker, isTileGoldenTile, createTile } from "./tile-helpers.js";
+import { getTileValue, isNormal, isCursed, isJoker, isTileGoldenTile, createTile } from "./tile-helpers.js";
 import { canMatch } from "./board.js";
 import { findBestJokerValue } from "./input-handler.js";
 
@@ -71,8 +71,8 @@ function scanLine(game, index, isHorizontal, targetLength) {
         const tile = game.board[row][col];
         const value = getTileValue(tile);
 
-        // Check if tile can be part of current match
-        if (isNormal(tile) && value !== 0) {
+        // Check if tile can be part of current match (normal or cursed tiles)
+        if ((isNormal(tile) || isCursed(tile)) && value !== 0) {
             if (matchGroup.length === 0) {
                 // Start new match
                 matchGroup.push({ row, col });
@@ -141,7 +141,7 @@ function findSpecialFormations(game, type) {
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
-            if (!isNormal(tile)) continue;
+            if (!isNormal(tile) && !isCursed(tile)) continue;
 
             const value = getTileValue(tile);
             if (value === 0) continue;

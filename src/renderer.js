@@ -1,6 +1,6 @@
 // DOM rendering and display updates
 
-import { getTileValue, isBlocked, isBlockedWithLife, isJoker, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { getTileValue, isBlocked, isBlockedWithLife, isJoker, isCursed, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 
 export function renderBoard(game) {
@@ -40,6 +40,12 @@ export function renderBoard(game) {
                 gem.className = `gem tile-JOKER`;
                 gem.textContent = "🃏";
                 gem.classList.add("joker-tile");
+            } else if (isCursed(tile)) {
+                const value = getTileValue(tile);
+                gem.className = `gem tile-${value} cursed-tile`;
+                const displayValue = getDisplayValue(value, game.numberBase);
+                gem.textContent = displayValue;
+                gem.dataset.cursedMoves = tile.cursedMovesRemaining;
             } else if (isNormal(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value}`;
@@ -97,6 +103,13 @@ export function renderGoals(game) {
             goalTypeClass = "goal-blocked";
             goalIcon = "♻️";
             goalContent = `<div class="goal-tile blocked-goal-tile"></div>`;
+        } else if (goal.goalType === "cursed") {
+            isCompleted = goal.current >= goal.target;
+            currentProgress = goal.current;
+            goalTypeClass = "goal-cursed";
+            goalIcon = "💀";
+            const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+            goalContent = `<div class="goal-tile tile-${goal.tileValue} cursed-goal-tile">${displayValue}</div>`;
         } else {
             isCompleted = goal.created >= goal.target;
             currentProgress = goal.created;

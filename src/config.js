@@ -5,6 +5,7 @@ export const TILE_TYPE = {
     BLOCKED: "blocked",
     BLOCKED_WITH_LIFE: "blocked_with_life",
     JOKER: "joker",
+    CURSED: "cursed",
 };
 
 export const SPECIAL_TILE_TYPES = {
@@ -522,5 +523,49 @@ export const TEST_LEVELS = [
         ],
         goals: [{ goalType: "blocked", current: 0 }],
         spawnableTiles: [1, 2, 3],
+    },
+    {
+        level: 16,
+        title: "Cursed Tiles - Disappear",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 15,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 2, // Merge 3 cursed 32s successfully
+                current: 0,
+                goalType: "cursed",
+                frequency: 0, // Every 2nd tile of value 32 becomes cursed
+                strength: 5, // Player has 5 moves to merge it
+                implode: false, // Just disappears
+            },
+            {
+                tileValue: 8, // 32
+                target: 1, // Merge 3 cursed 32s successfully
+                current: 0,
+                goalType: "created",
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4], // 2, 4, 8, 16
+    },
+    {
+        level: 17,
+        title: "Cursed Tiles - Implode",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 20,
+        goals: [
+            {
+                tileValue: 5, // 16
+                target: 2, // Merge 2 cursed 16s successfully
+                current: 0,
+                goalType: "cursed",
+                frequency: 1, // Every 3rd tile of value 16 becomes cursed
+                strength: 2, // Player has 4 moves to merge it
+                implode: true, // Sucks in adjacent tiles when it expires
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4], // 2, 4, 8
     },
 ];

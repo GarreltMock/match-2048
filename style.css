@@ -229,6 +229,23 @@ h1:hover {
     border-color: rgba(121, 85, 72, 0.6);
 }
 
+.goal-card.goal-cursed {
+    border-bottom: 4px solid #9c27b0;
+    background: rgba(156, 39, 176, 0.1);
+}
+
+.goal-card.goal-cursed.completed {
+    background: rgba(156, 39, 176, 0.2);
+    border-color: rgba(156, 39, 176, 0.6);
+}
+
+.cursed-goal-tile {
+    background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%) !important;
+    border: 2px solid #9c27b0 !important;
+    color: white !important;
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.4) !important;
+}
+
 .blocked-goal-tile {
     background: #3c3c3c !important;
     color: transparent !important;
@@ -480,6 +497,80 @@ h1:hover {
     font-size: clamp(22px, 4.5vw, 32px);
     cursor: pointer;
     position: relative;
+}
+
+.gem.cursed-tile {
+    background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%) !important;
+    border: 3px solid #9c27b0 !important;
+    position: relative;
+    animation: cursedPulse 2s ease-in-out infinite;
+}
+
+.gem.cursed-tile::after {
+    content: attr(data-cursed-moves);
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: clamp(10px, 2.5vw, 16px);
+    background: linear-gradient(135deg, #d500f9 0%, #aa00ff 100%);
+    width: 45%;
+    height: 45%;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #9c27b0;
+    box-shadow: 0 0 8px rgba(156, 39, 176, 0.6);
+}
+
+@keyframes cursedPulse {
+    0%, 100% {
+        box-shadow: 0 0 5px rgba(156, 39, 176, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(156, 39, 176, 0.8);
+    }
+}
+
+.gem.cursed-disappear {
+    animation: cursedFadeOut 0.4s ease-out forwards;
+}
+
+@keyframes cursedFadeOut {
+    0% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.5);
+    }
+}
+
+.gem.cursed-implode {
+    animation: cursedImplode 0.4s ease-out forwards;
+}
+
+@keyframes cursedImplode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        box-shadow: 0 0 30px rgba(156, 39, 176, 1);
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+.gem.cursed-sucked {
+    background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 100%) !important;
+    transition: background 0.1s ease-out;
 }
 
 .gem.power-tile {

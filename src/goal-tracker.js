@@ -1,7 +1,8 @@
 // Goal and level progression tracking
 
-import { isNormal, isBlocked, isBlockedWithLife, getTileValue } from "./tile-helpers.js";
+import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel } from "./storage.js";
+import { animateCursedExpiration } from "./animator.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -11,6 +12,8 @@ export function checkLevelComplete(game) {
         if (goal.goalType === "current") {
             return goal.current >= goal.target;
         } else if (goal.goalType === "blocked") {
+            return goal.current >= goal.target;
+        } else if (goal.goalType === "cursed") {
             return goal.current >= goal.target;
         } else {
             return goal.created >= goal.target;
@@ -142,4 +145,53 @@ export function restartLevel(game) {
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();
+}
+
+export function decrementCursedTileTimers(game) {
+    // Decrement move counter for cursed tiles, EXCEPT those created this turn
+    const cursedTilesToRemove = [];
+    const cursedTilesToImplode = [];
+    let hasDecrementedAny = false;
+
+    // Scan entire board for cursed tiles
+    for (let row = 0; row < game.boardHeight; row++) {
+        for (let col = 0; col < game.boardWidth; col++) {
+            const tile = game.board[row][col];
+            if (tile && isCursed(tile)) {
+                // Skip tiles created this turn, but clear the flag for next turn
+                if (tile.createdThisTurn) {
+                    tile.createdThisTurn = false;
+                    continue;
+                }
+
+                // Decrement the timer
+                tile.cursedMovesRemaining--;
+                hasDecrementedAny = true;
+
+                if (tile.cursedMovesRemaining <= 0) {
+                    // Check if this cursed goal has implode enabled
+                    const value = getTileValue(tile);
+                    const cursedGoal = game.levelGoals.find(
+                        (goal) => goal.goalType === "cursed" && goal.tileValue === value
+                    );
+
+                    if (cursedGoal && cursedGoal.implode) {
+                        cursedTilesToImplode.push({ row, col });
+                    } else {
+                        cursedTilesToRemove.push({ row, col });
+                    }
+                }
+            }
+        }
+    }
+
+    // Re-render to update counters before animating removals
+    if (hasDecrementedAny) {
+        game.renderBoard();
+    }
+
+    // Trigger animations if tiles expired
+    if (cursedTilesToRemove.length > 0 || cursedTilesToImplode.length > 0) {
+        animateCursedExpiration(game, cursedTilesToRemove, cursedTilesToImplode, () => game.dropGems());
+    }
 }
