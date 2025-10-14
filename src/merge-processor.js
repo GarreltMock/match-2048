@@ -75,6 +75,28 @@ export function processMerges(game, matchGroups) {
 
     });
 
+    // Track match statistics (only for user-initiated matches)
+    if (game.isUserSwap) {
+        matchGroups.forEach((group) => {
+            const tileCount = group.tiles.length;
+            const direction = group.direction;
+
+            if (direction === "T-formation") {
+                game.matchStats.tFormationCount++;
+            } else if (direction === "L-formation") {
+                game.matchStats.lFormationCount++;
+            } else if (direction === "block") {
+                game.matchStats.blockFormationCount++;
+            } else if (tileCount === 5) {
+                game.matchStats.match5Count++;
+            } else if (tileCount === 4) {
+                game.matchStats.match4Count++;
+            } else if (tileCount === 3) {
+                game.matchStats.match3Count++;
+            }
+        });
+    }
+
     // Clear all matched tiles first
     matchGroups.forEach((group) => {
         group.tiles.forEach((tile) => {

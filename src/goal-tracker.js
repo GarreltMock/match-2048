@@ -3,6 +3,7 @@
 import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
+import { track } from "./tracker.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -26,6 +27,24 @@ export function checkLevelComplete(game) {
         game.gameActive = false;
         game.deactivatePowerUp();
 
+        // Track level solved
+        const duration = game.levelStartTime ? Date.now() - game.levelStartTime : 0;
+        track("level_solved", {
+            level: game.currentLevel,
+            remaining_moves: game.maxMoves - game.movesUsed,
+            moves_used: game.movesUsed,
+            duration: duration,
+            hammer_used: game.powerUpUses.hammer,
+            halve_used: game.powerUpUses.halve,
+            swap_used: game.powerUpUses.swap,
+            match_3_count: game.matchStats.match3Count,
+            match_4_count: game.matchStats.match4Count,
+            match_5_count: game.matchStats.match5Count,
+            t_formation_count: game.matchStats.tFormationCount,
+            l_formation_count: game.matchStats.lFormationCount,
+            block_formation_count: game.matchStats.blockFormationCount,
+        });
+
         // Hide power-ups and show control buttons
         game.hidePowerUps();
         restartBtn.style.display = "inline-block";
@@ -39,6 +58,32 @@ export function checkLevelComplete(game) {
         // Only trigger game over if there are no more cascading matches AND no animations running
         game.gameActive = false;
         game.deactivatePowerUp();
+
+        // Track level lost
+        const duration = game.levelStartTime ? Date.now() - game.levelStartTime : 0;
+        const goalsRemaining = game.levelGoals.filter((goal) => {
+            if (goal.goalType === "current" || goal.goalType === "blocked" || goal.goalType === "cursed") {
+                return goal.current < goal.target;
+            } else {
+                return goal.created < goal.target;
+            }
+        }).length;
+
+        track("level_lost", {
+            level: game.currentLevel,
+            moves_used: game.movesUsed,
+            duration: duration,
+            goals_remaining: goalsRemaining,
+            hammer_used: game.powerUpUses.hammer,
+            halve_used: game.powerUpUses.halve,
+            swap_used: game.powerUpUses.swap,
+            match_3_count: game.matchStats.match3Count,
+            match_4_count: game.matchStats.match4Count,
+            match_5_count: game.matchStats.match5Count,
+            t_formation_count: game.matchStats.tFormationCount,
+            l_formation_count: game.matchStats.lFormationCount,
+            block_formation_count: game.matchStats.blockFormationCount,
+        });
 
         // Hide power-ups
         game.hidePowerUps();

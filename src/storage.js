@@ -63,3 +63,13 @@ export function loadUseTestLevels() {
 export function saveUseTestLevels(useTestLevels) {
     localStorage.setItem("match2048_useTestLevels", useTestLevels.toString());
 }
+
+export function loadUserId() {
+    let userId = localStorage.getItem("match2048_userId");
+    if (!userId) {
+        // Generate a random user ID (UUID v4 format)
+        userId = crypto.randomUUID();
+        localStorage.setItem("match2048_userId", userId);
+    }
+    return userId;
+}

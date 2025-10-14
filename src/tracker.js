@@ -1,4 +1,5 @@
 import { APP_VERSION } from "./version.js";
+import { loadUserId } from "./storage.js";
 
 function getDefaultOptions() {
     const nav = navigator;
@@ -50,12 +51,15 @@ async function track(eventName, parameters = {}, options = {}) {
     const trackingURL = "https://octolytics.lotum.com/v3/collect";
     const sessionStartTimestamp = Date.now();
 
+    // Load user ID from localStorage if not provided
+    const userId = loadUserId();
+
     // Merge provided options with defaults
     const defaultOptions = getDefaultOptions();
     options = {
         deviceInfos: { ...defaultOptions.deviceInfos, ...(options.deviceInfos || {}) },
         userProperties: { ...defaultOptions.userProperties, ...(options.userProperties || {}) },
-        userData: { ...defaultOptions.userData, ...(options.userData || {}) },
+        userData: { userID: userId, ...(options.userData || {}) },
         performUserIdHashing:
             options.performUserIdHashing !== undefined
                 ? options.performUserIdHashing
@@ -91,6 +95,7 @@ async function track(eventName, parameters = {}, options = {}) {
     const performHash = options.performUserIdHashing !== false;
 
     const hashedUserID = userData.userID && performHash ? cyrb53(userData.userID) : userData.userID;
+    const userPseudoId = userData.userID ? userData.userID.replace(/-/g, "") : crypto.randomUUID().replace(/-/g, "");
 
     const event = {
         eventTimestamp: Date.now(),
@@ -116,7 +121,7 @@ async function track(eventName, parameters = {}, options = {}) {
         eventParams: parameters,
         consentGiven: false,
         eventSequenceNumber: 0,
-        userPseudoId: crypto.randomUUID().replace(/-/g, ""),
+        userPseudoId: userPseudoId,
         userFirstTouchTimestamp: Date.now(),
         userCreatedAt: userData.userCreatedAt,
     };
@@ -136,3 +141,5 @@ async function track(eventName, parameters = {}, options = {}) {
 
     return event;
 }
+
+export { track, isDevelopment };

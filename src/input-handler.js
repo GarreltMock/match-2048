@@ -1,6 +1,7 @@
 // User input processing and drag-to-swap mechanics
 
 import { getTileValue, createTile, createJokerTile, isBlocked, isBlockedWithLife, isJoker, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import { track } from "./tracker.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -295,6 +296,15 @@ function trySwap(game, row1, col1, row2, col2) {
                 // Increment usage count and deactivate power-up after successful swap
                 game.powerUpUses.swap++;
                 game.updatePowerUpButtons();
+
+                // Track power-up usage
+                track("power_up_used", {
+                    level: game.currentLevel,
+                    power_up_type: "swap",
+                    remaining_moves: game.maxMoves - game.movesUsed,
+                    usage_count: game.powerUpUses.swap,
+                });
+
                 game.deactivatePowerUp();
             }
 

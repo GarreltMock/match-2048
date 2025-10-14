@@ -23,6 +23,7 @@ import {
     loadUseTestLevels,
     saveUseTestLevels,
 } from "./storage.js";
+import { track } from "./tracker.js";
 import { createTile, createBlockedTile, createJokerTile, createCursedTile, isCursed, getTileValue } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
@@ -88,6 +89,26 @@ export class Match3Game {
         this.SPECIAL_TILE_TYPES = SPECIAL_TILE_TYPES;
         this.FORMATION_TYPES = FORMATION_TYPES;
 
+        // Match statistics tracking
+        this.matchStats = {
+            match3Count: 0,
+            match4Count: 0,
+            match5Count: 0,
+            tFormationCount: 0,
+            lFormationCount: 0,
+            blockFormationCount: 0,
+        };
+
+        // Level timing
+        this.levelStartTime = null;
+
+        // Track app start first, before any level is loaded
+        track("app_start", {
+            current_level: this.currentLevel,
+            number_base: this.numberBase,
+            use_test_levels: this.useTestLevels,
+        });
+
         this.initializeLevels();
         this.showIntroDialog();
         this.setupInfoButton();
@@ -136,6 +157,19 @@ export class Match3Game {
         this.cursedTileCreatedCount = {};
         this.gameActive = true;
 
+        // Reset match statistics for new level
+        this.matchStats = {
+            match3Count: 0,
+            match4Count: 0,
+            match5Count: 0,
+            tFormationCount: 0,
+            lFormationCount: 0,
+            blockFormationCount: 0,
+        };
+
+        // Set level start time
+        this.levelStartTime = Date.now();
+
         renderGoals(this);
         updateMovesDisplay(this);
 
@@ -167,6 +201,24 @@ export class Match3Game {
 
         // Update score display on level load
         document.getElementById("score").textContent = this.score;
+
+        // Track level started
+        track("level_started", {
+            level: this.currentLevel,
+            board_width: this.boardWidth,
+            board_height: this.boardHeight,
+            max_moves: this.maxMoves,
+            blocked_tile_count: this.initialBlockedTileCount,
+            goal_count: this.levelGoals.length,
+            spawnable_tile_count: this.tileValues.length,
+            special_tile_rewards: {
+                line_4: this.specialTileConfig.line_4,
+                block_4: this.specialTileConfig.block_4,
+                line_5: this.specialTileConfig.line_5,
+                t_formation: this.specialTileConfig.t_formation,
+                l_formation: this.specialTileConfig.l_formation,
+            },
+        });
     }
 
     init() {
@@ -402,6 +454,14 @@ export class Match3Game {
         this.powerUpUses.hammer++;
         this.updatePowerUpButtons();
 
+        // Track power-up usage
+        track("power_up_used", {
+            level: this.currentLevel,
+            power_up_type: "hammer",
+            remaining_moves: this.maxMoves - this.movesUsed,
+            usage_count: this.powerUpUses.hammer,
+        });
+
         // Block interactions during animation
         this.animating = true;
 
@@ -437,6 +497,14 @@ export class Match3Game {
             // Increment usage count
             this.powerUpUses.halve++;
             this.updatePowerUpButtons();
+
+            // Track power-up usage
+            track("power_up_used", {
+                level: this.currentLevel,
+                power_up_type: "halve",
+                remaining_moves: this.maxMoves - this.movesUsed,
+                usage_count: this.powerUpUses.halve,
+            });
 
             // Block interactions during animation
             this.animating = true;
@@ -543,6 +611,14 @@ export class Match3Game {
 
         if (extraMoves5Btn) {
             extraMoves5Btn.addEventListener("click", () => {
+                // Track extra moves usage
+                track("extra_moves_used", {
+                    level: this.currentLevel,
+                    extra_moves_count: 5,
+                    included_swap: false,
+                    moves_used: this.movesUsed,
+                });
+
                 this.maxMoves += 5;
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
@@ -554,6 +630,14 @@ export class Match3Game {
 
         if (extraMoves5WithSwapBtn) {
             extraMoves5WithSwapBtn.addEventListener("click", () => {
+                // Track extra moves usage
+                track("extra_moves_used", {
+                    level: this.currentLevel,
+                    extra_moves_count: 5,
+                    included_swap: true,
+                    moves_used: this.movesUsed,
+                });
+
                 this.maxMoves += 5;
                 this.powerUpUses.swap = Math.max(0, this.powerUpUses.swap - 1); // Add one use back (by decrementing usage)
                 this.updatePowerUpButtons();
