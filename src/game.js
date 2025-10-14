@@ -24,7 +24,14 @@ import {
     saveUseTestLevels,
 } from "./storage.js";
 import { track } from "./tracker.js";
-import { createTile, createBlockedTile, createJokerTile, createCursedTile, isCursed, getTileValue } from "./tile-helpers.js";
+import {
+    createTile,
+    createBlockedTile,
+    createJokerTile,
+    createCursedTile,
+    isCursed,
+    getTileValue,
+} from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -210,7 +217,7 @@ export class Match3Game {
             max_moves: this.maxMoves,
             blocked_tile_count: this.initialBlockedTileCount,
             goal_count: this.levelGoals.length,
-            spawnable_tile_count: this.tileValues.length,
+            spawnable_tiles: this.tileValues.join(","),
             special_tile_reward_line_4: this.specialTileConfig.line_4,
             special_tile_reward_block_4: this.specialTileConfig.block_4,
             special_tile_reward_line_5: this.specialTileConfig.line_5,

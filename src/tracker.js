@@ -95,7 +95,7 @@ async function track(eventName, parameters = {}, options = {}) {
     const performHash = options.performUserIdHashing !== false;
 
     const hashedUserID = userData.userID && performHash ? cyrb53(userData.userID) : userData.userID;
-    const userPseudoId = userData.userID ? userData.userID.replace(/-/g, "") : crypto.randomUUID().replace(/-/g, "");
+    const userPseudoId = userData.userID ? userData.userID : crypto.randomUUID();
 
     const event = {
         eventTimestamp: Date.now(),
