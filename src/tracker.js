@@ -16,7 +16,7 @@ function getDefaultOptions() {
     return {
         deviceInfos: {
             game: "match2048",
-            platform: "web",
+            platform: "Native",
             os: os,
             osVersion: ua,
             browserVersion: ua,
