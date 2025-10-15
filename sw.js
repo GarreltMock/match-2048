@@ -1,6 +1,6 @@
 import { APP_VERSION } from "./src/version.js";
 
-const CACHE_NAME = `match-2048-v${APP_VERSION}`;
+const CACHE_NAME = `match-2048-v${APP_VERSION}`; // 0.3.3
 const urlsToCache = [
     "./",
     "./index.html",
