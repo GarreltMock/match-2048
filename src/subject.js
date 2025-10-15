@@ -1,14 +1,12 @@
 export class Subject {
     constructor(resolveImmediately = false) {
-        this.resetIfClosed();
+        this.reset();
         if (resolveImmediately) {
             this.resolve();
         }
     }
 
-    resetIfClosed() {
-        if (this.isPending) return;
-
+    reset() {
         this._isFulfilled = false;
         this._isRejected = false;
 
@@ -17,6 +15,11 @@ export class Subject {
             this._reject = rej;
         });
         return this;
+    }
+
+    resetIfClosed() {
+        if (this.isPending) return this;
+        return this.reset();
     }
 
     get isClosed() {

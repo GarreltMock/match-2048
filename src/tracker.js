@@ -30,7 +30,7 @@ function getDefaultOptions() {
         },
         userProperties: {},
         userData: {},
-        performUserIdHashing: true,
+        performUserIdHashing: false,
     };
 }
 
@@ -95,7 +95,6 @@ async function track(eventName, parameters = {}, options = {}) {
     const performHash = options.performUserIdHashing !== false;
 
     const hashedUserID = userData.userID && performHash ? cyrb53(userData.userID) : userData.userID;
-    const userPseudoId = userData.userID ? userData.userID : crypto.randomUUID();
 
     const event = {
         eventTimestamp: Date.now(),
@@ -121,7 +120,6 @@ async function track(eventName, parameters = {}, options = {}) {
         eventParams: parameters,
         consentGiven: false,
         eventSequenceNumber: 0,
-        userPseudoId: userPseudoId,
         userFirstTouchTimestamp: Date.now(),
         userCreatedAt: userData.userCreatedAt,
     };

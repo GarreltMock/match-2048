@@ -23,6 +23,7 @@ import {
     saveScore,
     loadUseTestLevels,
     saveUseTestLevels,
+    loadUserId,
 } from "./storage.js";
 import { track } from "./tracker.js";
 import {
@@ -784,6 +785,12 @@ export class Match3Game {
             line5Select.value = this.specialTileConfig.line_5;
             tFormationSelect.value = this.specialTileConfig.t_formation;
             lFormationSelect.value = this.specialTileConfig.l_formation;
+
+            // Display user ID
+            const userIdDisplay = document.getElementById("userIdDisplay");
+            if (userIdDisplay) {
+                userIdDisplay.textContent = loadUserId();
+            }
 
             settingsDialog.classList.remove("hidden");
         };

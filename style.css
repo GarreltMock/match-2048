@@ -1642,6 +1642,34 @@ h1:hover {
     font-weight: 600;
 }
 
+/* User ID display in settings */
+.user-id-display {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f0f0f0;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border: 1px solid #ddd;
+}
+
+.user-id-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.user-id-value {
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    color: #333;
+    word-break: break-all;
+    user-select: all;
+}
+
 /* Safari-specific viewport fixes */
 @supports (-webkit-touch-callout: none) {
     body {
