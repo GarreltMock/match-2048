@@ -40,6 +40,7 @@ export const LEVELS = [
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
         goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }], // 32
         spawnableTiles: [1, 2, 3], // 2, 4, 8
+        // showGoalDialog: "created", // First level with created goals
     },
     {
         level: 2,
@@ -90,6 +91,7 @@ export const LEVELS = [
         maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ tileValue: 5, target: 16, current: 0, goalType: "current" }], // 32
+        showGoalDialog: "current", // First level with current goals
     },
     {
         level: 8,
@@ -128,6 +130,7 @@ export const LEVELS = [
             { current: 0, goalType: "blocked" },
         ],
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
+        showGoalDialog: "blocked", // First level with blocked goals
     },
     {
         level: 12,
@@ -234,6 +237,7 @@ export const LEVELS = [
         blockedTiles: [{ row: 4, lifeValue: 8 }],
         goals: [{ goalType: "blocked", current: 0 }],
         spawnableTiles: [1, 2, 3],
+        showGoalDialog: "blocked_with_life", // First level with life-based blocked tiles
     },
     {
         level: 22,
@@ -361,6 +365,7 @@ export const LEVELS = [
             },
         ],
         spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "cursed", // First level with cursed tiles
     },
     {
         level: 32,
@@ -488,6 +493,7 @@ export const LEVELS = [
             },
         ],
         spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "cursed_implode", // First level with imploding cursed tiles
     },
     {
         level: 38,

@@ -217,7 +217,8 @@
                         <strong>➕ Bonus:</strong> Merges with same value or higher.<br />
                         <strong>★ Golden:</strong> Doubles the value of any merge it's in.<br />
                         <strong>↔ Free Swap:</strong> Allows one free invalid swap.<br />
-                        <strong>⇄ Sticky Free Swap:</strong> Like Free Swap, but transfers ability to merged tile in cascades.
+                        <strong>⇄ Sticky Free Swap:</strong> Like Free Swap, but transfers ability to merged tile in
+                        cascades.
                     </div>
                 </div>
 
@@ -244,15 +245,8 @@
 
                         <h4>📋 Level Goals</h4>
                         <p>Each level has specific tile goals you must achieve with a limited number of moves.</p>
-                        <ul>
-                            <li>
-                                <strong>⭐ Created Goals:</strong> Create a total number of tiles throughout the level
-                            </li>
-                            <li><strong>📍 Current Goals:</strong> Keep a specific number of tiles on the board</li>
-                            <li>
-                                <strong>♻️ Blocked Tile Goals:</strong> Clear blocked tiles by making matches adjacent
-                                to them
-                            </li>
+                        <ul id="goalTypesList">
+                            <!-- Dynamically populated based on seen goal dialogs -->
                         </ul>
                     </div>
 
@@ -409,7 +403,7 @@
                         <span class="checkmark"></span>
                         Don't show this again
                     </label>
-                    <button class="intro-button" id="startGame">Let's Play!</button>
+                    <button class="intro-button" id="startGame">Let's Play</button>
                 </div>
             </div>
         </div>

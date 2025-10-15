@@ -181,6 +181,7 @@ export function nextLevel(game) {
         game.loadLevel(game.currentLevel);
         game.createBoard();
         game.renderBoard();
+        game.showGoalDialogIfNeeded();
     } else {
         alert("Congratulations! You've completed all levels! 🏆");
     }
@@ -190,6 +191,7 @@ export function restartLevel(game) {
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();
+    game.showGoalDialogIfNeeded();
 }
 
 export function decrementCursedTileTimers(game) {

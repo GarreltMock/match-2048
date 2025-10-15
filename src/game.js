@@ -48,6 +48,7 @@ import {
     restartLevel,
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
+import { showGoalDialog, hasDialogBeenShown, updateIntroDialogGoalsList } from "./goal-dialogs.js";
 
 export class Match3Game {
     constructor() {
@@ -233,6 +234,7 @@ export class Match3Game {
         this.setupControlButtons();
         renderGoals(this);
         updateMovesDisplay(this);
+        this.showGoalDialogIfNeeded();
     }
 
     setupControlButtons() {
@@ -334,6 +336,20 @@ export class Match3Game {
 
     saveScore() {
         saveScore(this.score);
+    }
+
+    showGoalDialogIfNeeded() {
+        // Check if this level has a goal dialog to show
+        const dialogType = this.levelConfig.showGoalDialog;
+        if (!dialogType) return;
+
+        // Check if we've already shown this dialog type
+        if (hasDialogBeenShown(dialogType)) return;
+
+        // Show the dialog with game instance for goal visuals
+        showGoalDialog(dialogType, this, () => {
+            // Dialog closed, game can continue
+        });
     }
 
     // Power-up methods
@@ -572,6 +588,9 @@ export class Match3Game {
         const introDialog = document.getElementById("introDialog");
         const startBtn = document.getElementById("startGame");
         const dontShowCheckbox = document.getElementById("dontShowAgain");
+
+        // Update the goal types list based on seen dialogs
+        updateIntroDialogGoalsList();
 
         // Show the dialog
         introDialog.classList.remove("hidden");
@@ -847,6 +866,9 @@ export class Match3Game {
         const infoBtn = document.getElementById("infoBtn");
         if (infoBtn) {
             infoBtn.addEventListener("click", () => {
+                // Update the goal types list based on seen dialogs
+                updateIntroDialogGoalsList();
+
                 // Force show the dialog, ignoring localStorage preference
                 const introDialog = document.getElementById("introDialog");
                 introDialog.classList.remove("hidden");
@@ -912,6 +934,7 @@ export class Match3Game {
                     this.loadLevel(1);
                     this.createBoard();
                     this.renderBoard();
+                    this.showGoalDialogIfNeeded();
                 }
             });
         }

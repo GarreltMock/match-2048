@@ -73,3 +73,37 @@ export function loadUserId() {
     }
     return userId;
 }
+
+/**
+ * Load set of already-shown goal dialog types from localStorage
+ * @returns {Set<string>} Set of dialog types that have been shown
+ */
+export function loadShownGoalDialogs() {
+    const saved = localStorage.getItem("match2048_shownGoalDialogs");
+    if (saved) {
+        try {
+            return new Set(JSON.parse(saved));
+        } catch (e) {
+            console.error("Failed to parse shown goal dialogs:", e);
+            return new Set();
+        }
+    }
+    return new Set();
+}
+
+/**
+ * Save a goal dialog type as shown to localStorage
+ * @param {string} dialogType - The dialog type to mark as shown
+ */
+export function saveShownGoalDialog(dialogType) {
+    const shown = loadShownGoalDialogs();
+    shown.add(dialogType);
+    localStorage.setItem("match2048_shownGoalDialogs", JSON.stringify([...shown]));
+}
+
+/**
+ * Reset all shown goal dialogs (for testing or reset)
+ */
+export function resetShownGoalDialogs() {
+    localStorage.removeItem("match2048_shownGoalDialogs");
+}

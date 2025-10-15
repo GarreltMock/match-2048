@@ -285,6 +285,21 @@ h1:hover {
     background: linear-gradient(45deg, transparent 30%, #666 30%, #666 70%, transparent 70%),
         linear-gradient(-45deg, transparent 30%, #666 30%, #666 70%, transparent 70%);
     transform: translate(-50%, -50%);
+    z-index: 0;
+}
+
+/* Display life value on blocked goal tiles with data-life attribute */
+.blocked-goal-tile[data-life] {
+    color: #fff !important;
+}
+
+.blocked-goal-tile[data-life]::after {
+    content: attr(data-life);
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    font-size: clamp(14px, 3.5vw, 20px);
+    font-weight: bold;
 }
 
 .goal-tile {
@@ -1636,4 +1651,172 @@ h1:hover {
     z-index: 100;
     box-shadow: 0 4px 12px rgba(255, 100, 100, 0.4);
     filter: brightness(1.1);
+}
+
+/* Goal Dialog Styles */
+.goal-dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1002;
+    backdrop-filter: blur(8px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.goal-dialog-overlay.visible {
+    opacity: 1;
+}
+
+.goal-dialog-overlay.hidden {
+    display: none;
+}
+
+.goal-dialog {
+    background: #ffffff;
+    border-radius: 24px;
+    max-width: 500px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
+    animation: slideIn 0.3s ease-out;
+}
+
+.goal-dialog-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 25px 20px;
+    border-radius: 24px 24px 0 0;
+    text-align: center;
+    position: relative;
+}
+
+.goal-dialog-header h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.goal-dialog-header h3 {
+    font-weight: normal;
+    opacity: 0.8;
+    margin-top: 6px;
+}
+
+.goal-dialog-goals {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+.goal-dialog-goals .goal-card {
+    background: #383433;
+}
+
+.goal-dialog-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    animation: bounceIn 0.5s ease-out;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.goal-dialog-goals .goal-card {
+    animation: bounceIn 0.5s ease-out;
+}
+
+.goal-dialog-content {
+    padding: 25px 20px;
+    color: #333;
+}
+
+.goal-dialog-content p {
+    margin: 0 0 15px 0;
+    line-height: 1.6;
+}
+
+.goal-dialog-content p:last-child {
+    margin-bottom: 0;
+}
+
+.goal-dialog-content strong {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.goal-dialog-content ul {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.goal-dialog-content li {
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.goal-dialog-content em {
+    display: block;
+    margin-top: 15px;
+    padding: 12px;
+    background: #f0f4ff;
+    border-left: 4px solid #667eea;
+    border-radius: 8px;
+    font-style: normal;
+    color: #555;
+}
+
+.goal-dialog-footer {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 0 0 24px 24px;
+    display: flex;
+    justify-content: center;
+    border-top: 1px solid #e9ecef;
+}
+
+.goal-dialog-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.goal-dialog-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.goal-dialog-button:active {
+    transform: translateY(0);
 }
