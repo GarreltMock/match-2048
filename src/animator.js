@@ -2,9 +2,11 @@
 
 import { createTile } from "./tile-helpers.js";
 import { getRandomTileValue } from "./board.js";
+import { Subject } from "./subject.js";
+import { trySwap } from "./input-handler.js";
 
 export function animateSwap(game, row1, col1, row2, col2, callback) {
-    game.animating = true;
+    game.animating.resetIfClosed();
 
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
@@ -39,13 +41,12 @@ export function animateSwap(game, row1, col1, row2, col2, callback) {
         }, 300);
     } else {
         // Fallback if elements not found
-        game.animating = false;
         if (callback) callback();
     }
 }
 
 export function animateRevert(game, row1, col1, row2, col2) {
-    game.animating = true;
+    game.animating.resetIfClosed();
 
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
@@ -81,10 +82,10 @@ export function animateRevert(game, row1, col1, row2, col2) {
             gem2.style.transition = "";
             gem1.classList.remove("invalid-swap");
             gem2.classList.remove("invalid-swap");
-            game.animating = false;
+            game.animating.resolve();
         }, 400);
     } else {
-        game.animating = false;
+        game.animating.resolve();
     }
 }
 
@@ -139,12 +140,10 @@ function slideGemTo(fromTile, toTile) {
 }
 
 function getOuterTiles(allTiles, middleTiles) {
-    return allTiles.filter(
-        (tile) => !middleTiles.some((middle) => middle.row === tile.row && middle.col === tile.col)
-    );
+    return allTiles.filter((tile) => !middleTiles.some((middle) => middle.row === tile.row && middle.col === tile.col));
 }
 
-function calculateMiddlePositions(game, tiles, group = null) {
+function calculateMiddlePositions(_game, tiles, group = null) {
     const positions = [];
     const length = tiles.length;
 
@@ -266,7 +265,9 @@ export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesTo
                     ) {
                         const adjTile = game.board[adjPos.row][adjPos.col];
                         if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
-                            const adjGem = document.querySelector(`[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`);
+                            const adjGem = document.querySelector(
+                                `[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`
+                            );
                             const cursedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
 
                             if (adjGem && cursedGem) {
@@ -387,11 +388,32 @@ export function dropGems(game) {
             gem.style.animationDelay = "";
         });
 
+        // Check if cascade was interrupted by user input
+        if (game.interruptCascade) {
+            game.interruptCascade = false;
+            // Resolve the animation promise to signal old cascade is done
+            game.animating.resolve();
+
+            // Execute the pending swap if it exists
+            if (game.pendingInterruptSwap) {
+                const { row1, col1, row2, col2 } = game.pendingInterruptSwap;
+                game.pendingInterruptSwap = null;
+
+                // Clear preview visualization
+                document.querySelectorAll(".gem.preview").forEach((gem) => {
+                    gem.classList.remove("preview");
+                });
+
+                trySwap(game, row1, col1, row2, col2);
+            }
+            return;
+        }
+
         // Check for matches regardless of gameActive state to handle cascading after running out of moves
         if (game.hasMatches()) {
             game.processMatches();
         } else {
-            game.animating = false;
+            game.animating.resolve();
 
             // Decrement cursed timers after all cascades complete
             if (game.shouldDecrementCursedTimers) {

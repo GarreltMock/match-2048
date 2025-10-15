@@ -21,7 +21,7 @@ export function processMatches(game) {
 
     if (matchGroups.length === 0) {
         // No matches found, allow interactions again
-        game.animating = false;
+        game.animating.resolve();
         return;
     }
 

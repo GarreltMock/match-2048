@@ -1,7 +1,18 @@
 // User input processing and drag-to-swap mechanics
 
-import { getTileValue, createTile, createJokerTile, isBlocked, isBlockedWithLife, isJoker, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import {
+    getTileValue,
+    createTile,
+    createJokerTile,
+    isBlocked,
+    isBlockedWithLife,
+    isJoker,
+    isTileFreeSwapTile,
+    isTileStickyFreeSwapTile,
+    getDisplayValue,
+} from "./tile-helpers.js";
 import { track } from "./tracker.js";
+import { Subject } from "./subject.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -114,14 +125,13 @@ export function findBestJokerValue(game, jokerRow, jokerCol) {
 }
 
 function startDrag(game, x, y) {
-    if (!game.gameActive || game.animating) return;
+    if (!game.gameActive) return;
 
     const element = document.elementFromPoint(x, y);
     if (element && element.classList.contains("gem")) {
         const row = parseInt(element.dataset.row);
         const col = parseInt(element.dataset.col);
         const tile = game.board[row][col];
-        const value = getTileValue(tile);
 
         // Handle power-ups
         if (game.activePowerUp) {
@@ -194,7 +204,7 @@ function activateJokerByTap(game, row, col, element) {
 
     if (bestValue !== null) {
         // Transform and animate
-        game.animating = true;
+        game.animating.resetIfClosed();
         element.style.transform = "scale(1.2)";
         element.textContent = getDisplayValue(bestValue, game.numberBase);
         element.className = `gem tile-${bestValue}`;
@@ -239,12 +249,30 @@ function previewSwap(row1, col1, row2, col2) {
     }
 }
 
-function trySwap(game, row1, col1, row2, col2) {
-    if (!game.gameActive || game.animating) return;
+export function trySwap(game, row1, col1, row2, col2) {
+    if (!game.gameActive) return;
 
     // Prevent swapping if either tile is blocked or blocked with life
-    if (isBlocked(game.board[row1][col1]) || isBlocked(game.board[row2][col2]) ||
-        isBlockedWithLife(game.board[row1][col1]) || isBlockedWithLife(game.board[row2][col2])) {
+    if (
+        isBlocked(game.board[row1][col1]) ||
+        isBlocked(game.board[row2][col2]) ||
+        isBlockedWithLife(game.board[row1][col1]) ||
+        isBlockedWithLife(game.board[row2][col2])
+    ) {
+        return;
+    }
+
+    // If animating, queue the swap to execute after animation completes
+    if (game.animating.isPending) {
+        game.interruptCascade = true;
+        game.pendingInterruptSwap = { row1, col1, row2, col2 };
+
+        // Visualize the pending swap with preview class
+        const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+        const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+        if (gem1) gem1.classList.add("preview");
+        if (gem2) gem2.classList.add("preview");
+
         return;
     }
 

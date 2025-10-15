@@ -9,6 +9,7 @@ import {
     LEVELS,
     TEST_LEVELS,
 } from "./config.js";
+import { Subject } from "./subject.js";
 import {
     loadNumberBase,
     saveNumberBase,
@@ -66,9 +67,11 @@ export class Match3Game {
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
-        this.animating = false;
+        this.animating = new Subject(true);
         this.lastSwapPosition = null; // Track last swap position for special tile placement
         this.isUserSwap = false; // Track if we're processing a user swap
+        this.interruptCascade = false; // Flag to interrupt ongoing cascade animations
+        this.pendingInterruptSwap = null; // Store pending swap when interrupting
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];

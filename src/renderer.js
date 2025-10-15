@@ -97,6 +97,15 @@ export function renderBoard(game) {
         }
     }
 
+    // Restore preview classes for pending interrupt swap
+    if (game.pendingInterruptSwap) {
+        const { row1, col1, row2, col2 } = game.pendingInterruptSwap;
+        const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+        const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+        if (gem1) gem1.classList.add("preview");
+        if (gem2) gem2.classList.add("preview");
+    }
+
     updateGoalDisplay(game);
 }
 
