@@ -1650,8 +1650,14 @@ h1:hover {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     border: 1px solid #ddd;
+}
+
+.user-id-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .user-id-label {
@@ -1660,6 +1666,27 @@ h1:hover {
     color: #666;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.user-id-copy-btn {
+    background: #667eea;
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.user-id-copy-btn:hover {
+    background: #5568d3;
+    transform: translateY(-1px);
+}
+
+.user-id-copy-btn:active {
+    transform: translateY(0);
 }
 
 .user-id-value {

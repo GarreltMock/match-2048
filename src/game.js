@@ -25,7 +25,7 @@ import {
     saveUseTestLevels,
     loadUserId,
 } from "./storage.js";
-import { track } from "./tracker.js";
+import { track, cyrb53 } from "./tracker.js";
 import {
     createTile,
     createBlockedTile,
@@ -789,7 +789,31 @@ export class Match3Game {
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
             if (userIdDisplay) {
-                userIdDisplay.textContent = loadUserId();
+                userIdDisplay.textContent = cyrb53(loadUserId());
+            }
+
+            // Setup copy button
+            const copyUserIdBtn = document.getElementById("copyUserIdBtn");
+            if (copyUserIdBtn && userIdDisplay) {
+                // Remove any existing event listeners by cloning
+                const newCopyBtn = copyUserIdBtn.cloneNode(true);
+                copyUserIdBtn.parentNode.replaceChild(newCopyBtn, copyUserIdBtn);
+
+                newCopyBtn.addEventListener("click", async () => {
+                    try {
+                        await navigator.clipboard.writeText(userIdDisplay.textContent);
+                        newCopyBtn.textContent = "Copied!";
+                        setTimeout(() => {
+                            newCopyBtn.textContent = "Copy";
+                        }, 2000);
+                    } catch (err) {
+                        console.error("Failed to copy:", err);
+                        newCopyBtn.textContent = "Failed";
+                        setTimeout(() => {
+                            newCopyBtn.textContent = "Copy";
+                        }, 2000);
+                    }
+                });
             }
 
             settingsDialog.classList.remove("hidden");

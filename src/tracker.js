@@ -30,7 +30,7 @@ function getDefaultOptions() {
         },
         userProperties: {},
         userData: {},
-        performUserIdHashing: false,
+        performUserIdHashing: true,
     };
 }
 
@@ -39,6 +39,21 @@ function isDevelopment() {
     const isLocalhost = hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
     const isIPAddress = /^(\d{1,3}\.){3}\d{1,3}$/.test(hostname); // IPv4 pattern
     return isLocalhost || isIPAddress;
+}
+
+export function cyrb53(str, seed = 0) {
+    let h1 = 0xdeadbeef ^ seed,
+        h2 = 0x41c6ce57 ^ seed;
+    for (let i = 0, ch; i < str.length; i++) {
+        ch = str.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+    }
+
+    h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+    h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+
+    return ((h2 >>> 0).toString(36) + (h1 >>> 0).toString(36)).padEnd(16, "0");
 }
 
 async function track(eventName, parameters = {}, options = {}) {
@@ -64,22 +79,6 @@ async function track(eventName, parameters = {}, options = {}) {
             options.performUserIdHashing !== undefined
                 ? options.performUserIdHashing
                 : defaultOptions.performUserIdHashing,
-    };
-
-    // Optional hashing utilities
-    const cyrb53 = (str, seed = 0) => {
-        let h1 = 0xdeadbeef ^ seed,
-            h2 = 0x41c6ce57 ^ seed;
-        for (let i = 0, ch; i < str.length; i++) {
-            ch = str.charCodeAt(i);
-            h1 = Math.imul(h1 ^ ch, 2654435761);
-            h2 = Math.imul(h2 ^ ch, 1597334677);
-        }
-
-        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
-        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
-
-        return ((h2 >>> 0).toString(36) + (h1 >>> 0).toString(36)).padEnd(16, "0");
     };
 
     const hashCode = (s) => {
