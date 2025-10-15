@@ -903,4 +903,17 @@ export const TEST_LEVELS = [
         ],
         spawnableTiles: [1, 2, 3, 4], // 2, 4, 8
     },
+    {
+        level: 18,
+        title: "Font-Size",
+        boardWidth: 5,
+        boardHeight: 6,
+        maxMoves: 5,
+        boardPreset: [
+            [1, 2, 3, 4, 5],
+            [6, 7, 8, 9, 10],
+        ],
+        goals: [{ tileValue: 1, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [0],
+    },
 ];

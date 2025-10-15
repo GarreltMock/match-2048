@@ -15,6 +15,11 @@ import {
 } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 
+function getFontSize(value) {
+    const length = value.toString().length;
+    return 50 - Math.max(0, length - 2) * 7;
+}
+
 export function renderBoard(game) {
     const gameBoard = document.getElementById("gameBoard");
     gameBoard.innerHTML = "";
@@ -55,14 +60,17 @@ export function renderBoard(game) {
             } else if (isCursed(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value} cursed-tile`;
+
                 const displayValue = getDisplayValue(value, game.numberBase);
-                gem.textContent = displayValue;
+                gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+
                 gem.dataset.cursedMoves = tile.cursedMovesRemaining;
             } else if (isNormal(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value}`;
+
                 const displayValue = getDisplayValue(value, game.numberBase);
-                gem.textContent = displayValue;
+                gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
                 // Add power-tile class if this is a power tile
                 if (isTilePowerTile(tile)) {
@@ -107,8 +115,12 @@ export function renderGoals(game) {
             currentProgress = goal.current;
             goalTypeClass = "goal-current";
             goalIcon = "📍";
+
             const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `<div class="goal-tile tile-${goal.tileValue}">${displayValue}</div>`;
+            goalContent = `
+                <div class="goal-tile tile-${goal.tileValue}">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
         } else if (goal.goalType === "blocked") {
             isCompleted = goal.current >= goal.target;
             currentProgress = goal.current;
@@ -121,14 +133,20 @@ export function renderGoals(game) {
             goalTypeClass = "goal-cursed";
             goalIcon = goal.implode ? "💥" : "💀";
             const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `<div class="goal-tile tile-${goal.tileValue} cursed-goal-tile" data-cursed-moves="${goal.strength}">${displayValue}</div>`;
+            goalContent = `
+                <div class="goal-tile tile-${goal.tileValue}">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
         } else {
             isCompleted = goal.created >= goal.target;
             currentProgress = goal.created;
             goalTypeClass = "goal-created";
             goalIcon = "⭐";
             const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `<div class="goal-tile tile-${goal.tileValue}">${displayValue}</div>`;
+            goalContent = `
+                <div class="goal-tile tile-${goal.tileValue}">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
         }
 
         goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;

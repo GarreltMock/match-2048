@@ -313,6 +313,8 @@ h1:hover {
     font-size: clamp(12px, 3vw, 18px);
     font-weight: bold;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    container-type: inline-size;
+    container-name: card;
 }
 
 /* Goal tile colors based on internal value (1, 2, 3, 4...) */
@@ -438,6 +440,8 @@ h1:hover {
     font-size: clamp(16px, 3vw, 24px);
     font-weight: bold;
     color: #776e65;
+    container-type: inline-size;
+    container-name: card;
 }
 
 .gem:hover {
