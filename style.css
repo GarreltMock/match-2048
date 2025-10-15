@@ -1519,14 +1519,11 @@ h1:hover {
     gap: 10px;
 }
 
-.setting-item > * {
-    flex: 1;
-}
-
 .setting-item label {
     font-size: 1rem;
     font-weight: 600;
     color: #333;
+    flex: 2;
 }
 
 .setting-item select {
@@ -1537,6 +1534,8 @@ h1:hover {
     background: white;
     cursor: pointer;
     transition: all 0.2s;
+    min-width: 0;
+    flex: 3;
 }
 
 .setting-item select:hover {
