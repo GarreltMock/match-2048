@@ -130,7 +130,8 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 11,
+        level: 12,
+        title: "Blocked V",
         boardWidth: 9,
         maxMoves: 50,
         blockedTiles: [
@@ -148,14 +149,14 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 12,
+        level: 13,
         maxMoves: 30,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ current: 0, goalType: "blocked" }],
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 13,
+        level: 14,
         maxMoves: 40,
         blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
         goals: [
@@ -165,7 +166,7 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4], // 4, 8, 16
     },
     {
-        level: 14,
+        level: 15,
         maxMoves: 50,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
@@ -176,7 +177,7 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 15,
+        level: 16,
         boardWidth: 6,
         boardHeight: 10,
         maxMoves: 20,
@@ -185,7 +186,7 @@ export const LEVELS = [
         spawnableTiles: [1, 2, 3], // 2, 4, 8
     },
     {
-        level: 16,
+        level: 17,
         boardWidth: 6,
         boardHeight: 8,
         maxMoves: 20,
@@ -193,7 +194,7 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 17,
+        level: 18,
         boardWidth: 6,
         boardHeight: 8,
         maxMoves: 20,
@@ -202,7 +203,7 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 18,
+        level: 19,
         boardWidth: 6,
         boardHeight: 8,
         maxMoves: 20,
@@ -214,7 +215,7 @@ export const LEVELS = [
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
     {
-        level: 19,
+        level: 20,
         boardHeight: 10,
         maxMoves: 60,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
@@ -224,23 +225,351 @@ export const LEVELS = [
         ],
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
-    // {
-    //     level: 20,
-    //     title: "Goal Tiles with Life",
-    //     boardWidth: 6,
-    //     boardHeight: 8,
-    //     maxMoves: 25,
-    //     blockedTiles: [
-    //         { row: 4, lifeValue: 64 }, // Entire row 4 as goal tiles with 64 life each
-    //         { row: 5, col: [2, 3], lifeValue: 128 }, // Two goal tiles with 128 life each
-    //         { row: 6 }, // Regular blocked tiles (entire row)
-    //         { row: 7, col: 0 }, // Single blocked tile
-    //     ],
-    //     goals: [
-    //         { tileValue: 6, target: 8, current: 0, goalType: "current" }, // 64
-    //     ],
-    //     spawnableTiles: [2, 3, 4], // 4, 8, 16
-    // },
+    {
+        level: 21,
+        title: "Life-based Goal Tile",
+        boardWidth: 6,
+        boardHeight: 5,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4, lifeValue: 8 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3],
+    },
+    {
+        level: 22,
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 15,
+        blockedTiles: [
+            { row: 4, lifeValue: 8 },
+            { row: 5, lifeValue: 8 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 23,
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 20,
+        blockedTiles: [
+            { row: 4, lifeValue: 8 },
+            { row: 5, lifeValue: 16 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 24,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 30,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6, lifeValue: 16 }, { row: 7, lifeValue: 16 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 25,
+        boardWidth: 6,
+        boardHeight: 8,
+        maxMoves: 35,
+        blockedTiles: [{ row: 4 }, { row: 5, lifeValue: 8 }, { row: 6, lifeValue: 16 }, { row: 7, lifeValue: 32 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 26,
+        boardWidth: 6,
+        boardHeight: 8,
+        maxMoves: 35,
+        blockedTiles: [
+            { row: 3, lifeValue: 32 },
+            { row: 4, lifeValue: 32 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 27,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 40,
+        blockedTiles: [{ row: 4, lifeValue: 32 }, { row: 5, lifeValue: 32 }, { row: 6 }, { row: 7 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 28,
+        boardWidth: 9,
+        boardHeight: 9,
+        maxMoves: 40,
+        blockedTiles: [
+            { row: 4, lifeValue: 16 },
+            { row: 5, lifeValue: 16 },
+            { row: 6, lifeValue: 16 },
+            { row: 7, lifeValue: 16 },
+            { row: 8, lifeValue: 16 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 29,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 40,
+        blockedTiles: [
+            { row: 4, lifeValue: 16 },
+            { row: 5, lifeValue: 16 },
+            { row: 6, lifeValue: 16 },
+            { row: 7, lifeValue: 16 },
+            { row: 8, lifeValue: 16 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 30,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 40,
+        blockedTiles: [
+            { row: 4, lifeValue: 16 },
+            { row: 5, lifeValue: 16 },
+            { row: 6, lifeValue: 16 },
+            { row: 7, lifeValue: 16 },
+            { row: 7, col: [3, 4], lifeValue: 128 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 31,
+        title: "Cursed Tiles",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 1,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 32,
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 20,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 3,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 33,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 40,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 3,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+            {
+                tileValue: 7, // 128
+                target: 1,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 34,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 20,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 1,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+            {
+                tileValue: 6, // 64
+                target: 1,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 10,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 35,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 25,
+        goals: [
+            {
+                tileValue: 6, // 32
+                target: 1,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 36,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 30,
+        goals: [
+            {
+                tileValue: 6, // 32
+                target: 3,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: false,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 37,
+        title: "Cursed Tiles - implode",
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 20,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 3,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: true,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 38,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 25,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 3,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: false,
+            },
+            {
+                tileValue: 6, // 32
+                target: 2,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 6,
+                implode: true,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 39,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 30,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 4,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: true,
+            },
+            {
+                tileValue: 6, // 64
+                target: 2,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: true,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 40,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 45,
+        goals: [
+            {
+                tileValue: 5, // 32
+                target: 10,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: false,
+            },
+            {
+                tileValue: 7, // 32
+                target: 2,
+                current: 0,
+                goalType: "cursed",
+                frequency: 0,
+                strength: 4,
+                implode: true,
+            },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
 ];
 
 // Test levels for development and testing
