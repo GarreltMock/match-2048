@@ -134,7 +134,7 @@ export function renderGoals(game) {
             goalIcon = goal.implode ? "💥" : "💀";
             const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
             goalContent = `
-                <div class="goal-tile tile-${goal.tileValue}">
+                <div class="goal-tile tile-${goal.tileValue} cursed-goal-tile" data-cursed-moves="${goal.strength}">
                     <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
                 </div>`;
         } else {
