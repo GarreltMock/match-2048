@@ -244,6 +244,26 @@ h1:hover {
     border: 2px solid #9c27b0 !important;
     color: white !important;
     box-shadow: 0 0 8px rgba(156, 39, 176, 0.4) !important;
+    position: relative;
+}
+
+.cursed-goal-tile::after {
+    content: attr(data-cursed-moves);
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    font-size: clamp(8px, 2vw, 12px);
+    background: linear-gradient(135deg, #d500f9 0%, #aa00ff 100%);
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #9c27b0;
+    box-shadow: 0 0 4px rgba(156, 39, 176, 0.6);
 }
 
 .blocked-goal-tile {
@@ -509,12 +529,12 @@ h1:hover {
 .gem.cursed-tile::after {
     content: attr(data-cursed-moves);
     position: absolute;
-    bottom: -2px;
-    right: -2px;
+    bottom: -3px;
+    right: -3px;
     font-size: clamp(10px, 2.5vw, 16px);
     background: linear-gradient(135deg, #d500f9 0%, #aa00ff 100%);
-    width: 45%;
-    height: 45%;
+    width: 33%;
+    height: 33%;
     border-radius: 50%;
     color: white;
     font-weight: bold;
@@ -526,7 +546,8 @@ h1:hover {
 }
 
 @keyframes cursedPulse {
-    0%, 100% {
+    0%,
+    100% {
         box-shadow: 0 0 5px rgba(156, 39, 176, 0.4);
     }
     50% {

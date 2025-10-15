@@ -1,6 +1,18 @@
 // DOM rendering and display updates
 
-import { getTileValue, isBlocked, isBlockedWithLife, isJoker, isCursed, isNormal, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile, getDisplayValue } from "./tile-helpers.js";
+import {
+    getTileValue,
+    isBlocked,
+    isBlockedWithLife,
+    isJoker,
+    isCursed,
+    isNormal,
+    isTilePowerTile,
+    isTileGoldenTile,
+    isTileFreeSwapTile,
+    isTileStickyFreeSwapTile,
+    getDisplayValue,
+} from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 
 export function renderBoard(game) {
@@ -107,9 +119,9 @@ export function renderGoals(game) {
             isCompleted = goal.current >= goal.target;
             currentProgress = goal.current;
             goalTypeClass = "goal-cursed";
-            goalIcon = "💀";
+            goalIcon = goal.implode ? "💥" : "💀";
             const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `<div class="goal-tile tile-${goal.tileValue} cursed-goal-tile">${displayValue}</div>`;
+            goalContent = `<div class="goal-tile tile-${goal.tileValue} cursed-goal-tile" data-cursed-moves="${goal.strength}">${displayValue}</div>`;
         } else {
             isCompleted = goal.created >= goal.target;
             currentProgress = goal.created;
