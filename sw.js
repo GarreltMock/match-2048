@@ -1,21 +1,11 @@
 const CACHE_NAME = `match-2048-v0.3.4`;
+
+// Only pre-cache critical resources needed for initial load
 const urlsToCache = [
     "./",
     "./index.html",
     "./style.css",
     "./src/main.js",
-    "./src/game.js",
-    "./src/config.js",
-    "./src/storage.js",
-    "./src/tile-helpers.js",
-    "./src/board.js",
-    "./src/input-handler.js",
-    "./src/match-detector.js",
-    "./src/merge-processor.js",
-    "./src/animator.js",
-    "./src/renderer.js",
-    "./src/goal-tracker.js",
-    "./assets/logo.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -24,7 +14,28 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
-    event.respondWith(caches.match(event.request).then((response) => response || fetch(event.request)));
+    event.respondWith(
+        caches.match(event.request).then((response) => {
+            // Return cached version or fetch and cache the new resource
+            if (response) {
+                return response;
+            }
+            return fetch(event.request).then((response) => {
+                // Don't cache non-successful responses or non-GET requests
+                if (!response || response.status !== 200 || response.type === 'opaque' || event.request.method !== 'GET') {
+                    return response;
+                }
+
+                // Cache the fetched resource for future use
+                const responseToCache = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, responseToCache);
+                });
+
+                return response;
+            });
+        })
+    );
 });
 
 self.addEventListener("activate", (event) => {
