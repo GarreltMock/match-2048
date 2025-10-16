@@ -394,9 +394,9 @@ export function dropGems(game) {
             game.animating = false;
 
             // Execute the pending swap if it exists
-            if (game.pendingInterruptSwap) {
-                const { row1, col1, row2, col2 } = game.pendingInterruptSwap;
-                game.pendingInterruptSwap = null;
+            if (game.pendingSwap) {
+                const { row1, col1, row2, col2 } = game.pendingSwap;
+                game.pendingSwap = null;
 
                 // Clear preview visualization
                 document.querySelectorAll(".gem.preview").forEach((gem) => {

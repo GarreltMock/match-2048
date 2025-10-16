@@ -264,7 +264,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     // If animating, queue the swap to execute after animation completes
     if (game.animating) {
         game.interruptCascade = true;
-        game.pendingInterruptSwap = { row1, col1, row2, col2 };
+        game.pendingSwap = { row1, col1, row2, col2 };
 
         // Visualize the pending swap with preview class
         const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);

@@ -25,14 +25,7 @@ import {
     loadUserId,
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
-import {
-    createTile,
-    createBlockedTile,
-    createJokerTile,
-    createCursedTile,
-    isCursed,
-    getTileValue,
-} from "./tile-helpers.js";
+import { createTile, createCursedTile, isCursed } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -43,7 +36,6 @@ import {
     checkLevelComplete,
     updateTileCounts,
     countBlockedLevelTiles,
-    countBlockedTiles,
     updateBlockedTileGoals,
     nextLevel,
     restartLevel,
@@ -71,7 +63,7 @@ export class Match3Game {
         this.lastSwapPosition = null; // Track last swap position for special tile placement
         this.isUserSwap = false; // Track if we're processing a user swap
         this.interruptCascade = false; // Flag to interrupt ongoing cascade animations
-        this.pendingInterruptSwap = null; // Store pending swap when interrupting
+        this.pendingSwap = null; // Store pending swap when interrupting
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
