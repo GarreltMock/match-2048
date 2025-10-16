@@ -41,5 +41,11 @@ self.addEventListener("activate", (event) => {
                 );
             })
             .then(() => self.clients.claim()) // Take control immediately
+            .then(() => {
+                // Reload all clients to get the latest version
+                return self.clients.matchAll({ type: 'window' }).then(clients => {
+                    clients.forEach(client => client.navigate(client.url));
+                });
+            })
     );
 });
