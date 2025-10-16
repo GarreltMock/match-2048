@@ -25,6 +25,7 @@ import {
     loadUserId,
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
+import { APP_VERSION } from "./version.js";
 import { createTile, createCursedTile, isCursed, getFontSize } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
@@ -783,6 +784,12 @@ export class Match3Game {
             const userIdDisplay = document.getElementById("userIdDisplay");
             if (userIdDisplay) {
                 userIdDisplay.textContent = cyrb53(loadUserId());
+            }
+
+            // Display version
+            const versionDisplay = document.getElementById("versionDisplay");
+            if (versionDisplay) {
+                versionDisplay.textContent = APP_VERSION;
             }
 
             // Setup copy button

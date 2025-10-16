@@ -1649,7 +1649,6 @@ h1:hover {
     border-radius: 8px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
     border: 1px solid #ddd;
 }
 
@@ -1689,11 +1688,37 @@ h1:hover {
 }
 
 .user-id-value {
+    flex: 1;
+    margin-left: 8px;
     font-family: "Courier New", Courier, monospace;
     font-size: 0.75rem;
     color: #333;
     word-break: break-all;
     user-select: all;
+}
+
+.version-display {
+    display: flex;
+    align-items: center;
+    padding-top: 8px;
+    margin-top: 8px;
+    border-top: 1px solid #ddd;
+}
+
+.version-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.version-value {
+    margin-left: 8px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 0.75rem;
+    color: #333;
+    font-weight: 500;
 }
 
 /* Safari-specific viewport fixes */
