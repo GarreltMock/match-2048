@@ -393,7 +393,7 @@ export function dropGems(game) {
             // Resolve the animation promise to signal old cascade is done
             game.animating = false;
 
-            // Execute the pending swap if it exists
+            // Execute the pending swap if it exists and moves are available
             if (game.pendingSwap) {
                 const { row1, col1, row2, col2 } = game.pendingSwap;
                 game.pendingSwap = null;
@@ -403,7 +403,10 @@ export function dropGems(game) {
                     gem.classList.remove("preview");
                 });
 
-                trySwap(game, row1, col1, row2, col2);
+                // Only execute swap if player has moves remaining or game is still active
+                if (game.movesUsed < game.maxMoves && game.gameActive) {
+                    trySwap(game, row1, col1, row2, col2);
+                }
             }
             return;
         }
