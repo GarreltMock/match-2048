@@ -201,7 +201,8 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
         // Update after a short delay to ensure board state is updated
         setTimeout(() => {
             updateBlockedTileGoalsCallback();
-            updateGoalDisplayCallback(true); // Update display and check completion
+            updateGoalDisplayCallback(false); // Update display without checking completion
+            // Let the natural cascade completion in dropGems handle checkLevelComplete
         }, 100);
     }
 }

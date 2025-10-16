@@ -111,8 +111,9 @@ export function processMerges(game, matchGroups) {
     // Clear swap position after processing
     game.lastSwapPosition = null;
 
-    // Update goal display after creating new tiles
-    game.updateGoalDisplay(true);
+    // Update goal display after creating new tiles (without checking completion)
+    // Let the natural cascade completion in dropGems handle checkLevelComplete
+    game.updateGoalDisplay(false);
 
     // Clean up animation classes
     document.querySelectorAll(".gem").forEach((gem) => {

@@ -123,3 +123,9 @@ export function getDisplayValue(internalValue, numberBase) {
         return Math.pow(2, internalValue);
     }
 }
+
+// Calculate responsive font size based on display value length
+export function getFontSize(displayValue) {
+    const length = displayValue.toString().length;
+    return 50 - Math.max(0, length - 2) * 7;
+}

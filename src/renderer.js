@@ -12,13 +12,9 @@ import {
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
     getDisplayValue,
+    getFontSize,
 } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
-
-function getFontSize(value) {
-    const length = value.toString().length;
-    return 50 - Math.max(0, length - 2) * 7;
-}
 
 export function renderBoard(game) {
     const gameBoard = document.getElementById("gameBoard");

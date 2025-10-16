@@ -25,7 +25,7 @@ import {
     loadUserId,
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
-import { createTile, createCursedTile, isCursed } from "./tile-helpers.js";
+import { createTile, createCursedTile, isCursed, getFontSize } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -542,9 +542,10 @@ export class Match3Game {
                 }
             });
 
-            // Update the visual element
+            // Update the visual element with proper rendering
             const displayValue = Math.pow(this.numberBase, halvedValue);
-            element.textContent = displayValue;
+            const fontSize = getFontSize(displayValue);
+            element.innerHTML = `<span style="font-size: ${fontSize}cqw">${displayValue}</span>`;
             element.className = `gem tile-${halvedValue}`;
             if (isCursedTile) {
                 element.classList.add("cursed-tile");
@@ -558,8 +559,9 @@ export class Match3Game {
             setTimeout(() => {
                 element.style.transform = "scale(1)";
 
-                // Update goal display and check for level completion
-                this.updateGoalDisplay(true);
+                // Update goal display without checking completion
+                // Let the natural cascade completion handle checkLevelComplete
+                this.updateGoalDisplay(false);
 
                 // Process any matches after halving
                 setTimeout(() => {
