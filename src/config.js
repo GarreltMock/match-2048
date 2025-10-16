@@ -916,4 +916,15 @@ export const TEST_LEVELS = [
         goals: [{ tileValue: 1, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [0],
     },
+    {
+        level: 19,
+        title: "Bug hunt",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 1,
+        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
+        goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }], // 32
+        spawnableTiles: [1, 2, 3], // 2, 4, 8
+        // showGoalDialog: "created", // First level with created goals
+    },
 ];

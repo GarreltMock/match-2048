@@ -2,11 +2,10 @@
 
 import { createTile } from "./tile-helpers.js";
 import { getRandomTileValue } from "./board.js";
-import { Subject } from "./subject.js";
 import { trySwap } from "./input-handler.js";
 
 export function animateSwap(game, row1, col1, row2, col2, callback) {
-    game.animating.resetIfClosed();
+    game.animating = true;
 
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
@@ -46,7 +45,7 @@ export function animateSwap(game, row1, col1, row2, col2, callback) {
 }
 
 export function animateRevert(game, row1, col1, row2, col2) {
-    game.animating.resetIfClosed();
+    game.animating = true;
 
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
@@ -82,10 +81,10 @@ export function animateRevert(game, row1, col1, row2, col2) {
             gem2.style.transition = "";
             gem1.classList.remove("invalid-swap");
             gem2.classList.remove("invalid-swap");
-            game.animating.resolve();
+            game.animating = false;
         }, 400);
     } else {
-        game.animating.resolve();
+        game.animating = false;
     }
 }
 
@@ -392,7 +391,7 @@ export function dropGems(game) {
         if (game.interruptCascade) {
             game.interruptCascade = false;
             // Resolve the animation promise to signal old cascade is done
-            game.animating.resolve();
+            game.animating = false;
 
             // Execute the pending swap if it exists
             if (game.pendingInterruptSwap) {
@@ -413,7 +412,7 @@ export function dropGems(game) {
         if (game.hasMatches()) {
             game.processMatches();
         } else {
-            game.animating.resolve();
+            game.animating = false;
 
             // Decrement cursed timers after all cascades complete
             if (game.shouldDecrementCursedTimers) {

@@ -12,7 +12,6 @@ import {
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
-import { Subject } from "./subject.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -204,7 +203,7 @@ function activateJokerByTap(game, row, col, element) {
 
     if (bestValue !== null) {
         // Transform and animate
-        game.animating.resetIfClosed();
+        game.animating = true;
         element.style.transform = "scale(1.2)";
         element.textContent = getDisplayValue(bestValue, game.numberBase);
         element.className = `gem tile-${bestValue}`;
@@ -263,7 +262,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     }
 
     // If animating, queue the swap to execute after animation completes
-    if (game.animating.isPending) {
+    if (game.animating) {
         game.interruptCascade = true;
         game.pendingInterruptSwap = { row1, col1, row2, col2 };
 

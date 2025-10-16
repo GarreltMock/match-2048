@@ -21,7 +21,7 @@ export function processMatches(game) {
 
     if (matchGroups.length === 0) {
         // No matches found, allow interactions again
-        game.animating.resolve();
+        game.animating = false;
         return;
     }
 
@@ -72,7 +72,6 @@ export function processMerges(game, matchGroups) {
                 goal.current++;
             }
         });
-
     });
 
     // Track match statistics (only for user-initiated matches)

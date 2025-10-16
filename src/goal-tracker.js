@@ -7,7 +7,7 @@ import { track } from "./tracker.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
-    if (game.animating.isPending) return;
+    if (game.animating) return;
 
     const allGoalsComplete = game.levelGoals.every((goal) => {
         if (goal.goalType === "current") {
