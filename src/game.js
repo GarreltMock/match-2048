@@ -118,6 +118,7 @@ export class Match3Game {
         this.setupInfoButton();
         this.setupSettingsButton();
         this.setupExtraMovesDialog();
+        this.setupControlButtons();
         this.init();
     }
 
@@ -203,9 +204,6 @@ export class Match3Game {
         // Update power-up button states
         this.updatePowerUpButtons();
 
-        // Update score display on level load
-        document.getElementById("score").textContent = this.score;
-
         // Track level started
         track("level_started", {
             level: this.currentLevel,
@@ -227,7 +225,6 @@ export class Match3Game {
         this.createBoard();
         this.renderBoard();
         setupEventListeners(this);
-        this.setupControlButtons();
         renderGoals(this);
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
@@ -240,12 +237,16 @@ export class Match3Game {
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
                 this.restartLevel();
+                const solvedLevelDialog = document.getElementById("solvedLevelDialog");
+                solvedLevelDialog.classList.add("hidden");
             });
         }
 
         if (nextBtn) {
             nextBtn.addEventListener("click", () => {
                 this.nextLevel();
+                const solvedLevelDialog = document.getElementById("solvedLevelDialog");
+                solvedLevelDialog.classList.add("hidden");
             });
         }
 
@@ -436,7 +437,20 @@ export class Match3Game {
                 // Add use indicator
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
-                indicator.textContent = usesLeft;
+                indicator.innerHTML = `
+                    <svg viewBox="0 0 40 40" width="40" height="40">
+                        <text x="20" y="28"
+                            font-size="26"
+                            fill="#fff"
+                            stroke="#000"
+                            stroke-width="6"
+                            paint-order="stroke fill"
+                            stroke-linejoin="round"
+                            text-anchor="middle">
+                        ${usesLeft}
+                        </text>
+                    </svg>
+                `;
                 button.appendChild(indicator);
 
                 // Update title
@@ -709,6 +723,12 @@ export class Match3Game {
         extraMovesDialog.classList.remove("hidden");
     }
 
+    showSolvedLevelDialog() {
+        console.log("HEre");
+        const solvedLevelDialog = document.getElementById("solvedLevelDialog");
+        solvedLevelDialog.classList.remove("hidden");
+    }
+
     setupSettingsButton() {
         const settingsBtn = document.getElementById("settingsBtn");
         const settingsDialog = document.getElementById("settingsDialog");
@@ -718,7 +738,6 @@ export class Match3Game {
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
         let selectedLevels = this.useTestLevels;
-        const titleElement = document.querySelector("h1");
 
         // Special tile reward selects
         const line4Select = document.getElementById("line4Reward");
@@ -819,11 +838,6 @@ export class Match3Game {
             settingsDialog.classList.remove("hidden");
         };
 
-        // Open settings when clicking the title
-        if (titleElement && settingsDialog) {
-            titleElement.addEventListener("click", openSettings);
-        }
-
         if (settingsBtn && settingsDialog) {
             settingsBtn.addEventListener("click", openSettings);
 
@@ -899,7 +913,8 @@ export class Match3Game {
     setupInfoButton() {
         const infoBtn = document.getElementById("infoBtn");
         if (infoBtn) {
-            infoBtn.addEventListener("click", () => {
+            infoBtn.addEventListener("click", (e) => {
+                e.stopPropagation();
                 // Update the goal types list based on seen dialogs
                 updateIntroDialogGoalsList();
 

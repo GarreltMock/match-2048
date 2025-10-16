@@ -33,7 +33,6 @@ export function processMatches(game) {
 
     // Update score
     game.score += totalScore;
-    document.getElementById("score").textContent = game.score;
     game.saveScore(); // Save score to localStorage
 
     // Check for blocked tiles adjacent to original match positions and unblock them

@@ -52,7 +52,8 @@ export function checkLevelComplete(game) {
             nextBtn.style.display = "inline-block";
         }
         setTimeout(() => {
-            alert(`Level ${game.currentLevel} Complete! 🎉`);
+            game.showSolvedLevelDialog();
+            // alert(`Level ${game.currentLevel} Complete! 🎉`);
         }, 500);
     } else if (game.movesUsed >= game.maxMoves && !game.hasMatches()) {
         // Only trigger game over if there are no more cascading matches AND no animations running

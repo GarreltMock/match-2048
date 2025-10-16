@@ -1,6 +1,7 @@
 // Goal type introduction dialogs
 
 import { loadShownGoalDialogs, saveShownGoalDialog } from "./storage.js";
+import { createGoalCard } from "./renderer.js";
 
 // Short descriptions for intro dialog
 export const GOAL_TYPE_DESCRIPTIONS = {
@@ -204,51 +205,7 @@ function generateGoalVisualsHTML(game, dialogType) {
 
     // Generate goal cards HTML
     let goalsHTML = '<div class="goal-dialog-goals">';
-    relevantGoals.forEach((goal) => {
-        const goalTypeClass = `goal-${goal.goalType}`;
-
-        if (goal.goalType === "blocked") {
-            // Blocked tile goal
-            const icon = "♻️";
-            if (hasLifeBasedBlockedTiles(game.blockedTiles)) {
-                // Show life value if available
-                const maxLife = Math.max(...game.blockedTiles.filter((t) => t.lifeValue).map((t) => t.lifeValue));
-                goalsHTML += `
-                    <div class="goal-card ${goalTypeClass}">
-                        <div class="goal-tile blocked-goal-tile" data-life="${maxLife}"></div>
-                        <div class="goal-progress">${icon} ${goal.current} / ${goal.target}</div>
-                    </div>
-                `;
-            } else {
-                goalsHTML += `
-                    <div class="goal-card ${goalTypeClass}">
-                        <div class="goal-tile blocked-goal-tile"></div>
-                        <div class="goal-progress">${icon} ${goal.current} / ${goal.target}</div>
-                    </div>
-                `;
-            }
-        } else if (goal.goalType === "cursed") {
-            // Cursed tile goal
-            const icon = goal.implode ? "💥" : "💀";
-            const displayValue = Math.pow(game.numberBase, goal.tileValue);
-            goalsHTML += `
-                <div class="goal-card ${goalTypeClass}">
-                    <div class="goal-tile tile-${goal.tileValue} cursed-goal-tile" data-cursed-moves="${goal.strength}">${displayValue}</div>
-                    <div class="goal-progress">${icon} ${goal.current} / ${goal.target}</div>
-                </div>
-            `;
-        } else {
-            // Created or Current goal
-            const icon = goal.goalType === "current" ? "📍" : "⭐";
-            const displayValue = Math.pow(game.numberBase, goal.tileValue);
-            goalsHTML += `
-                <div class="goal-card ${goalTypeClass}">
-                    <div class="goal-tile tile-${goal.tileValue}">${displayValue}</div>
-                    <div class="goal-progress">${icon} ${goal.current || goal.created} / ${goal.target}</div>
-                </div>
-            `;
-        }
-    });
+    relevantGoals.forEach((goal) => (goalsHTML += createGoalCard(game, goal).outerHTML));
     goalsHTML += "</div>";
 
     return goalsHTML;

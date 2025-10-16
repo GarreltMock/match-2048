@@ -112,58 +112,76 @@ export function renderGoals(game) {
     goalsContainer.innerHTML = "";
 
     game.levelGoals.forEach((goal) => {
-        const goalCard = document.createElement("div");
-        let isCompleted, currentProgress, goalTypeClass, goalIcon, goalContent;
-
-        if (goal.goalType === "current") {
-            isCompleted = goal.current >= goal.target;
-            currentProgress = goal.current;
-            goalTypeClass = "goal-current";
-            goalIcon = "📍";
-
-            const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `
-                <div class="goal-tile tile-${goal.tileValue}">
-                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
-                </div>`;
-        } else if (goal.goalType === "blocked") {
-            isCompleted = goal.current >= goal.target;
-            currentProgress = goal.current;
-            goalTypeClass = "goal-blocked";
-            goalIcon = "♻️";
-            goalContent = `<div class="goal-tile blocked-goal-tile"></div>`;
-        } else if (goal.goalType === "cursed") {
-            isCompleted = goal.current >= goal.target;
-            currentProgress = goal.current;
-            goalTypeClass = "goal-cursed";
-            goalIcon = goal.implode ? "💥" : "💀";
-            const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `
-                <div class="goal-tile tile-${goal.tileValue} cursed-goal-tile" data-cursed-moves="${goal.strength}">
-                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
-                </div>`;
-        } else {
-            isCompleted = goal.created >= goal.target;
-            currentProgress = goal.created;
-            goalTypeClass = "goal-created";
-            goalIcon = "⭐";
-            const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
-            goalContent = `
-                <div class="goal-tile tile-${goal.tileValue}">
-                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
-                </div>`;
-        }
-
-        goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
-
-        goalCard.innerHTML = `
-            ${goalContent}
-            <div class="goal-progress">${goalIcon} ${currentProgress} / ${goal.target}</div>
-            ${isCompleted ? '<div class="goal-check">✓</div>' : ""}
-        `;
-
-        goalsContainer.appendChild(goalCard);
+        goalsContainer.appendChild(createGoalCard(game, goal));
     });
+}
+
+export function createGoalCard(game, goal) {
+    const goalCard = document.createElement("div");
+    let isCompleted, currentProgress, goalTypeClass, goalIcon, goalContent;
+
+    if (goal.goalType === "current") {
+        isCompleted = goal.current >= goal.target;
+        currentProgress = goal.current;
+        goalTypeClass = "goal-current";
+        goalIcon = "📍";
+
+        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        goalContent = `
+                <div class="gem tile-${goal.tileValue} goal-tile">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
+    } else if (goal.goalType === "blocked") {
+        isCompleted = goal.current >= goal.target;
+        currentProgress = goal.current;
+        goalTypeClass = "goal-blocked";
+        goalIcon = "♻️";
+        goalContent = `<div class="gem tile-BLOCKED goal-tile"></div>`;
+    } else if (goal.goalType === "cursed") {
+        isCompleted = goal.current >= goal.target;
+        currentProgress = goal.current;
+        goalTypeClass = "goal-cursed";
+        goalIcon = goal.implode ? "💥" : "💀";
+        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        goalContent = `
+                <div class="gem tile-${goal.tileValue} cursed-tile goal-tile" data-cursed-moves="${goal.strength}">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
+    } else {
+        isCompleted = goal.created >= goal.target;
+        currentProgress = goal.created;
+        goalTypeClass = "goal-created";
+        goalIcon = "⭐";
+        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        goalContent = `
+                <div class="gem tile-${goal.tileValue} goal-tile">
+                    <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
+                </div>`;
+    }
+
+    goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
+
+    const goalProgress = goal.target - currentProgress;
+    const goalProgressSvg = `
+        <svg viewBox="0 0 100 24" width="100" height="24">
+            <text x="50" y="20"
+                font-size="20"
+                fill="#fff"
+                stroke="#000"
+                stroke-width="8"
+                paint-order="stroke fill"
+                stroke-linejoin="round"
+                text-anchor="middle">
+            ${goalProgress}
+            </text>
+        </svg>
+        `;
+    goalCard.innerHTML = `
+            ${goalContent}
+            <div class="goal-icon">${goalIcon}</div>
+            ${isCompleted ? '<div class="goal-check">✓</div>' : `<div class="goal-progress">${goalProgressSvg}</div>`}
+        `;
+    return goalCard;
 }
 
 export function updateGoalDisplay(game, checkComplete = false) {
@@ -183,12 +201,11 @@ export function updateMovesDisplay(game) {
 
     const levelElement = document.getElementById("level");
     if (levelElement) {
-        levelElement.textContent = game.currentLevel;
+        levelElement.textContent = `Level: ${game.currentLevel}`;
     }
 }
 
 export function updateScore(game, points) {
     game.score += points;
-    document.getElementById("score").textContent = game.score;
     saveScore(game.score); // Save score to localStorage
 }

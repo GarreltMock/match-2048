@@ -1,5 +1,5 @@
 import { APP_VERSION } from "./version.js";
-import { loadUserId } from "./storage.js";
+import { loadUserId, generateUUID } from "./storage.js";
 
 function getDefaultOptions() {
     const nav = navigator;
@@ -94,7 +94,7 @@ async function track(eventName, parameters = {}, options = {}) {
     const performHash = options.performUserIdHashing !== false;
 
     const hashedUserID = userData.userID && performHash ? cyrb53(userData.userID) : userData.userID;
-    const userPseudoId = userData.userID ? userData.userID : crypto.randomUUID();
+    const userPseudoId = userData.userID ? userData.userID : generateUUID();
 
     const event = {
         eventTimestamp: Date.now(),

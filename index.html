@@ -10,46 +10,88 @@
         <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png" />
         <link rel="apple-touch-icon" href="/assets/logo.png" />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap");
+        </style>
         <link rel="stylesheet" href="style.css" />
         <script>
             // Set base href dynamically based on environment
             const base = document.createElement("base");
-            base.href = location.hostname === "localhost" || location.hostname === "127.0.0.1" ? "/" : "/match-2048/";
+            base.href =
+                location.hostname === "localhost" ||
+                location.hostname === "127.0.0.1" ||
+                /^(\d{1,3}\.){3}\d{1,3}$/.test(location.hostname)
+                    ? "/"
+                    : "/match-2048/";
             document.head.appendChild(base);
         </script>
     </head>
     <body>
         <div class="game-container">
-            <button id="resetBtn" class="reset-btn" title="Reset Progress" tabindex="3">Reset</button>
-            <button id="settingsBtn" class="settings-btn" title="Settings" tabindex="2">⚙️</button>
-            <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
-
-            <div class="flex-spacer"></div>
-
-            <h1>Match 2048</h1>
-
+            <div id="settingsBtn" class="level-text">
+                <svg viewBox="0 0 200 40" width="200" height="40">
+                    <text
+                        id="level"
+                        x="100"
+                        y="30"
+                        font-size="32"
+                        fill="rgba(255, 255, 255, 0.50)"
+                        stroke="#141414"
+                        stroke-width="6"
+                        paint-order="stroke fill"
+                        stroke-linejoin="round"
+                        text-anchor="middle"
+                    ></text>
+                </svg>
+                <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
+            </div>
             <div class="flex-spacer half"></div>
 
             <div class="game-info">
-                <div class="info-item">
-                    <span class="label">Level</span>
-                    <span id="level">1</span>
+                <div class="goals-container">
+                    <img class="crown" src="/assets/crown.svg" alt="Crown" />
+                    <div class="label">
+                        <svg viewBox="0 0 200 24" width="200" height="24">
+                            <text
+                                id="level"
+                                x="100"
+                                y="20"
+                                font-size="22"
+                                fill="#fff"
+                                stroke="#000"
+                                stroke-width="6"
+                                paint-order="stroke fill"
+                                stroke-linejoin="round"
+                                text-anchor="middle"
+                            >
+                                Level Goals
+                            </text>
+                        </svg>
+                    </div>
+                    <div id="goals" class="goals"></div>
                 </div>
-                <div class="info-item">
-                    <span class="label">Moves</span>
+
+                <div class="moves-container">
+                    <div class="label">
+                        <svg viewBox="0 0 100 24" width="100" height="24">
+                            <text
+                                id="level"
+                                x="50"
+                                y="20"
+                                font-size="22"
+                                fill="#fff"
+                                stroke="#000"
+                                stroke-width="6"
+                                paint-order="stroke fill"
+                                stroke-linejoin="round"
+                                text-anchor="middle"
+                            >
+                                Moves
+                            </text>
+                        </svg>
+                    </div>
                     <span id="moves">0/20</span>
                 </div>
-                <div class="info-item">
-                    <span class="label">Score</span>
-                    <span id="score">0</span>
-                </div>
-            </div>
-
-            <div class="flex-spacer quarter"></div>
-
-            <div class="goals-container">
-                <h3>Level Goals</h3>
-                <div id="goals" class="goals"></div>
             </div>
 
             <div class="flex-spacer"></div>
@@ -60,55 +102,152 @@
 
             <div class="controls">
                 <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">
-                    Continue?
+                    Continue
                 </button>
-                <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart Level</button>
-                <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button>
+                <!-- <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart</button>
+                <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button> -->
             </div>
 
             <div class="power-ups">
                 <button id="hammerPowerUp" class="power-up-btn" data-powerup="hammer" title="Remove a tile">🔨</button>
                 <button id="halvePowerUp" class="power-up-btn" data-powerup="halve" title="Halve a tile's value">
-                    🖖
+                    ✂️
                 </button>
                 <button id="swapPowerUp" class="power-up-btn" data-powerup="swap" title="Swap any two tiles">🔄</button>
             </div>
+        </div>
 
-            <div class="flex-spacer half"></div>
+        <div id="solvedLevelDialog" class="extra-moves-dialog-overlay hidden">
+            <div class="extra-moves-dialog">
+                <div class="extra-moves-header">
+                    <svg viewBox="0 0 300 50" width="300" height="50">
+                        <text
+                            id="level"
+                            x="150"
+                            y="40"
+                            font-size="40"
+                            fill="#aee96b"
+                            stroke="#000"
+                            stroke-width="10"
+                            paint-order="stroke fill"
+                            stroke-linejoin="round"
+                            text-anchor="middle"
+                        >
+                            Level Solved
+                        </text>
+                    </svg>
+
+                    <svg viewBox="0 0 300 40" width="300" height="40">
+                        <text
+                            id="level"
+                            x="150"
+                            y="30"
+                            font-size="24"
+                            fill="#fff"
+                            stroke="#000"
+                            stroke-width="6"
+                            paint-order="stroke fill"
+                            stroke-linejoin="round"
+                            text-anchor="middle"
+                        >
+                            You did it
+                        </text>
+                    </svg>
+                </div>
+
+                <div class="extra-moves-content">
+                    <button class="extra-move-option primary" id="nextBtn">Next Level</button>
+                    <div style="flex: 1"></div>
+                    <button class="extra-move-option tertiary" id="restartBtn">Restart</button>
+                </div>
+            </div>
         </div>
 
         <!-- Extra Moves Dialog -->
         <div id="extraMovesDialog" class="extra-moves-dialog-overlay hidden">
             <div class="extra-moves-dialog">
                 <div class="extra-moves-header">
-                    <h2>😰 Out of Moves!</h2>
-                    <p>You've run out of moves, but you're so close! Want to keep going?</p>
+                    <svg viewBox="0 0 300 50" width="300" height="50">
+                        <text
+                            id="level"
+                            x="150"
+                            y="40"
+                            font-size="40"
+                            fill="#fff"
+                            stroke="#000"
+                            stroke-width="10"
+                            paint-order="stroke fill"
+                            stroke-linejoin="round"
+                            text-anchor="middle"
+                        >
+                            Out of Moves
+                        </text>
+                    </svg>
+
+                    <svg viewBox="0 0 300 40" width="300" height="40">
+                        <text
+                            id="level"
+                            x="150"
+                            y="30"
+                            font-size="24"
+                            fill="#fff"
+                            stroke="#000"
+                            stroke-width="6"
+                            paint-order="stroke fill"
+                            stroke-linejoin="round"
+                            text-anchor="middle"
+                        >
+                            Want to keep going?
+                        </text>
+                    </svg>
                 </div>
 
                 <div class="extra-moves-content">
-                    <button class="extra-move-option primary" id="extraMoves5">
-                        <div class="option-icon">🎯</div>
-                        <div class="option-title">+5 Moves</div>
-                        <div class="option-subtitle">Keep playing</div>
-                    </button>
+                    <div class="button-container">
+                        <button class="extra-move-option primary" id="extraMoves5">Continue</button>
+                        <svg viewBox="0 0 300 40" width="300" height="40">
+                            <text
+                                id="level"
+                                x="300"
+                                y="30"
+                                font-size="24"
+                                fill="#fff"
+                                stroke="#000"
+                                stroke-width="6"
+                                paint-order="stroke fill"
+                                stroke-linejoin="round"
+                                text-anchor="end"
+                            >
+                                +5 Moves
+                            </text>
+                        </svg>
+                    </div>
 
-                    <button class="extra-move-option primary-alt" id="extraMoves5WithSwap">
-                        <div class="option-icon">🔄</div>
-                        <div class="option-title">+5 Moves + Swap</div>
-                        <div class="option-subtitle">Extra power-up included!</div>
-                    </button>
+                    <!-- <div class="button-container">
+                        <button class="extra-move-option primary" id="extraMoves5WithSwap">Continue</button>
+                        <svg viewBox="0 0 400 40" width="400" height="40">
+                            <text
+                                id="level"
+                                x="400"
+                                y="30"
+                                font-size="24"
+                                fill="#fff"
+                                stroke="#000"
+                                stroke-width="6"
+                                paint-order="stroke fill"
+                                stroke-linejoin="round"
+                                text-anchor="end"
+                            >
+                                +5 Moves and Free Swap
+                            </text>
+                        </svg>
+                    </div> -->
 
-                    <button class="extra-move-option secondary" id="loseProgress">
-                        <div class="option-icon">❌</div>
-                        <div class="option-title">Give Up</div>
-                        <div class="option-subtitle">Restart level</div>
-                    </button>
+                    <button class="extra-move-option secondary" id="loseProgress">Give Up</button>
 
-                    <button class="extra-move-option tertiary" id="showBoardBtn">
-                        <div class="option-icon">👁️</div>
-                        <div class="option-title">Review Board</div>
-                        <div class="option-subtitle">Take another look</div>
-                    </button>
+                    <div style="flex: 1"></div>
+
+                    <button class="extra-move-option tertiary" id="showBoardBtn">Review Board</button>
                 </div>
             </div>
         </div>
@@ -234,6 +373,7 @@
                             <span class="version-value" id="versionDisplay"></span>
                         </div>
                     </div>
+                    <button class="settings-button reset-button" id="resetBtn">Reset Progress</button>
                 </div>
 
                 <div class="settings-footer">
@@ -246,7 +386,7 @@
         <div id="introDialog" class="intro-dialog-overlay hidden">
             <div class="intro-dialog">
                 <div class="intro-header">
-                    <h2>🎮 Welcome to Match 2048!</h2>
+                    <h2>🎮 Welcome to Match 2048</h2>
                 </div>
 
                 <div class="intro-content">
@@ -384,7 +524,7 @@
                                 </div>
                             </div>
                             <div class="powerup-item">
-                                <span class="powerup-icon">🖖</span>
+                                <span class="powerup-icon">✂️</span>
                                 <div class="powerup-info">
                                     <strong>Halve</strong><br />
                                     Halve the value of any tile instantly
