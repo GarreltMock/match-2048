@@ -29,7 +29,7 @@ html {
 
 body {
     font-family: Arial, sans-serif;
-    background: #222 url("/assets/bg.png");
+    background: #222 url("assets/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -862,7 +862,7 @@ h1:hover {
 }
 
 .intro-header {
-    background: #222 url("/assets/bg.png");
+    background: #222 url("assets/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -1147,7 +1147,7 @@ h1:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background: #222 url("/assets/bg.png");
+    background: #222 url("assets/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -1320,7 +1320,7 @@ h1:hover {
 }
 
 .settings-header {
-    background: #222 url("/assets/bg.png");
+    background: #222 url("assets/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -1625,7 +1625,7 @@ h1:hover {
 }
 
 .goal-dialog-header {
-    background: #222 url("/assets/bg.png");
+    background: #222 url("assets/bg.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
