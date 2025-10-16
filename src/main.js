@@ -14,6 +14,14 @@ if ("serviceWorker" in navigator) {
                 // Silently fail if service worker registration fails
             });
         });
+
+        // Listen for service worker updates
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'SW_UPDATED') {
+                // Reload once to get the new version
+                window.location.reload();
+            }
+        });
     }
 }
 
