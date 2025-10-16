@@ -1,4 +1,4 @@
-const CACHE_NAME = `match-2048-v0.3.5`;
+const CACHE_NAME = `match-2048-v0.4.0`;
 
 // Only pre-cache critical resources needed for initial load
 const urlsToCache = ["./", "./index.html", "./style.css", "./src/main.js"];
