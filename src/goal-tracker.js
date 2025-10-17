@@ -21,7 +21,6 @@ export function checkLevelComplete(game) {
         }
     });
     const nextBtn = document.getElementById("nextBtn");
-    const restartBtn = document.getElementById("restartBtn");
 
     if (allGoalsComplete) {
         game.gameActive = false;
@@ -47,13 +46,11 @@ export function checkLevelComplete(game) {
 
         // Hide power-ups and show control buttons
         game.hidePowerUps();
-        restartBtn.style.display = "inline-block";
         if (game.currentLevel < game.levels.length) {
             nextBtn.style.display = "inline-block";
         }
         setTimeout(() => {
-            game.showSolvedLevelDialog();
-            // alert(`Level ${game.currentLevel} Complete! 🎉`);
+            game.showLevelSolved();
         }, 500);
     } else if (game.movesUsed >= game.maxMoves && !game.hasMatches()) {
         // Only trigger game over if there are no more cascading matches AND no animations running
@@ -95,7 +92,6 @@ export function checkLevelComplete(game) {
         }, 800);
     } else if (game.gameActive) {
         nextBtn.style.display = "none";
-        restartBtn.style.display = "none";
         // Show power-ups during active gameplay
         game.showPowerUps();
     }
@@ -176,6 +172,8 @@ export function nextLevel(game) {
     const nextBtn = document.getElementById("nextBtn");
     nextBtn.style.display = "none";
 
+    game.hideLevelSolved();
+
     if (game.currentLevel < game.levels.length) {
         game.currentLevel++;
         saveCurrentLevel(game.currentLevel); // Save progress to localStorage
@@ -189,6 +187,7 @@ export function nextLevel(game) {
 }
 
 export function restartLevel(game) {
+    game.hideLevelSolved();
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();

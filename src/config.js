@@ -919,23 +919,35 @@ export const TEST_LEVELS = [
     {
         level: 19,
         title: "Next Level State",
-        boardWidth: 6,
-        boardHeight: 6,
+        boardWidth: 5,
+        boardHeight: 5,
         maxMoves: 10,
-        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
+        boardPreset: [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 2, 2, 2, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
         goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }], // 32
-        spawnableTiles: [1, 2, 3], // 2, 4, 8
+        spawnableTiles: [0], // 2, 4, 8
         // showGoalDialog: "created", // First level with created goals
     },
     {
         level: 20,
         title: "Loss Level State",
-        boardWidth: 6,
-        boardHeight: 6,
+        boardWidth: 5,
+        boardHeight: 5,
         maxMoves: 1,
-        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
+        boardPreset: [
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+        ],
         goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
-        spawnableTiles: [1, 2, 3], // 2, 4, 8
+        spawnableTiles: [0], // 2, 4, 8
         // showGoalDialog: "created", // First level with created goals
     },
 ];

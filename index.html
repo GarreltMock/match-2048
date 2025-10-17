@@ -29,7 +29,7 @@
     <body>
         <div class="game-container">
             <div id="settingsBtn" class="level-text">
-                <svg viewBox="0 0 200 40" width="200" height="40">
+                <svg id="levelTextSvg" viewBox="0 0 200 40" width="200" height="40">
                     <text
                         id="level"
                         x="100"
@@ -42,6 +42,21 @@
                         stroke-linejoin="round"
                         text-anchor="middle"
                     ></text>
+                </svg>
+                <svg id="levelSolvedSvg" viewBox="0 0 300 50" width="300" height="50" style="display: none">
+                    <text
+                        x="150"
+                        y="40"
+                        font-size="40"
+                        fill="#aee96b"
+                        stroke="#000"
+                        stroke-width="10"
+                        paint-order="stroke fill"
+                        stroke-linejoin="round"
+                        text-anchor="middle"
+                    >
+                        Level Solved
+                    </text>
                 </svg>
                 <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
             </div>
@@ -100,65 +115,25 @@
 
             <div class="flex-spacer"></div>
 
-            <div class="controls">
-                <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">
-                    Continue
-                </button>
-                <!-- <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart</button>
-                <button id="nextBtn" class="control-btn next" style="display: none">Next Level</button> -->
-            </div>
-
-            <div class="power-ups">
-                <button id="hammerPowerUp" class="power-up-btn" data-powerup="hammer" title="Remove a tile">🔨</button>
-                <button id="halvePowerUp" class="power-up-btn" data-powerup="halve" title="Halve a tile's value">
-                    ✂️
-                </button>
-                <button id="swapPowerUp" class="power-up-btn" data-powerup="swap" title="Swap any two tiles">🔄</button>
-            </div>
-        </div>
-
-        <div id="solvedLevelDialog" class="extra-moves-dialog-overlay hidden">
-            <div class="extra-moves-dialog">
-                <div class="extra-moves-header">
-                    <svg viewBox="0 0 300 50" width="300" height="50">
-                        <text
-                            id="level"
-                            x="150"
-                            y="40"
-                            font-size="40"
-                            fill="#aee96b"
-                            stroke="#000"
-                            stroke-width="10"
-                            paint-order="stroke fill"
-                            stroke-linejoin="round"
-                            text-anchor="middle"
-                        >
-                            Level Solved
-                        </text>
-                    </svg>
-
-                    <svg viewBox="0 0 300 40" width="300" height="40">
-                        <text
-                            id="level"
-                            x="150"
-                            y="30"
-                            font-size="24"
-                            fill="#fff"
-                            stroke="#000"
-                            stroke-width="6"
-                            paint-order="stroke fill"
-                            stroke-linejoin="round"
-                            text-anchor="middle"
-                        >
-                            You did it
-                        </text>
-                    </svg>
+            <div class="bottom-container">
+                <div class="controls">
+                    <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">
+                        Continue
+                    </button>
+                    <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
+                    <!-- <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart</button> -->
                 </div>
 
-                <div class="extra-moves-content">
-                    <button class="extra-move-option primary" id="nextBtn">Next Level</button>
-                    <div style="flex: 1"></div>
-                    <button class="extra-move-option tertiary" id="restartBtn">Restart</button>
+                <div class="power-ups">
+                    <button id="hammerPowerUp" class="power-up-btn" data-powerup="hammer" title="Remove a tile">
+                        🔨
+                    </button>
+                    <button id="halvePowerUp" class="power-up-btn" data-powerup="halve" title="Halve a tile's value">
+                        ✂️
+                    </button>
+                    <button id="swapPowerUp" class="power-up-btn" data-powerup="swap" title="Swap any two tiles">
+                        🔄
+                    </button>
                 </div>
             </div>
         </div>

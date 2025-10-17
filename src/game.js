@@ -237,16 +237,12 @@ export class Match3Game {
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
                 this.restartLevel();
-                const solvedLevelDialog = document.getElementById("solvedLevelDialog");
-                solvedLevelDialog.classList.add("hidden");
             });
         }
 
         if (nextBtn) {
             nextBtn.addEventListener("click", () => {
                 this.nextLevel();
-                const solvedLevelDialog = document.getElementById("solvedLevelDialog");
-                solvedLevelDialog.classList.add("hidden");
             });
         }
 
@@ -336,7 +332,9 @@ export class Match3Game {
     }
 
     showGoalDialogIfNeeded() {
-        // Check if this level has a goal dialog to show
+        // Check if levelConfig exists and has a dialog to show
+        if (!this.levelConfig) return;
+
         const dialogType = this.levelConfig.showGoalDialog;
         if (!dialogType) return;
 
@@ -723,10 +721,30 @@ export class Match3Game {
         extraMovesDialog.classList.remove("hidden");
     }
 
-    showSolvedLevelDialog() {
-        console.log("HEre");
-        const solvedLevelDialog = document.getElementById("solvedLevelDialog");
-        solvedLevelDialog.classList.remove("hidden");
+    showLevelSolved() {
+        const levelTextSvg = document.getElementById("levelTextSvg");
+        const levelSolvedSvg = document.getElementById("levelSolvedSvg");
+
+        if (levelTextSvg) levelTextSvg.style.display = "none";
+        if (levelSolvedSvg) {
+            levelSolvedSvg.style.display = "block";
+            // Trigger animation by adding class
+            levelSolvedSvg.classList.remove("animate");
+            // Force reflow to restart animation
+            void levelSolvedSvg.offsetWidth;
+            levelSolvedSvg.classList.add("animate");
+        }
+    }
+
+    hideLevelSolved() {
+        const levelTextSvg = document.getElementById("levelTextSvg");
+        const levelSolvedSvg = document.getElementById("levelSolvedSvg");
+
+        if (levelTextSvg) levelTextSvg.style.display = "block";
+        if (levelSolvedSvg) {
+            levelSolvedSvg.style.display = "none";
+            levelSolvedSvg.classList.remove("animate");
+        }
     }
 
     setupSettingsButton() {
