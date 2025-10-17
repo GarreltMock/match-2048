@@ -83,11 +83,6 @@ button {
     color: rgba(255, 255, 255, 0.5);
 }
 
-.info-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
-    transform: scale(1.05);
-}
 
 .info-btn:active {
     transform: scale(0.95);
@@ -138,9 +133,6 @@ button {
     }
 }
 
-h1:hover {
-    opacity: 0.8;
-}
 
 .info-item {
     text-align: center;
@@ -335,10 +327,6 @@ h1:hover {
     pointer-events: none;
 }
 
-.gem:not(.goal-tile):hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
 
 .gem.dragging {
     z-index: 10;
@@ -742,11 +730,6 @@ h1:hover {
     cursor: not-allowed;
 }
 
-.power-up-btn.disabled:hover {
-    transform: none;
-    background: rgba(255, 255, 255, 0.1);
-    border-color: rgba(255, 255, 255, 0.3);
-}
 
 /* Power-up use indicator */
 .use-indicator {
@@ -936,9 +919,6 @@ h1:hover {
     transition: opacity 0.2s;
 }
 
-.intro-close:hover {
-    opacity: 1;
-}
 
 .intro-content {
     padding: 20px;
@@ -1168,10 +1148,6 @@ h1:hover {
     transition: all 0.2s;
 }
 
-.intro-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
 
 .intro-button:active {
     transform: translateY(0);
@@ -1423,9 +1399,6 @@ h1:hover {
     color: black;
 }
 
-.setting-item select:hover {
-    border-color: #667eea;
-}
 
 .setting-item select:focus {
     outline: none;
@@ -1455,10 +1428,6 @@ h1:hover {
     transition: all 0.2s;
 }
 
-.settings-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
 
 .settings-button:active {
     transform: translateY(0);
@@ -1510,9 +1479,6 @@ h1:hover {
     line-height: 1;
 }
 
-.checkbox-label:hover .checkbox-custom {
-    border-color: #667eea;
-}
 
 /* Special tile help text */
 .special-tile-help {
@@ -1568,10 +1534,6 @@ h1:hover {
     transition: all 0.2s;
 }
 
-.user-id-copy-btn:hover {
-    background: #5568d3;
-    transform: translateY(-1px);
-}
 
 .user-id-copy-btn:active {
     transform: translateY(0);
@@ -1794,10 +1756,6 @@ h1:hover {
     transition: all 0.2s;
 }
 
-.goal-dialog-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
 
 .goal-dialog-button:active {
     transform: translateY(0);
