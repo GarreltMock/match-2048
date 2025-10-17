@@ -23,10 +23,14 @@ import {
     loadUseTestLevels,
     saveUseTestLevels,
     loadUserId,
+    loadMaxTileLevels,
+    saveMaxTileLevels,
+    loadSmallestTileAction,
+    saveSmallestTileAction,
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
-import { createTile, createCursedTile, isCursed, getFontSize } from "./tile-helpers.js";
+import { createTile, createCursedTile, createBlockedTile, isCursed, getFontSize } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -57,6 +61,10 @@ export class Match3Game {
         this.showReviewBoard = loadShowReviewBoard(); // true or false
         this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
+        this.maxTileLevels = loadMaxTileLevels(); // number or null
+        this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
+        this.currentMinTileLevel = null; // Track the minimum tile level currently on board
+        this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
@@ -161,6 +169,9 @@ export class Match3Game {
         // Reset cursed tile tracking for new level
         this.cursedTileCreatedCount = {};
         this.gameActive = true;
+
+        // Reset tile level shift flag
+        this.pendingTileLevelShift = false;
 
         // Reset match statistics for new level
         this.matchStats = {
@@ -755,6 +766,8 @@ export class Match3Game {
         const numberBaseSelect = document.getElementById("numberBase");
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
+        const maxTileLevelsSelect = document.getElementById("maxTileLevels");
+        const smallestTileActionSelect = document.getElementById("smallestTileAction");
         let selectedLevels = this.useTestLevels;
 
         // Special tile reward selects
@@ -809,6 +822,8 @@ export class Match3Game {
             numberBaseSelect.value = this.numberBase.toString();
             showReviewBoardCheckbox.checked = this.showReviewBoard;
             useTestLevelsCheckbox.checked = selectedLevels;
+            maxTileLevelsSelect.value = this.maxTileLevels !== null ? this.maxTileLevels.toString() : "";
+            smallestTileActionSelect.value = this.smallestTileAction;
 
             // Set special tile configuration values
             line4Select.value = this.specialTileConfig.line_4;
@@ -893,6 +908,13 @@ export class Match3Game {
                     this.showReviewBoard = showReviewBoardCheckbox.checked;
                     saveShowReviewBoard(this.showReviewBoard);
 
+                    // Save max tile levels and smallest tile action
+                    const maxTileLevelsValue = maxTileLevelsSelect.value;
+                    this.maxTileLevels = maxTileLevelsValue ? parseInt(maxTileLevelsValue, 10) : null;
+                    saveMaxTileLevels(this.maxTileLevels);
+                    this.smallestTileAction = smallestTileActionSelect.value;
+                    saveSmallestTileAction(this.smallestTileAction);
+
                     // Save special tile configuration
                     this.specialTileConfig.line_4 = line4Select.value;
                     this.specialTileConfig.block_4 = block4Select.value;
@@ -926,6 +948,110 @@ export class Match3Game {
                 }
             });
         }
+    }
+
+    /**
+     * Check if we need to shift tile levels based on maxTileLevels setting
+     * This is called after tiles are merged - it just sets a flag
+     */
+    checkAndShiftTileLevels(newlyCreatedValue) {
+        // Only proceed if feature is enabled
+        if (this.maxTileLevels === null) {
+            return;
+        }
+
+        // Get the minimum tile value from spawnableTiles
+        const minSpawnableValue = Math.min(...this.tileValues);
+
+        // Calculate the threshold: minSpawnableValue + maxTileLevels
+        const threshold = minSpawnableValue + this.maxTileLevels;
+
+        // Check if newly created value reaches or exceeds the threshold
+        if (newlyCreatedValue >= threshold) {
+            // Set flag - the actual shift will happen after the first merge animation completes
+            this.pendingTileLevelShift = true;
+        }
+    }
+
+    /**
+     * Execute tile level shift with animation
+     * Returns a promise that resolves when animation completes
+     */
+    shiftTileLevels() {
+        return new Promise((resolve) => {
+            if (this.maxTileLevels === null || !this.pendingTileLevelShift) {
+                resolve();
+                return;
+            }
+
+            // Clear the flag
+            this.pendingTileLevelShift = false;
+
+            const minValue = Math.min(...this.tileValues);
+            const maxValue = Math.max(...this.tileValues);
+
+            // Find all tiles that need to be removed/transformed
+            const tilesToRemove = [];
+            for (let row = 0; row < this.boardHeight; row++) {
+                for (let col = 0; col < this.boardWidth; col++) {
+                    const tile = this.board[row][col];
+                    if (tile && tile.type === this.TILE_TYPE.NORMAL && tile.value === minValue) {
+                        tilesToRemove.push({ row, col });
+                    }
+                }
+            }
+
+            if (tilesToRemove.length === 0) {
+                resolve();
+                return;
+            }
+
+            // Animate tiles based on action type
+            tilesToRemove.forEach(({ row, col }) => {
+                const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (element && !element.classList.contains("sliding") && !element.classList.contains("merge-target")) {
+                    if (this.smallestTileAction === "blocked") {
+                        // Bump animation for blocked transformation
+                        element.classList.add("tile-to-blocked");
+                    } else {
+                        // Disappear animation
+                        element.style.transition = "transform 0.4s ease, opacity 0.4s ease";
+                        element.style.opacity = "0";
+                        element.style.transform = "scale(0.5)";
+                        element.classList.add("tile-removing");
+                    }
+                }
+            });
+
+            // After animation, update board state
+            setTimeout(() => {
+                tilesToRemove.forEach(({ row, col }) => {
+                    const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+
+                    if (this.smallestTileAction === "blocked") {
+                        // Transform to blocked tile
+                        this.board[row][col] = createBlockedTile();
+                        // Note: element will be recreated by dropGems' renderBoard
+                    } else {
+                        // Disappear - remove from board state
+                        this.board[row][col] = null;
+                    }
+
+                    // Remove the element so renderBoard can start fresh
+                    if (element) {
+                        element.remove();
+                    }
+                });
+
+                // Update spawnableTiles: remove smallest, add next
+                this.tileValues = this.tileValues.filter(v => v !== minValue);
+                this.tileValues.push(maxValue + 1);
+                this.tileValues.sort((a, b) => a - b);
+
+                // Continue with the cascade - dropGems will handle rendering and animation
+                resolve();
+            }, 400);
+        });
     }
 
     setupInfoButton() {

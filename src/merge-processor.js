@@ -123,7 +123,22 @@ export function processMerges(game, matchGroups) {
         gem.style.zIndex = "";
     });
 
-    game.dropGems();
+    // Re-render the board to show the merged tiles in their new state
+    // This is important so that when we animate tile removal, the board is in the correct state
+    game.renderBoard();
+
+    // Check if we need to shift tile levels before continuing with cascade
+    // This will animate the removal and then continue
+    if (game.pendingTileLevelShift) {
+        // Small delay to allow the render to complete
+        setTimeout(() => {
+            game.shiftTileLevels().then(() => {
+                game.dropGems();
+            });
+        }, 50);
+    } else {
+        game.dropGems();
+    }
 }
 
 export function createMergedTiles(game, group) {
@@ -294,6 +309,10 @@ export function createMergedTiles(game, group) {
     positions.forEach((pos) => {
         checkAndCreateCursedTile(game, newValue, pos);
     });
+
+    // Check if we need to shift tile levels based on the newly created value
+    // This just sets a flag and the highest value reached, doesn't execute the shift yet
+    game.checkAndShiftTileLevels(newValue);
 }
 
 export function determineSpecialTilePosition(game, group, formationType) {

@@ -114,3 +114,41 @@ export function saveShownGoalDialog(dialogType) {
 export function resetShownGoalDialogs() {
     localStorage.removeItem("match2048_shownGoalDialogs");
 }
+
+/**
+ * Load the maximum tile levels setting
+ * @returns {number|null} Maximum tile levels or null if disabled
+ */
+export function loadMaxTileLevels() {
+    const saved = localStorage.getItem("match2048_maxTileLevels");
+    return saved ? parseInt(saved, 10) : null; // null means disabled
+}
+
+/**
+ * Save the maximum tile levels setting
+ * @param {number|null} maxTileLevels - Maximum tile levels or null to disable
+ */
+export function saveMaxTileLevels(maxTileLevels) {
+    if (maxTileLevels === null) {
+        localStorage.removeItem("match2048_maxTileLevels");
+    } else {
+        localStorage.setItem("match2048_maxTileLevels", maxTileLevels.toString());
+    }
+}
+
+/**
+ * Load the smallest tile action setting
+ * @returns {string} Action to take with smallest tiles ("disappear" or "blocked")
+ */
+export function loadSmallestTileAction() {
+    const saved = localStorage.getItem("match2048_smallestTileAction");
+    return saved || "disappear";
+}
+
+/**
+ * Save the smallest tile action setting
+ * @param {string} action - Action to take ("disappear" or "blocked")
+ */
+export function saveSmallestTileAction(action) {
+    localStorage.setItem("match2048_smallestTileAction", action);
+}

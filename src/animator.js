@@ -361,31 +361,61 @@ export function dropGems(game) {
         }
     }
 
-    game.renderBoard();
+    // Only render board if we have moves/new gems to show
+    // This prevents breaking ongoing animations
+    if (movedGems.length > 0 || newGems.length > 0) {
+        game.renderBoard();
 
-    // Animate only the gems that actually moved or are new
-    movedGems.forEach((gem, index) => {
-        const element = document.querySelector(`[data-row="${gem.row}"][data-col="${gem.col}"]`);
-        if (element) {
-            element.classList.add("falling");
-            element.style.animationDelay = `${index * 0.05}s`;
-        }
-    });
+        // IMMEDIATELY hide new gems before they're visible
+        newGems.forEach((gem) => {
+            const element = document.querySelector(`[data-row="${gem.row}"][data-col="${gem.col}"]`);
+            if (element) {
+                element.style.opacity = "0";
+            }
+        });
 
-    // Animate new gems with a different animation (from above)
-    newGems.forEach((gem, index) => {
-        const element = document.querySelector(`[data-row="${gem.row}"][data-col="${gem.col}"]`);
-        if (element) {
-            element.classList.add("new-gem");
-            element.style.animationDelay = `${(movedGems.length + index) * 0.05}s`;
-        }
-    });
+        // Animate only the gems that actually moved - NO DELAY for existing tiles
+        // Use CSS transition instead of keyframe animation for smooth drops
+        movedGems.forEach((gem) => {
+            const element = document.querySelector(`[data-row="${gem.row}"][data-col="${gem.col}"]`);
+            if (element) {
+                // Calculate how far the gem fell
+                const distance = (gem.row - gem.fromRow) * (element.offsetHeight + 3); // 3 is the gap
+
+                // Start from above and animate down
+                element.style.transform = `translateY(-${distance}px)`;
+                element.style.transition = "none";
+
+                // Force reflow
+                void element.offsetWidth;
+
+                // Animate to final position
+                element.style.transition = "transform 0.3s ease-in";
+                element.style.transform = "translateY(0)";
+                element.classList.add("falling");
+            }
+        });
+
+        // Animate new gems with a different animation (from above) - WITH DELAY for spawn effect
+        newGems.forEach((gem, index) => {
+            const element = document.querySelector(`[data-row="${gem.row}"][data-col="${gem.col}"]`);
+            if (element) {
+                element.classList.add("new-gem");
+                element.style.animationDelay = `${index * 0.03}s`; // Faster: 30ms instead of 50ms
+            }
+        });
+    }
+
+    // Calculate timeout: base animation (600ms for new-gem) + longest delay
+    const longestDelay = newGems.length > 0 ? (newGems.length - 1) * 0.03 * 1000 : 0; // Updated to 30ms
+    const totalTimeout = 400 + longestDelay;
 
     // Check for more matches after dropping
     setTimeout(() => {
         document.querySelectorAll(".gem").forEach((gem) => {
             gem.classList.remove("falling", "new-gem");
             gem.style.animationDelay = "";
+            gem.style.opacity = ""; // Clear inline opacity style
         });
 
         // Check if cascade was interrupted by user input
@@ -427,5 +457,5 @@ export function dropGems(game) {
             // Check level completion only after all animations are finished
             game.checkLevelComplete();
         }
-    }, 600);
+    }, totalTimeout);
 }
