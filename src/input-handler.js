@@ -313,8 +313,8 @@ export function trySwap(game, row1, col1, row2, col2) {
             game.renderBoard();
 
             if (isSwapPowerUp) {
-                // Increment usage count and deactivate power-up after successful swap
-                game.powerUpUses.swap++;
+                // Decrement remaining count and deactivate power-up after successful swap
+                game.powerUpRemaining.swap--;
                 game.updatePowerUpButtons();
 
                 // Track power-up usage
@@ -322,7 +322,7 @@ export function trySwap(game, row1, col1, row2, col2) {
                     level: game.currentLevel,
                     power_up_type: "swap",
                     remaining_moves: game.maxMoves - game.movesUsed,
-                    usage_count: game.powerUpUses.swap,
+                    uses_remaining: game.powerUpRemaining.swap,
                 });
 
                 game.deactivatePowerUp();

@@ -95,12 +95,11 @@ export class Match3Game {
         // Power-up system
         this.activePowerUp = null;
         this.powerUpSwapTiles = [];
-        this.powerUpUses = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
+        this.powerUpRemaining = {
+            hammer: MAX_POWER_UP_USES,
+            halve: MAX_POWER_UP_USES,
+            swap: MAX_POWER_UP_USES,
         };
-        this.maxPowerUpUses = MAX_POWER_UP_USES;
 
         // Special tiles configuration
         this.specialTileConfig = loadSpecialTileConfig();
@@ -209,11 +208,11 @@ export class Match3Game {
         // Show power-ups during active gameplay
         this.showPowerUps();
 
-        // Reset power-up usage for new level
-        this.powerUpUses = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
+        // Reset power-up remaining for new level
+        this.powerUpRemaining = {
+            hammer: MAX_POWER_UP_USES,
+            halve: MAX_POWER_UP_USES,
+            swap: MAX_POWER_UP_USES,
         };
 
         // Deactivate any power-ups when loading a level
@@ -371,7 +370,7 @@ export class Match3Game {
                 const powerUpType = button.dataset.powerup;
 
                 // Check if power-up has uses remaining
-                if (this.powerUpUses[powerUpType] >= this.maxPowerUpUses) {
+                if (this.powerUpRemaining[powerUpType] <= 0) {
                     return; // Power-up is used up
                 }
 
@@ -429,7 +428,7 @@ export class Match3Game {
 
         powerUpButtons.forEach((button) => {
             const powerUpType = button.dataset.powerup;
-            const usesLeft = this.maxPowerUpUses - this.powerUpUses[powerUpType];
+            const usesLeft = this.powerUpRemaining[powerUpType];
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -492,8 +491,8 @@ export class Match3Game {
     }
 
     usePowerUpHammer(row, col, element) {
-        // Increment usage count
-        this.powerUpUses.hammer++;
+        // Decrement remaining count
+        this.powerUpRemaining.hammer--;
         this.updatePowerUpButtons();
 
         // Track power-up usage
@@ -501,7 +500,7 @@ export class Match3Game {
             level: this.currentLevel,
             power_up_type: "hammer",
             remaining_moves: this.maxMoves - this.movesUsed,
-            usage_count: this.powerUpUses.hammer,
+            uses_remaining: this.powerUpRemaining.hammer,
         });
 
         // Block interactions during animation
@@ -536,8 +535,8 @@ export class Match3Game {
         const currentValue = tile && (tile.type === TILE_TYPE.NORMAL || isCursedTile) ? tile.value : null;
 
         if (currentValue && currentValue > 1) {
-            // Increment usage count
-            this.powerUpUses.halve++;
+            // Decrement remaining count
+            this.powerUpRemaining.halve--;
             this.updatePowerUpButtons();
 
             // Track power-up usage
@@ -545,7 +544,7 @@ export class Match3Game {
                 level: this.currentLevel,
                 power_up_type: "halve",
                 remaining_moves: this.maxMoves - this.movesUsed,
-                usage_count: this.powerUpUses.halve,
+                uses_remaining: this.powerUpRemaining.halve,
             });
 
             // Block interactions during animation
@@ -692,7 +691,7 @@ export class Match3Game {
                 this.extraMovesUsed = true;
 
                 this.maxMoves += 5;
-                this.powerUpUses.swap = Math.max(0, this.powerUpUses.swap - 1); // Add one use back (by decrementing usage)
+                this.powerUpRemaining.swap++; // Add one use back
                 this.updatePowerUpButtons();
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");

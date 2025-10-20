@@ -4,6 +4,7 @@ import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "
 import { saveCurrentLevel } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { track } from "./tracker.js";
+import { MAX_POWER_UP_USES } from "./config.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -33,9 +34,9 @@ export function checkLevelComplete(game) {
             remaining_moves: game.maxMoves - game.movesUsed,
             moves_used: game.movesUsed,
             duration: duration,
-            hammer_used: game.powerUpUses.hammer,
-            halve_used: game.powerUpUses.halve,
-            swap_used: game.powerUpUses.swap,
+            hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
+            halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
+            swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
             match_3_count: game.matchStats.match3Count,
             match_4_count: game.matchStats.match4Count,
             match_5_count: game.matchStats.match5Count,
@@ -81,9 +82,9 @@ export function checkLevelComplete(game) {
             moves_used: game.movesUsed,
             duration: duration,
             goals_remaining: goalsRemaining,
-            hammer_used: game.powerUpUses.hammer,
-            halve_used: game.powerUpUses.halve,
-            swap_used: game.powerUpUses.swap,
+            hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
+            halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
+            swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
             match_3_count: game.matchStats.match3Count,
             match_4_count: game.matchStats.match4Count,
             match_5_count: game.matchStats.match5Count,
