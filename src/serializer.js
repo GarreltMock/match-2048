@@ -5,13 +5,13 @@
 // array-based presets for level configuration in config.js.
 //
 // Example string serialization:
-//   "5,3|2,4,B,2G,J|0,2P,BM,B64,2C5|1,1,1,1,1"
-//   This represents a 5-wide, 3-high board with various tile types.
+//   "2,4,B,2G,J|0,2P,BM,B64,2C5|1,1,1,1,1"
+//   This represents a 3-row board (separated by |) with 5 tiles per row (separated by ,).
 //
 // Example array preset (as used in config.js):
 //   [[2, 4, "B", "2G", "J"], [0, "2P", "BM", "B64", "2C5"], [1, 1, 1, 1, 1]]
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isBlocked, isBlockedWithLife, isBlockedMovable, isJoker, isCursed, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile } from "./tile-helpers.js";
 import { TILE_TYPE } from "./config.js";
 
 /**
@@ -153,62 +153,43 @@ export function tileToNotation(tile) {
 
 /**
  * Serialize a 2D board array to a string
- * Format: "width,height|tile1,tile2,...|tile1,tile2,..."
+ * Format: "tile1,tile2,...|tile1,tile2,...|tile1,tile2,..."
+ * Each row is separated by |, tiles within a row are separated by ,
  * @param {Array<Array<object>>} board - The 2D board array
  * @returns {string} Serialized board string
  */
 export function serializeBoard(board) {
     if (!board || board.length === 0) {
-        return "0,0";
+        return "";
     }
-
-    const height = board.length;
-    const width = board[0]?.length || 0;
 
     const rows = board.map((row) => row.map((tile) => tileToNotation(tile)).join(","));
 
-    return `${width},${height}|${rows.join("|")}`;
+    return rows.join("|");
 }
 
 /**
  * Deserialize a board string to a 2D array
+ * Format: "tile1,tile2,...|tile1,tile2,...|tile1,tile2,..."
  * @param {string} serialized - The serialized board string
  * @returns {Array<Array<object>>} The 2D board array
  */
 export function deserializeBoard(serialized) {
-    const parts = serialized.split("|");
-
-    if (parts.length === 0) {
+    if (!serialized || serialized === "") {
         return [];
     }
 
-    const [width, height] = parts[0].split(",").map((n) => parseInt(n, 10));
-
-    if (parts.length === 1) {
-        // No board data, return empty board
-        return Array.from({ length: height }, () => Array(width).fill(null));
-    }
-
+    const rows = serialized.split("|");
     const board = [];
-    for (let i = 1; i <= height; i++) {
-        if (!parts[i]) {
-            // Missing row, fill with nulls
-            board.push(Array(width).fill(null));
-            continue;
-        }
 
-        const rowNotations = parts[i].split(",");
+    for (const rowString of rows) {
+        const rowNotations = rowString.split(",");
         const row = rowNotations.map((notation) => {
             if (notation === "0" || notation === "") {
                 return null;
             }
             return parsePresetTile(notation);
         });
-
-        // Ensure row has correct width
-        while (row.length < width) {
-            row.push(null);
-        }
 
         board.push(row);
     }

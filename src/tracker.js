@@ -1,5 +1,7 @@
 import { APP_VERSION } from "./version.js";
 import { loadUserId, generateUUID } from "./storage.js";
+import { MAX_POWER_UP_USES } from "./config.js";
+import { serializeBoard } from "./serializer.js";
 
 function getDefaultOptions() {
     const nav = navigator;
@@ -139,6 +141,85 @@ async function track(eventName, parameters = {}, options = {}) {
     }
 
     return event;
+}
+
+/**
+ * Track level_solved event with all relevant stats
+ * Called when the player completes all level goals
+ */
+export function trackLevelSolved(game) {
+    const duration = game.levelStartTime ? Date.now() - game.levelStartTime : 0;
+
+    track("level_solved", {
+        level: game.currentLevel,
+        remaining_moves: game.maxMoves - game.movesUsed,
+        moves_used: game.movesUsed,
+        duration: duration,
+        hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
+        halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
+        swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
+        match_3_count: game.matchStats.match3Count,
+        match_4_count: game.matchStats.match4Count,
+        match_5_count: game.matchStats.match5Count,
+        t_formation_count: game.matchStats.tFormationCount,
+        l_formation_count: game.matchStats.lFormationCount,
+        block_formation_count: game.matchStats.blockFormationCount,
+        settings_changed_during_level: game.settingsChangedDuringLevel,
+        // Game settings
+        number_base: game.numberBase,
+        smallest_tile_action: game.smallestTileAction,
+        max_tile_levels: game.maxTileLevels,
+        special_tile_line_4: game.specialTileConfig.line_4,
+        special_tile_line_5: game.specialTileConfig.line_5,
+        special_tile_t_formation: game.specialTileConfig.t_formation,
+        special_tile_l_formation: game.specialTileConfig.l_formation,
+        special_tile_block_formation: game.specialTileConfig.block_formation,
+        // Board state
+        board_state: serializeBoard(game.board),
+    });
+}
+
+/**
+ * Track level_lost event with all relevant stats
+ * Called when the player actually loses (after extra moves or give up)
+ */
+export function trackLevelLost(game) {
+    const duration = game.levelStartTime ? Date.now() - game.levelStartTime : 0;
+    const goalsRemaining = game.levelGoals.filter((goal) => {
+        if (goal.goalType === "current" || goal.goalType === "blocked" || goal.goalType === "cursed") {
+            return goal.current < goal.target;
+        } else {
+            return goal.created < goal.target;
+        }
+    }).length;
+
+    track("level_lost", {
+        level: game.currentLevel,
+        moves_used: game.movesUsed,
+        duration: duration,
+        goals_remaining: goalsRemaining,
+        hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
+        halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
+        swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
+        match_3_count: game.matchStats.match3Count,
+        match_4_count: game.matchStats.match4Count,
+        match_5_count: game.matchStats.match5Count,
+        t_formation_count: game.matchStats.tFormationCount,
+        l_formation_count: game.matchStats.lFormationCount,
+        block_formation_count: game.matchStats.blockFormationCount,
+        settings_changed_during_level: game.settingsChangedDuringLevel,
+        // Game settings
+        number_base: game.numberBase,
+        smallest_tile_action: game.smallestTileAction,
+        max_tile_levels: game.maxTileLevels,
+        special_tile_line_4: game.specialTileConfig.line_4,
+        special_tile_line_5: game.specialTileConfig.line_5,
+        special_tile_t_formation: game.specialTileConfig.t_formation,
+        special_tile_l_formation: game.specialTileConfig.l_formation,
+        special_tile_block_formation: game.specialTileConfig.block_formation,
+        // Board state
+        board_state: serializeBoard(game.board),
+    });
 }
 
 export { track, isDevelopment };

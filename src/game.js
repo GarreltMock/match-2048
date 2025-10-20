@@ -28,7 +28,7 @@ import {
     loadSmallestTileAction,
     saveSmallestTileAction,
 } from "./storage.js";
-import { track, cyrb53 } from "./tracker.js";
+import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
 import {
     createTile,
@@ -745,6 +745,9 @@ export class Match3Game {
     }
 
     showLevelSolved() {
+        // Track level_solved when level solved screen is shown
+        trackLevelSolved(this);
+
         const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
@@ -773,6 +776,9 @@ export class Match3Game {
     }
 
     showLevelFailed() {
+        // Track level_lost when level failed screen is shown
+        trackLevelLost(this);
+
         const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
