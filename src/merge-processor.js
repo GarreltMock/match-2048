@@ -6,6 +6,7 @@ import {
     createCursedTile,
     isBlocked,
     isBlockedWithLife,
+    isBlockedMovable,
     isCursed,
     getTileValue,
     isTileStickyFreeSwapTile,
@@ -471,8 +472,8 @@ function unblockAdjacentTiles(game, matchGroups) {
                 if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {
                     const tile = game.board[pos.row][pos.col];
 
-                    // Handle blocked tiles (remove immediately)
-                    if (isBlocked(tile)) {
+                    // Handle blocked tiles and blocked movable tiles (remove immediately)
+                    if (isBlocked(tile) || isBlockedMovable(tile)) {
                         // Avoid duplicates
                         if (!blockedTilesToRemove.some((t) => t.row === pos.row && t.col === pos.col)) {
                             // Find the closest target position for animation

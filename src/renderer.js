@@ -4,6 +4,7 @@ import {
     getTileValue,
     isBlocked,
     isBlockedWithLife,
+    isBlockedMovable,
     isJoker,
     isCursed,
     isNormal,
@@ -49,6 +50,8 @@ export function renderBoard(game) {
             } else if (isBlockedWithLife(tile)) {
                 gem.className = `gem tile-BLOCKED_WITH_LIFE`;
                 gem.dataset.life = tile.lifeValue;
+            } else if (isBlockedMovable(tile)) {
+                gem.className = `gem tile-BLOCKED_MOVABLE`;
             } else if (isJoker(tile)) {
                 gem.className = `gem tile-JOKER`;
                 gem.textContent = "🃏";

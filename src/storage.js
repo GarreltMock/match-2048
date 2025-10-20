@@ -138,7 +138,7 @@ export function saveMaxTileLevels(maxTileLevels) {
 
 /**
  * Load the smallest tile action setting
- * @returns {string} Action to take with smallest tiles ("disappear" or "blocked")
+ * @returns {string} Action to take with smallest tiles ("disappear", "blocked", or "blocked_movable")
  */
 export function loadSmallestTileAction() {
     const saved = localStorage.getItem("match2048_smallestTileAction");
@@ -147,7 +147,7 @@ export function loadSmallestTileAction() {
 
 /**
  * Save the smallest tile action setting
- * @param {string} action - Action to take ("disappear" or "blocked")
+ * @param {string} action - Action to take ("disappear", "blocked", or "blocked_movable")
  */
 export function saveSmallestTileAction(action) {
     localStorage.setItem("match2048_smallestTileAction", action);

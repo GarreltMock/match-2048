@@ -6,6 +6,7 @@ import {
     createJokerTile,
     isBlocked,
     isBlockedWithLife,
+    isBlockedMovable,
     isJoker,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
@@ -252,6 +253,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     if (!game.gameActive) return;
 
     // Prevent swapping if either tile is blocked or blocked with life
+    // BLOCKED_MOVABLE tiles CAN be swapped
     if (
         isBlocked(game.board[row1][col1]) ||
         isBlocked(game.board[row2][col2]) ||

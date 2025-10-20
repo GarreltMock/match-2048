@@ -30,7 +30,7 @@ import {
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
-import { createTile, createCursedTile, createBlockedTile, isCursed, getFontSize } from "./tile-helpers.js";
+import { createTile, createCursedTile, createBlockedTile, createBlockedMovableTile, isCursed, getFontSize } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -1010,7 +1010,7 @@ export class Match3Game {
             tilesToRemove.forEach(({ row, col }) => {
                 const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                 if (element && !element.classList.contains("sliding") && !element.classList.contains("merge-target")) {
-                    if (this.smallestTileAction === "blocked") {
+                    if (this.smallestTileAction === "blocked" || this.smallestTileAction === "blocked_movable") {
                         // Bump animation for blocked transformation
                         element.classList.add("tile-to-blocked");
                     } else {
@@ -1031,6 +1031,10 @@ export class Match3Game {
                     if (this.smallestTileAction === "blocked") {
                         // Transform to blocked tile
                         this.board[row][col] = createBlockedTile();
+                        // Note: element will be recreated by dropGems' renderBoard
+                    } else if (this.smallestTileAction === "blocked_movable") {
+                        // Transform to blocked movable tile
+                        this.board[row][col] = createBlockedMovableTile();
                         // Note: element will be recreated by dropGems' renderBoard
                     } else {
                         // Disappear - remove from board state

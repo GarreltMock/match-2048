@@ -107,17 +107,6 @@ The game is organized into focused, single-responsibility modules:
 5. **Power-up Effects** (`game.js`): Strategic tile removal, value halving, and position swapping
 6. **Goal Checking** (`goal-tracker.js`): Real-time progress tracking with completion detection based on tiles created (not current board state)
 
-## Development Commands
-
-This is a static web application - no build process required. Simply open `index.html` in a browser or serve with a local web server:
-
-```bash
-# Serve locally (recommended)
-python -m http.server 8000
-# or
-npx serve .
-```
-
 ## Key Implementation Details
 
 - **Tile Values**: Powers of 2 from 2 to 2048+ (or powers of 3 in settings)

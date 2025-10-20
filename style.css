@@ -61,6 +61,10 @@ html {
     --tile-blocked-border: #666;
     --tile-blocked-x-color: #666;
     --tile-blocked-life-color: #fff;
+
+    --tile-blocked-movable-bg: #3c3c3c;
+    --tile-blocked-movable-border: #666;
+    --tile-blocked-movable-icon-color: white;
 }
 
 .flex-spacer {
@@ -636,8 +640,20 @@ button {
     left: 50%;
     width: 60%;
     height: 60%;
-    background: linear-gradient(45deg, transparent 30%, var(--tile-blocked-x-color) 30%, var(--tile-blocked-x-color) 70%, transparent 70%),
-        linear-gradient(-45deg, transparent 30%, var(--tile-blocked-x-color) 30%, var(--tile-blocked-x-color) 70%, transparent 70%);
+    background: linear-gradient(
+            45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        ),
+        linear-gradient(
+            -45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        );
     transform: translate(-50%, -50%);
 }
 
@@ -666,8 +682,20 @@ button {
     left: 50%;
     width: 60%;
     height: 60%;
-    background: linear-gradient(45deg, transparent 30%, var(--tile-blocked-x-color) 30%, var(--tile-blocked-x-color) 70%, transparent 70%),
-        linear-gradient(-45deg, transparent 30%, var(--tile-blocked-x-color) 30%, var(--tile-blocked-x-color) 70%, transparent 70%);
+    background: linear-gradient(
+            45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        ),
+        linear-gradient(
+            -45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        );
     transform: translate(-50%, -50%);
     z-index: 0;
 }
@@ -684,6 +712,53 @@ button {
 .gem.tile-BLOCKED_WITH_LIFE.unblocking {
     animation: unblock-move 0.6s ease-out forwards;
     z-index: 200;
+}
+
+.gem.tile-BLOCKED_MOVABLE {
+    background: var(--tile-blocked-movable-bg);
+    color: transparent;
+    border: 2px solid var(--tile-blocked-movable-border);
+    position: relative;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.gem.tile-BLOCKED_MOVABLE::before {
+    content: "";
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 60%;
+    height: 60%;
+    background: linear-gradient(
+            45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        ),
+        linear-gradient(
+            -45deg,
+            transparent 30%,
+            var(--tile-blocked-x-color) 30%,
+            var(--tile-blocked-x-color) 70%,
+            transparent 70%
+        );
+    transform: translate(-50%, -50%);
+}
+
+.gem.tile-BLOCKED_MOVABLE::after {
+    content: "↔";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40cqw;
+    padding-bottom: 0.8rem;
+    color: var(--tile-blocked-movable-icon-color);
+    font-weight: bold;
+    z-index: 1;
+    opacity: 0.7;
 }
 
 .gem.matched {

@@ -4,6 +4,7 @@ export const TILE_TYPE = {
     NORMAL: "normal",
     BLOCKED: "blocked",
     BLOCKED_WITH_LIFE: "blocked_with_life",
+    BLOCKED_MOVABLE: "blocked_movable",
     JOKER: "joker",
     CURSED: "cursed",
 };
