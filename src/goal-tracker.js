@@ -43,6 +43,7 @@ export function checkLevelComplete(game) {
             t_formation_count: game.matchStats.tFormationCount,
             l_formation_count: game.matchStats.lFormationCount,
             block_formation_count: game.matchStats.blockFormationCount,
+            settings_changed_during_level: game.settingsChangedDuringLevel,
             // Game settings
             number_base: game.numberBase,
             smallest_tile_action: game.smallestTileAction,
@@ -91,6 +92,7 @@ export function checkLevelComplete(game) {
             t_formation_count: game.matchStats.tFormationCount,
             l_formation_count: game.matchStats.lFormationCount,
             block_formation_count: game.matchStats.blockFormationCount,
+            settings_changed_during_level: game.settingsChangedDuringLevel,
             // Game settings
             number_base: game.numberBase,
             smallest_tile_action: game.smallestTileAction,

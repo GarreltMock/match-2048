@@ -118,6 +118,7 @@ export class Match3Game {
 
         // Level timing
         this.levelStartTime = null;
+        this.settingsChangedDuringLevel = false;
 
         // Track app start first, before any level is loaded
         track("app_start", {
@@ -191,6 +192,7 @@ export class Match3Game {
 
         // Set level start time
         this.levelStartTime = Date.now();
+        this.settingsChangedDuringLevel = false; // Reset flag for new level
 
         renderGoals(this);
         updateMovesDisplay(this);
@@ -972,6 +974,11 @@ export class Match3Game {
                     this.specialTileConfig.t_formation = tFormationSelect.value;
                     this.specialTileConfig.l_formation = lFormationSelect.value;
                     saveSpecialTileConfig(this.specialTileConfig);
+
+                    // Mark that settings were changed during this level (if game is active)
+                    if (this.gameActive && !levelChanged) {
+                        this.settingsChangedDuringLevel = true;
+                    }
 
                     // Reload page if level changed, otherwise just close and re-render
                     if (levelChanged) {
