@@ -1013,6 +1013,13 @@ export class Match3Game {
                     if (this.smallestTileAction === "blocked" || this.smallestTileAction === "blocked_movable") {
                         // Bump animation for blocked transformation
                         element.classList.add("tile-to-blocked");
+                    } else if (this.smallestTileAction === "double") {
+                        // Pulse animation for doubling
+                        element.style.transition = "transform 0.4s ease";
+                        element.style.transform = "scale(1.2)";
+                        setTimeout(() => {
+                            element.style.transform = "scale(1)";
+                        }, 200);
                     } else {
                         // Disappear animation
                         element.style.transition = "transform 0.4s ease, opacity 0.4s ease";
@@ -1036,13 +1043,26 @@ export class Match3Game {
                         // Transform to blocked movable tile
                         this.board[row][col] = createBlockedMovableTile();
                         // Note: element will be recreated by dropGems' renderBoard
+                    } else if (this.smallestTileAction === "double") {
+                        // Double the value (add 1 to internal value: 2→3, 3→4, etc.)
+                        const currentTile = this.board[row][col];
+                        if (currentTile && currentTile.value === minValue) {
+                            this.board[row][col] = createTile(
+                                minValue + 1,
+                                currentTile.isPowerTile,
+                                currentTile.isGoldenTile,
+                                currentTile.isFreeSwapTile,
+                                currentTile.isStickyFreeSwapTile
+                            );
+                        }
+                        // Element will be updated by renderBoard below
                     } else {
                         // Disappear - remove from board state
                         this.board[row][col] = null;
                     }
 
-                    // Remove the element so renderBoard can start fresh
-                    if (element) {
+                    // Remove the element so renderBoard can start fresh (except for double action)
+                    if (element && this.smallestTileAction !== "double") {
                         element.remove();
                     }
                 });
@@ -1051,6 +1071,11 @@ export class Match3Game {
                 this.tileValues = this.tileValues.filter(v => v !== minValue);
                 this.tileValues.push(maxValue + 1);
                 this.tileValues.sort((a, b) => a - b);
+
+                // Re-render board for double action to show updated values
+                if (this.smallestTileAction === "double") {
+                    this.renderBoard();
+                }
 
                 // Continue with the cascade - dropGems will handle rendering and animation
                 resolve();
