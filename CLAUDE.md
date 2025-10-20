@@ -130,3 +130,9 @@ The game is organized into focused, single-responsibility modules:
 - localStorage keys prefixed with "match2048_"
 - DOM manipulation using vanilla JavaScript APIs
 - Module functions receive `game` instance as parameter for state access
+
+## User Notes
+
+- Do not start any server
+- Do not call "open index.html"
+- I will test everything manually

@@ -88,7 +88,13 @@ export function checkLevelComplete(game) {
 
         // Show extra moves dialog after a delay to let final animations settle
         setTimeout(() => {
-            game.showExtraMovesDialog();
+            if (game.extraMovesUsed) {
+                // Show level failed screen instead
+                game.showLevelFailed();
+            } else {
+                // Show extra moves dialog (first time)
+                game.showExtraMovesDialog();
+            }
         }, 800);
     } else if (game.gameActive) {
         nextBtn.style.display = "none";
@@ -188,6 +194,7 @@ export function nextLevel(game) {
 
 export function restartLevel(game) {
     game.hideLevelSolved();
+    game.hideLevelFailed();
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();

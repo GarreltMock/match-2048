@@ -80,6 +80,7 @@ export class Match3Game {
         this.movesUsed = 0;
         this.maxMoves = 0;
         this.gameActive = true;
+        this.extraMovesUsed = false; // Track if extra moves have been used this level
 
         // Cursed tile tracking
         this.cursedTileCreatedCount = {}; // Track how many tiles of each cursed value have been created
@@ -148,6 +149,7 @@ export class Match3Game {
         this.tileValues = level.spawnableTiles || this.defaultTileValues; // Use level-specific spawnable tiles or default
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
+        this.extraMovesUsed = false; // Reset extra moves flag for new level
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -664,6 +666,9 @@ export class Match3Game {
                     moves_used: this.movesUsed,
                 });
 
+                // Mark that extra moves have been used for this level
+                this.extraMovesUsed = true;
+
                 this.maxMoves += 5;
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
@@ -683,6 +688,9 @@ export class Match3Game {
                     moves_used: this.movesUsed,
                 });
 
+                // Mark that extra moves have been used for this level
+                this.extraMovesUsed = true;
+
                 this.maxMoves += 5;
                 this.powerUpUses.swap = Math.max(0, this.powerUpUses.swap - 1); // Add one use back (by decrementing usage)
                 this.updatePowerUpButtons();
@@ -698,7 +706,10 @@ export class Match3Game {
             loseProgressBtn.addEventListener("click", () => {
                 extraMovesDialog.classList.add("hidden");
                 continueBtn.style.display = "none";
-                this.restartLevel();
+                // Show level failed state instead of immediately restarting
+                setTimeout(() => {
+                    this.showLevelFailed();
+                }, 300);
             });
         }
 
@@ -735,8 +746,10 @@ export class Match3Game {
     showLevelSolved() {
         const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
+        const levelFailedSvg = document.getElementById("levelFailedSvg");
 
         if (levelTextSvg) levelTextSvg.style.display = "none";
+        if (levelFailedSvg) levelFailedSvg.style.display = "none";
         if (levelSolvedSvg) {
             levelSolvedSvg.style.display = "block";
             // Trigger animation by adding class
@@ -755,6 +768,44 @@ export class Match3Game {
         if (levelSolvedSvg) {
             levelSolvedSvg.style.display = "none";
             levelSolvedSvg.classList.remove("animate");
+        }
+    }
+
+    showLevelFailed() {
+        const levelTextSvg = document.getElementById("levelTextSvg");
+        const levelSolvedSvg = document.getElementById("levelSolvedSvg");
+        const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const restartBtn = document.getElementById("restartBtn");
+
+        if (levelTextSvg) levelTextSvg.style.display = "none";
+        if (levelSolvedSvg) levelSolvedSvg.style.display = "none";
+        if (levelFailedSvg) {
+            levelFailedSvg.style.display = "block";
+            // Trigger animation by adding class
+            levelFailedSvg.classList.remove("animate");
+            // Force reflow to restart animation
+            void levelFailedSvg.offsetWidth;
+            levelFailedSvg.classList.add("animate");
+        }
+
+        // Show restart button
+        if (restartBtn) {
+            restartBtn.style.display = "inline-block";
+        }
+    }
+
+    hideLevelFailed() {
+        const levelTextSvg = document.getElementById("levelTextSvg");
+        const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const restartBtn = document.getElementById("restartBtn");
+
+        if (levelTextSvg) levelTextSvg.style.display = "block";
+        if (levelFailedSvg) {
+            levelFailedSvg.style.display = "none";
+            levelFailedSvg.classList.remove("animate");
+        }
+        if (restartBtn) {
+            restartBtn.style.display = "none";
         }
     }
 

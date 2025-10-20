@@ -58,6 +58,21 @@
                         Level Solved
                     </text>
                 </svg>
+                <svg id="levelFailedSvg" viewBox="0 0 300 50" width="300" height="50" style="display: none">
+                    <text
+                        x="150"
+                        y="40"
+                        font-size="40"
+                        fill="#ff6b6b"
+                        stroke="#000"
+                        stroke-width="10"
+                        paint-order="stroke fill"
+                        stroke-linejoin="round"
+                        text-anchor="middle"
+                    >
+                        Level Failed
+                    </text>
+                </svg>
                 <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
             </div>
             <div class="flex-spacer half"></div>
@@ -121,7 +136,7 @@
                         Continue
                     </button>
                     <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
-                    <!-- <button id="restartBtn" class="control-btn" tabindex="1" style="display: none">Restart</button> -->
+                    <button id="restartBtn" class="control-btn restart" tabindex="1" style="display: none">Restart Level</button>
                 </div>
 
                 <div class="power-ups">

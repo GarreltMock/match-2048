@@ -157,7 +157,8 @@ button {
     width: 100%;
 }
 
-#levelSolvedSvg {
+#levelSolvedSvg,
+#levelFailedSvg {
     position: relative;
     top: -10px;
 }
@@ -166,7 +167,32 @@ button {
     animation: levelSolvedBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
+#levelFailedSvg.animate {
+    animation: levelFailedBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
 @keyframes levelSolvedBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.15);
+    }
+    70% {
+        transform: scale(0.9);
+    }
+    85% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes levelFailedBounce {
     0% {
         opacity: 0;
         transform: scale(0.3);
