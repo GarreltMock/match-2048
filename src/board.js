@@ -1,10 +1,20 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createJokerTile, getTileValue } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue } from "./tile-helpers.js";
 
 /**
  * Parse preset tile notation into a tile object
- * @param {string|number} notation - The preset notation (e.g., "2B", "2G", "2S", "2K", "B", "J", "64L" for goal with life value, or just a number)
+ * @param {string|number} notation - The preset notation:
+ *   - Number: normal tile with that value (e.g., 2, 4, 6)
+ *   - "B": blocked tile
+ *   - "BM": blocked movable tile
+ *   - "B64": blocked with life value (e.g., B64 for life=64)
+ *   - "J": joker tile
+ *   - "2B": power tile with value 2
+ *   - "2G": golden tile with value 2
+ *   - "2S": free swap tile with value 2
+ *   - "2K": sticky free swap tile with value 2
+ *   - "2C5": cursed tile with value 2 and 5 moves remaining
  * @returns {object} A tile object
  */
 function parsePresetTile(notation) {
@@ -20,20 +30,33 @@ function parsePresetTile(notation) {
         return createBlockedTile();
     }
 
+    // Check for blocked movable tile (just "BM")
+    if (str === "BM") {
+        return createBlockedMovableTile();
+    }
+
     // Check for joker tile (just "J")
     if (str === "J") {
         return createJokerTile();
     }
 
-    // Parse blocked tile with life value (e.g., "64L" for blocked with 64 life)
-    const blockedWithLifeMatch = str.match(/^(\d+)L$/);
+    // Parse blocked tile with life value (e.g., "B64" for blocked with 64 life)
+    const blockedWithLifeMatch = str.match(/^B(\d+)$/);
     if (blockedWithLifeMatch) {
         const lifeValue = parseInt(blockedWithLifeMatch[1], 10);
         return createBlockedWithLifeTile(lifeValue);
     }
 
+    // Parse cursed tile with value and moves remaining (e.g., "2C5" for value=2, moves=5)
+    const cursedMatch = str.match(/^(\d+)C(\d+)$/);
+    if (cursedMatch) {
+        const value = parseInt(cursedMatch[1], 10);
+        const movesRemaining = parseInt(cursedMatch[2], 10);
+        return createCursedTile(value, movesRemaining);
+    }
+
     // Parse special tiles with value prefix (e.g., "2B", "2G", "2S", "2K")
-    const match = str.match(/^(\d+)([BGSPK])$/);
+    const match = str.match(/^(\d+)([BGSK])$/);
     if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
