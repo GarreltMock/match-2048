@@ -42,6 +42,15 @@ export function checkLevelComplete(game) {
             t_formation_count: game.matchStats.tFormationCount,
             l_formation_count: game.matchStats.lFormationCount,
             block_formation_count: game.matchStats.blockFormationCount,
+            // Game settings
+            number_base: game.numberBase,
+            smallest_tile_action: game.smallestTileAction,
+            max_tile_levels: game.maxTileLevels,
+            special_tile_line_4: game.specialTileConfig.line_4,
+            special_tile_line_5: game.specialTileConfig.line_5,
+            special_tile_t_formation: game.specialTileConfig.t_formation,
+            special_tile_l_formation: game.specialTileConfig.l_formation,
+            special_tile_block_formation: game.specialTileConfig.block_formation,
         });
 
         // Hide power-ups and show control buttons
@@ -81,6 +90,15 @@ export function checkLevelComplete(game) {
             t_formation_count: game.matchStats.tFormationCount,
             l_formation_count: game.matchStats.lFormationCount,
             block_formation_count: game.matchStats.blockFormationCount,
+            // Game settings
+            number_base: game.numberBase,
+            smallest_tile_action: game.smallestTileAction,
+            max_tile_levels: game.maxTileLevels,
+            special_tile_line_4: game.specialTileConfig.line_4,
+            special_tile_line_5: game.specialTileConfig.line_5,
+            special_tile_t_formation: game.specialTileConfig.t_formation,
+            special_tile_l_formation: game.specialTileConfig.l_formation,
+            special_tile_block_formation: game.specialTileConfig.block_formation,
         });
 
         // Hide power-ups

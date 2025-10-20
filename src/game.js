@@ -231,11 +231,6 @@ export class Match3Game {
             blocked_tile_count: this.initialBlockedTileCount,
             goal_count: this.levelGoals.length,
             spawnable_tiles: this.tileValues.join(","),
-            special_tile_reward_line_4: this.specialTileConfig.line_4,
-            special_tile_reward_block_4: this.specialTileConfig.block_4,
-            special_tile_reward_line_5: this.specialTileConfig.line_5,
-            special_tile_reward_t_formation: this.specialTileConfig.t_formation,
-            special_tile_reward_l_formation: this.specialTileConfig.l_formation,
         });
     }
 
