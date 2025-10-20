@@ -30,7 +30,14 @@ import {
 } from "./storage.js";
 import { track, cyrb53 } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
-import { createTile, createCursedTile, createBlockedTile, createBlockedMovableTile, isCursed, getFontSize } from "./tile-helpers.js";
+import {
+    createTile,
+    createCursedTile,
+    createBlockedTile,
+    createBlockedMovableTile,
+    isCursed,
+    getFontSize,
+} from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
@@ -71,8 +78,6 @@ export class Match3Game {
         this.animating = false;
         this.lastSwapPosition = null; // Track last swap position for special tile placement
         this.isUserSwap = false; // Track if we're processing a user swap
-        this.interruptCascade = false; // Flag to interrupt ongoing cascade animations
-        this.pendingSwap = null; // Store pending swap when interrupting
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -1119,7 +1124,7 @@ export class Match3Game {
                 });
 
                 // Update spawnableTiles: remove smallest, add next
-                this.tileValues = this.tileValues.filter(v => v !== minValue);
+                this.tileValues = this.tileValues.filter((v) => v !== minValue);
                 this.tileValues.push(maxValue + 1);
                 this.tileValues.sort((a, b) => a - b);
 
