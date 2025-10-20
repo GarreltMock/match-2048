@@ -742,10 +742,9 @@ export const TEST_LEVELS = [
         level: 9,
         title: "T-Formation",
         boardWidth: 5,
-        boardHeight: 6,
+        boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
-            [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
             [0, 6, 6, 6, 0],
             [0, 0, 6, 0, 0],
