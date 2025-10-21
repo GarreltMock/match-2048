@@ -263,8 +263,17 @@ export function trySwap(game, row1, col1, row2, col2) {
         return;
     }
 
-    // Block swaps while animating
+    // If animating, queue the swap to execute after animation completes
     if (game.animating) {
+        game.interruptCascade = true;
+        game.pendingSwap = { row1, col1, row2, col2 };
+
+        // Visualize the pending swap with preview class
+        const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+        const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+        if (gem1) gem1.classList.add("preview");
+        if (gem2) gem2.classList.add("preview");
+
         return;
     }
 

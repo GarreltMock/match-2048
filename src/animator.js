@@ -418,6 +418,30 @@ export function dropGems(game) {
             gem.style.opacity = ""; // Clear inline opacity style
         });
 
+        // Check if cascade was interrupted by user input
+        if (game.interruptCascade) {
+            game.interruptCascade = false;
+            // Resolve the animation promise to signal old cascade is done
+            game.animating = false;
+
+            // Execute the pending swap if it exists and moves are available
+            if (game.pendingSwap) {
+                const { row1, col1, row2, col2 } = game.pendingSwap;
+                game.pendingSwap = null;
+
+                // Clear preview visualization
+                document.querySelectorAll(".gem.preview").forEach((gem) => {
+                    gem.classList.remove("preview");
+                });
+
+                // Only execute swap if player has moves remaining or game is still active
+                if (game.movesUsed < game.maxMoves && game.gameActive) {
+                    trySwap(game, row1, col1, row2, col2);
+                }
+            }
+            return;
+        }
+
         // Check for matches regardless of gameActive state to handle cascading after running out of moves
         if (game.hasMatches()) {
             game.processMatches();
