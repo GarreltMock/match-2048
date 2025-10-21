@@ -73,7 +73,7 @@ export function generateUUID() {
 
 export function loadUserId() {
     let userId = localStorage.getItem("match2048_userId");
-    if (!userId) {
+    if (!userId || userId.length > 36) {
         // Generate a random user ID (UUID v4 format)
         userId = generateUUID();
         localStorage.setItem("match2048_userId", userId);
