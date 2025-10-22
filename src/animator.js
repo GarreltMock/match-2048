@@ -113,7 +113,7 @@ export function animateMerges(game, matchGroups, processMergesCallback) {
     // Process merges after animation
     setTimeout(() => {
         processMergesCallback(matchGroups);
-    }, 2000);
+    }, 400);
 }
 
 function slideGemTo(fromTile, toTile) {
@@ -134,7 +134,7 @@ function slideGemTo(fromTile, toTile) {
         // Fade out the sliding tile
         setTimeout(() => {
             fromElement.style.opacity = "0";
-        }, 2000);
+        }, 300);
     }
 }
 
