@@ -412,7 +412,7 @@ button {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.gem.preview {
+.gem.preview, .gem.pending-preview {
     opacity: 0.7;
     transform: scale(0.95);
 }

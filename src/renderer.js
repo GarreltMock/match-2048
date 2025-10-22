@@ -98,11 +98,19 @@ export function renderBoard(game) {
 
     // Restore preview classes for pending interrupt swap
     if (game.pendingSwap) {
-        const { row1, col1, row2, col2 } = game.pendingSwap;
-        const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
-        const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
-        if (gem1) gem1.classList.add("preview");
-        if (gem2) gem2.classList.add("preview");
+        const { row1, col1, row2, col2, tile1, tile2 } = game.pendingSwap;
+
+        const tilesUnchanged = game.board[row1][col1] === tile1 && game.board[row2][col2] === tile2;
+        if (tilesUnchanged) {
+            const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
+            const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
+            if (gem1) gem1.classList.add("pending-preview");
+            if (gem2) gem2.classList.add("pending-preview");
+        } else {
+            game.interruptCascade = false;
+            game.pendingSwap = null;
+        }
+
     }
 
     updateGoalDisplay(game);

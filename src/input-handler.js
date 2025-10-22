@@ -266,13 +266,21 @@ export function trySwap(game, row1, col1, row2, col2) {
     // If animating, queue the swap to execute after animation completes
     if (game.animating) {
         game.interruptCascade = true;
-        game.pendingSwap = { row1, col1, row2, col2 };
+        // Store tile references to validate they haven't changed when executing
+        game.pendingSwap = {
+            row1,
+            col1,
+            row2,
+            col2,
+            tile1: game.board[row1][col1],
+            tile2: game.board[row2][col2],
+        };
 
         // Visualize the pending swap with preview class
         const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
         const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
-        if (gem1) gem1.classList.add("preview");
-        if (gem2) gem2.classList.add("preview");
+        if (gem1) gem1.classList.add("pending-preview");
+        if (gem2) gem2.classList.add("pending-preview");
 
         return;
     }
@@ -298,7 +306,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     // Check if this creates any matches (or if using swap power-up or free swap tile)
     const isSwapPowerUp = game.activePowerUp === "swap";
 
-    if (game.hasMatches() || isSwapPowerUp || hasFreeSwap) {
+    if (game.hasMatchesForSwap(row1, col1, row2, col2) || isSwapPowerUp || hasFreeSwap) {
         game.movesUsed++;
         game.updateMovesDisplay();
 
@@ -339,6 +347,8 @@ export function trySwap(game, row1, col1, row2, col2) {
 
             game.processMatches();
         });
+
+        return true;
     } else {
         // Revert the swap
         game.board[row2][col2] = game.board[row1][col1];

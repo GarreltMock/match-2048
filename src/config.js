@@ -931,7 +931,6 @@ export const TEST_LEVELS = [
         ],
         goals: [{ tileValue: 3, target: 1, current: 0, goalType: "created" }], // 32
         spawnableTiles: [0], // 2, 4, 8
-        // showGoalDialog: "created", // First level with created goals
     },
     {
         level: 20,
@@ -948,6 +947,25 @@ export const TEST_LEVELS = [
         ],
         goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
         spawnableTiles: [0], // 2, 4, 8
-        // showGoalDialog: "created", // First level with created goals
+    },
+    {
+        level: 21,
+        title: "Pending Swap Test",
+        boardWidth: 5,
+        boardHeight: 9,
+        maxMoves: 10,
+        boardPreset: [[], [], [], [], [], [0, 0, 0, 0, 0], [0, 1, 2, 1, 0], [0, 0, 0, 0, 0], [1, 2, 1, 1, 0]],
+        goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
+        spawnableTiles: [1, 2, 3],
+    },
+    {
+        level: 22,
+        title: "Pending Swap Test 2",
+        boardWidth: 5,
+        boardHeight: 9,
+        maxMoves: 10,
+        boardPreset: [[], [], [], [], [], [], [], [, 5, 6, 5, 5], [1, 1, 1, 0, 0]],
+        goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
+        spawnableTiles: [1, 2, 3],
     },
 ];

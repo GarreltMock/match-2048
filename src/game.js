@@ -33,7 +33,7 @@ import { APP_VERSION } from "./version.js";
 import { createTile, createCursedTile, createBlockedTile, createBlockedMovableTile, isCursed, getFontSize } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
-import { hasMatches, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
+import { hasMatches, hasMatchesForSwap, findMatches, checkTFormation, checkLFormation, checkBlockFormation } from "./match-detector.js";
 import { processMatches } from "./merge-processor.js";
 import { animateSwap, animateRevert, dropGems } from "./animator.js";
 import { renderBoard, renderGoals, updateGoalDisplay, updateMovesDisplay } from "./renderer.js";
@@ -270,6 +270,10 @@ export class Match3Game {
 
     hasMatches() {
         return hasMatches(this);
+    }
+
+    hasMatchesForSwap(row1, col1, row2, col2) {
+        return hasMatchesForSwap(this, row1, col1, row2, col2);
     }
 
     findMatches() {

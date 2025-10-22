@@ -8,6 +8,19 @@ export function hasMatches(game) {
     return findMatches(game).length > 0;
 }
 
+// Check if a swap between two positions creates matches involving those positions
+export function hasMatchesForSwap(game, row1, col1, row2, col2) {
+    const matches = findMatches(game);
+
+    // Check if any match contains either of the swapped positions
+    return matches.some(match => {
+        return match.tiles.some(tile => {
+            return (tile.row === row1 && tile.col === col1) ||
+                   (tile.row === row2 && tile.col === col2);
+        });
+    });
+}
+
 export function findMatches(game) {
     // During user swap, activate jokers first
     if (game.isUserSwap) {

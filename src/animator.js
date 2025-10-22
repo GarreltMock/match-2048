@@ -113,7 +113,7 @@ export function animateMerges(game, matchGroups, processMergesCallback) {
     // Process merges after animation
     setTimeout(() => {
         processMergesCallback(matchGroups);
-    }, 400);
+    }, 2000);
 }
 
 function slideGemTo(fromTile, toTile) {
@@ -134,7 +134,7 @@ function slideGemTo(fromTile, toTile) {
         // Fade out the sliding tile
         setTimeout(() => {
             fromElement.style.opacity = "0";
-        }, 300);
+        }, 2000);
     }
 }
 
@@ -426,20 +426,26 @@ export function dropGems(game) {
 
             // Execute the pending swap if it exists and moves are available
             if (game.pendingSwap) {
-                const { row1, col1, row2, col2 } = game.pendingSwap;
+                const { row1, col1, row2, col2, tile1, tile2 } = game.pendingSwap;
                 game.pendingSwap = null;
 
                 // Clear preview visualization
-                document.querySelectorAll(".gem.preview").forEach((gem) => {
-                    gem.classList.remove("preview");
+                document.querySelectorAll(".gem.pending-preview").forEach((gem) => {
+                    gem.classList.remove("pending-preview");
                 });
 
-                // Only execute swap if player has moves remaining or game is still active
-                if (game.movesUsed < game.maxMoves && game.gameActive) {
-                    trySwap(game, row1, col1, row2, col2);
+                // Check if the tiles at those positions are still the same ones that were queued
+                // Skip the swap if the tiles have changed during cascading
+                const tilesUnchanged = game.board[row1][col1] === tile1 && game.board[row2][col2] === tile2;
+
+                // Only execute swap if tiles haven't changed, player has moves remaining, and game is active
+                if (tilesUnchanged && game.movesUsed < game.maxMoves && game.gameActive) {
+                    const didSwap = trySwap(game, row1, col1, row2, col2);
+                    if (!!didSwap) {
+                        return;
+                    }
                 }
             }
-            return;
         }
 
         // Check for matches regardless of gameActive state to handle cascading after running out of moves
