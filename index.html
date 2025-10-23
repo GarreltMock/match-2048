@@ -136,7 +136,9 @@
                         Continue
                     </button>
                     <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
-                    <button id="restartBtn" class="control-btn restart" tabindex="1" style="display: none">Restart Level</button>
+                    <button id="restartBtn" class="control-btn restart" tabindex="1" style="display: none">
+                        Restart Level
+                    </button>
                 </div>
 
                 <div class="power-ups">
@@ -302,6 +304,16 @@
                             <option value="blocked">Transform to Blocked</option>
                             <option value="blocked_movable">Transform to Blocked Movable</option>
                             <option value="double">Double Value</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="spawnableTilesStartCount">Spawnable Tiles Start Count:</label>
+                        <select id="spawnableTilesStartCount">
+                            <option value="">Use Level Defaults</option>
+                            <option value="[1,2,3]">3 Level → 2,4,8</option>
+                            <option value="[1,2,3,4]">4 Level → 2,4,8,16</option>
+                            <option value="[1,2,3,4,5]">5 Level → 2,4,8,16,32</option>
                         </select>
                     </div>
 
