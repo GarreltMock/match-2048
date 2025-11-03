@@ -307,8 +307,10 @@ export function trySwap(game, row1, col1, row2, col2) {
     const isSwapPowerUp = game.activePowerUp === "swap";
 
     if (game.hasMatchesForSwap(row1, col1, row2, col2) || isSwapPowerUp || hasFreeSwap) {
-        game.movesUsed++;
-        game.updateMovesDisplay();
+        if (!isSwapPowerUp) {
+            game.movesUsed++;
+            game.updateMovesDisplay();
+        }
 
         // Flag that we should decrement cursed timers after this turn completes
         game.shouldDecrementCursedTimers = true;
