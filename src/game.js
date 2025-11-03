@@ -532,26 +532,18 @@ export class Match3Game {
         // Block interactions during animation
         this.animating = true;
 
-        // Remove the tile from the board
-        this.board[row][col] = null;
-
         // Animate the tile shrinking away
         element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
         element.style.opacity = "0";
         element.style.transform = "scale(0)";
 
         setTimeout(() => {
-            // Remove the element from DOM to prevent re-rendering issues
-            element.remove();
+            // Remove the tile from the board state
+            this.board[row][col] = null;
 
+            // Let dropGems handle the DOM updates via renderBoard
             this.dropGems();
             this.deactivatePowerUp();
-
-            // Process any matches after tiles drop
-            setTimeout(() => {
-                this.animating = false; // Allow interactions again
-                this.processMatches();
-            }, 600);
         }, 300);
     }
 
