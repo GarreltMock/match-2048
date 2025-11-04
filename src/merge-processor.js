@@ -146,6 +146,12 @@ export function createMergedTiles(game, group) {
     const formationType = getFormationConfig(group.direction);
     const specialTileType = formationType ? game.specialTileConfig[formationType] : null;
 
+    // Check if this formation grants a power-up (in power-up rewards mode)
+    if (game.usePowerUpRewards && specialTileType && specialTileType.startsWith("powerup_")) {
+        const powerUpType = specialTileType.replace("powerup_", ""); // "hammer", "halve", or "swap"
+        grantPowerUp(game, powerUpType, group);
+    }
+
     // Calculate positions and value based on formation type
     const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
     const is5LineFormation = group.direction === "line_5_horizontal" || group.direction === "line_5_vertical";
@@ -629,4 +635,92 @@ export function checkAndCreateCursedTile(game, value, position) {
     }
 
     return false; // Not cursed
+}
+
+/**
+ * Grant a power-up to the player and animate the icon flying to the power-up button
+ * @param {Match3Game} game - The game instance
+ * @param {string} powerUpType - Type of power-up ("hammer", "halve", or "swap")
+ * @param {object} group - The match group that triggered the power-up reward
+ */
+function grantPowerUp(game, powerUpType, group) {
+    // Increment the power-up count
+    if (game.powerUpRemaining[powerUpType] !== undefined) {
+        game.powerUpRemaining[powerUpType]++;
+        game.updatePowerUpButtons();
+
+        // Trigger flying animation
+        animatePowerUpGrant(game, powerUpType, group);
+    }
+}
+
+/**
+ * Animate the power-up icon flying from the merge position to the power-up button
+ * @param {Match3Game} game - The game instance
+ * @param {string} powerUpType - Type of power-up ("hammer", "halve", or "swap")
+ * @param {object} group - The match group that triggered the power-up reward
+ */
+function animatePowerUpGrant(game, powerUpType, group) {
+    // Determine the start position (intersection or middle of match)
+    let startPos;
+    if (group.direction === "T-formation" || group.direction === "L-formation") {
+        startPos = group.intersection;
+    } else if (group.direction === "block_4_formation" && group.intersections) {
+        startPos = group.intersections[0];
+    } else {
+        const middlePositions = calculateMiddlePositions(game, group.tiles, group);
+        startPos = middlePositions[0];
+    }
+
+    // Get the DOM element position for the merge
+    const mergeElement = document.querySelector(`[data-row="${startPos.row}"][data-col="${startPos.col}"]`);
+    if (!mergeElement) return;
+
+    // Get the target power-up button
+    const powerUpButton = document.querySelector(`[data-powerup="${powerUpType}"]`);
+    if (!powerUpButton) return;
+
+    // Get positions
+    const mergeRect = mergeElement.getBoundingClientRect();
+    const buttonRect = powerUpButton.getBoundingClientRect();
+
+    // Get power-up icon
+    const powerUpIcons = {
+        hammer: "🔨",
+        halve: "✂️",
+        swap: "🔄",
+    };
+    const icon = powerUpIcons[powerUpType] || "⚡";
+
+    // Create flying icon element
+    const flyingIcon = document.createElement("div");
+    flyingIcon.className = "flying-powerup-icon";
+    flyingIcon.textContent = icon;
+    // Position centered on the merge tile (accounting for the 60px circular background)
+    flyingIcon.style.left = `${mergeRect.left + mergeRect.width / 2 - 30}px`;
+    flyingIcon.style.top = `${mergeRect.top + mergeRect.height / 2 - 30}px`;
+
+    // Calculate the translation needed (also accounting for the circular background size)
+    const deltaX = buttonRect.left + buttonRect.width / 2 - (mergeRect.left + mergeRect.width / 2);
+    const deltaY = buttonRect.top + buttonRect.height / 2 - (mergeRect.top + mergeRect.height / 2);
+
+    document.body.appendChild(flyingIcon);
+
+    // Use transform for the animation - smooth movement with a slight bounce
+    requestAnimationFrame(() => {
+        flyingIcon.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.7)`;
+    });
+
+    // Remove element after animation
+    setTimeout(() => {
+        flyingIcon.remove();
+        // Add a pulse effect to the power-up button
+        powerUpButton.style.animation = "none";
+        requestAnimationFrame(() => {
+            powerUpButton.style.animation = "pulse 0.4s ease";
+        });
+        setTimeout(() => {
+            powerUpButton.style.animation = "";
+        }, 400);
+    }, 800);
 }

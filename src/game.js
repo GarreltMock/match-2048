@@ -29,6 +29,8 @@ import {
     saveSmallestTileAction,
     loadSpawnableTilesStartCount,
     saveSpawnableTilesStartCount,
+    loadUsePowerUpRewards,
+    saveUsePowerUpRewards,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -80,6 +82,7 @@ export class Match3Game {
         this.maxTileLevels = loadMaxTileLevels(); // number or null
         this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
         this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
+        this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.selectedGem = null;
@@ -231,10 +234,12 @@ export class Match3Game {
         this.showPowerUps();
 
         // Reset power-up remaining for new level
+        // If using power-up rewards mode, start with 0, otherwise use default
+        const initialPowerUpCount = this.usePowerUpRewards ? 0 : MAX_POWER_UP_USES;
         this.powerUpRemaining = {
-            hammer: MAX_POWER_UP_USES,
-            halve: MAX_POWER_UP_USES,
-            swap: MAX_POWER_UP_USES,
+            hammer: initialPowerUpCount,
+            halve: initialPowerUpCount,
+            swap: initialPowerUpCount,
         };
 
         // Deactivate any power-ups when loading a level
@@ -852,6 +857,40 @@ export class Match3Game {
         const tFormationSelect = document.getElementById("tFormationReward");
         const lFormationSelect = document.getElementById("lFormationReward");
 
+        // Power-up rewards checkbox
+        const usePowerUpRewardsCheckbox = document.getElementById("usePowerUpRewards");
+        let usePowerUpRewardsMode = this.usePowerUpRewards;
+
+        // Function to toggle power-up options visibility
+        const togglePowerUpOptions = (show) => {
+            const powerupOptions = document.querySelectorAll(".powerup-option");
+            const regularOptions = document.querySelectorAll(".regular-option");
+            const regularHelp = document.querySelector(".special-tile-help:not(.powerup-help)");
+            const powerupHelp = document.querySelector(".special-tile-help.powerup-help");
+
+            // Show/hide power-up options
+            powerupOptions.forEach((option) => {
+                option.style.display = show ? "block" : "none";
+            });
+
+            // Show/hide regular special tile options
+            regularOptions.forEach((option) => {
+                option.style.display = show ? "none" : "block";
+            });
+
+            // Show/hide help text
+            if (regularHelp) regularHelp.style.display = show ? "none" : "block";
+            if (powerupHelp) powerupHelp.style.display = show ? "block" : "none";
+        };
+
+        // Handle power-up rewards checkbox change
+        if (usePowerUpRewardsCheckbox) {
+            usePowerUpRewardsCheckbox.addEventListener("change", () => {
+                usePowerUpRewardsMode = usePowerUpRewardsCheckbox.checked;
+                togglePowerUpOptions(usePowerUpRewardsMode);
+            });
+        }
+
         // Function to populate level selector based on current levels
         const populateLevelSelect = () => {
             if (levelSelect) {
@@ -901,6 +940,13 @@ export class Match3Game {
             smallestTileActionSelect.value = this.smallestTileAction;
             spawnableTilesStartCountSelect.value =
                 this.spawnableTilesStartCount !== null ? JSON.stringify(this.spawnableTilesStartCount) : "";
+
+            // Set power-up rewards mode state
+            usePowerUpRewardsMode = this.usePowerUpRewards;
+            if (usePowerUpRewardsCheckbox) {
+                usePowerUpRewardsCheckbox.checked = usePowerUpRewardsMode;
+            }
+            togglePowerUpOptions(usePowerUpRewardsMode);
 
             // Set special tile configuration values
             line4Select.value = this.specialTileConfig.line_4;
@@ -996,6 +1042,10 @@ export class Match3Game {
                     const spawnableTilesValue = spawnableTilesStartCountSelect.value;
                     this.spawnableTilesStartCount = spawnableTilesValue ? JSON.parse(spawnableTilesValue) : null;
                     saveSpawnableTilesStartCount(this.spawnableTilesStartCount);
+
+                    // Save power-up rewards mode
+                    this.usePowerUpRewards = usePowerUpRewardsMode;
+                    saveUsePowerUpRewards(this.usePowerUpRewards);
 
                     // Save special tile configuration
                     this.specialTileConfig.line_4 = line4Select.value;

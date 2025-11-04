@@ -412,7 +412,8 @@ button {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
 }
 
-.gem.preview, .gem.pending-preview {
+.gem.preview,
+.gem.pending-preview {
     opacity: 0.7;
     transform: scale(0.95);
 }
@@ -1667,6 +1668,10 @@ button {
     margin-top: -10px;
 }
 
+.special-tile-help.powerup-help {
+    border-left-color: #48bb78;
+}
+
 .special-tile-help strong {
     color: #333;
     font-weight: 600;
@@ -1932,4 +1937,35 @@ button {
 
 .goal-dialog-button:active {
     transform: translateY(0);
+}
+
+/* Flying power-up icon animation */
+.flying-powerup-icon {
+    position: fixed;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 10000;
+    transition: transform 0.8s ease-in-out, opacity 0.8s ease;
+    opacity: 1;
+    background: #141414;
+    border: 3px solid white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px white;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
