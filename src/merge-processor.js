@@ -722,5 +722,5 @@ function animatePowerUpGrant(game, powerUpType, group) {
         setTimeout(() => {
             powerUpButton.style.animation = "";
         }, 400);
-    }, 800);
+    }, 700);
 }

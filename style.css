@@ -14,26 +14,28 @@ html {
 
 :root {
     /* Tile colors */
-    --tile-1-bg: #fff2e5;
-    --tile-1-color: #45413d;
-    --tile-2-bg: #ffbf80;
-    --tile-2-color: #45413d;
-    --tile-3-bg: #ff8c1a;
-    --tile-3-color: #45413d;
-    --tile-4-bg: #ff661a;
-    --tile-4-color: white;
-    --tile-5-bg: #ff401a;
-    --tile-5-color: white;
-    --tile-6-bg: #ffea7e;
-    --tile-6-color: #45413d;
-    --tile-7-bg: #ffd91a;
-    --tile-7-color: #45413d;
-    --tile-8-bg: #ffb21a;
-    --tile-8-color: #45413d;
-    --tile-9-bg: #80ffd4;
-    --tile-9-color: #45413d;
-    --tile-10-bg: #1ad9ff;
-    --tile-10-color: #45413d;
+    --tile-1-bg: #ffffff;
+    --tile-1-color: black;
+    --tile-2-bg: #ffe4ae;
+    --tile-2-color: black;
+    --tile-3-bg: #ffc655;
+    --tile-3-color: black;
+    --tile-4-bg: #ff9419;
+    --tile-4-color: black;
+    --tile-5-bg: #ff5c3c;
+    --tile-5-color: black;
+    --tile-6-bg: #ff3033;
+    --tile-6-color: white;
+    --tile-7-bg: #95d3ff;
+    --tile-7-color: black;
+    --tile-8-bg: #3c9dff;
+    --tile-8-color: white;
+    --tile-9-bg: #005eff;
+    --tile-9-color: white;
+    --tile-10-bg: linear-gradient(180deg, #ffb066 0%, #99004a 105%);
+    --tile-10-color: white;
+    --tile-11-bg: linear-gradient(180deg, #65fcf2 0%, #8f1fab 100%);
+    --tile-11-color: white;
 
     /* Special tile colors */
     --tile-joker-bg: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
@@ -96,6 +98,11 @@ body {
     touch-action: none;
     user-select: none;
     box-sizing: border-box;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 button {
@@ -361,7 +368,7 @@ button {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
         "Open Sans", "Helvetica Neue", sans-serif;
     font-size: 12px;
-    font-weight: bolder;
+    font-weight: 900;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -470,6 +477,12 @@ button {
 .gem.tile-10 {
     background: var(--tile-10-bg);
     color: var(--tile-10-color);
+    font-size: clamp(9px, 2.2vw, 18px);
+}
+
+.gem.tile-11 {
+    background: var(--tile-11-bg);
+    color: var(--tile-11-color);
     font-size: clamp(9px, 2.2vw, 18px);
 }
 
@@ -1942,20 +1955,20 @@ button {
 /* Flying power-up icon animation */
 .flying-powerup-icon {
     position: fixed;
-    font-size: 2rem;
+    font-size: 2.5rem;
     pointer-events: none;
     z-index: 10000;
-    transition: transform 0.8s ease-in-out, opacity 0.8s ease;
+    transition: transform 0.7s ease-in-out;
     opacity: 1;
     background: #141414;
     border: 3px solid white;
-    border-radius: 50%;
+    border-radius: 30%;
     width: 60px;
     height: 60px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 20px white;
+    box-shadow: 0 3px 10px white inset;
 }
 
 @keyframes pulse {
