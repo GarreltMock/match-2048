@@ -72,7 +72,6 @@ import {
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
 import { showGoalDialog, hasDialogBeenShown, updateIntroDialogGoalsList } from "./goal-dialogs.js";
-import { showHomeScreen } from "./home-screen.js";
 
 export class Match3Game {
     constructor() {
@@ -363,9 +362,7 @@ export class Match3Game {
 
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
-                // Go to home screen instead of immediately restarting
-                this.hideLevelFailed();
-                showHomeScreen(this);
+                this.restartLevel();
             });
         }
 
@@ -824,14 +821,47 @@ export class Match3Game {
             });
         }
 
+        const giveUpWarning = document.getElementById("giveUpWarning");
+        const giveUpWarningText = document.getElementById("giveUpWarningText");
+        const confirmGiveUpBtn = document.getElementById("confirmGiveUp");
+        const cancelGiveUpBtn = document.getElementById("cancelGiveUp");
+
         if (loseProgressBtn) {
             loseProgressBtn.addEventListener("click", () => {
+                // Build warning message
+                let warningText = "<h2>You will lose:</h2>";
+                if (this.currentStreak > 0) {
+                    warningText += `<p>Level ${this.currentStreak} Streak</p>`;
+                }
+                warningText += "<p>1 ♥️</p>";
+
+                // Show warning box
+                giveUpWarningText.innerHTML = warningText;
+                giveUpWarning.classList.remove("hidden");
+                loseProgressBtn.style.display = "none";
+            });
+        }
+
+        if (confirmGiveUpBtn) {
+            confirmGiveUpBtn.addEventListener("click", () => {
+                // Hide warning and dialog
+                giveUpWarning.classList.add("hidden");
+                loseProgressBtn.style.display = "block";
                 extraMovesDialog.classList.add("hidden");
                 continueBtn.style.display = "none";
-                // Show level failed state instead of immediately restarting
+
+                // Show level failed state
                 setTimeout(() => {
                     this.showLevelFailed();
                 }, 300);
+            });
+        }
+
+        if (cancelGiveUpBtn) {
+            cancelGiveUpBtn.addEventListener("click", () => {
+                // Hide warning, show give up button again
+                giveUpWarning.classList.add("hidden");
+                loseProgressBtn.style.display = "block";
             });
         }
 

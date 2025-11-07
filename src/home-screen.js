@@ -60,16 +60,16 @@ function updateStreakDisplay(game, streakDisplay) {
 /**
  * Gets the bonus text for the current streak level
  * @param {number} streak - Current streak level (1-3)
- * @returns {string} Bonus description
+ * @returns {string} Bonus description with icons
  */
 function getStreakBonusText(streak) {
     switch (streak) {
         case 1:
-            return "+1 Halve";
+            return "+1 🖖";
         case 2:
-            return "+1 Halve, +1 Hammer";
+            return "+1 🖖 +1 🔨";
         case 3:
-            return "+1 Halve, +1 Hammer, +1 Swap";
+            return "+1 🖖 +1 🔨 +1 🔄";
         default:
             return "";
     }
@@ -96,22 +96,21 @@ function updateHeartsDisplay(game, heartsDisplay) {
     const maxHearts = game.MAX_HEARTS;
 
     // Create heart icons
-    let heartsHTML = '<div class="hearts-container">';
-    for (let i = 0; i < maxHearts; i++) {
-        const isEmpty = i >= hearts ? ' empty' : '';
-        heartsHTML += `<span class="heart-icon${isEmpty}">❤️</span>`;
-    }
-    heartsHTML += '</div>';
+    let heartsHTML = `<div class="hearts-container">
+        <h2 class="heart-icon${hearts === 0 ? " empty" : ""}">♥️</h2>
+        <h5 class="heart-count">${hearts < 5 ? hearts : ""}</h5>
+      </div>
+    `;
 
     // Add timer or full message
     if (hearts >= maxHearts) {
-        heartsHTML += '<div class="hearts-full">Full</div>';
+        heartsHTML += '<h2 class="hearts-full">Full</h2>';
     } else if (hearts < maxHearts) {
         const timeRemaining = game.getTimeUntilNextHeart();
         const minutes = Math.floor(timeRemaining / (60 * 1000));
         const seconds = Math.floor((timeRemaining % (60 * 1000)) / 1000);
-        const timerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-        heartsHTML += `<div class="hearts-timer">Next in ${timerText}</div>`;
+        const timerText = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        heartsHTML += `<h4 class="hearts-timer">${timerText}</h4>`;
 
         // Update timer every second if not at max hearts
         clearInterval(game.heartsTimerInterval);

@@ -53,9 +53,10 @@
 
                 <div style="flex: 1"></div>
 
-                <div id="streak-display" class="streak-display"></div>
-
-                <button id="start-level-button" class="start-level-button">Level 1</button>
+                <div>
+                    <div id="streak-display" class="streak-display"></div>
+                    <button id="start-level-button" class="start-level-button">Level 1</button>
+                </div>
             </div>
         </div>
 
@@ -169,7 +170,7 @@
                     </button>
                     <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
                     <button id="restartBtn" class="control-btn restart" tabindex="1" style="display: none">
-                        Continue
+                        Restart Level
                     </button>
                 </div>
 
@@ -266,6 +267,13 @@
                             </text>
                         </svg>
                     </div> -->
+
+                    <div id="giveUpWarning" class="give-up-warning hidden">
+                        <!-- <div class="warning-icon">ℹ️</div> -->
+                        <div id="giveUpWarningText" class="warning-text"></div>
+                        <button class="warning-confirm-btn" id="confirmGiveUp">Yes, Give Up</button>
+                        <!-- <button class="warning-cancel-btn" id="cancelGiveUp">Cancel</button> -->
+                    </div>
 
                     <button class="extra-move-option secondary" id="loseProgress">Give Up</button>
 
