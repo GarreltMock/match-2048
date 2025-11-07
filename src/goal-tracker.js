@@ -56,15 +56,12 @@ export function checkLevelComplete(game) {
         // Show extra moves dialog after a delay to let final animations settle
         setTimeout(() => {
             if (game.extraMovesUsed) {
-                // Reset streak on full level loss (after extra moves used)
-                game.currentStreak = 0;
-                saveStreak(game.currentStreak);
-
-                // Show level failed screen (tracking happens in showLevelFailed)
+                // Show level failed screen (heart decrease and streak reset happens in showLevelFailed)
                 game.showLevelFailed();
             } else {
                 // Show extra moves dialog (first time)
                 // Note: Streak is NOT reset here - only when level fully fails
+                // Note: Hearts are NOT decreased here - only on full level loss
                 game.showExtraMovesDialog();
             }
         }, 800);

@@ -2007,6 +2007,48 @@ button {
     flex: 1;
     padding: 10vh 0;
     font-family: "Nunito", sans-serif;
+    position: relative;
+}
+
+.hearts-display {
+    position: absolute;
+    top: clamp(16px, 3vh, 32px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: "Nunito", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.hearts-container {
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+    font-size: clamp(28px, 7vw, 48px);
+}
+
+.heart-icon {
+    transition: opacity 0.3s ease;
+}
+
+.heart-icon.empty {
+    opacity: 0.2;
+}
+
+.hearts-timer {
+    font-size: clamp(12px, 3vw, 16px);
+    color: #fff;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hearts-full {
+    font-size: clamp(12px, 3vw, 16px);
+    color: #aee96b;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 .streak-display {

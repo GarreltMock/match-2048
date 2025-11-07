@@ -232,3 +232,33 @@ export function loadBestStreak() {
 export function saveBestStreak(bestStreak) {
     localStorage.setItem("match2048_bestStreak", bestStreak.toString());
 }
+
+/**
+ * Load hearts data (count and last regeneration time)
+ * @returns {{hearts: number, lastRegenTime: number}} Hearts data
+ */
+export function loadHearts() {
+    const heartsCount = localStorage.getItem("match2048_hearts");
+    const lastRegenTime = localStorage.getItem("match2048_lastRegenTime");
+
+    return {
+        hearts: heartsCount ? parseInt(heartsCount, 10) : 5, // Default to 5 hearts
+        lastRegenTime: lastRegenTime ? parseInt(lastRegenTime, 10) : Date.now(),
+    };
+}
+
+/**
+ * Save hearts count
+ * @param {number} hearts - Current hearts count
+ */
+export function saveHearts(hearts) {
+    localStorage.setItem("match2048_hearts", hearts.toString());
+}
+
+/**
+ * Save last heart regeneration time
+ * @param {number} timestamp - Timestamp in milliseconds
+ */
+export function saveLastRegenTime(timestamp) {
+    localStorage.setItem("match2048_lastRegenTime", timestamp.toString());
+}

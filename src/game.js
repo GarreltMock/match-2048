@@ -35,6 +35,9 @@ import {
     saveStreak,
     loadBestStreak,
     saveBestStreak,
+    loadHearts,
+    saveHearts,
+    saveLastRegenTime,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -69,6 +72,7 @@ import {
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
 import { showGoalDialog, hasDialogBeenShown, updateIntroDialogGoalsList } from "./goal-dialogs.js";
+import { showHomeScreen } from "./home-screen.js";
 
 export class Match3Game {
     constructor() {
@@ -89,6 +93,14 @@ export class Match3Game {
         this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.bestStreak = loadBestStreak(); // All-time best streak
+
+        // Hearts system
+        const heartsData = loadHearts();
+        this.hearts = heartsData.hearts;
+        this.lastRegenTime = heartsData.lastRegenTime;
+        this.MAX_HEARTS = 5;
+        this.HEART_REGEN_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.selectedGem = null;
@@ -164,6 +176,62 @@ export class Match3Game {
         this.loadLevel(this.currentLevel);
     }
 
+    /**
+     * Regenerate hearts based on time elapsed since last regeneration
+     * One heart every 30 minutes
+     */
+    regenerateHearts() {
+        if (this.hearts >= this.MAX_HEARTS) {
+            // Already at max, update timestamp
+            this.lastRegenTime = Date.now();
+            saveLastRegenTime(this.lastRegenTime);
+            return;
+        }
+
+        const now = Date.now();
+        const timeSinceLastRegen = now - this.lastRegenTime;
+        const heartsToAdd = Math.floor(timeSinceLastRegen / this.HEART_REGEN_TIME);
+
+        if (heartsToAdd > 0) {
+            this.hearts = Math.min(this.hearts + heartsToAdd, this.MAX_HEARTS);
+            // Update last regen time, accounting for partial time periods
+            this.lastRegenTime += heartsToAdd * this.HEART_REGEN_TIME;
+
+            saveHearts(this.hearts);
+            saveLastRegenTime(this.lastRegenTime);
+        }
+    }
+
+    /**
+     * Get time remaining until next heart regenerates
+     * @returns {number} Milliseconds until next heart
+     */
+    getTimeUntilNextHeart() {
+        if (this.hearts >= this.MAX_HEARTS) {
+            return 0;
+        }
+        const now = Date.now();
+        const timeSinceLastRegen = now - this.lastRegenTime;
+        const timeRemaining = this.HEART_REGEN_TIME - (timeSinceLastRegen % this.HEART_REGEN_TIME);
+        return timeRemaining;
+    }
+
+    /**
+     * Decrease hearts by 1 (called on level loss)
+     */
+    decreaseHeart() {
+        if (this.hearts > 0) {
+            this.hearts--;
+            saveHearts(this.hearts);
+
+            // Start regeneration timer if this was the first heart lost
+            if (this.hearts === this.MAX_HEARTS - 1) {
+                this.lastRegenTime = Date.now();
+                saveLastRegenTime(this.lastRegenTime);
+            }
+        }
+    }
+
     loadLevel(levelNum) {
         const level = this.levels[levelNum - 1];
         if (!level) return;
@@ -186,6 +254,7 @@ export class Match3Game {
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
         this.extraMovesUsed = false; // Reset extra moves flag for new level
+        this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -294,7 +363,9 @@ export class Match3Game {
 
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
-                this.restartLevel();
+                // Go to home screen instead of immediately restarting
+                this.hideLevelFailed();
+                showHomeScreen(this);
             });
         }
 
@@ -826,6 +897,17 @@ export class Match3Game {
     }
 
     showLevelFailed() {
+        // Decrease hearts on level loss (if not already decreased)
+        // This handles both: giving up and running out of moves after extra moves
+        if (!this.heartDecreasedThisAttempt) {
+            this.decreaseHeart();
+            this.heartDecreasedThisAttempt = true;
+        }
+
+        // Reset streak on level loss
+        this.currentStreak = 0;
+        saveStreak(this.currentStreak);
+
         // Track level_lost when level failed screen is shown
         trackLevelLost(this);
 
