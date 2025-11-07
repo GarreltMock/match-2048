@@ -36,43 +36,33 @@ export function showHomeScreen(game) {
 function updateStreakDisplay(game, streakDisplay) {
     const streak = game.currentStreak;
 
-    if (streak === 0) {
-        // No streak - show dim message
-        streakDisplay.innerHTML = `
-            <div class="streak-indicator streak-level-0">
-                <span class="streak-icon">🔥</span>
-                <span>No Streak</span>
-            </div>
-        `;
-    } else {
-        // Active streak - show level and bonus
-        const bonusText = getStreakBonusText(streak);
-        streakDisplay.innerHTML = `
-            <div class="streak-indicator streak-level-${streak}">
-                <span class="streak-icon">🔥</span>
-                <span>Streak Level ${streak}</span>
-            </div>
-            <div class="streak-bonus">${bonusText}</div>
-        `;
-    }
-}
+    // Create progress bar with 3 sections
+    let content = `
+        <div class="streak-header">
+            <span class="streak-icon">🔥</span>
+            <span class="streak-title">${streak === 0 ? "No Streak" : "Streak"}</span>
+        </div>
+    `;
 
-/**
- * Gets the bonus text for the current streak level
- * @param {number} streak - Current streak level (1-3)
- * @returns {string} Bonus description with icons
- */
-function getStreakBonusText(streak) {
-    switch (streak) {
-        case 1:
-            return "+1 🖖";
-        case 2:
-            return "+1 🖖 +1 🔨";
-        case 3:
-            return "+1 🖖 +1 🔨 +1 🔄";
-        default:
-            return "";
+    if (streak > 0) {
+        content += `
+        <div class="streak-progress-container">
+            <div class="streak-section ${streak >= 1 ? "active" : ""}">
+                <div class="streak-powerup">${streak >= 1 ? "🖖" : ""}</div>
+                <div class="streak-bar first"></div>
+            </div>
+            <div class="streak-section ${streak >= 2 ? "active" : ""}">
+                <div class="streak-powerup">${streak >= 2 ? "🔨" : ""}</div>
+                <div class="streak-bar"></div>
+            </div>
+            <div class="streak-section ${streak >= 3 ? "active" : ""}">
+                <div class="streak-powerup">${streak >= 3 ? "🔄" : ""}</div>
+                <div class="streak-bar last"></div>
+            </div>
+        </div>`;
     }
+
+    streakDisplay.innerHTML = content;
 }
 
 /**
