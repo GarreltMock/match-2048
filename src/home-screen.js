@@ -48,7 +48,7 @@ function updateStreakDisplay(game, streakDisplay) {
         content += `
         <div class="streak-progress-container">
             <div class="streak-section ${streak >= 1 ? "active" : ""}">
-                <div class="streak-powerup">${streak >= 1 ? "🖖" : ""}</div>
+                <div class="streak-powerup">${streak >= 1 ? "✂️" : ""}</div>
                 <div class="streak-bar first"></div>
             </div>
             <div class="streak-section ${streak >= 2 ? "active" : ""}">
@@ -88,7 +88,28 @@ function updateHeartsDisplay(game, heartsDisplay) {
     // Create heart icons
     let heartsHTML = `<div class="hearts-container">
         <h2 class="heart-icon${hearts === 0 ? " empty" : ""}">♥️</h2>
-        <h5 class="heart-count">${hearts < 5 ? hearts : ""}</h5>
+        ${
+            hearts < 5
+                ? `
+          <svg class="heart-count" viewBox="0 0 100 60" width="100" height="60">
+            <text
+                x="50"
+                y="40"
+                font-size="22"
+                font-weight="900"
+                fill="#fff"
+                stroke="#000"
+                stroke-width="7"
+                paint-order="stroke fill"
+                stroke-linejoin="round"
+                text-anchor="middle"
+            >
+                ${hearts}
+            </text>
+          </svg>
+        `
+                : ""
+        }
       </div>
     `;
 

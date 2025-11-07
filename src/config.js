@@ -968,4 +968,17 @@ export const TEST_LEVELS = [
         goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
         spawnableTiles: [1, 2, 3],
     },
+    {
+        level: 23,
+        title: "All Tiles",
+        boardWidth: 6,
+        boardHeight: 2,
+        maxMoves: 10,
+        boardPreset: [
+            [1, 2, 3, 4, 5, 6],
+            [7, 8, 9, 10, 11],
+        ],
+        goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
+        spawnableTiles: [0],
+    },
 ];

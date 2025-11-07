@@ -32,9 +32,9 @@ html {
     --tile-8-color: white;
     --tile-9-bg: #005eff;
     --tile-9-color: white;
-    --tile-10-bg: linear-gradient(180deg, #ffb066 0%, #99004a 105%);
+    --tile-10-bg: #ff00bf;
     --tile-10-color: white;
-    --tile-11-bg: linear-gradient(180deg, #65fcf2 0%, #8f1fab 100%);
+    --tile-11-bg: #bb00ff;
     --tile-11-color: white;
 
     /* Special tile colors */
@@ -822,7 +822,7 @@ button {
 }
 
 .bottom-container {
-    min-height: 18vw;
+    min-height: 12vw;
 }
 
 .controls {
@@ -1204,28 +1204,35 @@ button {
 .example-tile {
     width: 30px;
     height: 30px;
-    background: #eee4da;
-    color: #776e65;
+    background: var(--tile-2-bg);
+    color: var(--tile-2-color);
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 4px;
-    font-weight: bold;
+    border-radius: 20%;
+    font-family: Nunito;
+    font-weight: 900;
     font-size: 14px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
+    padding-bottom: 2px;
 }
 
 .example-tile.target-highlight {
     width: 30px;
     height: 30px;
-    box-shadow: 0px 0px 0px 3px #f59563;
+    box-shadow: 0px 0px 0px 3px #f59563, 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
     z-index: 2;
 }
 
 .example-tile.highlight {
-    background: #f59563;
-    color: white;
-    box-shadow: 0 4px 8px rgba(246, 124, 95, 0.4);
+    background: var(--tile-3-bg);
+    color: var(--tile-3-color);
+    box-shadow: 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
+}
+
+.example-tile.highlight.double {
+    background: var(--tile-4-bg);
+    color: var(--tile-4-color);
 }
 
 .grid-row span:empty {
@@ -1392,6 +1399,17 @@ button {
     font-family: Nunito;
     font-weight: 900;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.extra-moves-header > * {
+    display: block;
+}
+
+.extra-moves-header .loss-icon {
+    height: 84px;
 }
 
 .extra-moves-header h2 {
@@ -2105,7 +2123,7 @@ button {
     position: relative;
     align-items: center;
     gap: clamp(4px, 1vw, 8px);
-    font-size: clamp(28px, 7vw, 48px);
+    font-size: clamp(28px, 7vw, 38px);
 }
 
 .hearts-container > * {
@@ -2117,8 +2135,8 @@ button {
 
 .heart-count {
     position: absolute;
-    left: 48%;
-    top: 50%;
+    left: 50%;
+    top: 45%;
     transform: translate(-50%, -50%);
 }
 
@@ -2133,7 +2151,7 @@ button {
 
 .hearts-timer {
     color: #fff;
-    font-weight: 600;
+    font-weight: 800;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
@@ -2185,6 +2203,7 @@ button {
     display: flex;
     align-items: flex-end;
     gap: 3px;
+    margin-bottom: 4px;
 }
 
 .streak-section {
@@ -2313,7 +2332,7 @@ button {
 
 .start-level-button {
     font-family: "Nunito", sans-serif;
-    font-size: clamp(24px, 8vw, 82px);
+    font-size: clamp(24px, 8vw, 50px);
     font-weight: 900;
     padding: clamp(12px, 1vh, 16px) clamp(48px, 10vw, 72px);
     border-radius: 20px;
@@ -2323,5 +2342,5 @@ button {
     box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
     color: black;
     border: 2px solid black;
-    width: 100%;
+    width: clamp(250px, 70vw, 400px);
 }

@@ -113,7 +113,7 @@ The game is organized into focused, single-responsibility modules:
 - **Board Sizes**: Configurable from 6x6 to 10x10 depending on level design
 - **Special Formations**: T and L shapes (5 tiles → 1 tile at 4x), Block shapes (4 tiles → 2 tiles at 2x)
 - **Blocked Tiles**: Immovable obstacles defined per level with row/column-based positioning
-- **Power-ups**: Three types with 2 uses each per level - Hammer (🔨 remove tile), Halve (🖖 halve value), Swap (🔄 swap any two tiles)
+- **Power-ups**: Three types with 2 uses each per level - Hammer (🔨 remove tile), Halver (✂️ halve value), Swap (🔄 swap any two tiles)
 - **Special Tiles**: Configurable rewards for formations - Joker, Power (bonus matches), Golden (+1 value), Free Swap
 - **Spawnable Tiles**: Level-configurable tile values that can appear during gameplay
 - **Goal Types**: "created" (cumulative tiles made), "current" (tiles on board), "blocked" (blocked tiles cleared)
