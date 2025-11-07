@@ -133,12 +133,14 @@ function updateHeartsDisplay(game, heartsDisplay) {
  */
 export function initializeHomeScreen(game) {
     const levelButton = document.getElementById("start-level-button");
+    const noHeartsDialog = document.getElementById("noHeartsDialog");
+    const closeNoHeartsBtn = document.getElementById("closeNoHeartsBtn");
 
     levelButton.addEventListener("click", () => {
         // Check if player has hearts to play
         if (game.hearts <= 0) {
-            // No hearts available - show message
-            alert("You're out of hearts! Wait for them to regenerate or come back later.");
+            // No hearts available - show dialog
+            noHeartsDialog.classList.remove("hidden");
             return;
         }
 
@@ -148,4 +150,11 @@ export function initializeHomeScreen(game) {
         hideHomeScreen();
         game.startLevel();
     });
+
+    // Close dialog handler
+    if (closeNoHeartsBtn) {
+        closeNoHeartsBtn.addEventListener("click", () => {
+            noHeartsDialog.classList.add("hidden");
+        });
+    }
 }

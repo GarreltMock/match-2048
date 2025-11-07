@@ -2173,6 +2173,7 @@ button {
 
 .streak-icon {
     font-size: clamp(24px, 6vw, 48px);
+    margin-right: 4px;
 }
 
 .streak-level-0 .streak-icon {
@@ -2217,6 +2218,75 @@ button {
     font-size: clamp(14px, 3.5vw, 20px);
     color: #aee96b;
     font-weight: 600;
+}
+
+/* No Hearts Dialog */
+.no-hearts-dialog {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.no-hearts-dialog.hidden {
+    display: none;
+}
+
+.no-hearts-content {
+    border-radius: 24px;
+    border: 3px solid #000;
+    background: #141414;
+    box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25);
+    padding: clamp(20px, 5vw, 40px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(12px, 3vw, 20px);
+    max-width: 80%;
+}
+
+.no-hearts-message {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+}
+
+.no-hearts-submessage {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: center;
+}
+
+.close-hearts-btn {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(18px, 4.5vw, 24px);
+    font-weight: 900;
+    padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+    border-radius: 16px;
+    border: 2px solid black;
+    background: #aee96b;
+    box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
+    color: black;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-hearts-btn:hover {
+    transform: translateY(-2px);
+}
+
+.close-hearts-btn:active {
+    transform: translateY(0);
 }
 
 .start-level-button {

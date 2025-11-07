@@ -58,6 +58,15 @@
                     <button id="start-level-button" class="start-level-button">Level 1</button>
                 </div>
             </div>
+
+            <!-- No Hearts Dialog -->
+            <div id="noHeartsDialog" class="no-hearts-dialog hidden">
+                <div class="no-hearts-content">
+                    <div class="no-hearts-message">Not enough hearts!</div>
+                    <div class="no-hearts-submessage">Wait for them to regenerate or come back later.</div>
+                    <button id="closeNoHeartsBtn" class="close-hearts-btn">Close</button>
+                </div>
+            </div>
         </div>
 
         <div class="game-container" id="game-container">
@@ -169,8 +178,8 @@
                         Continue
                     </button>
                     <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
-                    <button id="restartBtn" class="control-btn restart" tabindex="1" style="display: none">
-                        Restart Level
+                    <button id="restartBtn" class="control-btn continue" tabindex="1" style="display: none">
+                        Try again
                     </button>
                 </div>
 

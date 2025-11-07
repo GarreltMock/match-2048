@@ -830,10 +830,10 @@ export class Match3Game {
             loseProgressBtn.addEventListener("click", () => {
                 // Build warning message
                 let warningText = "<h2>You will lose:</h2>";
+                warningText += "<p>1 ♥️ Heart</p>";
                 if (this.currentStreak > 0) {
-                    warningText += `<p>Level ${this.currentStreak} Streak</p>`;
+                    warningText += `<p>and Level ${this.currentStreak} Streak</p>`;
                 }
-                warningText += "<p>1 ♥️</p>";
 
                 // Show warning box
                 giveUpWarningText.innerHTML = warningText;
