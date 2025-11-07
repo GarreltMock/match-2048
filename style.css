@@ -114,7 +114,7 @@ button {
     max-width: 600px;
     width: 100%;
     padding: 10px clamp(10px, 3vw, 20px);
-    display: flex;
+    display: none;
     flex-direction: column;
     justify-content: flex-end;
     gap: clamp(8px, 4vw, 20px);
@@ -1981,4 +1981,44 @@ button {
     100% {
         transform: scale(1);
     }
+}
+
+/* Home Screen Styles */
+.home-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+.home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: clamp(40px, 8vh, 80px);
+    flex: 1;
+    padding: 10vh 0;
+    font-family: "Nunito", sans-serif;
+}
+
+.start-level-button {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(24px, 8vw, 82px);
+    font-weight: 900;
+    padding: clamp(12px, 1vh, 16px) clamp(48px, 10vw, 72px);
+    border-radius: 20px;
+    cursor: pointer;
+
+    background: #aee96b;
+    box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
+    color: black;
+    border: 2px solid black;
 }

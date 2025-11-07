@@ -1,5 +1,6 @@
 // Entry point for Match 2048 game
 import { Match3Game } from "./game.js";
+import { initializeHomeScreen, showHomeScreen } from "./home-screen.js";
 
 function registerServiceWorker() {
     if ("serviceWorker" in navigator) {
@@ -45,5 +46,12 @@ async function unregisterServiceWorkers() {
 document.addEventListener("DOMContentLoaded", () => {
     // Remove any existing service workers
     unregisterServiceWorkers();
-    new Match3Game();
+
+    const game = new Match3Game();
+
+    // Initialize home screen with game instance
+    initializeHomeScreen(game);
+
+    // Show home screen on initial load
+    showHomeScreen(game);
 });

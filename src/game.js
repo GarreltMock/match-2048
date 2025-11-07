@@ -148,7 +148,9 @@ export class Match3Game {
         this.setupSettingsButton();
         this.setupExtraMovesDialog();
         this.setupControlButtons();
-        this.init();
+        // Setup event listeners once during initialization
+        setupEventListeners(this);
+        // Don't auto-create/render board - let home screen handle starting the game
     }
 
     initializeLevels() {
@@ -368,6 +370,16 @@ export class Match3Game {
 
     restartLevel() {
         restartLevel(this);
+    }
+
+    startLevel() {
+        // Load current level and start the game
+        this.loadLevel(this.currentLevel);
+        this.createBoard();
+        this.renderBoard();
+        renderGoals(this);
+        updateMovesDisplay(this);
+        this.showGoalDialogIfNeeded();
     }
 
     saveScore() {

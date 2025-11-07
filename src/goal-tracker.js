@@ -3,6 +3,7 @@
 import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
+import { showHomeScreen } from "./home-screen.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -139,10 +140,8 @@ export function nextLevel(game) {
     if (game.currentLevel < game.levels.length) {
         game.currentLevel++;
         saveCurrentLevel(game.currentLevel); // Save progress to localStorage
-        game.loadLevel(game.currentLevel);
-        game.createBoard();
-        game.renderBoard();
-        game.showGoalDialogIfNeeded();
+        // Show home screen instead of immediately starting next level
+        showHomeScreen(game);
     } else {
         alert("Congratulations! You've completed all levels! 🏆");
     }

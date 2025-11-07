@@ -27,7 +27,31 @@
         </script>
     </head>
     <body>
-        <div class="game-container">
+        <!-- Home Screen -->
+        <div id="home-screen" class="home-screen">
+            <div class="home-content">
+                <svg viewBox="0 0 380 80" width="300" height="80">
+                    <text
+                        x="190"
+                        y="60"
+                        font-size="60"
+                        font-weight="900"
+                        fill="#fff"
+                        stroke="#000"
+                        stroke-width="10"
+                        paint-order="stroke fill"
+                        stroke-linejoin="round"
+                        text-anchor="middle"
+                    >
+                        Match 2048
+                    </text>
+                </svg>
+
+                <button id="start-level-button" class="start-level-button">Level 1</button>
+            </div>
+        </div>
+
+        <div class="game-container" id="game-container">
             <div id="settingsBtn" class="level-text">
                 <svg id="levelTextSvg" viewBox="0 0 200 40" width="200" height="40">
                     <text
@@ -336,9 +360,15 @@
                             <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">↔ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">⇄ Sticky Free Swap</option>
-                            <option value="powerup_hammer" class="powerup-option" style="display: none">🔨 Hammer Power-up</option>
-                            <option value="powerup_halve" class="powerup-option" style="display: none">✂️ Halve Power-up</option>
-                            <option value="powerup_swap" class="powerup-option" style="display: none">🔄 Swap Power-up</option>
+                            <option value="powerup_hammer" class="powerup-option" style="display: none">
+                                🔨 Hammer Power-up
+                            </option>
+                            <option value="powerup_halve" class="powerup-option" style="display: none">
+                                ✂️ Halve Power-up
+                            </option>
+                            <option value="powerup_swap" class="powerup-option" style="display: none">
+                                🔄 Swap Power-up
+                            </option>
                         </select>
                     </div>
 
@@ -351,9 +381,15 @@
                             <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">↔ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">⇄ Sticky Free Swap</option>
-                            <option value="powerup_hammer" class="powerup-option" style="display: none">🔨 Hammer Power-up</option>
-                            <option value="powerup_halve" class="powerup-option" style="display: none">✂️ Halve Power-up</option>
-                            <option value="powerup_swap" class="powerup-option" style="display: none">🔄 Swap Power-up</option>
+                            <option value="powerup_hammer" class="powerup-option" style="display: none">
+                                🔨 Hammer Power-up
+                            </option>
+                            <option value="powerup_halve" class="powerup-option" style="display: none">
+                                ✂️ Halve Power-up
+                            </option>
+                            <option value="powerup_swap" class="powerup-option" style="display: none">
+                                🔄 Swap Power-up
+                            </option>
                         </select>
                     </div>
 
@@ -366,9 +402,15 @@
                             <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">↔ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">⇄ Sticky Free Swap</option>
-                            <option value="powerup_hammer" class="powerup-option" style="display: none">🔨 Hammer Power-up</option>
-                            <option value="powerup_halve" class="powerup-option" style="display: none">✂️ Halve Power-up</option>
-                            <option value="powerup_swap" class="powerup-option" style="display: none">🔄 Swap Power-up</option>
+                            <option value="powerup_hammer" class="powerup-option" style="display: none">
+                                🔨 Hammer Power-up
+                            </option>
+                            <option value="powerup_halve" class="powerup-option" style="display: none">
+                                ✂️ Halve Power-up
+                            </option>
+                            <option value="powerup_swap" class="powerup-option" style="display: none">
+                                🔄 Swap Power-up
+                            </option>
                         </select>
                     </div>
 
@@ -381,9 +423,15 @@
                             <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">↔ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">⇄ Sticky Free Swap</option>
-                            <option value="powerup_hammer" class="powerup-option" style="display: none">🔨 Hammer Power-up</option>
-                            <option value="powerup_halve" class="powerup-option" style="display: none">✂️ Halve Power-up</option>
-                            <option value="powerup_swap" class="powerup-option" style="display: none">🔄 Swap Power-up</option>
+                            <option value="powerup_hammer" class="powerup-option" style="display: none">
+                                🔨 Hammer Power-up
+                            </option>
+                            <option value="powerup_halve" class="powerup-option" style="display: none">
+                                ✂️ Halve Power-up
+                            </option>
+                            <option value="powerup_swap" class="powerup-option" style="display: none">
+                                🔄 Swap Power-up
+                            </option>
                         </select>
                     </div>
 
@@ -396,9 +444,15 @@
                             <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">↔ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">⇄ Sticky Free Swap</option>
-                            <option value="powerup_hammer" class="powerup-option" style="display: none">🔨 Hammer Power-up</option>
-                            <option value="powerup_halve" class="powerup-option" style="display: none">✂️ Halve Power-up</option>
-                            <option value="powerup_swap" class="powerup-option" style="display: none">🔄 Swap Power-up</option>
+                            <option value="powerup_hammer" class="powerup-option" style="display: none">
+                                🔨 Hammer Power-up
+                            </option>
+                            <option value="powerup_halve" class="powerup-option" style="display: none">
+                                ✂️ Halve Power-up
+                            </option>
+                            <option value="powerup_swap" class="powerup-option" style="display: none">
+                                🔄 Swap Power-up
+                            </option>
                         </select>
                     </div>
 
@@ -414,7 +468,10 @@
                         <strong>🔨 Hammer:</strong> Remove any tile from the board.<br />
                         <strong>✂️ Halve:</strong> Halve the value of any tile instantly.<br />
                         <strong>🔄 Swap:</strong> Swap adjacent tiles even without matches.<br />
-                        <em>Note: In Power-up Rewards mode, you start with 0 power-ups and earn them through formations.</em>
+                        <em
+                            >Note: In Power-up Rewards mode, you start with 0 power-ups and earn them through
+                            formations.</em
+                        >
                     </div>
 
                     <div class="user-id-display">
