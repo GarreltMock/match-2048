@@ -35,6 +35,11 @@ export const GOAL_TYPE_DESCRIPTIONS = {
         title: "Imploding Cursed Tiles",
         description: "Merge explosive cursed tiles before they destroy adjacent tiles",
     },
+    board_upgrades: {
+        icon: "⬆️",
+        title: "Board Upgrades",
+        description: "Unlock higher tile values by reaching upgrade milestones",
+    },
 };
 
 // Dialog content for each goal type
@@ -113,6 +118,19 @@ export const GOAL_DIALOGS = {
                 <li>Merge them quickly to avoid catastrophe!</li>
             </ul>
             <p><em>Tip: These are top priority - clear them before anything else!</em></p>
+        `,
+    },
+    board_upgrades: {
+        title: `<img src="/assets/upgrade-icon.png" style="display: inline-block; height: 2rem; vertical-align: bottom" /> Board Upgrades`,
+        subtitle: "Unlock higher tile values!",
+        content: `
+            <p>This level features board upgrades that unlock when you reach specific tile milestones.</p>
+            <ul>
+                <li>Create the tiles shown to trigger an upgrade</li>
+                <li>Each upgrade removes the smallest tiles from the board</li>
+                <li>Higher value tiles become available to spawn</li>
+            </ul>
+            <p><em>Tip: Upgrades help you reach even higher tiles - aim for those milestones!</em></p>
         `,
     },
 };

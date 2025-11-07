@@ -110,7 +110,6 @@ export function renderBoard(game) {
             game.interruptCascade = false;
             game.pendingSwap = null;
         }
-
     }
 
     updateGoalDisplay(game);
@@ -195,6 +194,35 @@ export function createGoalCard(game, goal) {
     return goalCard;
 }
 
+export function renderBoardUpgrades(game) {
+    const upgradesContainer = document.getElementById("boardUpgradesContainer");
+    const upgradesElement = document.getElementById("boardUpgrades");
+    if (!upgradesContainer || !upgradesElement) return;
+
+    const levelConfig = game.levelConfig;
+
+    // Only show if level has boardUpgrades configured
+    if (!levelConfig.boardUpgrades || levelConfig.boardUpgrades.length === 0) {
+        upgradesContainer.style.display = "none";
+        return;
+    }
+
+    upgradesContainer.style.display = "flex";
+    upgradesElement.innerHTML = "";
+
+    // Show upgrade trigger tiles stacked vertically
+    levelConfig.boardUpgrades.reverse().forEach((tileValue) => {
+        const isCompleted = game.completedUpgrades.includes(tileValue);
+        const displayValue = getDisplayValue(tileValue, game.numberBase);
+
+        const upgradeTile = document.createElement("div");
+        upgradeTile.className = `gem tile-${tileValue} upgrade-tile ${isCompleted ? "completed" : ""}`;
+        upgradeTile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+
+        upgradesElement.appendChild(upgradeTile);
+    });
+}
+
 export function updateGoalDisplay(game, checkComplete = false) {
     // Update tile counts for current-type goals
     game.updateTileCounts();
@@ -212,7 +240,7 @@ export function updateMovesDisplay(game) {
 
     const levelElement = document.getElementById("level");
     if (levelElement) {
-        levelElement.textContent = `Level: ${game.currentLevel}`;
+        levelElement.textContent = `Level ${game.currentLevel}`;
     }
 }
 

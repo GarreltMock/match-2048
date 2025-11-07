@@ -577,6 +577,20 @@ export const LEVELS = [
         ],
         spawnableTiles: [1, 2, 3, 4],
     },
+    {
+        level: 41,
+        title: "Board Upgrades",
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 45,
+        boardUpgrades: [6, 8], // Upgrade when creating 32 and 256
+        showGoalDialog: "board_upgrades", // First level with board upgrades
+        goals: [
+            { tileValue: 9, target: 1, current: 0, goalType: "created" }, // 512
+            { tileValue: 7, target: 2, current: 0, goalType: "created" }, // 128
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
 ];
 
 // Test levels for development and testing

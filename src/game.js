@@ -61,7 +61,7 @@ import {
 } from "./match-detector.js";
 import { processMatches } from "./merge-processor.js";
 import { animateSwap, animateRevert, dropGems } from "./animator.js";
-import { renderBoard, renderGoals, updateGoalDisplay, updateMovesDisplay } from "./renderer.js";
+import { renderBoard, renderGoals, renderBoardUpgrades, updateGoalDisplay, updateMovesDisplay } from "./renderer.js";
 import {
     checkLevelComplete,
     updateTileCounts,
@@ -102,6 +102,7 @@ export class Match3Game {
 
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
+        this.completedUpgrades = []; // Track completed board upgrades for per-level system
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
@@ -278,6 +279,7 @@ export class Match3Game {
 
         // Reset tile level shift flag
         this.pendingTileLevelShift = false;
+        this.completedUpgrades = []; // Reset board upgrade progress for new level
 
         // Reset match statistics for new level
         this.matchStats = {
@@ -293,6 +295,7 @@ export class Match3Game {
         this.levelStartTime = Date.now();
         this.settingsChangedDuringLevel = false; // Reset flag for new level
 
+        renderBoardUpgrades(this);
         renderGoals(this);
         updateMovesDisplay(this);
 
@@ -351,6 +354,7 @@ export class Match3Game {
         this.createBoard();
         this.renderBoard();
         setupEventListeners(this);
+        renderBoardUpgrades(this);
         renderGoals(this);
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
@@ -369,6 +373,19 @@ export class Match3Game {
         if (nextBtn) {
             nextBtn.addEventListener("click", () => {
                 this.nextLevel();
+            });
+        }
+
+        // Setup board upgrades click handler to show dialog
+        const boardUpgradesContainer = document.getElementById("boardUpgradesContainer");
+        if (boardUpgradesContainer) {
+            boardUpgradesContainer.addEventListener("click", () => {
+                // Only show dialog if level has board upgrades
+                if (this.levelConfig?.boardUpgrades?.length > 0) {
+                    showGoalDialog("board_upgrades", this, () => {
+                        // Dialog closed, do nothing
+                    });
+                }
             });
         }
 
@@ -462,6 +479,7 @@ export class Match3Game {
         this.loadLevel(this.currentLevel);
         this.createBoard();
         this.renderBoard();
+        renderBoardUpgrades(this);
         renderGoals(this);
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
@@ -1207,6 +1225,7 @@ export class Match3Game {
                     } else {
                         settingsDialog.classList.add("hidden");
                         this.renderBoard();
+                        renderBoardUpgrades(this);
                         renderGoals(this);
                     }
                 });
@@ -1233,7 +1252,21 @@ export class Match3Game {
      * This is called after tiles are merged - it just sets a flag
      */
     checkAndShiftTileLevels(newlyCreatedValue) {
-        // Only proceed if feature is enabled
+        const currentLevelConfig = LEVELS[this.currentLevel - 1];
+
+        // Check for per-level board upgrades first (takes precedence)
+        if (currentLevelConfig.boardUpgrades) {
+            const upgrades = currentLevelConfig.boardUpgrades;
+
+            // Check if this value triggers an upgrade that hasn't been completed yet
+            if (upgrades.includes(newlyCreatedValue) && !this.completedUpgrades.includes(newlyCreatedValue)) {
+                this.pendingTileLevelShift = true;
+                this.completedUpgrades.push(newlyCreatedValue);
+            }
+            return;
+        }
+
+        // Fall back to global maxTileLevels system
         if (this.maxTileLevels === null) {
             return;
         }
@@ -1257,7 +1290,17 @@ export class Match3Game {
      */
     shiftTileLevels() {
         return new Promise((resolve) => {
-            if (this.maxTileLevels === null || !this.pendingTileLevelShift) {
+            const currentLevelConfig = LEVELS[this.currentLevel - 1];
+            const hasPerLevelUpgrades = currentLevelConfig?.boardUpgrades?.length > 0;
+
+            // Check if we should proceed with shift
+            if (!this.pendingTileLevelShift) {
+                resolve();
+                return;
+            }
+
+            // If no per-level upgrades and no global setting, return
+            if (!hasPerLevelUpgrades && this.maxTileLevels === null) {
                 resolve();
                 return;
             }
@@ -1354,6 +1397,9 @@ export class Match3Game {
                 if (this.smallestTileAction === "double") {
                     this.renderBoard();
                 }
+
+                // Update board upgrades display to show completion
+                renderBoardUpgrades(this);
 
                 // Continue with the cascade - dropGems will handle rendering and animation
                 resolve();
