@@ -198,3 +198,37 @@ export function loadUsePowerUpRewards() {
 export function saveUsePowerUpRewards(usePowerUpRewards) {
     localStorage.setItem("match2048_usePowerUpRewards", usePowerUpRewards.toString());
 }
+
+/**
+ * Load the current streak level (0-3)
+ * @returns {number} Current streak level
+ */
+export function loadStreak() {
+    const saved = localStorage.getItem("match2048_currentStreak");
+    return saved ? parseInt(saved, 10) : 0;
+}
+
+/**
+ * Save the current streak level
+ * @param {number} streak - Current streak level (0-3)
+ */
+export function saveStreak(streak) {
+    localStorage.setItem("match2048_currentStreak", streak.toString());
+}
+
+/**
+ * Load the best streak ever achieved
+ * @returns {number} Best streak level
+ */
+export function loadBestStreak() {
+    const saved = localStorage.getItem("match2048_bestStreak");
+    return saved ? parseInt(saved, 10) : 0;
+}
+
+/**
+ * Save the best streak ever achieved
+ * @param {number} bestStreak - Best streak level
+ */
+export function saveBestStreak(bestStreak) {
+    localStorage.setItem("match2048_bestStreak", bestStreak.toString());
+}

@@ -31,6 +31,10 @@ import {
     saveSpawnableTilesStartCount,
     loadUsePowerUpRewards,
     saveUsePowerUpRewards,
+    loadStreak,
+    saveStreak,
+    loadBestStreak,
+    saveBestStreak,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -83,6 +87,8 @@ export class Match3Game {
         this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
         this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
         this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
+        this.currentStreak = loadStreak(); // 0-3 consecutive wins
+        this.bestStreak = loadBestStreak(); // All-time best streak
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.selectedGem = null;
@@ -243,6 +249,17 @@ export class Match3Game {
             halve: initialPowerUpCount,
             swap: initialPowerUpCount,
         };
+
+        // Apply streak bonus power-ups (stacks with existing power-ups)
+        if (this.currentStreak >= 1) {
+            this.powerUpRemaining.halve += 1;
+        }
+        if (this.currentStreak >= 2) {
+            this.powerUpRemaining.hammer += 1;
+        }
+        if (this.currentStreak >= 3) {
+            this.powerUpRemaining.swap += 1;
+        }
 
         // Deactivate any power-ups when loading a level
         this.deactivatePowerUp();
