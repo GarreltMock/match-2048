@@ -121,7 +121,7 @@ export const GOAL_DIALOGS = {
         `,
     },
     board_upgrades: {
-        title: `<img src="/assets/upgrade-icon.png" style="display: inline-block; height: 2rem; vertical-align: bottom" /> Board Upgrades`,
+        title: `<img src="assets/upgrade-icon.png" style="display: inline-block; height: 2rem; vertical-align: bottom" /> Board Upgrades`,
         subtitle: "Unlock higher tile values!",
         content: `
             <p>This level features board upgrades that unlock when you reach specific tile milestones.</p>

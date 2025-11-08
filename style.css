@@ -337,7 +337,9 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0px 20px;
+    padding: 0 12px;
+    flex: 1;
+    max-width: 100px;
 }
 
 .moves-container span {
@@ -353,7 +355,6 @@ button {
     display: flex;
     gap: clamp(6px, 2vw, 10px);
     justify-content: center;
-    flex-wrap: wrap;
     height: fit-content;
 }
 
