@@ -285,7 +285,7 @@ button {
 
 .goals-container {
     flex: 1;
-    padding: 10px 0 5px;
+    padding: 25px 0 5px;
     display: flex;
     align-items: center;
     justify-content: center;
