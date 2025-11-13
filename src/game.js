@@ -33,8 +33,6 @@ import {
     saveUsePowerUpRewards,
     loadStreak,
     saveStreak,
-    loadBestStreak,
-    saveBestStreak,
     loadHearts,
     saveHearts,
     saveLastRegenTime,
@@ -93,7 +91,6 @@ export class Match3Game {
         this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
         this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
-        this.bestStreak = loadBestStreak(); // All-time best streak
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
         // Hearts system
@@ -853,10 +850,10 @@ export class Match3Game {
                 let warningText = "<h2>You will lose:</h2>";
                 warningText += "<p>1 ♥️ Heart</p>";
                 if (this.currentStreak > 0) {
-                    warningText += `<p>+ Level ${this.currentStreak} Streak</p>`;
+                    warningText += `<p>+ 🔥 Your Streak</p>`;
                 }
                 if (this.superStreak >= 10) {
-                    warningText += `<p>+ Super Streak</p>`;
+                    warningText += `<p>+ <img style="display: inline-block; height: 1.3rem; vertical-align: sub" src="assets/upgrade-icon_streak.png" alt="Super Upgrade" /> Super Upgrade</p>`;
                 }
 
                 // Show warning box

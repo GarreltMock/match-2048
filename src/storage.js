@@ -217,23 +217,6 @@ export function saveStreak(streak) {
 }
 
 /**
- * Load the best streak ever achieved
- * @returns {number} Best streak level
- */
-export function loadBestStreak() {
-    const saved = localStorage.getItem("match2048_bestStreak");
-    return saved ? parseInt(saved, 10) : 0;
-}
-
-/**
- * Save the best streak ever achieved
- * @param {number} bestStreak - Best streak level
- */
-export function saveBestStreak(bestStreak) {
-    localStorage.setItem("match2048_bestStreak", bestStreak.toString());
-}
-
-/**
  * Load hearts data (count and last regeneration time)
  * @returns {{hearts: number, lastRegenTime: number}} Hearts data
  */
