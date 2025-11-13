@@ -197,6 +197,7 @@ export function createGoalCard(game, goal) {
 export function renderBoardUpgrades(game) {
     const upgradesContainer = document.getElementById("boardUpgradesContainer");
     const upgradesElement = document.getElementById("boardUpgrades");
+    const upgradeIcon = upgradesContainer?.querySelector(".upgrade-icon");
     if (!upgradesContainer || !upgradesElement) return;
 
     const levelConfig = game.levelConfig;
@@ -210,17 +211,30 @@ export function renderBoardUpgrades(game) {
     upgradesContainer.style.display = "flex";
     upgradesElement.innerHTML = "";
 
+    // Update icon based on super streak status
+    if (upgradeIcon) {
+        if (game.superStreak >= 10) {
+            upgradeIcon.src = "assets/upgrade-icon_streak.png";
+            upgradeIcon.classList.add("active");
+        } else {
+            upgradeIcon.src = "assets/upgrade-icon.png";
+            upgradeIcon.classList.remove("active");
+        }
+    }
+
     // Show upgrade trigger tiles stacked vertically
-    levelConfig.boardUpgrades.reverse().forEach((tileValue) => {
-        const isCompleted = game.completedUpgrades.includes(tileValue);
-        const displayValue = getDisplayValue(tileValue, game.numberBase);
+    levelConfig.boardUpgrades
+        .sort((a, b) => b - a)
+        .forEach((tileValue) => {
+            const isCompleted = game.completedUpgrades.includes(tileValue);
+            const displayValue = getDisplayValue(tileValue, game.numberBase);
 
-        const upgradeTile = document.createElement("div");
-        upgradeTile.className = `gem tile-${tileValue} upgrade-tile ${isCompleted ? "completed" : ""}`;
-        upgradeTile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+            const upgradeTile = document.createElement("div");
+            upgradeTile.className = `gem tile-${tileValue} upgrade-tile ${isCompleted ? "completed" : ""}`;
+            upgradeTile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
-        upgradesElement.appendChild(upgradeTile);
-    });
+            upgradesElement.appendChild(upgradeTile);
+        });
 }
 
 export function updateGoalDisplay(game, checkComplete = false) {

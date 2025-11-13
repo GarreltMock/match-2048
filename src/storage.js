@@ -262,3 +262,20 @@ export function saveHearts(hearts) {
 export function saveLastRegenTime(timestamp) {
     localStorage.setItem("match2048_lastRegenTime", timestamp.toString());
 }
+
+/**
+ * Load the super streak count (10+ levels for board upgrade benefit)
+ * @returns {number} Super streak count (0+)
+ */
+export function loadSuperStreak() {
+    const saved = localStorage.getItem("match2048_superStreak");
+    return saved ? parseInt(saved, 10) : 0;
+}
+
+/**
+ * Save the super streak count
+ * @param {number} superStreak - Super streak count (0+)
+ */
+export function saveSuperStreak(superStreak) {
+    localStorage.setItem("match2048_superStreak", superStreak.toString());
+}

@@ -1,5 +1,7 @@
 // home-screen.js - Home screen management
 
+import { loadShownGoalDialogs } from "./storage.js";
+
 /**
  * Shows the home screen with current level information
  * @param {Match3Game} game - The game instance
@@ -9,6 +11,7 @@ export function showHomeScreen(game) {
     const gameContainer = document.getElementById("game-container");
     const levelButton = document.getElementById("start-level-button");
     const streakDisplay = document.getElementById("streak-display");
+    const superStreakDisplay = document.getElementById("super-streak-display");
     const heartsDisplay = document.getElementById("hearts-display");
 
     // Regenerate hearts before showing home screen
@@ -16,6 +19,17 @@ export function showHomeScreen(game) {
 
     // Update button text with current level
     levelButton.textContent = `Level ${game.currentLevel}`;
+
+    // Update super streak display (above regular streak) - only if feature is unlocked
+    const shownDialogs = loadShownGoalDialogs();
+    if (shownDialogs.has("board_upgrades")) {
+        updateSuperStreakDisplay(game, superStreakDisplay);
+    } else {
+        // Hide super streak display if feature is not unlocked yet
+        if (superStreakDisplay) {
+            superStreakDisplay.innerHTML = "";
+        }
+    }
 
     // Update streak display
     updateStreakDisplay(game, streakDisplay);
@@ -26,6 +40,64 @@ export function showHomeScreen(game) {
     // Show home screen, hide game
     homeScreen.style.display = "flex";
     gameContainer.style.display = "none";
+}
+
+/**
+ * Updates the super streak display with circular progress indicator
+ * @param {Match3Game} game - The game instance
+ * @param {HTMLElement} superStreakDisplay - The super streak display element
+ */
+function updateSuperStreakDisplay(game, superStreakDisplay) {
+    const superStreak = game.superStreak;
+    const progress = Math.min(superStreak, 10);
+    const isActive = superStreak >= 10;
+
+    // Calculate circle progress (0-283 is full circle, stroke-dasharray circumference for r=45)
+    const circumference = 2 * Math.PI * 45;
+    const progressOffset = circumference - (progress / 10) * circumference;
+
+    const content = `
+        <div class="super-streak-container ${isActive ? "active" : ""}">
+            <svg class="super-streak-circle" width="120" height="120" viewBox="0 0 120 120">
+                <!-- Background circle -->
+                <circle
+                    cx="60"
+                    cy="60"
+                    r="45"
+                    fill="none"
+                    stroke="rgba(0, 0, 0, 0.4)"
+                    stroke-width="12"
+                />
+                <!-- Progress circle -->
+                <circle
+                    cx="60"
+                    cy="60"
+                    r="45"
+                    fill="none"
+                    stroke="url(#superStreakGradient)"
+                    stroke-width="8"
+                    stroke-linecap="round"
+                    stroke-dasharray="${circumference}"
+                    stroke-dashoffset="${-progressOffset}"
+                    transform="rotate(86 60 60)"
+                    class="progress-circle"
+                />
+                <!-- Gradient definition -->
+                <defs>
+                    <linearGradient id="superStreakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#3E9DFF;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#bb00ff;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="super-streak-icon">
+                <img src="assets/upgrade-icon_streak.png" alt="Super Streak" />
+            </div>
+            <div class="super-streak-text">${progress}/10</div>
+        </div>
+    `;
+
+    superStreakDisplay.innerHTML = content;
 }
 
 /**

@@ -38,6 +38,8 @@ import {
     loadHearts,
     saveHearts,
     saveLastRegenTime,
+    loadSuperStreak,
+    saveSuperStreak,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -92,6 +94,7 @@ export class Match3Game {
         this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.bestStreak = loadBestStreak(); // All-time best streak
+        this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
         // Hearts system
         const heartsData = loadHearts();
@@ -850,7 +853,10 @@ export class Match3Game {
                 let warningText = "<h2>You will lose:</h2>";
                 warningText += "<p>1 ♥️ Heart</p>";
                 if (this.currentStreak > 0) {
-                    warningText += `<p>and Level ${this.currentStreak} Streak</p>`;
+                    warningText += `<p>+ Level ${this.currentStreak} Streak</p>`;
+                }
+                if (this.superStreak >= 10) {
+                    warningText += `<p>+ Super Streak</p>`;
                 }
 
                 // Show warning box
@@ -955,6 +961,10 @@ export class Match3Game {
         // Reset streak on level loss
         this.currentStreak = 0;
         saveStreak(this.currentStreak);
+
+        // Reset super streak on level loss
+        this.superStreak = 0;
+        saveSuperStreak(this.superStreak);
 
         // Track level_lost when level failed screen is shown
         trackLevelLost(this);
@@ -1327,14 +1337,17 @@ export class Match3Game {
                 return;
             }
 
+            // Determine which action to use (super streak overrides to "disappear")
+            const effectiveAction = this.superStreak >= 10 ? "disappear" : this.smallestTileAction;
+
             // Animate tiles based on action type
             tilesToRemove.forEach(({ row, col }) => {
                 const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                 if (element && !element.classList.contains("sliding") && !element.classList.contains("merge-target")) {
-                    if (this.smallestTileAction === "blocked" || this.smallestTileAction === "blocked_movable") {
+                    if (effectiveAction === "blocked" || effectiveAction === "blocked_movable") {
                         // Bump animation for blocked transformation
                         element.classList.add("tile-to-blocked");
-                    } else if (this.smallestTileAction === "double") {
+                    } else if (effectiveAction === "double") {
                         // Pulse animation for doubling
                         element.style.transition = "transform 0.4s ease";
                         element.style.transform = "scale(1.2)";
@@ -1356,15 +1369,15 @@ export class Match3Game {
                 tilesToRemove.forEach(({ row, col }) => {
                     const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
 
-                    if (this.smallestTileAction === "blocked") {
+                    if (effectiveAction === "blocked") {
                         // Transform to blocked tile
                         this.board[row][col] = createBlockedTile();
                         // Note: element will be recreated by dropGems' renderBoard
-                    } else if (this.smallestTileAction === "blocked_movable") {
+                    } else if (effectiveAction === "blocked_movable") {
                         // Transform to blocked movable tile
                         this.board[row][col] = createBlockedMovableTile();
                         // Note: element will be recreated by dropGems' renderBoard
-                    } else if (this.smallestTileAction === "double") {
+                    } else if (effectiveAction === "double") {
                         // Double the value (add 1 to internal value: 2→3, 3→4, etc.)
                         const currentTile = this.board[row][col];
                         if (currentTile && currentTile.value === minValue) {

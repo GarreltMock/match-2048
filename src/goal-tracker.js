@@ -1,7 +1,7 @@
 // Goal and level progression tracking
 
 import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "./tile-helpers.js";
-import { saveCurrentLevel, saveStreak, saveBestStreak } from "./storage.js";
+import { saveCurrentLevel, saveStreak, saveBestStreak, saveSuperStreak, loadShownGoalDialogs } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
 
@@ -34,6 +34,13 @@ export function checkLevelComplete(game) {
         if (game.currentStreak > game.bestStreak) {
             game.bestStreak = game.currentStreak;
             saveBestStreak(game.bestStreak);
+        }
+
+        // Increment super streak (no cap) - only if board_upgrades dialog has been shown
+        const shownDialogs = loadShownGoalDialogs();
+        if (shownDialogs.has("board_upgrades")) {
+            game.superStreak = game.superStreak + 1;
+            saveSuperStreak(game.superStreak);
         }
 
         // Hide power-ups and show control buttons
