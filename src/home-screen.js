@@ -85,7 +85,7 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
                 />
                 <!-- Gradient definition -->
                 <defs>
-                    <linearGradient id="superStreakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id="superStreakGradient" x1="0%" y1="100%" x2="100%" y2="0%">
                         <stop offset="0%" style="stop-color:#3E9DFF;stop-opacity:1" />
                         <stop offset="100%" style="stop-color:#bb00ff;stop-opacity:1" />
                     </linearGradient>
