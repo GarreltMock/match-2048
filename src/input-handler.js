@@ -203,6 +203,12 @@ function activateJokerByTap(game, row, col, element) {
     const bestValue = findBestJokerValue(game, row, col);
 
     if (bestValue !== null) {
+        // Reset power-up usage flag when user activates joker (counts as user action)
+        if (game.onePowerUpPerSwap) {
+            game.powerUpUsedSinceLastSwap = false;
+            game.updatePowerUpButtons();
+        }
+
         // Transform and animate
         game.animating = true;
         element.style.transform = "scale(1.2)";
@@ -312,6 +318,12 @@ export function trySwap(game, row1, col1, row2, col2) {
             game.updateMovesDisplay();
         }
 
+        // Reset power-up usage flag when user makes a swap (only if not using swap power-up)
+        if (game.onePowerUpPerSwap && !isSwapPowerUp) {
+            game.powerUpUsedSinceLastSwap = false;
+            game.updatePowerUpButtons();
+        }
+
         // Flag that we should decrement cursed timers after this turn completes
         game.shouldDecrementCursedTimers = true;
 
@@ -334,6 +346,12 @@ export function trySwap(game, row1, col1, row2, col2) {
             if (isSwapPowerUp) {
                 // Decrement remaining count and deactivate power-up after successful swap
                 game.powerUpRemaining.swap--;
+
+                // Mark that a power-up was used (swap power-up)
+                if (game.onePowerUpPerSwap) {
+                    game.powerUpUsedSinceLastSwap = true;
+                }
+
                 game.updatePowerUpButtons();
 
                 // Track power-up usage

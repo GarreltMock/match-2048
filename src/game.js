@@ -38,6 +38,8 @@ import {
     saveLastRegenTime,
     loadSuperStreak,
     saveSuperStreak,
+    loadOnePowerUpPerSwap,
+    saveOnePowerUpPerSwap,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -90,6 +92,7 @@ export class Match3Game {
         this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
         this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
         this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
+        this.onePowerUpPerSwap = loadOnePowerUpPerSwap(); // true or false - limit power-ups to one per swap
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
@@ -529,6 +532,11 @@ export class Match3Game {
                     return; // Power-up is used up
                 }
 
+                // Check if one power-up per swap setting is active and a power-up was already used
+                if (this.onePowerUpPerSwap && this.powerUpUsedSinceLastSwap) {
+                    return; // Can only use one power-up between swaps
+                }
+
                 if (this.activePowerUp === powerUpType) {
                     // Deselect power-up
                     this.deactivatePowerUp();
@@ -591,14 +599,15 @@ export class Match3Game {
                 existingIndicator.remove();
             }
 
+            // Check if button should be disabled
+            const shouldDisable = usesLeft <= 0 || (this.onePowerUpPerSwap && this.powerUpUsedSinceLastSwap);
+
             if (usesLeft <= 0) {
                 // Power-up is used up
                 button.classList.add("disabled");
                 button.title = `${button.title.split(" - ")[0]} - No uses left`;
             } else {
-                // Power-up has uses left
-                button.classList.remove("disabled");
-
+                // Power-up has uses left - show the indicator
                 // Add use indicator
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
@@ -611,9 +620,16 @@ export class Match3Game {
                 indicator.appendChild(strokedText);
                 button.appendChild(indicator);
 
-                // Update title
-                const baseTitle = button.title.split(" - ")[0];
-                button.title = `${baseTitle} - ${usesLeft} uses left`;
+                // Check if temporarily disabled due to one-per-swap rule
+                if (shouldDisable) {
+                    button.classList.add("disabled");
+                    button.title = `${button.title.split(" - ")[0]} - Make a swap to use power-ups again`;
+                } else {
+                    button.classList.remove("disabled");
+                    // Update title
+                    const baseTitle = button.title.split(" - ")[0];
+                    button.title = `${baseTitle} - ${usesLeft} uses left`;
+                }
             }
         });
     }
@@ -641,6 +657,12 @@ export class Match3Game {
     usePowerUpHammer(row, col, element) {
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
+
+        // Mark that a power-up was used
+        if (this.onePowerUpPerSwap) {
+            this.powerUpUsedSinceLastSwap = true;
+        }
+
         this.updatePowerUpButtons();
 
         // Track power-up usage
@@ -677,6 +699,12 @@ export class Match3Game {
         if (currentValue && currentValue > 1) {
             // Decrement remaining count
             this.powerUpRemaining.halve--;
+
+            // Mark that a power-up was used
+            if (this.onePowerUpPerSwap) {
+                this.powerUpUsedSinceLastSwap = true;
+            }
+
             this.updatePowerUpButtons();
 
             // Track power-up usage
@@ -1029,6 +1057,10 @@ export class Match3Game {
         const usePowerUpRewardsCheckbox = document.getElementById("usePowerUpRewards");
         let usePowerUpRewardsMode = this.usePowerUpRewards;
 
+        // One power-up per swap checkbox
+        const onePowerUpPerSwapCheckbox = document.getElementById("onePowerUpPerSwap");
+        let onePowerUpPerSwapMode = this.onePowerUpPerSwap;
+
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
             const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -1056,6 +1088,13 @@ export class Match3Game {
             usePowerUpRewardsCheckbox.addEventListener("change", () => {
                 usePowerUpRewardsMode = usePowerUpRewardsCheckbox.checked;
                 togglePowerUpOptions(usePowerUpRewardsMode);
+            });
+        }
+
+        // Handle one power-up per swap checkbox change
+        if (onePowerUpPerSwapCheckbox) {
+            onePowerUpPerSwapCheckbox.addEventListener("change", () => {
+                onePowerUpPerSwapMode = onePowerUpPerSwapCheckbox.checked;
             });
         }
 
@@ -1115,6 +1154,12 @@ export class Match3Game {
                 usePowerUpRewardsCheckbox.checked = usePowerUpRewardsMode;
             }
             togglePowerUpOptions(usePowerUpRewardsMode);
+
+            // Set one power-up per swap state
+            onePowerUpPerSwapMode = this.onePowerUpPerSwap;
+            if (onePowerUpPerSwapCheckbox) {
+                onePowerUpPerSwapCheckbox.checked = onePowerUpPerSwapMode;
+            }
 
             // Set special tile configuration values
             line4Select.value = this.specialTileConfig.line_4;
@@ -1214,6 +1259,10 @@ export class Match3Game {
                     // Save power-up rewards mode
                     this.usePowerUpRewards = usePowerUpRewardsMode;
                     saveUsePowerUpRewards(this.usePowerUpRewards);
+
+                    // Save one power-up per swap mode
+                    this.onePowerUpPerSwap = onePowerUpPerSwapMode;
+                    saveOnePowerUpPerSwap(this.onePowerUpPerSwap);
 
                     // Save special tile configuration
                     this.specialTileConfig.line_4 = line4Select.value;

@@ -262,3 +262,20 @@ export function loadSuperStreak() {
 export function saveSuperStreak(superStreak) {
     localStorage.setItem("match2048_superStreak", superStreak.toString());
 }
+
+/**
+ * Load the one power-up per swap setting
+ * @returns {boolean} Whether to limit power-ups to one per swap
+ */
+export function loadOnePowerUpPerSwap() {
+    const saved = localStorage.getItem("match2048_onePowerUpPerSwap");
+    return saved === "true";
+}
+
+/**
+ * Save the one power-up per swap setting
+ * @param {boolean} onePowerUpPerSwap - Whether to limit power-ups to one per swap
+ */
+export function saveOnePowerUpPerSwap(onePowerUpPerSwap) {
+    localStorage.setItem("match2048_onePowerUpPerSwap", onePowerUpPerSwap.toString());
+}
