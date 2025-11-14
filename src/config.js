@@ -120,7 +120,6 @@ export const LEVELS = [
         goals: [{ tileValue: 10, target: 1, current: 0, goalType: "created" }], // 1024
         spawnableTiles: [2, 3, 4, 5], // 4, 8, 16, 32
     },
-
     {
         level: 11,
         title: "Blocked Tile Goal",
@@ -582,13 +581,104 @@ export const LEVELS = [
         title: "Board Upgrades",
         boardWidth: 8,
         boardHeight: 8,
-        maxMoves: 45,
+        maxMoves: 30,
         boardUpgrades: [6, 8], // Upgrade when creating 32 and 256
         showGoalDialog: "board_upgrades", // First level with board upgrades
         goals: [
             { tileValue: 9, target: 1, current: 0, goalType: "created" }, // 512
             { tileValue: 7, target: 2, current: 0, goalType: "created" }, // 128
         ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 42,
+        maxMoves: 30,
+        boardUpgrades: [6, 7, 8],
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        goals: [
+            { tileValue: 10, target: 1, current: 0, goalType: "created" }, // 1024
+            { current: 0, goalType: "blocked" },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 43,
+        boardWidth: 9,
+        maxMoves: 35,
+        blockedTiles: [
+            { row: 4, col: 0 },
+            { row: 4, col: 8 },
+            { row: 5, col: [0, 1, 7, 8] },
+            { row: 6, col: [0, 1, 2, 6, 7, 8] },
+            { row: 7, col: [0, 1, 2, 3, 5, 6, 7, 8] },
+            { row: 8 },
+        ],
+        boardUpgrades: [6, 8],
+        goals: [
+            { tileValue: 9, target: 2, current: 0, goalType: "created" }, // 512
+            { tileValue: 8, target: 4, current: 0, goalType: "current" }, // 256
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 44,
+        maxMoves: 20,
+        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
+        boardUpgrades: [6],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 7, target: 4, current: 0, goalType: "current" }, // 128
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 45,
+        maxMoves: 25,
+        boardHeight: 10,
+        boardUpgrades: [7, 8, 9],
+        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
+        goals: [
+            { tileValue: 9, target: 1, current: 0, goalType: "created" }, // 512
+            { tileValue: 8, target: 10, current: 0, goalType: "created" }, // 256
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 46,
+        boardHeight: 10,
+        maxMoves: 45,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+        boardUpgrades: [6, 7, 8],
+        goals: [
+            { tileValue: 10, target: 1, current: 0, goalType: "created" }, // 1024
+            { tileValue: 9, target: 5, current: 0, goalType: "created" }, // 512
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 47,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 30,
+        boardUpgrades: [6, 7],
+        blockedTiles: [{ row: 4, lifeValue: 32 }, { row: 5, lifeValue: 32 }, { row: 6 }, { row: 7 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 48,
+        boardWidth: 9,
+        boardHeight: 9,
+        maxMoves: 30,
+        boardUpgrades: [6, 7],
+        blockedTiles: [
+            { row: 4, lifeValue: 16 },
+            { row: 5, lifeValue: 16 },
+            { row: 6, lifeValue: 16 },
+            { row: 7, lifeValue: 16 },
+            { row: 8, lifeValue: 16 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
         spawnableTiles: [1, 2, 3, 4],
     },
 ];
