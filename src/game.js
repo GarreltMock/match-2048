@@ -366,6 +366,15 @@ export class Match3Game {
 
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
+                // Check if player has hearts to play
+                if (this.hearts <= 0) {
+                    // No hearts available - show dialog
+                    const noHeartsDialog = document.getElementById("noHeartsDialog");
+                    if (noHeartsDialog) {
+                        noHeartsDialog.classList.remove("hidden");
+                    }
+                    return;
+                }
                 this.restartLevel();
             });
         }
