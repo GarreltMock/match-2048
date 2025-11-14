@@ -6,6 +6,7 @@ import {
     FORMATION_TYPES,
     DEFAULT_TILE_VALUES,
     MAX_POWER_UP_USES,
+    SUPER_STREAK_THRESHOLD,
     LEVELS,
     TEST_LEVELS,
 } from "./config.js";
@@ -882,7 +883,7 @@ export class Match3Game {
                 if (this.currentStreak > 0) {
                     warningText += `<p>+ 🔥 Your Streak</p>`;
                 }
-                if (this.superStreak >= 10) {
+                if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
                     warningText += `<p>+ <img style="display: inline-block; height: 1.3rem; vertical-align: sub" src="assets/upgrade-icon_streak.png" alt="Super Upgrade" /> Super Upgrade</p>`;
                 }
 
@@ -985,9 +986,11 @@ export class Match3Game {
         this.currentStreak = 0;
         saveStreak(this.currentStreak);
 
-        // Reset super streak on level loss
-        this.superStreak = 0;
-        saveSuperStreak(this.superStreak);
+        if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
+            // Reset super streak on level loss
+            this.superStreak = 0;
+            saveSuperStreak(this.superStreak);
+        }
 
         // Track level_lost when level failed screen is shown
         trackLevelLost(this);
@@ -1378,7 +1381,7 @@ export class Match3Game {
             }
 
             // Determine which action to use (super streak overrides to "disappear")
-            const effectiveAction = this.superStreak >= 10 ? "disappear" : this.smallestTileAction;
+            const effectiveAction = this.superStreak >= SUPER_STREAK_THRESHOLD ? "disappear" : this.smallestTileAction;
 
             // Animate tiles based on action type
             tilesToRemove.forEach(({ row, col }) => {

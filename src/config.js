@@ -30,6 +30,8 @@ export const DEFAULT_TILE_VALUES = [1, 2, 3, 4]; // Internal representation: 1=2
 
 export const MAX_POWER_UP_USES = 2;
 
+export const SUPER_STREAK_THRESHOLD = 5;
+
 // Level definitions
 // Internal representation: 1=2, 2=4, 3=8, 4=16, 5=32, 6=64, 7=128, 8=256, 9=512, 10=1024
 export const LEVELS = [

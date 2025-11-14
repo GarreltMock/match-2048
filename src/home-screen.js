@@ -1,6 +1,7 @@
 // home-screen.js - Home screen management
 
 import { loadShownGoalDialogs } from "./storage.js";
+import { SUPER_STREAK_THRESHOLD } from "./config.js";
 
 /**
  * Shows the home screen with current level information
@@ -49,12 +50,12 @@ export function showHomeScreen(game) {
  */
 function updateSuperStreakDisplay(game, superStreakDisplay) {
     const superStreak = game.superStreak;
-    const progress = Math.min(superStreak, 10);
-    const isActive = superStreak >= 10;
+    const progress = Math.min(superStreak, SUPER_STREAK_THRESHOLD);
+    const isActive = superStreak >= SUPER_STREAK_THRESHOLD;
 
     // Calculate circle progress (0-283 is full circle, stroke-dasharray circumference for r=45)
     const circumference = 2 * Math.PI * 45;
-    const progressOffset = circumference - (progress / 10) * circumference;
+    const progressOffset = circumference - (progress / SUPER_STREAK_THRESHOLD) * circumference;
 
     const content = `
         <div class="super-streak-container ${isActive ? "active" : ""}">
@@ -78,8 +79,8 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
                     stroke-width="8"
                     stroke-linecap="round"
                     stroke-dasharray="${circumference}"
-                    stroke-dashoffset="${-progressOffset}"
-                    transform="rotate(86 60 60)"
+                    stroke-dashoffset="${progressOffset}"
+                    transform="translate(60, 60) rotate(-90) scale(-1, 1) translate(-60, -60)"
                     class="progress-circle"
                 />
                 <!-- Gradient definition -->
@@ -93,7 +94,7 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
             <div class="super-streak-icon">
                 <img src="assets/upgrade-icon_streak.png" alt="Super Streak" />
             </div>
-            <div class="super-streak-text">${progress}/10</div>
+            <div class="super-streak-text">${progress}/${SUPER_STREAK_THRESHOLD}</div>
         </div>
     `;
 

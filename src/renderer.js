@@ -16,6 +16,7 @@ import {
     getFontSize,
 } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
+import { SUPER_STREAK_THRESHOLD } from "./config.js";
 
 export function renderBoard(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -213,7 +214,7 @@ export function renderBoardUpgrades(game) {
 
     // Update icon based on super streak status
     if (upgradeIcon) {
-        if (game.superStreak >= 10) {
+        if (game.superStreak >= SUPER_STREAK_THRESHOLD) {
             upgradeIcon.src = "assets/upgrade-icon_streak.png";
             upgradeIcon.classList.add("active");
         } else {
