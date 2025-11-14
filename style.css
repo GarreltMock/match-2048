@@ -1486,7 +1486,7 @@ button {
 
 .button-container stroked-text {
     position: absolute;
-    top: -20px;
+    top: -14px;
     right: 0;
     pointer-events: none;
 }

@@ -55,7 +55,7 @@ class StrokedText extends HTMLElement {
         const width = Number(this.getAttribute("width")) || estimatedTextWidth + padding;
 
         // Calculate center position based on text anchor
-        const x = textAnchor === "middle" ? width / 2 : textAnchor === "end" ? width : 0;
+        const x = textAnchor === "middle" ? width / 2 : textAnchor === "end" ? width - strokeWidth : 0;
         const y = height * 0.75; // Position text vertically centered
 
         this.shadowRoot.innerHTML = `
