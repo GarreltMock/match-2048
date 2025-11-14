@@ -34,22 +34,7 @@
 
                 <div style="flex: 1"></div>
 
-                <svg viewBox="0 0 380 80" width="300" height="80">
-                    <text
-                        x="190"
-                        y="60"
-                        font-size="60"
-                        font-weight="900"
-                        fill="#fff"
-                        stroke="#000"
-                        stroke-width="14"
-                        paint-order="stroke fill"
-                        stroke-linejoin="round"
-                        text-anchor="middle"
-                    >
-                        Match 2048
-                    </text>
-                </svg>
+                <stroked-text text="Match 2048" font-size="60" stroke-width="14"> </stroked-text>
 
                 <div style="flex: 1"></div>
 
@@ -72,50 +57,35 @@
 
         <div class="game-container" id="game-container">
             <div id="settingsBtn" class="level-text">
-                <svg id="levelTextSvg" viewBox="0 0 200 40" width="200" height="40">
-                    <text
-                        id="level"
-                        x="100"
-                        y="30"
-                        font-size="32"
-                        fill="rgba(255, 255, 255, 0.50)"
-                        stroke="#141414"
-                        stroke-width="6"
-                        paint-order="stroke fill"
-                        stroke-linejoin="round"
-                        text-anchor="middle"
-                    ></text>
-                </svg>
-                <svg id="levelSolvedSvg" viewBox="0 0 300 50" width="300" height="50" style="display: none">
-                    <text
-                        x="150"
-                        y="40"
-                        font-size="40"
-                        fill="#aee96b"
-                        stroke="#000"
-                        stroke-width="10"
-                        paint-order="stroke fill"
-                        stroke-linejoin="round"
-                        text-anchor="middle"
-                    >
-                        Level Solved
-                    </text>
-                </svg>
-                <svg id="levelFailedSvg" viewBox="0 0 300 50" width="300" height="50" style="display: none">
-                    <text
-                        x="150"
-                        y="40"
-                        font-size="40"
-                        fill="#ff6b6b"
-                        stroke="#000"
-                        stroke-width="10"
-                        paint-order="stroke fill"
-                        stroke-linejoin="round"
-                        text-anchor="middle"
-                    >
-                        Level Failed
-                    </text>
-                </svg>
+                <stroked-text
+                    id="levelTextSvg"
+                    text=""
+                    font-size="32"
+                    fill="rgba(255, 255, 255, 0.50)"
+                    stroke="#141414"
+                    svg-style="width: 100%;"
+                >
+                </stroked-text>
+                <stroked-text
+                    id="levelSolvedSvg"
+                    text="Level Solved"
+                    font-size="40"
+                    fill="#aee96b"
+                    stroke-width="10"
+                    svg-style="width: 100%;"
+                    style="display: none"
+                >
+                </stroked-text>
+                <stroked-text
+                    id="levelFailedSvg"
+                    text="Level Failed"
+                    font-size="40"
+                    fill="#ff6b6b"
+                    stroke-width="10"
+                    svg-style="width: 100%;"
+                    style="display: none"
+                >
+                </stroked-text>
                 <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
             </div>
             <div class="flex-spacer half"></div>
@@ -131,44 +101,14 @@
                 <div class="goals-container">
                     <img class="crown" src="assets/crown.svg" alt="Crown" />
                     <div class="label">
-                        <svg viewBox="0 0 200 24" width="200" height="24">
-                            <text
-                                id="level"
-                                x="100"
-                                y="20"
-                                font-size="22"
-                                fill="#fff"
-                                stroke="#000"
-                                stroke-width="6"
-                                paint-order="stroke fill"
-                                stroke-linejoin="round"
-                                text-anchor="middle"
-                            >
-                                Level Goals
-                            </text>
-                        </svg>
+                        <stroked-text text="Level Goals" font-size="22"> </stroked-text>
                     </div>
                     <div id="goals" class="goals"></div>
                 </div>
 
                 <div class="moves-container">
                     <div class="label">
-                        <svg viewBox="0 0 100 24" width="100" height="24">
-                            <text
-                                id="level"
-                                x="50"
-                                y="20"
-                                font-size="22"
-                                fill="#fff"
-                                stroke="#000"
-                                stroke-width="6"
-                                paint-order="stroke fill"
-                                stroke-linejoin="round"
-                                text-anchor="middle"
-                            >
-                                Moves
-                            </text>
-                        </svg>
+                        <stroked-text text="Moves" font-size="22"> </stroked-text>
                     </div>
                     <span id="moves">0/20</span>
                 </div>
@@ -211,80 +151,26 @@
                 <div class="extra-moves-header">
                     <img src="assets/loss-icon.png" class="loss-icon" />
 
-                    <svg viewBox="0 0 300 50" width="300" height="50">
-                        <text
-                            id="level"
-                            x="150"
-                            y="40"
-                            font-size="40"
-                            fill="#fff"
-                            stroke="#000"
-                            stroke-width="10"
-                            paint-order="stroke fill"
-                            stroke-linejoin="round"
-                            text-anchor="middle"
-                        >
-                            Out of Moves
-                        </text>
-                    </svg>
+                    <stroked-text text="Out of Moves" font-size="40" stroke-width="10"> </stroked-text>
 
-                    <svg viewBox="0 0 300 40" width="300" height="40">
-                        <text
-                            id="level"
-                            x="150"
-                            y="30"
-                            font-size="24"
-                            fill="#fff"
-                            stroke="#000"
-                            stroke-width="6"
-                            paint-order="stroke fill"
-                            stroke-linejoin="round"
-                            text-anchor="middle"
-                        >
-                            Want to keep going?
-                        </text>
-                    </svg>
+                    <stroked-text text="Want to keep going?" font-size="24"> </stroked-text>
                 </div>
 
                 <div class="extra-moves-content">
                     <div class="button-container">
                         <button class="extra-move-option primary" id="extraMoves5">Continue</button>
-                        <svg viewBox="0 0 300 40" width="300" height="40">
-                            <text
-                                id="level"
-                                x="300"
-                                y="30"
-                                font-size="24"
-                                fill="#fff"
-                                stroke="#000"
-                                stroke-width="6"
-                                paint-order="stroke fill"
-                                stroke-linejoin="round"
-                                text-anchor="end"
-                            >
-                                +5 Moves
-                            </text>
-                        </svg>
+                        <stroked-text text="+5 Moves" font-size="24" text-anchor="end"> </stroked-text>
                     </div>
 
                     <!-- <div class="button-container">
                         <button class="extra-move-option primary" id="extraMoves5WithSwap">Continue</button>
-                        <svg viewBox="0 0 400 40" width="400" height="40">
-                            <text
-                                id="level"
-                                x="400"
-                                y="30"
-                                font-size="24"
-                                fill="#fff"
-                                stroke="#000"
-                                stroke-width="6"
-                                paint-order="stroke fill"
-                                stroke-linejoin="round"
-                                text-anchor="end"
-                            >
-                                +5 Moves and Free Swap
-                            </text>
-                        </svg>
+                        <stroked-text
+                            text="+5 Moves and Free Swap"
+                            font-size="24"
+                            width="400"
+                            height="40"
+                            text-anchor="end">
+                        </stroked-text>
                     </div> -->
 
                     <div id="giveUpWarning" class="give-up-warning hidden">

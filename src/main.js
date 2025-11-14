@@ -1,6 +1,7 @@
 // Entry point for Match 2048 game
 import { Match3Game } from "./game.js";
 import { initializeHomeScreen, showHomeScreen } from "./home-screen.js";
+import "./components/stroked-text.js";
 
 function registerServiceWorker() {
     if ("serviceWorker" in navigator) {

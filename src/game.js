@@ -593,20 +593,13 @@ export class Match3Game {
                 // Add use indicator
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
-                indicator.innerHTML = `
-                    <svg viewBox="0 0 40 40" width="40" height="40">
-                        <text x="20" y="28"
-                            font-size="26"
-                            fill="#fff"
-                            stroke="#000"
-                            stroke-width="6"
-                            paint-order="stroke fill"
-                            stroke-linejoin="round"
-                            text-anchor="middle">
-                        ${usesLeft}
-                        </text>
-                    </svg>
-                `;
+                const strokedText = document.createElement("stroked-text");
+                strokedText.setAttribute("text", usesLeft);
+                strokedText.setAttribute("font-size", "26");
+                strokedText.setAttribute("width", "40");
+                strokedText.setAttribute("height", "40");
+                strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                indicator.appendChild(strokedText);
                 button.appendChild(indicator);
 
                 // Update title

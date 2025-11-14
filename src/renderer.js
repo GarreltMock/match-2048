@@ -172,24 +172,24 @@ export function createGoalCard(game, goal) {
     goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
 
     const goalProgress = goal.target - currentProgress;
-    const goalProgressSvg = `
-        <svg viewBox="0 0 100 24" width="100" height="24">
-            <text x="50" y="20"
-                font-size="20"
-                fill="#fff"
-                stroke="#000"
-                stroke-width="8"
-                paint-order="stroke fill"
-                stroke-linejoin="round"
-                text-anchor="middle">
-            ${goalProgress}
-            </text>
-        </svg>
+    const goalProgressElement = `
+        <stroked-text
+            text="${goalProgress}"
+            font-size="20"
+            stroke-width="8"
+            width="100"
+            height="24"
+            svg-style="height: 100%;">
+        </stroked-text>
         `;
     goalCard.innerHTML = `
             ${goalContent}
             <div class="goal-icon">${goalIcon}</div>
-            ${isCompleted ? '<div class="goal-check">✓</div>' : `<div class="goal-progress">${goalProgressSvg}</div>`}
+            ${
+                isCompleted
+                    ? '<div class="goal-check">✓</div>'
+                    : `<div class="goal-progress">${goalProgressElement}</div>`
+            }
         `;
     return goalCard;
 }
@@ -252,9 +252,9 @@ export function updateMovesDisplay(game) {
         movesElement.textContent = `${game.maxMoves - game.movesUsed}`; //`${this.movesUsed}/${this.maxMoves}`;
     }
 
-    const levelElement = document.getElementById("level");
+    const levelElement = document.getElementById("levelTextSvg");
     if (levelElement) {
-        levelElement.textContent = `Level ${game.currentLevel}`;
+        levelElement.setAttribute("text", `Level ${game.currentLevel}`);
     }
 }
 

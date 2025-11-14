@@ -160,22 +160,15 @@ function updateHeartsDisplay(game, heartsDisplay) {
     // Create heart icons
     let heartsHTML = `<div class="hearts-container">
         <h2 class="heart-icon${hearts === 0 ? " empty" : ""}">♥️</h2>
-          <svg class="heart-count" viewBox="0 0 100 60" width="100" height="60">
-            <text
-                x="50"
-                y="40"
-                font-size="22"
-                font-weight="900"
-                fill="#fff"
-                stroke="#000"
-                stroke-width="7"
-                paint-order="stroke fill"
-                stroke-linejoin="round"
-                text-anchor="middle"
-            >
-                ${hearts}
-            </text>
-          </svg>
+          <stroked-text
+            class="heart-count"
+            text="${hearts}"
+            font-size="22"
+            font-weight="900"
+            stroke-width="7"
+            width="100"
+            height="60">
+          </stroked-text>
       </div>
     `;
 
