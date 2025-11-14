@@ -29,12 +29,13 @@
     <body>
         <!-- Home Screen -->
         <div id="home-screen" class="home-screen">
+            <button id="infoBtn" class="info-btn home-info-btn" title="Show Tutorial" tabindex="2">i</button>
             <div class="home-content">
                 <div id="hearts-display" class="hearts-display"></div>
 
                 <div style="flex: 1"></div>
 
-                <stroked-text text="Match 2048" font-size="60" stroke-width="14"> </stroked-text>
+                <stroked-text id="homeTitle" text="Match 2048" font-size="60" stroke-width="14"> </stroked-text>
 
                 <div style="flex: 1"></div>
 
@@ -47,16 +48,7 @@
         </div>
 
         <div class="game-container" id="game-container">
-            <div id="settingsBtn" class="level-text">
-                <stroked-text
-                    id="levelTextSvg"
-                    text=""
-                    font-size="32"
-                    fill="rgba(255, 255, 255, 0.50)"
-                    stroke="#141414"
-                    svg-style="width: 100%;"
-                >
-                </stroked-text>
+            <div class="level-text">
                 <stroked-text
                     id="levelSolvedSvg"
                     text="Level Solved"
@@ -77,7 +69,6 @@
                     style="display: none"
                 >
                 </stroked-text>
-                <button id="infoBtn" class="info-btn" title="Show Tutorial" tabindex="2">i</button>
             </div>
             <div class="flex-spacer half"></div>
 

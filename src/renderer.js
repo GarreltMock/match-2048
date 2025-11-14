@@ -251,11 +251,6 @@ export function updateMovesDisplay(game) {
     if (movesElement) {
         movesElement.textContent = `${game.maxMoves - game.movesUsed}`; //`${this.movesUsed}/${this.maxMoves}`;
     }
-
-    const levelElement = document.getElementById("levelTextSvg");
-    if (levelElement) {
-        levelElement.setAttribute("text", `Level ${game.currentLevel}`);
-    }
 }
 
 export function updateScore(game, points) {

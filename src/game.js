@@ -950,11 +950,9 @@ export class Match3Game {
         // Track level_solved when level solved screen is shown
         trackLevelSolved(this);
 
-        const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
 
-        if (levelTextSvg) levelTextSvg.style.display = "none";
         if (levelFailedSvg) levelFailedSvg.style.display = "none";
         if (levelSolvedSvg) {
             levelSolvedSvg.style.display = "block";
@@ -967,10 +965,8 @@ export class Match3Game {
     }
 
     hideLevelSolved() {
-        const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
 
-        if (levelTextSvg) levelTextSvg.style.display = "block";
         if (levelSolvedSvg) {
             levelSolvedSvg.style.display = "none";
             levelSolvedSvg.classList.remove("animate");
@@ -996,12 +992,10 @@ export class Match3Game {
         // Track level_lost when level failed screen is shown
         trackLevelLost(this);
 
-        const levelTextSvg = document.getElementById("levelTextSvg");
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const restartBtn = document.getElementById("restartBtn");
 
-        if (levelTextSvg) levelTextSvg.style.display = "none";
         if (levelSolvedSvg) levelSolvedSvg.style.display = "none";
         if (levelFailedSvg) {
             levelFailedSvg.style.display = "block";
@@ -1019,11 +1013,9 @@ export class Match3Game {
     }
 
     hideLevelFailed() {
-        const levelTextSvg = document.getElementById("levelTextSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const restartBtn = document.getElementById("restartBtn");
 
-        if (levelTextSvg) levelTextSvg.style.display = "block";
         if (levelFailedSvg) {
             levelFailedSvg.style.display = "none";
             levelFailedSvg.classList.remove("animate");
@@ -1034,7 +1026,7 @@ export class Match3Game {
     }
 
     setupSettingsButton() {
-        const settingsBtn = document.getElementById("settingsBtn");
+        const homeTitle = document.getElementById("homeTitle");
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
@@ -1207,8 +1199,8 @@ export class Match3Game {
             settingsDialog.classList.remove("hidden");
         };
 
-        if (settingsBtn && settingsDialog) {
-            settingsBtn.addEventListener("click", openSettings);
+        if (homeTitle && settingsDialog) {
+            homeTitle.addEventListener("click", openSettings);
 
             // Save settings
             if (saveSettingsBtn) {
