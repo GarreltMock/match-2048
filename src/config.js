@@ -692,16 +692,29 @@ export const LEVELS = [
         level: 49,
         boardWidth: 8,
         boardHeight: 8,
-        maxMoves: 35,
+        maxMoves: 30,
         boardUpgrades: [6, 7, 8],
         blockedTiles: [
             { row: 4, lifeValue: 16 },
             { row: 5, lifeValue: 16 },
             { row: 6, lifeValue: 32 },
             { row: 7, lifeValue: 32 },
-            { row: 7, col: [3, 4], lifeValue: 1048 },
+            { row: 7, col: [3, 4], lifeValue: 1024 },
         ],
         goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+    },
+    {
+        level: 50,
+        boardWidth: 8,
+        boardHeight: 8,
+        maxMoves: 45,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        boardUpgrades: [7, 8, 9],
+        goals: [
+            { tileValue: 11, target: 1, current: 0, goalType: "created" }, // 1024
+            { goalType: "blocked", current: 0 },
+        ],
         spawnableTiles: [1, 2, 3, 4],
     },
 ];
