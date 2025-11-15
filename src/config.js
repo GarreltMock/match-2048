@@ -635,7 +635,7 @@ export const LEVELS = [
     },
     {
         level: 45,
-        maxMoves: 25,
+        maxMoves: 35,
         boardHeight: 10,
         boardUpgrades: [7, 8, 9],
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
