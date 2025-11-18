@@ -133,8 +133,11 @@ function startDrag(game, x, y) {
         const col = parseInt(element.dataset.col);
         const tile = game.board[row][col];
 
-        // Handle power-ups
+        // Handle power-ups (but not during animations)
         if (game.activePowerUp) {
+            // Prevent power-up usage during animations
+            if (game.animating) return;
+
             const handled = game.handlePowerUpAction(row, col, element);
             if (handled !== false) {
                 return;
