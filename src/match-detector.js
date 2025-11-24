@@ -365,7 +365,9 @@ function findOverlappingLineMatches(game, formationTiles, value) {
 
             // Scan left
             while (leftCol > 0) {
-                const tile = game.board[formationTile.row][leftCol - 1];
+                const row = game.board[formationTile.row];
+                if (!row) break;
+                const tile = row[leftCol - 1];
                 if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
                     break;
                 }
@@ -374,7 +376,9 @@ function findOverlappingLineMatches(game, formationTiles, value) {
 
             // Scan right
             while (rightCol < game.boardWidth - 1) {
-                const tile = game.board[formationTile.row][rightCol + 1];
+                const row = game.board[formationTile.row];
+                if (!row) break;
+                const tile = row[rightCol + 1];
                 if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
                     break;
                 }
@@ -404,7 +408,9 @@ function findOverlappingLineMatches(game, formationTiles, value) {
 
             // Scan up
             while (topRow > 0) {
-                const tile = game.board[topRow - 1][formationTile.col];
+                const row = game.board[topRow - 1];
+                if (!row) break;
+                const tile = row[formationTile.col];
                 if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
                     break;
                 }
@@ -413,7 +419,9 @@ function findOverlappingLineMatches(game, formationTiles, value) {
 
             // Scan down
             while (bottomRow < game.boardHeight - 1) {
-                const tile = game.board[bottomRow + 1][formationTile.col];
+                const row = game.board[bottomRow + 1];
+                if (!row) break;
+                const tile = row[formationTile.col];
                 if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
                     break;
                 }
