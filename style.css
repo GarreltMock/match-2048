@@ -1126,6 +1126,22 @@ button {
     }
 }
 
+@keyframes popShrink {
+    0% {
+        transform: scale(1);
+    }
+    20% {
+        transform: scale(1.1); /* kurz größer */
+    }
+    100% {
+        transform: scale(0);
+    }
+}
+
+.disappear {
+    animation: popShrink 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
 .intro-header {
     background: #222 url("assets/bg.png");
     background-size: cover;

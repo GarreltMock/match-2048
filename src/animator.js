@@ -147,13 +147,13 @@ function assignTilesToTargets(outerTiles, targetPositions) {
     if (targetPositions.length === 0) return [];
     if (targetPositions.length === 1) {
         // If only one target, all tiles go there
-        return outerTiles.map(tile => ({ tile, target: targetPositions[0] }));
+        return outerTiles.map((tile) => ({ tile, target: targetPositions[0] }));
     }
 
     // For multiple targets, assign each tile to its nearest target
     // Track how many tiles are assigned to each target for balanced distribution
     const targetCounts = new Map();
-    targetPositions.forEach(pos => {
+    targetPositions.forEach((pos) => {
         targetCounts.set(`${pos.row},${pos.col}`, 0);
     });
 
@@ -230,24 +230,27 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
     if (blockedTiles.length === 0) return;
 
     blockedTiles.forEach((blockedTile) => {
-        // Use the EXACT same approach as slideGemTo
-        // Animate blocked tile to the position of the target tile that exists NOW
-        slideGemTo(blockedTile, blockedTile.targetPos);
+        const blockedElement = document.querySelector(`[data-row="${blockedTile.row}"][data-col="${blockedTile.col}"]`);
 
-        // Remove from board data after animation starts
+        if (blockedElement) {
+            // Add disappear animation class (reverse bounce - inflate then shrink)
+            blockedElement.classList.add("disappear");
+        }
+
+        // Remove from board data after animation completes (350ms)
         setTimeout(() => {
             game.board[blockedTile.row][blockedTile.col] = null;
-        }, 50);
+        }, 400);
     });
 
     // Update blocked tile clearing goals if any blocked tiles were cleared
     if (blockedTiles.length > 0) {
-        // Update after a short delay to ensure board state is updated
+        // Update after animation completes
         setTimeout(() => {
             updateBlockedTileGoalsCallback();
             updateGoalDisplayCallback(false); // Update display without checking completion
             // Let the natural cascade completion in dropGems handle checkLevelComplete
-        }, 100);
+        }, 400);
     }
 }
 
