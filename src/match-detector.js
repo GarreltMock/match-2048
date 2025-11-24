@@ -189,8 +189,12 @@ export function checkTFormation(game, row, col, value) {
     for (const pattern of patterns) {
         const result = checkPattern(game, row, col, value, pattern);
         if (result && result.positions.length === 5) {
+            // Find overlapping line matches and add their tiles
+            const additionalTiles = findOverlappingLineMatches(game, result.positions, value);
+            const allTiles = [...result.positions, ...additionalTiles];
+
             return {
-                tiles: result.positions,
+                tiles: allTiles,
                 value,
                 direction: "T-formation",
                 intersection: { row, col },
@@ -242,8 +246,12 @@ export function checkLFormation(game, row, col, value) {
         }
 
         if (valid && positions.length === 5) {
+            // Find overlapping line matches and add their tiles
+            const additionalTiles = findOverlappingLineMatches(game, positions, value);
+            const allTiles = [...positions, ...additionalTiles];
+
             return {
-                tiles: positions,
+                tiles: allTiles,
                 value,
                 direction: "L-formation",
                 intersection: { row, col },
@@ -280,8 +288,12 @@ export function checkBlockFormation(game, row, col, value) {
         }
     }
 
+    // Find overlapping line matches and add their tiles
+    const additionalTiles = findOverlappingLineMatches(game, positions, value);
+    const allTiles = [...positions, ...additionalTiles];
+
     return {
-        tiles: positions,
+        tiles: allTiles,
         value,
         direction: "block_4_formation",
         intersections: [
@@ -328,6 +340,107 @@ function getTileAt(game, row, col) {
         return null;
     }
     return { tile, pos: { row, col } };
+}
+
+// Find all line matches (3+, 4+, or 5+ tiles) that overlap with the given formation tiles
+function findOverlappingLineMatches(game, formationTiles, value) {
+    const formationSet = new Set();
+    formationTiles.forEach(tile => {
+        formationSet.add(`${tile.row},${tile.col}`);
+    });
+
+    const additionalTiles = new Set();
+    const processedLines = new Set();
+
+    // Check each formation tile for overlapping line matches
+    for (const formationTile of formationTiles) {
+        // Check horizontal line
+        const horizontalKey = `h-${formationTile.row}`;
+        if (!processedLines.has(horizontalKey)) {
+            processedLines.add(horizontalKey);
+
+            // Find extent of horizontal line
+            let leftCol = formationTile.col;
+            let rightCol = formationTile.col;
+
+            // Scan left
+            while (leftCol > 0) {
+                const tile = game.board[formationTile.row][leftCol - 1];
+                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                    break;
+                }
+                leftCol--;
+            }
+
+            // Scan right
+            while (rightCol < game.boardWidth - 1) {
+                const tile = game.board[formationTile.row][rightCol + 1];
+                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                    break;
+                }
+                rightCol++;
+            }
+
+            // If this is a valid line match (3+ tiles), add all tiles not in formation
+            const lineLength = rightCol - leftCol + 1;
+            if (lineLength >= 3) {
+                for (let col = leftCol; col <= rightCol; col++) {
+                    const key = `${formationTile.row},${col}`;
+                    if (!formationSet.has(key)) {
+                        additionalTiles.add(key);
+                    }
+                }
+            }
+        }
+
+        // Check vertical line
+        const verticalKey = `v-${formationTile.col}`;
+        if (!processedLines.has(verticalKey)) {
+            processedLines.add(verticalKey);
+
+            // Find extent of vertical line
+            let topRow = formationTile.row;
+            let bottomRow = formationTile.row;
+
+            // Scan up
+            while (topRow > 0) {
+                const tile = game.board[topRow - 1][formationTile.col];
+                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                    break;
+                }
+                topRow--;
+            }
+
+            // Scan down
+            while (bottomRow < game.boardHeight - 1) {
+                const tile = game.board[bottomRow + 1][formationTile.col];
+                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                    break;
+                }
+                bottomRow++;
+            }
+
+            // If this is a valid line match (3+ tiles), add all tiles not in formation
+            const lineLength = bottomRow - topRow + 1;
+            if (lineLength >= 3) {
+                for (let row = topRow; row <= bottomRow; row++) {
+                    const key = `${row},${formationTile.col}`;
+                    if (!formationSet.has(key)) {
+                        additionalTiles.add(key);
+                    }
+                }
+            }
+        }
+    }
+
+    // Convert set back to array of position objects
+    const result = [];
+    additionalTiles.forEach(key => {
+        const [row, col] = key.split(',').map(Number);
+        result.push({ row, col });
+    });
+
+    return result;
 }
 
 function filterOverlappingMatches(matches) {

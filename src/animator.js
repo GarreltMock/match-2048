@@ -93,12 +93,12 @@ export function animateMerges(game, matchGroups, processMergesCallback) {
         const middlePositions = calculateMiddlePositions(game, group.tiles, group);
         const outerTiles = getOuterTiles(group.tiles, middlePositions);
 
-        // Animate outer tiles sliding to middle positions
-        outerTiles.forEach((outerTile, index) => {
-            const targetPos = middlePositions[index % middlePositions.length];
-            if (targetPos) {
-                slideGemTo(outerTile, targetPos);
-            }
+        // Assign outer tiles to nearest middle positions for better visual flow
+        const assignments = assignTilesToTargets(outerTiles, middlePositions);
+
+        // Animate outer tiles sliding to their assigned middle positions
+        assignments.forEach(({ tile, target }) => {
+            slideGemTo(tile, target);
         });
 
         // Mark middle tiles for transformation
@@ -140,6 +140,50 @@ function slideGemTo(fromTile, toTile) {
 
 function getOuterTiles(allTiles, middleTiles) {
     return allTiles.filter((tile) => !middleTiles.some((middle) => middle.row === tile.row && middle.col === tile.col));
+}
+
+// Assign each outer tile to its nearest target position based on Manhattan distance
+function assignTilesToTargets(outerTiles, targetPositions) {
+    if (targetPositions.length === 0) return [];
+    if (targetPositions.length === 1) {
+        // If only one target, all tiles go there
+        return outerTiles.map(tile => ({ tile, target: targetPositions[0] }));
+    }
+
+    // For multiple targets, assign each tile to its nearest target
+    // Track how many tiles are assigned to each target for balanced distribution
+    const targetCounts = new Map();
+    targetPositions.forEach(pos => {
+        targetCounts.set(`${pos.row},${pos.col}`, 0);
+    });
+
+    const assignments = [];
+
+    // Sort outer tiles to process them in a consistent order
+    const sortedOuterTiles = [...outerTiles].sort((a, b) => {
+        if (a.row !== b.row) return a.row - b.row;
+        return a.col - b.col;
+    });
+
+    for (const tile of sortedOuterTiles) {
+        // Find the nearest target position
+        let bestTarget = targetPositions[0];
+        let bestDistance = Math.abs(tile.row - bestTarget.row) + Math.abs(tile.col - bestTarget.col);
+
+        for (const target of targetPositions) {
+            const distance = Math.abs(tile.row - target.row) + Math.abs(tile.col - target.col);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                bestTarget = target;
+            }
+        }
+
+        assignments.push({ tile, target: bestTarget });
+        const key = `${bestTarget.row},${bestTarget.col}`;
+        targetCounts.set(key, targetCounts.get(key) + 1);
+    }
+
+    return assignments;
 }
 
 function calculateMiddlePositions(_game, tiles, group = null) {
