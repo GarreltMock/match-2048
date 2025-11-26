@@ -1121,4 +1121,26 @@ export const TEST_LEVELS = [
         goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
         spawnableTiles: [0],
     },
+    {
+        level: 24,
+        title: "Score Goal",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 10,
+        boardUpgrades: [5, 6],
+        // boardPreset: [
+        //     [0, 0, 0, 0, 0],
+        //     [0, 0, 0, 0, 0],
+        //     [0, 2, 2, 2, 0],
+        //     [0, 0, 0, 0, 0],
+        //     [0, 0, 0, 0, 0],
+        // ],
+        goals: [
+            { goalType: "score", target: 10, current: 0 },
+            { tileValue: 4, target: 10, current: 0, goalType: "created" },
+            { tileValue: 6, target: 2, current: 0, goalType: "created" },
+        ],
+        spawnableTiles: [1, 2, 3, 4], //[0, 0, 0],
+        showGoalDialog: "score", // First level with score goals
+    },
 ];

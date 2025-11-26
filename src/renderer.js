@@ -158,6 +158,8 @@ export function createGoalCard(game, goal) {
                 <div class="gem tile-${goal.tileValue} cursed-tile goal-tile" data-cursed-moves="${goal.strength}">
                     <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
                 </div>`;
+    } else if (goal.goalType === "score") {
+        return createScoreGoalCard(goal);
     } else {
         isCompleted = goal.created >= goal.target;
         currentProgress = goal.created;
@@ -191,6 +193,28 @@ export function createGoalCard(game, goal) {
                     ? '<div class="goal-check">✓</div>'
                     : `<div class="goal-progress">${goalProgressElement}</div>`
             }
+        `;
+    return goalCard;
+}
+
+function createScoreGoalCard(goal) {
+    const goalCard = document.createElement("div");
+
+    let isCompleted = goal.current >= goal.target,
+        currentProgress = goal.current,
+        goalTypeClass = "goal-score",
+        goalIcon = "Points",
+        goalContent = `
+                <div class="goal-score-display">
+                    <span class="goal-score-value">${currentProgress}</span><span class="goal-value">/${goal.target}</span>
+                </div>`;
+
+    goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
+
+    goalCard.innerHTML = `
+            <div class="goal-icon">${goalIcon}</div>
+            ${goalContent}
+            ${isCompleted ? '<div class="goal-check">✓</div>' : ``}
         `;
     return goalCard;
 }

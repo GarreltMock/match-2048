@@ -16,6 +16,8 @@ export function checkLevelComplete(game) {
             return goal.current >= goal.target;
         } else if (goal.goalType === "cursed") {
             return goal.current >= goal.target;
+        } else if (goal.goalType === "score") {
+            return goal.current >= goal.target;
         } else {
             return goal.created >= goal.target;
         }

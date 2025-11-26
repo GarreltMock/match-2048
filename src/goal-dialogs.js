@@ -40,6 +40,11 @@ export const GOAL_TYPE_DESCRIPTIONS = {
         title: "Board Upgrades",
         description: "Unlock higher tile values by reaching upgrade milestones",
     },
+    score: {
+        icon: "💯",
+        title: "Score Goals",
+        description: "Accumulate points by merging tiles throughout the level",
+    },
 };
 
 // Dialog content for each goal type
@@ -133,6 +138,18 @@ export const GOAL_DIALOGS = {
             <p><em>Tip: Upgrades help you reach even higher tiles - aim for those milestones!</em></p>
         `,
     },
+    score: {
+        title: "💯 Score Goals",
+        subtitle: "Accumulate points through matches!",
+        content: `
+            <p>Score goals require you to earn a target number of points by merging tiles.</p>
+            <ul>
+                <li>Each match adds points equal to the sum of the merged tile values</li>
+                <li>Example: Merging three 2s earns 6 points (2+2+2)</li>
+            </ul>
+            <p><em>Tip: Larger matches and higher-value tiles earn more points!</em></p>
+        `,
+    },
 };
 
 /**
@@ -216,6 +233,7 @@ function generateGoalVisualsHTML(game, dialogType) {
             return true;
         if (dialogType === "cursed" && goal.goalType === "cursed" && !goal.implode) return true;
         if (dialogType === "cursed_implode" && goal.goalType === "cursed" && goal.implode) return true;
+        if (dialogType === "score" && goal.goalType === "score") return true;
         return false;
     });
 

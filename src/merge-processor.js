@@ -26,15 +26,23 @@ export function processMatches(game) {
         return;
     }
 
-    // Calculate score
+    // Calculate score using display values (not internal values)
     let totalScore = 0;
     matchGroups.forEach((group) => {
-        totalScore += group.value * group.tiles.length;
+        const displayValue = getDisplayValue(group.value, game.numberBase);
+        totalScore += displayValue * group.tiles.length;
     });
 
     // Update score
     game.score += totalScore;
     game.saveScore(); // Save score to localStorage
+
+    // Track score towards score goals
+    game.levelGoals.forEach((goal) => {
+        if (goal.goalType === "score") {
+            goal.current += totalScore;
+        }
+    });
 
     // Check for blocked tiles adjacent to original match positions and unblock them
     unblockAdjacentTiles(game, matchGroups);

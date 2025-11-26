@@ -356,6 +356,7 @@ button {
     gap: clamp(6px, 2vw, 10px);
     justify-content: center;
     height: fit-content;
+    align-items: center;
 }
 
 .goal-card {
@@ -375,6 +376,45 @@ button {
     width: 1.2rem;
     height: 1.2rem;
     text-align: center;
+}
+
+.goal-score {
+    .goal-icon {
+        width: unset;
+        color: #898989;
+        font-family: "Nunito";
+        font-size: 0.8em;
+        font-weight: bold;
+        background: transparent;
+    }
+
+    .goal-score-display {
+        font-family: Nunito;
+        font-weight: 900;
+        font-size: clamp(1.2rem, 4vw, 1.6rem);
+        color: white;
+        position: relative;
+
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        line-height: 1.2rem;
+        margin-top: 0.4rem;
+    }
+
+    .goal-value {
+        color: #898989;
+        margin-left: 2px;
+    }
+
+    .goal-check {
+        bottom: -16px;
+        position: absolute;
+    }
+}
+
+.goal-dialog .goal-score .goal-score-display {
+    color: black;
 }
 
 .goal-progress {
