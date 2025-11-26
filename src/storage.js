@@ -142,7 +142,7 @@ export function saveMaxTileLevels(maxTileLevels) {
  */
 export function loadSmallestTileAction() {
     const saved = localStorage.getItem("match2048_smallestTileAction");
-    return saved || "disappear";
+    return saved || "blocked_movable";
 }
 
 /**
