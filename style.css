@@ -59,6 +59,14 @@ html {
     --tile-freeswap-badge-bg: #00bcd4;
     --tile-freeswap-badge-color: white;
 
+    --tile-hammer-border: #ff5722;
+    --tile-hammer-badge-bg: #ff5722;
+    --tile-hammer-badge-color: white;
+
+    --tile-halver-border: #9c27b0;
+    --tile-halver-badge-bg: #9c27b0;
+    --tile-halver-badge-color: white;
+
     --tile-blocked-bg: #3c3c3c;
     --tile-blocked-border: #666;
     --tile-blocked-x-color: #666;
@@ -761,6 +769,50 @@ button {
     background-size: 25%;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gem.hammer-tile {
+    border: 4px solid var(--tile-hammer-border);
+    position: relative;
+}
+
+.gem.hammer-tile::after {
+    content: "🔨";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: clamp(8px, 2vw, 16px);
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background-color: var(--tile-hammer-badge-bg);
+    color: var(--tile-hammer-badge-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gem.halver-tile {
+    border: 4px solid var(--tile-halver-border);
+    position: relative;
+}
+
+.gem.halver-tile::after {
+    content: "✂️";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    font-size: clamp(8px, 2vw, 16px);
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background-color: var(--tile-halver-badge-bg);
+    color: var(--tile-halver-badge-color);
+    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;

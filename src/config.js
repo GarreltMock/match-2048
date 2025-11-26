@@ -18,6 +18,8 @@ export const SPECIAL_TILE_TYPES = {
     STICKY_FREESWAP: "sticky_freeswap",
     FREESWAP_HORIZONTAL: "freeswap_horizontal",
     FREESWAP_VERTICAL: "freeswap_vertical",
+    HAMMER: "hammer",
+    HALVER: "halver",
 };
 
 export const FORMATION_TYPES = {

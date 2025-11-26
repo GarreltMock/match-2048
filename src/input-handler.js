@@ -12,6 +12,8 @@ import {
     isTileStickyFreeSwapTile,
     isTileFreeSwapHorizontalTile,
     isTileFreeSwapVerticalTile,
+    isTileHammerTile,
+    isTileHalverTile,
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
@@ -192,6 +194,14 @@ function endDrag(game) {
         // User tapped on joker without dragging - try to activate it
         // Only activate if not in power-up mode
         activateJokerByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
+    } else if (isTileHammerTile(game.selectedGem.tile) && !game.activePowerUp) {
+        // User tapped on hammer tile without dragging - activate it
+        // Only activate if not in power-up mode
+        activateHammerTileByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
+    } else if (isTileHalverTile(game.selectedGem.tile) && !game.activePowerUp) {
+        // User tapped on halver tile without dragging - activate it
+        // Only activate if not in power-up mode
+        activateHalverTileByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
     }
 
     // Clean up
@@ -237,6 +247,82 @@ function activateJokerByTap(game, row, col, element) {
             element.style.animation = "";
         }, 300);
     }
+}
+
+function activateHammerTileByTap(game, row, col, element) {
+    // Activate hammer tile when tapped - removes the tile
+
+    // Reset power-up usage flag when user activates hammer tile (counts as user action)
+    if (game.onePowerUpPerSwap) {
+        game.powerUpUsedSinceLastSwap = false;
+        game.updatePowerUpButtons();
+    }
+
+    // Animate removal
+    game.animating = true;
+    element.style.transform = "scale(0.5)";
+    element.style.opacity = "0";
+
+    setTimeout(() => {
+        // Remove the tile from the board
+        game.board[row][col] = null;
+        game.renderBoard();
+
+        // Decrement moves
+        game.currentMoves--;
+        game.updateMovesDisplay();
+
+        setTimeout(() => {
+            // Drop tiles and process matches
+            game.isUserSwap = true;
+            game.dropGems();
+        }, 200);
+    }, 300);
+}
+
+function activateHalverTileByTap(game, row, col, element) {
+    // Activate halver tile when tapped - halves the tile's value
+    const currentValue = getTileValue(game.board[row][col]);
+
+    // Can only halve if value is greater than 1
+    if (currentValue <= 1) {
+        // Cannot halve further - show shake animation
+        element.style.animation = "shake 0.3s";
+        setTimeout(() => {
+            element.style.animation = "";
+        }, 300);
+        return;
+    }
+
+    // Reset power-up usage flag when user activates halver tile (counts as user action)
+    if (game.onePowerUpPerSwap) {
+        game.powerUpUsedSinceLastSwap = false;
+        game.updatePowerUpButtons();
+    }
+
+    // Calculate new value (halve it)
+    const newValue = currentValue - 1; // Internal value decreased by 1 (which halves the display value)
+
+    // Animate the change
+    game.animating = true;
+    element.style.transform = "scale(1.2)";
+
+    setTimeout(() => {
+        element.style.transform = "scale(1)";
+        // Update the tile to regular tile with new value (no longer a halver tile)
+        game.board[row][col] = createTile(newValue);
+        game.renderBoard();
+
+        // Decrement moves
+        game.currentMoves--;
+        game.updateMovesDisplay();
+
+        setTimeout(() => {
+            // Process any matches that may have been created
+            game.isUserSwap = true;
+            game.processMatches();
+        }, 200);
+    }, 300);
 }
 
 function areAdjacent(row1, col1, row2, col2) {

@@ -75,13 +75,13 @@ export function parsePresetTile(notation) {
 
         switch (type) {
             case "P": // Power tile
-                return createTile(value, true, false, false, false);
+                return createTile(value, "power");
             case "G": // Golden
-                return createTile(value, false, true, false, false);
+                return createTile(value, "golden");
             case "S": // Swap (Free swap)
-                return createTile(value, false, false, true, false);
+                return createTile(value, "freeswap");
             case "K": // sticKy free swap
-                return createTile(value, false, false, false, true);
+                return createTile(value, "sticky_freeswap");
             default:
                 return createTile(value);
         }
