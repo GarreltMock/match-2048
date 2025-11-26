@@ -1363,14 +1363,13 @@ export class Match3Game {
                         this.settingsChangedDuringLevel = true;
                     }
 
-                    // Reload page if level changed, otherwise just close and re-render
+                    // Reload page if level changed, otherwise just close dialog
                     if (levelChanged) {
                         location.reload();
                     } else {
+                        // Just close the dialog - no need to re-render since settings
+                        // are only accessible from homescreen (no active game board)
                         settingsDialog.classList.add("hidden");
-                        this.renderBoard();
-                        renderBoardUpgrades(this);
-                        renderGoals(this);
                     }
                 });
             }
