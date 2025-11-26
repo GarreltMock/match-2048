@@ -19,7 +19,7 @@ export function saveShowReviewBoard(showReviewBoard) {
 }
 
 export function loadSpecialTileConfig() {
-    const saved = localStorage.getItem("match2048_specialTileConfig");
+    const saved = localStorage.getItem("match2048_specialTileConfig_v2");
     if (saved) {
         return JSON.parse(saved);
     }
@@ -34,7 +34,7 @@ export function loadSpecialTileConfig() {
 }
 
 export function saveSpecialTileConfig(specialTileConfig) {
-    localStorage.setItem("match2048_specialTileConfig", JSON.stringify(specialTileConfig));
+    localStorage.setItem("match2048_specialTileConfig_v2", JSON.stringify(specialTileConfig));
 }
 
 export function loadCurrentLevel() {
