@@ -515,6 +515,35 @@ export class Match3Game {
         saveCoins(this.coins);
     }
 
+    updateCoinsDisplays() {
+        const formattedCoins = this.coins.toLocaleString();
+        const coinsHTML = `
+            <img src="assets/shop/coin.png" class="coin-icon" alt="Coins" />
+            <div class="coin-count">${formattedCoins}</div>
+        `;
+
+        // Update home screen coins display
+        const coinsDisplay = document.getElementById("coins-display");
+        if (coinsDisplay) {
+            coinsDisplay.innerHTML = coinsHTML;
+        }
+
+        // Update extra moves dialog coins display
+        const extraMovesCoinsDisplay = document.getElementById("extra-moves-coins-display");
+        if (extraMovesCoinsDisplay) {
+            extraMovesCoinsDisplay.innerHTML = coinsHTML;
+        }
+
+        // Update shop coins display
+        const shopCoinsDisplay = document.getElementById("shop-coins-display");
+        if (shopCoinsDisplay) {
+            shopCoinsDisplay.innerHTML = `
+                <img src="assets/shop/coin.png" class="coin-icon" alt="Coins" />
+                <span class="coin-count">${formattedCoins}</span>
+            `;
+        }
+    }
+
     showGoalDialogIfNeeded() {
         // Check if levelConfig exists and has a dialog to show
         if (!this.levelConfig) return;
@@ -849,23 +878,44 @@ export class Match3Game {
 
         if (extraMoves5Btn) {
             extraMoves5Btn.addEventListener("click", () => {
-                // Track extra moves usage
-                track("extra_moves_used", {
-                    level: this.currentLevel,
-                    extra_moves_count: 5,
-                    included_swap: false,
-                    moves_used: this.movesUsed,
-                });
+                const EXTRA_MOVES_COST = 900;
 
-                // Mark that extra moves have been used for this level
-                this.extraMovesUsed = true;
+                // Check if player has enough coins
+                if (this.coins >= EXTRA_MOVES_COST) {
+                    // Deduct coins
+                    this.coins -= EXTRA_MOVES_COST;
+                    this.saveCoins();
 
-                this.maxMoves += 5;
-                this.updateMovesDisplay();
-                extraMovesDialog.classList.add("hidden");
-                continueBtn.style.display = "none";
-                this.gameActive = true;
-                this.showPowerUps();
+                    // Track extra moves usage
+                    track("extra_moves_used", {
+                        level: this.currentLevel,
+                        extra_moves_count: 5,
+                        included_swap: false,
+                        moves_used: this.movesUsed,
+                    });
+
+                    // Mark that extra moves have been used for this level
+                    this.extraMovesUsed = true;
+
+                    this.maxMoves += 5;
+                    this.updateMovesDisplay();
+                    extraMovesDialog.classList.add("hidden");
+                    continueBtn.style.display = "none";
+                    this.gameActive = true;
+                    this.showPowerUps();
+
+                    // Update coins display
+                    this.updateCoinsDisplays();
+                } else {
+                    // Not enough coins - open shop instead
+                    // extraMovesDialog.classList.add("hidden");
+                    const shopDialog = document.getElementById("shopDialog");
+                    if (shopDialog) {
+                        shopDialog.classList.remove("hidden");
+                        // Update shop coins display
+                        this.updateCoinsDisplays();
+                    }
+                }
             });
         }
 
@@ -968,6 +1018,9 @@ export class Match3Game {
                 showBoardBtn.classList.add("hidden");
             }
         }
+
+        // Update coins display
+        this.updateCoinsDisplays();
 
         extraMovesDialog.classList.remove("hidden");
     }

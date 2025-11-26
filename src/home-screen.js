@@ -168,7 +168,7 @@ function updateHeartsDisplay(game, heartsDisplay) {
           <stroked-text
             class="heart-count"
             text="${hearts}"
-            font-size="22"
+            font-size="20"
             font-weight="900"
             stroke-width="7"
             width="100"
@@ -335,11 +335,8 @@ export function initializeHomeScreen(game) {
             game.coins += coinsAmount;
             game.saveCoins();
 
-            // Update both coins displays (home and shop)
-            const coinsDisplayElement = document.getElementById("coins-display");
-            const shopCoinsDisplayElement = document.getElementById("shop-coins-display");
-            updateCoinsDisplay(game, coinsDisplayElement);
-            updateCoinsDisplay(game, shopCoinsDisplayElement);
+            // Update all coins displays (home, shop, extra moves dialog)
+            game.updateCoinsDisplays();
 
             // Show purchase feedback
             const originalBg = btn.style.background;
