@@ -110,6 +110,11 @@ export class Match3Game {
 
         // Coins system
         this.coins = loadCoins();
+        // Ensure coins is always a valid number
+        if (isNaN(this.coins) || this.coins === null || this.coins === undefined) {
+            this.coins = 2000;
+            this.saveCoins();
+        }
 
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
@@ -179,6 +184,7 @@ export class Match3Game {
         this.setupInfoButton();
         this.setupSettingsButton();
         this.setupExtraMovesDialog();
+        this.setupPowerupShop();
         this.setupControlButtons();
         // Setup event listeners once during initialization
         setupEventListeners(this);
@@ -512,11 +518,22 @@ export class Match3Game {
     }
 
     saveCoins() {
+        // Prevent saving invalid coin values
+        if (isNaN(this.coins) || this.coins === null || this.coins === undefined || this.coins < 0) {
+            this.coins = 2000; // Reset to default
+        }
         saveCoins(this.coins);
     }
 
     updateCoinsDisplays() {
-        const formattedCoins = this.coins.toLocaleString();
+        // Ensure coins is a valid number
+        if (isNaN(this.coins) || this.coins === null || this.coins === undefined) {
+            this.coins = 2000;
+            this.saveCoins();
+        }
+
+        const formattedCoins = Number(this.coins).toLocaleString();
+
         const coinsHTML = `
             <img src="assets/shop/coin.png" class="coin-icon" alt="Coins" />
             <div class="coin-count">${formattedCoins}</div>
@@ -541,6 +558,12 @@ export class Match3Game {
                 <img src="assets/shop/coin.png" class="coin-icon" alt="Coins" />
                 <span class="coin-count">${formattedCoins}</span>
             `;
+        }
+
+        // Update powerup shop coins display
+        const powerupShopCoinsDisplay = document.getElementById("powerup-shop-coins-display");
+        if (powerupShopCoinsDisplay) {
+            powerupShopCoinsDisplay.innerHTML = coinsHTML;
         }
     }
 
@@ -572,7 +595,9 @@ export class Match3Game {
 
                 // Check if power-up has uses remaining
                 if (this.powerUpRemaining[powerUpType] <= 0) {
-                    return; // Power-up is used up
+                    // Open powerup shop instead
+                    this.openPowerupShop();
+                    return;
                 }
 
                 // Check if one power-up per swap setting is active and a power-up was already used
@@ -646,11 +671,12 @@ export class Match3Game {
             const shouldDisable = usesLeft <= 0 || (this.onePowerUpPerSwap && this.powerUpUsedSinceLastSwap);
 
             if (usesLeft <= 0) {
-                // Power-up is used up
-                button.classList.add("disabled");
-                button.title = `${button.title.split(" - ")[0]} - No uses left`;
+                // Power-up is used up - add can-purchase indicator
+                button.classList.add("can-purchase");
+                button.title = `${button.title.split(" - ")[0]} - Click to buy more`;
             } else {
-                // Power-up has uses left - show the indicator
+                // Power-up has uses left - remove can-purchase indicator and show the use count
+                button.classList.remove("can-purchase");
                 // Add use indicator
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
@@ -1023,6 +1049,96 @@ export class Match3Game {
         this.updateCoinsDisplays();
 
         extraMovesDialog.classList.remove("hidden");
+    }
+
+    setupPowerupShop() {
+        const powerupShopDialog = document.getElementById("powerupShopDialog");
+        const closePowerupShopBtn = document.getElementById("closePowerupShopBtn");
+        const powerupBuyButtons = document.querySelectorAll(".powerup-buy-btn");
+
+        // Close button handler
+        if (closePowerupShopBtn) {
+            closePowerupShopBtn.addEventListener("click", () => {
+                powerupShopDialog.classList.add("hidden");
+            });
+        }
+
+        // Click outside to close
+        if (powerupShopDialog) {
+            powerupShopDialog.addEventListener("click", (e) => {
+                if (e.target === powerupShopDialog) {
+                    powerupShopDialog.classList.add("hidden");
+                }
+            });
+        }
+
+        // Purchase button handlers
+        powerupBuyButtons.forEach((button) => {
+            // Store original button HTML for restoration
+            const originalHTML = button.innerHTML;
+            let isPurchasing = false;
+
+            button.addEventListener("click", (e) => {
+                e.stopPropagation();
+
+                // Prevent double-clicking during animation
+                if (isPurchasing) return;
+
+                const shopItem = button.closest(".powerup-shop-item");
+                const powerupType = shopItem.getAttribute("data-powerup");
+                const cost = parseInt(shopItem.getAttribute("data-cost"));
+
+                // Validate cost and coins
+                if (isNaN(cost) || isNaN(this.coins)) {
+                    return;
+                }
+
+                // Check if player has enough coins
+                if (this.coins >= cost) {
+                    isPurchasing = true;
+
+                    // Deduct coins
+                    this.coins = Number(this.coins) - Number(cost);
+                    this.saveCoins();
+
+                    // Add one use to the powerup
+                    this.powerUpRemaining[powerupType]++;
+                    this.persistentPowerUpCounts[powerupType]++;
+                    savePowerUpCounts(this.persistentPowerUpCounts);
+
+                    // Update powerup buttons to show new count
+                    this.updatePowerUpButtons();
+
+                    // Update coins display
+                    this.updateCoinsDisplays();
+
+                    // Show purchase feedback
+                    const originalBg = button.style.background;
+                    button.textContent = "✓";
+                    button.style.background = "#8bc34a";
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        button.style.background = originalBg;
+                        isPurchasing = false;
+                    }, 1500);
+                } else {
+                    // Not enough coins - close powerup shop and open coin shop
+                    const shopDialog = document.getElementById("shopDialog");
+                    if (shopDialog) {
+                        shopDialog.classList.remove("hidden");
+                        this.updateCoinsDisplays();
+                    }
+                }
+            });
+        });
+    }
+
+    openPowerupShop() {
+        const powerupShopDialog = document.getElementById("powerupShopDialog");
+        if (powerupShopDialog) {
+            this.updateCoinsDisplays();
+            powerupShopDialog.classList.remove("hidden");
+        }
     }
 
     showLevelSolved() {

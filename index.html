@@ -199,6 +199,43 @@
             </div>
         </div>
 
+        <!-- Powerup Shop Dialog -->
+        <div id="powerupShopDialog" class="shop-dialog hidden">
+            <div class="shop-content">
+                <div class="shop-header">
+                    <h2 class="shop-title">Joker Shop</h2>
+                    <div id="powerup-shop-coins-display" class="coins-display"></div>
+                    <button id="closePowerupShopBtn" class="close-shop-btn">✕</button>
+                </div>
+                <div class="shop-items powerup-shop-items">
+                    <div class="shop-item powerup-shop-item" data-powerup="hammer" data-cost="100">
+                        <div class="powerup-shop-icon">🔨</div>
+                        <div class="powerup-shop-name">Hammer</div>
+                        <button class="shop-buy-btn powerup-buy-btn">
+                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
+                            <span class="shop-price">100</span>
+                        </button>
+                    </div>
+                    <div class="shop-item powerup-shop-item" data-powerup="halve" data-cost="200">
+                        <div class="powerup-shop-icon">✂️</div>
+                        <div class="powerup-shop-name">Halver</div>
+                        <button class="shop-buy-btn powerup-buy-btn">
+                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
+                            <span class="shop-price">200</span>
+                        </button>
+                    </div>
+                    <div class="shop-item powerup-shop-item" data-powerup="swap" data-cost="300">
+                        <div class="powerup-shop-icon">🔄</div>
+                        <div class="powerup-shop-name">Swap</div>
+                        <button class="shop-buy-btn powerup-buy-btn">
+                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
+                            <span class="shop-price">300</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Shop Bottom Sheet -->
         <div id="shopDialog" class="shop-dialog hidden">
             <div class="shop-content">

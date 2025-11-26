@@ -331,8 +331,13 @@ export function initializeHomeScreen(game) {
             const shopItem = btn.closest(".shop-item");
             const coinsAmount = parseInt(shopItem.getAttribute("data-coins"));
 
+            // Validate coinsAmount
+            if (isNaN(coinsAmount)) {
+                return;
+            }
+
             // Add coins to player's balance
-            game.coins += coinsAmount;
+            game.coins = Number(game.coins) + Number(coinsAmount);
             game.saveCoins();
 
             // Update all coins displays (home, shop, extra moves dialog)
