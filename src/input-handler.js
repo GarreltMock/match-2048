@@ -13,6 +13,7 @@ import {
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
+import { savePowerUpCounts } from "./storage.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -349,6 +350,11 @@ export function trySwap(game, row1, col1, row2, col2) {
             if (isSwapPowerUp) {
                 // Decrement remaining count and deactivate power-up after successful swap
                 game.powerUpRemaining.swap--;
+
+                // Decrement persistent count (consuming persistent before streak bonuses)
+                // Use Math.max to prevent going negative
+                game.persistentPowerUpCounts.swap = Math.max(0, game.persistentPowerUpCounts.swap - 1);
+                savePowerUpCounts(game.persistentPowerUpCounts);
 
                 // Mark that a power-up was used (swap power-up)
                 if (game.onePowerUpPerSwap) {

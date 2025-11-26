@@ -279,3 +279,30 @@ export function loadOnePowerUpPerSwap() {
 export function saveOnePowerUpPerSwap(onePowerUpPerSwap) {
     localStorage.setItem("match2048_onePowerUpPerSwap", onePowerUpPerSwap.toString());
 }
+
+/**
+ * Load persistent power-up counts (hammer, halve, swap)
+ * @returns {{hammer: number, halve: number, swap: number}} Power-up counts
+ */
+export function loadPowerUpCounts() {
+    const hammer = localStorage.getItem("match2048_powerUpHammer");
+    const halve = localStorage.getItem("match2048_powerUpHalve");
+    const swap = localStorage.getItem("match2048_powerUpSwap");
+
+    // Default to 2 of each if no stored values
+    return {
+        hammer: hammer !== null ? parseInt(hammer, 10) : 2,
+        halve: halve !== null ? parseInt(halve, 10) : 2,
+        swap: swap !== null ? parseInt(swap, 10) : 2,
+    };
+}
+
+/**
+ * Save power-up counts to localStorage
+ * @param {{hammer: number, halve: number, swap: number}} powerUpCounts - Power-up counts to save
+ */
+export function savePowerUpCounts(powerUpCounts) {
+    localStorage.setItem("match2048_powerUpHammer", powerUpCounts.hammer.toString());
+    localStorage.setItem("match2048_powerUpHalve", powerUpCounts.halve.toString());
+    localStorage.setItem("match2048_powerUpSwap", powerUpCounts.swap.toString());
+}

@@ -13,6 +13,7 @@ import {
     getDisplayValue,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
+import { savePowerUpCounts } from "./storage.js";
 
 export function processMatches(game) {
     const matchGroups = game.findMatches();
@@ -655,6 +656,7 @@ function grantPowerUp(game, powerUpType, group) {
     // Increment the power-up count
     if (game.powerUpRemaining[powerUpType] !== undefined) {
         game.powerUpRemaining[powerUpType]++;
+
         game.updatePowerUpButtons();
 
         // Trigger flying animation

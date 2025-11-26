@@ -41,6 +41,8 @@ import {
     saveSuperStreak,
     loadOnePowerUpPerSwap,
     saveOnePowerUpPerSwap,
+    loadPowerUpCounts,
+    savePowerUpCounts,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -132,10 +134,13 @@ export class Match3Game {
         // Power-up system
         this.activePowerUp = null;
         this.powerUpSwapTiles = [];
+        // Load persistent power-up counts from storage (defaults to 2 each on first start)
+        this.persistentPowerUpCounts = loadPowerUpCounts();
+        // powerUpRemaining will be set per level: persistent + streak bonuses
         this.powerUpRemaining = {
-            hammer: MAX_POWER_UP_USES,
-            halve: MAX_POWER_UP_USES,
-            swap: MAX_POWER_UP_USES,
+            hammer: 0,
+            halve: 0,
+            swap: 0,
         };
 
         // Special tiles configuration
@@ -316,16 +321,15 @@ export class Match3Game {
         // Show power-ups during active gameplay
         this.showPowerUps();
 
-        // Reset power-up remaining for new level
-        // If using power-up rewards mode, start with 0, otherwise use default
-        const initialPowerUpCount = this.usePowerUpRewards ? 0 : MAX_POWER_UP_USES;
+        // Set power-up remaining for level: persistent counts + streak bonuses
+        // (Streak bonuses are temporary and not saved to storage)
         this.powerUpRemaining = {
-            hammer: initialPowerUpCount,
-            halve: initialPowerUpCount,
-            swap: initialPowerUpCount,
+            hammer: this.persistentPowerUpCounts.hammer,
+            halve: this.persistentPowerUpCounts.halve,
+            swap: this.persistentPowerUpCounts.swap,
         };
 
-        // Apply streak bonus power-ups (stacks with existing power-ups)
+        // Apply streak bonus power-ups (temporary for this level only)
         if (this.currentStreak >= 1) {
             this.powerUpRemaining.halve += 1;
         }
@@ -659,6 +663,11 @@ export class Match3Game {
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
 
+        // Decrement persistent count (consuming persistent before streak bonuses)
+        // Use Math.max to prevent going negative
+        this.persistentPowerUpCounts.hammer = Math.max(0, this.persistentPowerUpCounts.hammer - 1);
+        savePowerUpCounts(this.persistentPowerUpCounts);
+
         // Mark that a power-up was used
         if (this.onePowerUpPerSwap) {
             this.powerUpUsedSinceLastSwap = true;
@@ -700,6 +709,11 @@ export class Match3Game {
         if (currentValue && currentValue > 1) {
             // Decrement remaining count
             this.powerUpRemaining.halve--;
+
+            // Decrement persistent count (consuming persistent before streak bonuses)
+            // Use Math.max to prevent going negative
+            this.persistentPowerUpCounts.halve = Math.max(0, this.persistentPowerUpCounts.halve - 1);
+            savePowerUpCounts(this.persistentPowerUpCounts);
 
             // Mark that a power-up was used
             if (this.onePowerUpPerSwap) {
@@ -861,6 +875,8 @@ export class Match3Game {
 
                 this.maxMoves += 5;
                 this.powerUpRemaining.swap++; // Add one use back
+                this.persistentPowerUpCounts.swap++; // Also increment persistent count
+                savePowerUpCounts(this.persistentPowerUpCounts);
                 this.updatePowerUpButtons();
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
