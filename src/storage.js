@@ -164,22 +164,6 @@ export function saveSpawnableTilesStartCount(tiles) {
     }
 }
 
-/**
- * Load the power-up rewards mode setting
- * @returns {boolean} Whether power-up rewards mode is enabled
- */
-export function loadUsePowerUpRewards() {
-    const saved = localStorage.getItem("match2048_usePowerUpRewards");
-    return saved === "true";
-}
-
-/**
- * Save the power-up rewards mode setting
- * @param {boolean} usePowerUpRewards - Whether power-up rewards mode is enabled
- */
-export function saveUsePowerUpRewards(usePowerUpRewards) {
-    localStorage.setItem("match2048_usePowerUpRewards", usePowerUpRewards.toString());
-}
 
 /**
  * Load the current streak level (0-3)

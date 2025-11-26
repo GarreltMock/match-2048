@@ -26,8 +26,6 @@ import {
     saveSmallestTileAction,
     loadSpawnableTilesStartCount,
     saveSpawnableTilesStartCount,
-    loadUsePowerUpRewards,
-    saveUsePowerUpRewards,
     loadStreak,
     saveStreak,
     loadHearts,
@@ -90,7 +88,6 @@ export class Match3Game {
         this.maxTileLevels = loadMaxTileLevels(); // number or null
         this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
         this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
-        this.usePowerUpRewards = loadUsePowerUpRewards(); // true or false
         this.onePowerUpPerSwap = loadOnePowerUpPerSwap(); // true or false - limit power-ups to one per swap
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
@@ -1228,10 +1225,6 @@ export class Match3Game {
         const tFormationSelect = document.getElementById("tFormationReward");
         const lFormationSelect = document.getElementById("lFormationReward");
 
-        // Power-up rewards checkbox
-        const usePowerUpRewardsCheckbox = document.getElementById("usePowerUpRewards");
-        let usePowerUpRewardsMode = this.usePowerUpRewards;
-
         // One power-up per swap checkbox
         const onePowerUpPerSwapCheckbox = document.getElementById("onePowerUpPerSwap");
         let onePowerUpPerSwapMode = this.onePowerUpPerSwap;
@@ -1257,14 +1250,6 @@ export class Match3Game {
             if (regularHelp) regularHelp.style.display = show ? "none" : "block";
             if (powerupHelp) powerupHelp.style.display = show ? "block" : "none";
         };
-
-        // Handle power-up rewards checkbox change
-        if (usePowerUpRewardsCheckbox) {
-            usePowerUpRewardsCheckbox.addEventListener("change", () => {
-                usePowerUpRewardsMode = usePowerUpRewardsCheckbox.checked;
-                togglePowerUpOptions(usePowerUpRewardsMode);
-            });
-        }
 
         // Handle one power-up per swap checkbox change
         if (onePowerUpPerSwapCheckbox) {
@@ -1321,12 +1306,8 @@ export class Match3Game {
             spawnableTilesStartCountSelect.value =
                 this.spawnableTilesStartCount !== null ? JSON.stringify(this.spawnableTilesStartCount) : "";
 
-            // Set power-up rewards mode state
-            usePowerUpRewardsMode = this.usePowerUpRewards;
-            if (usePowerUpRewardsCheckbox) {
-                usePowerUpRewardsCheckbox.checked = usePowerUpRewardsMode;
-            }
-            togglePowerUpOptions(usePowerUpRewardsMode);
+            // Always show regular options (power-up rewards mode is removed)
+            togglePowerUpOptions(false);
 
             // Set one power-up per swap state
             onePowerUpPerSwapMode = this.onePowerUpPerSwap;
@@ -1419,10 +1400,6 @@ export class Match3Game {
                     const spawnableTilesValue = spawnableTilesStartCountSelect.value;
                     this.spawnableTilesStartCount = spawnableTilesValue ? JSON.parse(spawnableTilesValue) : null;
                     saveSpawnableTilesStartCount(this.spawnableTilesStartCount);
-
-                    // Save power-up rewards mode
-                    this.usePowerUpRewards = usePowerUpRewardsMode;
-                    saveUsePowerUpRewards(this.usePowerUpRewards);
 
                     // Save one power-up per swap mode
                     this.onePowerUpPerSwap = onePowerUpPerSwapMode;
