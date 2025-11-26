@@ -219,12 +219,6 @@ function activateJokerByTap(game, row, col, element) {
     const bestValue = findBestJokerValue(game, row, col);
 
     if (bestValue !== null) {
-        // Reset power-up usage flag when user activates joker (counts as user action)
-        if (game.onePowerUpPerSwap) {
-            game.powerUpUsedSinceLastSwap = false;
-            game.updatePowerUpButtons();
-        }
-
         // Transform and animate
         game.animating = true;
         element.style.transform = "scale(1.2)";
@@ -251,12 +245,6 @@ function activateJokerByTap(game, row, col, element) {
 
 function activateHammerTileByTap(game, row, col, element) {
     // Activate hammer tile when tapped - removes the tile
-
-    // Reset power-up usage flag when user activates hammer tile (counts as user action)
-    if (game.onePowerUpPerSwap) {
-        game.powerUpUsedSinceLastSwap = false;
-        game.updatePowerUpButtons();
-    }
 
     // Animate removal
     game.animating = true;
@@ -292,12 +280,6 @@ function activateHalverTileByTap(game, row, col, element) {
             element.style.animation = "";
         }, 300);
         return;
-    }
-
-    // Reset power-up usage flag when user activates halver tile (counts as user action)
-    if (game.onePowerUpPerSwap) {
-        game.powerUpUsedSinceLastSwap = false;
-        game.updatePowerUpButtons();
     }
 
     // Calculate new value (halve it)
@@ -427,12 +409,6 @@ export function trySwap(game, row1, col1, row2, col2) {
             game.updateMovesDisplay();
         }
 
-        // Reset power-up usage flag when user makes a swap (only if not using swap power-up)
-        if (game.onePowerUpPerSwap && !isSwapPowerUp) {
-            game.powerUpUsedSinceLastSwap = false;
-            game.updatePowerUpButtons();
-        }
-
         // Flag that we should decrement cursed timers after this turn completes
         game.shouldDecrementCursedTimers = true;
 
@@ -460,11 +436,6 @@ export function trySwap(game, row1, col1, row2, col2) {
                 // Use Math.max to prevent going negative
                 game.persistentPowerUpCounts.swap = Math.max(0, game.persistentPowerUpCounts.swap - 1);
                 savePowerUpCounts(game.persistentPowerUpCounts);
-
-                // Mark that a power-up was used (swap power-up)
-                if (game.onePowerUpPerSwap) {
-                    game.powerUpUsedSinceLastSwap = true;
-                }
 
                 game.updatePowerUpButtons();
 
