@@ -167,7 +167,6 @@ export function trackLevelSolved(game) {
         settings_changed_during_level: game.settingsChangedDuringLevel,
         // Game settings
         smallest_tile_action: game.smallestTileAction,
-        max_tile_levels: game.maxTileLevels,
         special_tile_line_4: game.specialTileConfig.line_4,
         special_tile_line_5: game.specialTileConfig.line_5,
         special_tile_t_formation: game.specialTileConfig.t_formation,
@@ -209,7 +208,6 @@ export function trackLevelLost(game) {
         settings_changed_during_level: game.settingsChangedDuringLevel,
         // Game settings
         smallest_tile_action: game.smallestTileAction,
-        max_tile_levels: game.maxTileLevels,
         special_tile_line_4: game.specialTileConfig.line_4,
         special_tile_line_5: game.specialTileConfig.line_5,
         special_tile_t_formation: game.specialTileConfig.t_formation,

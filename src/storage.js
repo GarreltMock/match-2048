@@ -97,26 +97,6 @@ export function resetShownGoalDialogs() {
     localStorage.removeItem("match2048_shownGoalDialogs");
 }
 
-/**
- * Load the maximum tile levels setting
- * @returns {number|null} Maximum tile levels or null if disabled
- */
-export function loadMaxTileLevels() {
-    const saved = localStorage.getItem("match2048_maxTileLevels");
-    return saved ? parseInt(saved, 10) : null; // null means disabled
-}
-
-/**
- * Save the maximum tile levels setting
- * @param {number|null} maxTileLevels - Maximum tile levels or null to disable
- */
-export function saveMaxTileLevels(maxTileLevels) {
-    if (maxTileLevels === null) {
-        localStorage.removeItem("match2048_maxTileLevels");
-    } else {
-        localStorage.setItem("match2048_maxTileLevels", maxTileLevels.toString());
-    }
-}
 
 /**
  * Load the smallest tile action setting
@@ -133,35 +113,6 @@ export function loadSmallestTileAction() {
  */
 export function saveSmallestTileAction(action) {
     localStorage.setItem("match2048_smallestTileAction", action);
-}
-
-/**
- * Load the spawnable tiles start count setting
- * @returns {number[]|null} Array of tile levels or null if disabled (use level defaults)
- */
-export function loadSpawnableTilesStartCount() {
-    const saved = localStorage.getItem("match2048_spawnableTilesStartCount");
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        } catch (e) {
-            console.error("Failed to parse spawnable tiles start count:", e);
-            return null;
-        }
-    }
-    return null; // null means use level defaults
-}
-
-/**
- * Save the spawnable tiles start count setting
- * @param {number[]|null} tiles - Array of tile levels or null to use level defaults
- */
-export function saveSpawnableTilesStartCount(tiles) {
-    if (tiles === null) {
-        localStorage.removeItem("match2048_spawnableTilesStartCount");
-    } else {
-        localStorage.setItem("match2048_spawnableTilesStartCount", JSON.stringify(tiles));
-    }
 }
 
 

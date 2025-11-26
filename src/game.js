@@ -19,12 +19,8 @@ import {
     loadUseTestLevels,
     saveUseTestLevels,
     loadUserId,
-    loadMaxTileLevels,
-    saveMaxTileLevels,
     loadSmallestTileAction,
     saveSmallestTileAction,
-    loadSpawnableTilesStartCount,
-    saveSpawnableTilesStartCount,
     loadStreak,
     saveStreak,
     loadHearts,
@@ -83,9 +79,7 @@ export class Match3Game {
         this.tileValues = this.defaultTileValues;
         this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
-        this.maxTileLevels = loadMaxTileLevels(); // number or null
         this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
-        this.spawnableTilesStartCount = loadSpawnableTilesStartCount(); // array or null
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
@@ -250,12 +244,8 @@ export class Match3Game {
         this.boardHeight = level.boardHeight || 8; // Use level-specific board height or default to 8
         this.blockedTiles = level.blockedTiles || []; // Store blocked/goal tile positions (goal tiles have lifeValue)
 
-        // Use spawnable tiles override if set in settings, otherwise use level-specific or default
-        if (this.spawnableTilesStartCount !== null) {
-            this.tileValues = this.spawnableTilesStartCount;
-        } else {
-            this.tileValues = level.spawnableTiles || this.defaultTileValues;
-        }
+        // Use level-specific spawnable tiles or default
+        this.tileValues = level.spawnableTiles || this.defaultTileValues;
 
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
@@ -1195,9 +1185,7 @@ export class Match3Game {
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
-        const maxTileLevelsSelect = document.getElementById("maxTileLevels");
         const smallestTileActionSelect = document.getElementById("smallestTileAction");
-        const spawnableTilesStartCountSelect = document.getElementById("spawnableTilesStartCount");
         let selectedLevels = this.useTestLevels;
 
         // Special tile reward selects
@@ -1272,10 +1260,7 @@ export class Match3Game {
                 levelSelect.value = this.currentLevel.toString();
             }
             useTestLevelsCheckbox.checked = selectedLevels;
-            maxTileLevelsSelect.value = this.maxTileLevels !== null ? this.maxTileLevels.toString() : "";
             smallestTileActionSelect.value = this.smallestTileAction;
-            spawnableTilesStartCountSelect.value =
-                this.spawnableTilesStartCount !== null ? JSON.stringify(this.spawnableTilesStartCount) : "";
 
             // Always show regular options (power-up rewards mode is removed)
             togglePowerUpOptions(false);
@@ -1354,17 +1339,9 @@ export class Match3Game {
                         }
                     }
 
-                    // Save max tile levels and smallest tile action
-                    const maxTileLevelsValue = maxTileLevelsSelect.value;
-                    this.maxTileLevels = maxTileLevelsValue ? parseInt(maxTileLevelsValue, 10) : null;
-                    saveMaxTileLevels(this.maxTileLevels);
+                    // Save smallest tile action
                     this.smallestTileAction = smallestTileActionSelect.value;
                     saveSmallestTileAction(this.smallestTileAction);
-
-                    // Save spawnable tiles start count
-                    const spawnableTilesValue = spawnableTilesStartCountSelect.value;
-                    this.spawnableTilesStartCount = spawnableTilesValue ? JSON.parse(spawnableTilesValue) : null;
-                    saveSpawnableTilesStartCount(this.spawnableTilesStartCount);
 
                     // Save special tile configuration
                     this.specialTileConfig.line_4 = line4Select.value;
@@ -1408,13 +1385,13 @@ export class Match3Game {
     }
 
     /**
-     * Check if we need to shift tile levels based on maxTileLevels setting
+     * Check if we need to shift tile levels based on per-level board upgrades
      * This is called after tiles are merged - it just sets a flag
      */
     checkAndShiftTileLevels(newlyCreatedValue) {
         const currentLevelConfig = LEVELS[this.currentLevel - 1];
 
-        // Check for per-level board upgrades first (takes precedence)
+        // Check for per-level board upgrades
         if (currentLevelConfig.boardUpgrades) {
             const upgrades = currentLevelConfig.boardUpgrades;
 
@@ -1423,24 +1400,6 @@ export class Match3Game {
                 this.pendingTileLevelShift = true;
                 this.completedUpgrades.push(newlyCreatedValue);
             }
-            return;
-        }
-
-        // Fall back to global maxTileLevels system
-        if (this.maxTileLevels === null) {
-            return;
-        }
-
-        // Get the minimum tile value from spawnableTiles
-        const minSpawnableValue = Math.min(...this.tileValues);
-
-        // Calculate the threshold: minSpawnableValue + maxTileLevels
-        const threshold = minSpawnableValue + this.maxTileLevels;
-
-        // Check if newly created value reaches or exceeds the threshold
-        if (newlyCreatedValue >= threshold) {
-            // Set flag - the actual shift will happen after the first merge animation completes
-            this.pendingTileLevelShift = true;
         }
     }
 
@@ -1459,8 +1418,8 @@ export class Match3Game {
                 return;
             }
 
-            // If no per-level upgrades and no global setting, return
-            if (!hasPerLevelUpgrades && this.maxTileLevels === null) {
+            // If no per-level upgrades, return
+            if (!hasPerLevelUpgrades) {
                 resolve();
                 return;
             }
