@@ -10,6 +10,8 @@ import {
     isJoker,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
+    isTileFreeSwapHorizontalTile,
+    isTileFreeSwapVerticalTile,
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
@@ -298,9 +300,26 @@ export function trySwap(game, row1, col1, row2, col2) {
     // Check if either tile is a free swap tile (or sticky free swap) that hasn't been used
     const tile1 = game.board[row1][col1];
     const tile2 = game.board[row2][col2];
+
+    // Determine if this swap is horizontal or vertical
+    const isHorizontalSwap = (row1 === row2); // Same row means horizontal swap
+    const isVerticalSwap = (col1 === col2); // Same column means vertical swap
+
+    // Check for regular free swap tiles
     const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
     const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
-    const hasFreeSwap = isFreeSwap1 || isFreeSwap2;
+
+    // Check for directional free swap tiles and validate direction
+    const isDirectionalFreeSwap1 = !tile1.hasBeenSwapped && (
+        (isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
+        (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap)
+    );
+    const isDirectionalFreeSwap2 = !tile2.hasBeenSwapped && (
+        (isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
+        (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap)
+    );
+
+    const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
 
     // Temporarily swap gems
     const temp = game.board[row1][col1];
@@ -336,10 +355,10 @@ export function trySwap(game, row1, col1, row2, col2) {
 
         // Mark free swap tile as used
         if (hasFreeSwap) {
-            if (isFreeSwap1) {
+            if (isFreeSwap1 || isDirectionalFreeSwap1) {
                 game.board[row2][col2].hasBeenSwapped = true;
             }
-            if (isFreeSwap2) {
+            if (isFreeSwap2 || isDirectionalFreeSwap2) {
                 game.board[row1][col1].hasBeenSwapped = true;
             }
         }

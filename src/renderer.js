@@ -12,6 +12,8 @@ import {
     isTileGoldenTile,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
+    isTileFreeSwapHorizontalTile,
+    isTileFreeSwapVerticalTile,
     getDisplayValue,
     getFontSize,
 } from "./tile-helpers.js";
@@ -90,6 +92,15 @@ export function renderBoard(game) {
                 // Add sticky-freeswap-tile class if this is a sticky free swap tile that hasn't been used
                 if (isTileStickyFreeSwapTile(tile) && !tile.hasBeenSwapped) {
                     gem.classList.add("sticky-freeswap-tile");
+                }
+
+                // Add directional free swap classes
+                if (isTileFreeSwapHorizontalTile(tile) && !tile.hasBeenSwapped) {
+                    gem.classList.add("freeswap-horizontal-tile");
+                }
+
+                if (isTileFreeSwapVerticalTile(tile) && !tile.hasBeenSwapped) {
+                    gem.classList.add("freeswap-vertical-tile");
                 }
             }
 

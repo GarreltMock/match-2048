@@ -2,7 +2,7 @@
 
 import { TILE_TYPE } from "./config.js";
 
-export function createTile(value, isPowerTile = false, isGoldenTile = false, isFreeSwapTile = false, isStickyFreeSwapTile = false) {
+export function createTile(value, isPowerTile = false, isGoldenTile = false, isFreeSwapTile = false, isStickyFreeSwapTile = false, isFreeSwapHorizontalTile = false, isFreeSwapVerticalTile = false) {
     return {
         type: TILE_TYPE.NORMAL,
         value: value,
@@ -10,6 +10,8 @@ export function createTile(value, isPowerTile = false, isGoldenTile = false, isF
         isGoldenTile: isGoldenTile,
         isFreeSwapTile: isFreeSwapTile,
         isStickyFreeSwapTile: isStickyFreeSwapTile,
+        isFreeSwapHorizontalTile: isFreeSwapHorizontalTile,
+        isFreeSwapVerticalTile: isFreeSwapVerticalTile,
         hasBeenSwapped: false,
     };
 }
@@ -22,6 +24,8 @@ export function createBlockedTile() {
         isGoldenTile: false,
         isFreeSwapTile: false,
         isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -35,6 +39,8 @@ export function createBlockedWithLifeTile(lifeValue) {
         isGoldenTile: false,
         isFreeSwapTile: false,
         isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -47,6 +53,8 @@ export function createBlockedMovableTile() {
         isGoldenTile: false,
         isFreeSwapTile: false,
         isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -59,6 +67,8 @@ export function createJokerTile() {
         isGoldenTile: false,
         isFreeSwapTile: false,
         isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -73,6 +83,8 @@ export function createCursedTile(value, movesRemaining) {
         isGoldenTile: false,
         isFreeSwapTile: false,
         isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
         hasBeenSwapped: false,
     };
 }
@@ -123,6 +135,14 @@ export function isTileFreeSwapTile(tile) {
 
 export function isTileStickyFreeSwapTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.isStickyFreeSwapTile === true;
+}
+
+export function isTileFreeSwapHorizontalTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapHorizontalTile === true;
+}
+
+export function isTileFreeSwapVerticalTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapVerticalTile === true;
 }
 
 export function isCursed(tile) {

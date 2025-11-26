@@ -16,6 +16,8 @@ export const SPECIAL_TILE_TYPES = {
     GOLDEN: "golden",
     FREESWAP: "freeswap",
     STICKY_FREESWAP: "sticky_freeswap",
+    FREESWAP_HORIZONTAL: "freeswap_horizontal",
+    FREESWAP_VERTICAL: "freeswap_vertical",
 };
 
 export const FORMATION_TYPES = {
@@ -868,8 +870,8 @@ export const TEST_LEVELS = [
             [0, 0, 0, 0, 0, 0],
             [0, 0, 6, 0, 0, 0],
             [0, 0, 6, 0, 0, 0],
-            [0, 6, 0, 6, 6, 0],
-            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 6, 6, 0],
+            [0, 0, 6, 0, 0, 0],
             [0, 0, 0, 0, 0, 0],
         ],
         goals: [

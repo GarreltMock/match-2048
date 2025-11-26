@@ -312,6 +312,54 @@ export function createMergedTiles(game, group) {
             game.board[positions[0].row][positions[0].col] = createTile(newValue, false, false, false, true);
             trackGoalProgress(game, newValue, 1);
         }
+    } else if (specialTileType === "freeswap_horizontal" || specialTileType === "freeswap_vertical") {
+        // Determine swap direction from lastSwapPosition
+        let isHorizontal = false;
+        if (game.lastSwapPosition && game.lastSwapPosition.movedFrom) {
+            const fromRow = game.lastSwapPosition.movedFrom.row;
+            const fromCol = game.lastSwapPosition.movedFrom.col;
+            const toRow = game.lastSwapPosition.row;
+            const toCol = game.lastSwapPosition.col;
+
+            // If rows are the same, it's a horizontal swap (columns differ)
+            isHorizontal = (fromRow === toRow);
+        }
+
+        // Create directional free swap tiles based on the actual swap direction
+        if (positions.length > 1) {
+            const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
+            const specialPos = determineSpecialTilePosition(game, group, formationKey);
+            const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
+
+            game.board[specialPos.row][specialPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap,
+                isHorizontal, // isFreeSwapHorizontalTile
+                !isHorizontal // isFreeSwapVerticalTile
+            );
+            game.board[normalPos.row][normalPos.col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap
+            );
+            trackGoalProgress(game, newValue, 2);
+        } else {
+            game.board[positions[0].row][positions[0].col] = createTile(
+                newValue,
+                false,
+                false,
+                false,
+                transferStickyFreeSwap,
+                isHorizontal, // isFreeSwapHorizontalTile
+                !isHorizontal // isFreeSwapVerticalTile
+            );
+            trackGoalProgress(game, newValue, 1);
+        }
     } else {
         // No special tile - create normal tiles at all positions
         // However, if transferStickyFreeSwap is true, the merged tiles should inherit the sticky free swap ability

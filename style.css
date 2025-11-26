@@ -720,6 +720,52 @@ button {
     justify-content: center;
 }
 
+.gem.freeswap-horizontal-tile {
+    border: 4px solid var(--tile-freeswap-border);
+    position: relative;
+}
+
+.gem.freeswap-horizontal-tile::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background-color: var(--tile-freeswap-badge-bg);
+    background-image: url("assets/arrow-horizontal.svg");
+    background-size: 60%;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gem.freeswap-vertical-tile {
+    border: 4px solid var(--tile-freeswap-border);
+    position: relative;
+}
+
+.gem.freeswap-vertical-tile::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    background-color: var(--tile-freeswap-badge-bg);
+    background-image: url("assets/arrow-vertical.svg");
+    background-size: 25%;
+    background-position: center;
+    background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .gem.tile-BLOCKED {
     background: var(--tile-blocked-bg);
     color: transparent;
@@ -2870,8 +2916,8 @@ button {
     position: absolute;
     top: -10%;
     right: -10%;
-    width: 28px;
-    height: 28px;
+    width: clamp(26px, 8vw, 50px);
+    height: clamp(26px, 8vw, 50px);
     background-image: url("assets/shop/coin.png");
     background-size: contain;
     background-repeat: no-repeat;
