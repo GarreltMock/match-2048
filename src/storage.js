@@ -23,13 +23,13 @@ export function loadSpecialTileConfig() {
     if (saved) {
         return JSON.parse(saved);
     }
-    // Default configuration: all special tiles disabled
+    // Default configuration
     return {
-        line_4: "none",
-        block_4: "none",
-        line_5: "none",
-        t_formation: "none",
-        l_formation: "none",
+        line_4: "freeswap_horizontal",
+        block_4: "freeswap_horizontal",
+        line_5: "joker",
+        t_formation: "freeswap",
+        l_formation: "freeswap",
     };
 }
 
