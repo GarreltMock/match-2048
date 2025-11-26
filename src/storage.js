@@ -1,14 +1,5 @@
 // LocalStorage persistence utilities
 
-export function loadShowReviewBoard() {
-    const saved = localStorage.getItem("match2048_showReviewBoard");
-    return saved === null ? true : saved === "true";
-}
-
-export function saveShowReviewBoard(showReviewBoard) {
-    localStorage.setItem("match2048_showReviewBoard", showReviewBoard.toString());
-}
-
 export function loadSpecialTileConfig() {
     const saved = localStorage.getItem("match2048_specialTileConfig_v2");
     if (saved) {

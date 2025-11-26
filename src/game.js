@@ -11,8 +11,6 @@ import {
     TEST_LEVELS,
 } from "./config.js";
 import {
-    loadShowReviewBoard,
-    saveShowReviewBoard,
     loadSpecialTileConfig,
     saveSpecialTileConfig,
     loadCurrentLevel,
@@ -87,7 +85,6 @@ export class Match3Game {
         this.boardHeight = 8; // Default height, will be updated by loadLevel
         this.defaultTileValues = DEFAULT_TILE_VALUES; // Internal representation: 1=2, 2=4, 3=8, 4=16
         this.tileValues = this.defaultTileValues;
-        this.showReviewBoard = loadShowReviewBoard(); // true or false
         this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
         this.maxTileLevels = loadMaxTileLevels(); // number or null
@@ -1031,13 +1028,9 @@ export class Match3Game {
         const extraMovesDialog = document.getElementById("extraMovesDialog");
         const showBoardBtn = document.getElementById("showBoardBtn");
 
-        // Toggle show board button based on setting
+        // Always show the review board button
         if (showBoardBtn) {
-            if (this.showReviewBoard) {
-                showBoardBtn.classList.remove("hidden");
-            } else {
-                showBoardBtn.classList.add("hidden");
-            }
+            showBoardBtn.classList.remove("hidden");
         }
 
         // Update coins display
@@ -1222,7 +1215,6 @@ export class Match3Game {
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
-        const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
         const maxTileLevelsSelect = document.getElementById("maxTileLevels");
         const smallestTileActionSelect = document.getElementById("smallestTileAction");
@@ -1323,7 +1315,6 @@ export class Match3Game {
                 }
                 levelSelect.value = this.currentLevel.toString();
             }
-            showReviewBoardCheckbox.checked = this.showReviewBoard;
             useTestLevelsCheckbox.checked = selectedLevels;
             maxTileLevelsSelect.value = this.maxTileLevels !== null ? this.maxTileLevels.toString() : "";
             smallestTileActionSelect.value = this.smallestTileAction;
@@ -1416,10 +1407,6 @@ export class Match3Game {
                             saveCurrentLevel(this.currentLevel);
                         }
                     }
-
-                    // Save review board preference
-                    this.showReviewBoard = showReviewBoardCheckbox.checked;
-                    saveShowReviewBoard(this.showReviewBoard);
 
                     // Save max tile levels and smallest tile action
                     const maxTileLevelsValue = maxTileLevelsSelect.value;
