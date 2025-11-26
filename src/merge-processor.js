@@ -30,7 +30,7 @@ export function processMatches(game) {
     // Calculate score using display values (not internal values)
     let totalScore = 0;
     matchGroups.forEach((group) => {
-        const displayValue = getDisplayValue(group.value, game.numberBase);
+        const displayValue = getDisplayValue(group.value);
         totalScore += displayValue * group.tiles.length;
     });
 
@@ -386,7 +386,7 @@ function unblockAdjacentTiles(game, matchGroups) {
         }
 
         // Calculate the damage value from this match (the value of tiles being matched, not the merged result)
-        const damageValue = getDisplayValue(group.value, game.numberBase);
+        const damageValue = getDisplayValue(group.value);
 
         // Check each tile in the original match for adjacent blocked/goal tiles
         group.tiles.forEach((matchTile) => {

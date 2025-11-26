@@ -65,7 +65,7 @@ export function renderBoard(game) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value} cursed-tile`;
 
-                const displayValue = getDisplayValue(value, game.numberBase);
+                const displayValue = getDisplayValue(value);
                 gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
                 gem.dataset.cursedMoves = tile.cursedMovesRemaining;
@@ -73,7 +73,7 @@ export function renderBoard(game) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value}`;
 
-                const displayValue = getDisplayValue(value, game.numberBase);
+                const displayValue = getDisplayValue(value);
                 gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
                 // Add power-tile class if this is a power tile
@@ -160,7 +160,7 @@ export function createGoalCard(game, goal) {
         goalTypeClass = "goal-current";
         goalIcon = "📍";
 
-        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        const displayValue = getDisplayValue(goal.tileValue);
         goalContent = `
                 <div class="gem tile-${goal.tileValue} goal-tile">
                     <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
@@ -176,7 +176,7 @@ export function createGoalCard(game, goal) {
         currentProgress = goal.current;
         goalTypeClass = "goal-cursed";
         goalIcon = goal.implode ? "💥" : "💀";
-        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        const displayValue = getDisplayValue(goal.tileValue);
         goalContent = `
                 <div class="gem tile-${goal.tileValue} cursed-tile goal-tile" data-cursed-moves="${goal.strength}">
                     <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
@@ -188,7 +188,7 @@ export function createGoalCard(game, goal) {
         currentProgress = goal.created;
         goalTypeClass = "goal-created";
         goalIcon = "⭐";
-        const displayValue = getDisplayValue(goal.tileValue, game.numberBase);
+        const displayValue = getDisplayValue(goal.tileValue);
         goalContent = `
                 <div class="gem tile-${goal.tileValue} goal-tile">
                     <span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>
@@ -275,7 +275,7 @@ export function renderBoardUpgrades(game) {
         .sort((a, b) => b - a)
         .forEach((tileValue) => {
             const isCompleted = game.completedUpgrades.includes(tileValue);
-            const displayValue = getDisplayValue(tileValue, game.numberBase);
+            const displayValue = getDisplayValue(tileValue);
 
             const upgradeTile = document.createElement("div");
             upgradeTile.className = `gem tile-${tileValue} upgrade-tile ${isCompleted ? "completed" : ""}`;

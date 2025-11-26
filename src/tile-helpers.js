@@ -210,15 +210,10 @@ export function isCursed(tile) {
     return tile && tile.type === TILE_TYPE.CURSED;
 }
 
-// Convert internal value (1, 2, 3...) to display value based on numberBase
-export function getDisplayValue(internalValue, numberBase) {
-    if (numberBase === 3) {
-        // Powers of 3: 3^1=3, 3^2=9, 3^3=27, 3^4=81, etc.
-        return Math.pow(3, internalValue);
-    } else {
-        // Powers of 2: 2^1=2, 2^2=4, 2^3=8, 2^4=16, etc.
-        return Math.pow(2, internalValue);
-    }
+// Convert internal value (1, 2, 3...) to display value (powers of 2)
+export function getDisplayValue(internalValue) {
+    // Powers of 2: 2^1=2, 2^2=4, 2^3=8, 2^4=16, etc.
+    return Math.pow(2, internalValue);
 }
 
 // Calculate responsive font size based on display value length

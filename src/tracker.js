@@ -166,7 +166,6 @@ export function trackLevelSolved(game) {
         block_formation_count: game.matchStats.blockFormationCount,
         settings_changed_during_level: game.settingsChangedDuringLevel,
         // Game settings
-        number_base: game.numberBase,
         smallest_tile_action: game.smallestTileAction,
         max_tile_levels: game.maxTileLevels,
         special_tile_line_4: game.specialTileConfig.line_4,
@@ -209,7 +208,6 @@ export function trackLevelLost(game) {
         block_formation_count: game.matchStats.blockFormationCount,
         settings_changed_during_level: game.settingsChangedDuringLevel,
         // Game settings
-        number_base: game.numberBase,
         smallest_tile_action: game.smallestTileAction,
         max_tile_levels: game.maxTileLevels,
         special_tile_line_4: game.specialTileConfig.line_4,

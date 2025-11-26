@@ -11,8 +11,6 @@ import {
     TEST_LEVELS,
 } from "./config.js";
 import {
-    loadNumberBase,
-    saveNumberBase,
     loadShowReviewBoard,
     saveShowReviewBoard,
     loadSpecialTileConfig,
@@ -89,7 +87,6 @@ export class Match3Game {
         this.boardHeight = 8; // Default height, will be updated by loadLevel
         this.defaultTileValues = DEFAULT_TILE_VALUES; // Internal representation: 1=2, 2=4, 3=8, 4=16
         this.tileValues = this.defaultTileValues;
-        this.numberBase = loadNumberBase(); // 2 or 3
         this.showReviewBoard = loadShowReviewBoard(); // true or false
         this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
@@ -175,7 +172,6 @@ export class Match3Game {
         // Track app start first, before any level is loaded
         track("app_start", {
             current_level: this.currentLevel,
-            number_base: this.numberBase,
             use_test_levels: this.useTestLevels,
         });
 
@@ -264,7 +260,6 @@ export class Match3Game {
         this.blockedTiles = level.blockedTiles || []; // Store blocked/goal tile positions (goal tiles have lifeValue)
 
         // Use spawnable tiles override if set in settings, otherwise use level-specific or default
-        console.log(this.spawnableTilesStartCount);
         if (this.spawnableTilesStartCount !== null) {
             this.tileValues = this.spawnableTilesStartCount;
         } else {
@@ -815,7 +810,7 @@ export class Match3Game {
             });
 
             // Update the visual element with proper rendering
-            const displayValue = Math.pow(this.numberBase, halvedValue);
+            const displayValue = getDisplayValue(halvedValue);
             const fontSize = getFontSize(displayValue);
             element.innerHTML = `<span style="font-size: ${fontSize}cqw">${displayValue}</span>`;
             element.className = `gem tile-${halvedValue}`;
@@ -1227,7 +1222,6 @@ export class Match3Game {
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
-        const numberBaseSelect = document.getElementById("numberBase");
         const showReviewBoardCheckbox = document.getElementById("showReviewBoard");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
         const maxTileLevelsSelect = document.getElementById("maxTileLevels");
@@ -1329,7 +1323,6 @@ export class Match3Game {
                 }
                 levelSelect.value = this.currentLevel.toString();
             }
-            numberBaseSelect.value = this.numberBase.toString();
             showReviewBoardCheckbox.checked = this.showReviewBoard;
             useTestLevelsCheckbox.checked = selectedLevels;
             maxTileLevelsSelect.value = this.maxTileLevels !== null ? this.maxTileLevels.toString() : "";
@@ -1423,11 +1416,6 @@ export class Match3Game {
                             saveCurrentLevel(this.currentLevel);
                         }
                     }
-
-                    // Save number base
-                    const newBase = parseInt(numberBaseSelect.value, 10);
-                    this.numberBase = newBase;
-                    saveNumberBase(this.numberBase);
 
                     // Save review board preference
                     this.showReviewBoard = showReviewBoardCheckbox.checked;

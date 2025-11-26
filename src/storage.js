@@ -1,14 +1,5 @@
 // LocalStorage persistence utilities
 
-export function loadNumberBase() {
-    const saved = localStorage.getItem("match2048_numberBase");
-    return saved ? parseInt(saved, 10) : 2;
-}
-
-export function saveNumberBase(numberBase) {
-    localStorage.setItem("match2048_numberBase", numberBase.toString());
-}
-
 export function loadShowReviewBoard() {
     const saved = localStorage.getItem("match2048_showReviewBoard");
     return saved === null ? true : saved === "true";

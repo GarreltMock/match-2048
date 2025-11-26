@@ -228,7 +228,7 @@ function activateJokerByTap(game, row, col, element) {
         // Transform and animate
         game.animating = true;
         element.style.transform = "scale(1.2)";
-        element.textContent = getDisplayValue(bestValue, game.numberBase);
+        element.textContent = getDisplayValue(bestValue);
         element.className = `gem tile-${bestValue}`;
 
         setTimeout(() => {
