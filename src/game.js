@@ -43,6 +43,8 @@ import {
     saveOnePowerUpPerSwap,
     loadPowerUpCounts,
     savePowerUpCounts,
+    loadCoins,
+    saveCoins,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -105,6 +107,9 @@ export class Match3Game {
         this.lastRegenTime = heartsData.lastRegenTime;
         this.MAX_HEARTS = 5;
         this.HEART_REGEN_TIME = 30 * 60 * 1000; // 30 minutes in milliseconds
+
+        // Coins system
+        this.coins = loadCoins();
 
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
@@ -504,6 +509,10 @@ export class Match3Game {
 
     saveScore() {
         saveScore(this.score);
+    }
+
+    saveCoins() {
+        saveCoins(this.coins);
     }
 
     showGoalDialogIfNeeded() {

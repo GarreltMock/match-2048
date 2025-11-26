@@ -306,3 +306,20 @@ export function savePowerUpCounts(powerUpCounts) {
     localStorage.setItem("match2048_powerUpHalve", powerUpCounts.halve.toString());
     localStorage.setItem("match2048_powerUpSwap", powerUpCounts.swap.toString());
 }
+
+/**
+ * Load coins from localStorage
+ * @returns {number} Current coin count
+ */
+export function loadCoins() {
+    const coins = localStorage.getItem("match2048_coins");
+    return coins !== null ? parseInt(coins, 10) : 2000; // Default to 2000 coins
+}
+
+/**
+ * Save coins to localStorage
+ * @param {number} coins - Current coin count
+ */
+export function saveCoins(coins) {
+    localStorage.setItem("match2048_coins", coins.toString());
+}

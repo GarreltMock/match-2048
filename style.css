@@ -123,32 +123,6 @@ button {
     overflow-x: hidden;
 }
 
-.info-btn {
-    position: absolute;
-    top: 12%;
-    right: 0;
-    background: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(10px);
-    font-size: 14px;
-    font-family: Nunito;
-    font-weight: 900;
-    z-index: 10;
-    color: rgba(255, 255, 255, 0.5);
-}
-
-.info-btn:active {
-    transform: scale(0.95);
-}
-
 .level-text {
     margin: 0;
     color: rgba(255, 255, 255, 0.5);
@@ -2191,13 +2165,6 @@ button {
     z-index: 1000;
 }
 
-.home-info-btn {
-    position: absolute;
-    top: clamp(16px, 3vh, 32px);
-    right: clamp(16px, 3vw, 32px);
-    z-index: 10;
-}
-
 .home-content {
     display: flex;
     flex-direction: column;
@@ -2210,69 +2177,127 @@ button {
     position: relative;
 }
 
-.hearts-display {
-    position: absolute;
-    top: clamp(16px, 3vh, 32px);
-    left: 50%;
-    transform: translateX(-50%);
+.home-header {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    position: relative;
+    width: 100%;
+    margin-top: clamp(8px, 4vh, 20px);
+
+    .hearts-display {
+        font-family: "Nunito", sans-serif;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        border-radius: 24px;
+        border: 3px solid #000;
+        background: #141414;
+        box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25);
+        padding: 0px 18px;
+
+        line-height: 3rem;
+
+        .hearts-container {
+            display: flex;
+            position: relative;
+            align-items: center;
+            gap: clamp(4px, 1vw, 8px);
+            font-size: clamp(28px, 7vw, 38px);
+        }
+
+        .hearts-container > * {
+            color: white;
+            font-family: "Nunito";
+            font-weight: 900;
+            display: inline-block;
+        }
+
+        .heart-count {
+            position: absolute;
+            left: 50%;
+            top: 34%;
+            transform: translate(-50%, -50%);
+        }
+
+        .heart-icon {
+            transition: opacity 0.3s ease;
+            margin-right: 2px;
+            margin-top: 2px;
+        }
+
+        .heart-icon.empty {
+            opacity: 0.4;
+        }
+
+        .hearts-timer {
+            color: #fff;
+            font-weight: 800;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hearts-full {
+            /* font-size: clamp(12px, 3vw, 16px); */
+            color: white;
+            font-family: "Nunito";
+            font-weight: 900;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+    }
+
+    /* Coins Display */
+
+    .info-btn {
+        background: #141414;
+        border: 3px solid #000;
+        border-radius: 50%;
+        aspect-ratio: 1;
+        height: 1.6em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 18px;
+        font-family: Nunito;
+        font-weight: 900;
+        z-index: 10;
+        color: rgba(255, 255, 255, 0.8);
+
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+    }
+}
+
+.coins-display {
     font-family: "Nunito", sans-serif;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: clamp(6px, 1.5vw, 12px);
 
     border-radius: 24px;
     border: 3px solid #000;
     background: #141414;
     box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25);
-    padding: 0px 28px;
+    padding: clamp(4px, 1vw, 8px) clamp(12px, 2.5vw, 20px);
 
-    line-height: 3rem;
-}
+    cursor: pointer;
 
-.hearts-container {
-    display: flex;
-    position: relative;
-    align-items: center;
-    gap: clamp(4px, 1vw, 8px);
-    font-size: clamp(28px, 7vw, 38px);
-}
+    .coin-icon {
+        width: clamp(32px, 7vw, 48px);
+        height: clamp(32px, 7vw, 48px);
+        object-fit: contain;
+    }
 
-.hearts-container > * {
-    color: white;
-    font-family: "Nunito";
-    font-weight: 900;
-    display: inline-block;
-}
-
-.heart-count {
-    position: absolute;
-    left: 50%;
-    top: 34%;
-    transform: translate(-50%, -50%);
-}
-
-.heart-icon {
-    transition: opacity 0.3s ease;
-    margin-right: 2px;
-    margin-top: 2px;
-}
-
-.heart-icon.empty {
-    opacity: 0.4;
-}
-
-.hearts-timer {
-    color: #fff;
-    font-weight: 800;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
-.hearts-full {
-    /* font-size: clamp(12px, 3vw, 16px); */
-    color: white;
-    font-family: "Nunito";
-    font-weight: 900;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    .coin-count {
+        color: #fff;
+        font-size: clamp(18px, 4vw, 28px);
+        font-weight: 900;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
 }
 
 /* Super Streak Display - Circular Progress */
@@ -2533,6 +2558,212 @@ button {
 
 .close-hearts-btn:active {
     transform: translateY(0);
+}
+
+/* Shop Bottom Sheet */
+.shop-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1001;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.shop-dialog.hidden {
+    display: none;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+.shop-content {
+    width: 100%;
+    max-width: 600px;
+    max-height: 80vh;
+    background: #1a1a1a;
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.shop-header {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 8px;
+    align-items: center;
+    padding: clamp(20px, 4vw, 28px) clamp(20px, 4vw, 28px) clamp(12px, 2vw, 16px);
+    border-bottom: 2px solid #2a2a2a;
+    position: relative;
+}
+
+.shop-title {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(24px, 6vw, 32px);
+    font-weight: 900;
+    color: #fff;
+    margin: 0;
+    justify-self: start;
+}
+
+.shop-coins-balance {
+    position: absolute;
+    top: 10px;
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1.5vw, 10px);
+    justify-self: center;
+
+    border-radius: 20px;
+    border: 2px solid #3a3a3a;
+    background: #2a2a2a;
+    padding: clamp(4px, 1vw, 6px) clamp(12px, 2.5vw, 16px);
+}
+
+.shop-coins-balance .coin-icon {
+    width: clamp(24px, 6vw, 32px);
+    height: clamp(24px, 6vw, 32px);
+}
+
+.shop-coins-balance .coin-count {
+    font-size: clamp(16px, 4vw, 20px);
+    color: white;
+    font-family: Nunito;
+    font-weight: bold;
+}
+
+.close-shop-btn {
+    background: #2a2a2a;
+    border: 2px solid #3a3a3a;
+    border-radius: 50%;
+    width: clamp(32px, 8vw, 40px);
+    height: clamp(32px, 8vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(20px, 5vw, 24px);
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    justify-self: end;
+}
+
+.shop-items {
+    padding: clamp(16px, 3vw, 24px);
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(12px, 2.5vw, 16px);
+    overflow-y: auto;
+    max-height: calc(80vh - 100px);
+}
+
+.shop-item {
+    position: relative;
+    background: #252525;
+    border: 3px solid #333;
+    border-radius: 20px;
+    padding: clamp(12px, 2.5vw, 16px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(8px, 2vw, 12px);
+    transition: all 0.2s ease;
+}
+
+.shop-item.popular {
+    border-color: #ffc107;
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.3);
+}
+
+.shop-item.best-value {
+    border-color: #f44336;
+    box-shadow: 0 0 20px rgba(244, 67, 54, 0.3);
+}
+
+.shop-badge {
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffc107;
+    color: #000;
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(10px, 2.5vw, 12px);
+    font-weight: 900;
+    padding: 4px 12px;
+    border-radius: 12px;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.shop-badge.best-value-badge {
+    background: #f44336;
+    color: #fff;
+}
+
+.shop-item-coins {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(4px, 1vw, 8px);
+}
+
+.shop-coin-image {
+    width: clamp(60px, 15vw, 100px);
+    height: clamp(60px, 15vw, 100px);
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(255, 215, 0, 0.3));
+}
+
+.shop-coin-amount {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(18px, 4.5vw, 24px);
+    font-weight: 900;
+    color: #ffd700;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.shop-buy-btn {
+    width: 100%;
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 900;
+    padding: clamp(8px, 2vw, 12px);
+    border-radius: 12px;
+    border: 2px solid #000;
+    background: #aee96b;
+    box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
+    color: #000;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
 }
 
 .start-level-button {

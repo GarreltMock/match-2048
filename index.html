@@ -29,10 +29,12 @@
     <body>
         <!-- Home Screen -->
         <div id="home-screen" class="home-screen">
-            <button id="infoBtn" class="info-btn home-info-btn" title="Show Tutorial" tabindex="2">i</button>
-            <div class="home-content">
+            <div class="home-header">
                 <div id="hearts-display" class="hearts-display"></div>
-
+                <div id="coins-display" class="coins-display"></div>
+                <button id="infoBtn" class="info-btn home-info-btn" title="Show Tutorial" tabindex="2">?</button>
+            </div>
+            <div class="home-content">
                 <div style="flex: 1"></div>
 
                 <stroked-text id="homeTitle" text="Match 2048" font-size="60" stroke-width="14"> </stroked-text>
@@ -133,6 +135,75 @@
                 <div class="no-hearts-message">Not enough hearts!</div>
                 <div class="no-hearts-submessage">Wait for them to regenerate or come back later.</div>
                 <button id="closeNoHeartsBtn" class="close-hearts-btn">Close</button>
+            </div>
+        </div>
+
+        <!-- Shop Bottom Sheet -->
+        <div id="shopDialog" class="shop-dialog hidden">
+            <div class="shop-content">
+                <div class="shop-header">
+                    <h2 class="shop-title">Coin Shop</h2>
+                    <div id="shop-coins-display" class="coins-display"></div>
+                    <button id="closeShopBtn" class="close-shop-btn">✕</button>
+                </div>
+                <div class="shop-items">
+                    <div class="shop-item" data-coins="1000">
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-6.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">1,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€0.99</span>
+                        </button>
+                    </div>
+                    <div class="shop-item" data-coins="2000">
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-5.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">2,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€1.99</span>
+                        </button>
+                    </div>
+                    <div class="shop-item" data-coins="4000">
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-4.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">4,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€2.99</span>
+                        </button>
+                    </div>
+                    <div class="shop-item" data-coins="10000">
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-3.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">10,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€9.99</span>
+                        </button>
+                    </div>
+                    <div class="shop-item popular" data-coins="20000">
+                        <div class="shop-badge">POPULAR</div>
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-2.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">20,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€14.99</span>
+                        </button>
+                    </div>
+                    <div class="shop-item best-value" data-coins="50000">
+                        <div class="shop-badge best-value-badge">BEST VALUE</div>
+                        <div class="shop-item-coins">
+                            <img src="assets/shop/shop-coin-tier-1.png" class="shop-coin-image" alt="Coins" />
+                            <div class="shop-coin-amount">50,000</div>
+                        </div>
+                        <button class="shop-buy-btn">
+                            <span class="shop-price">€24.99</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -589,7 +660,7 @@
                         <span class="checkmark"></span>
                         Don't show this again
                     </label>
-                    <button class="intro-button" id="startGame">Let's Play</button>
+                    <button class="intro-button" id="startGame">Close</button>
                 </div>
             </div>
         </div>

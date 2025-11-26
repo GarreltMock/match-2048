@@ -14,6 +14,7 @@ export function showHomeScreen(game) {
     const streakDisplay = document.getElementById("streak-display");
     const superStreakDisplay = document.getElementById("super-streak-display");
     const heartsDisplay = document.getElementById("hearts-display");
+    const coinsDisplay = document.getElementById("coins-display");
 
     // Regenerate hearts before showing home screen
     game.regenerateHearts();
@@ -37,6 +38,9 @@ export function showHomeScreen(game) {
 
     // Update hearts display
     updateHeartsDisplay(game, heartsDisplay);
+
+    // Update coins display
+    updateCoinsDisplay(game, coinsDisplay);
 
     // Show home screen, hide game
     homeScreen.style.display = "flex";
@@ -199,6 +203,23 @@ function updateHeartsDisplay(game, heartsDisplay) {
 }
 
 /**
+ * Updates the coins display with current coin count
+ * @param {Match3Game} game - The game instance
+ * @param {HTMLElement} coinsDisplay - The coins display element
+ */
+function updateCoinsDisplay(game, coinsDisplay) {
+    const coins = game.coins;
+    const formattedCoins = coins.toLocaleString();
+
+    const coinsHTML = `
+        <img src="assets/shop/coin.png" class="coin-icon" alt="Coins" />
+        <div class="coin-count">${formattedCoins}</div>
+    `;
+
+    coinsDisplay.innerHTML = coinsHTML;
+}
+
+/**
  * Initializes home screen event listeners
  * @param {Match3Game} game - The game instance
  */
@@ -206,6 +227,10 @@ export function initializeHomeScreen(game) {
     const levelButton = document.getElementById("start-level-button");
     const noHeartsDialog = document.getElementById("noHeartsDialog");
     const closeNoHeartsBtn = document.getElementById("closeNoHeartsBtn");
+    const coinsDisplay = document.getElementById("coins-display");
+    const shopDialog = document.getElementById("shopDialog");
+    const closeShopBtn = document.getElementById("closeShopBtn");
+    const shopBuyBtns = document.querySelectorAll(".shop-buy-btn");
 
     levelButton.addEventListener("click", () => {
         // Check if player has hearts to play
@@ -228,4 +253,62 @@ export function initializeHomeScreen(game) {
             noHeartsDialog.classList.add("hidden");
         });
     }
+
+    // Shop dialog handlers
+    if (coinsDisplay) {
+        coinsDisplay.addEventListener("click", () => {
+            shopDialog.classList.remove("hidden");
+            // Update shop coins display when opening
+            const shopCoinsDisplay = document.getElementById("shop-coins-display");
+            if (shopCoinsDisplay) {
+                updateCoinsDisplay(game, shopCoinsDisplay);
+            }
+        });
+    }
+
+    if (closeShopBtn) {
+        closeShopBtn.addEventListener("click", () => {
+            shopDialog.classList.add("hidden");
+        });
+    }
+
+    // Close shop when clicking backdrop
+    if (shopDialog) {
+        shopDialog.addEventListener("click", (e) => {
+            if (e.target === shopDialog) {
+                shopDialog.classList.add("hidden");
+            }
+        });
+    }
+
+    // Shop purchase handlers
+    shopBuyBtns.forEach((btn) => {
+        // Store original button HTML for restoration
+        const originalHTML = btn.innerHTML;
+
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const shopItem = btn.closest(".shop-item");
+            const coinsAmount = parseInt(shopItem.getAttribute("data-coins"));
+
+            // Add coins to player's balance
+            game.coins += coinsAmount;
+            game.saveCoins();
+
+            // Update both coins displays (home and shop)
+            const coinsDisplayElement = document.getElementById("coins-display");
+            const shopCoinsDisplayElement = document.getElementById("shop-coins-display");
+            updateCoinsDisplay(game, coinsDisplayElement);
+            updateCoinsDisplay(game, shopCoinsDisplayElement);
+
+            // Show purchase feedback
+            const originalBg = btn.style.background;
+            btn.textContent = "✓";
+            btn.style.background = "#8bc34a";
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = originalBg;
+            }, 1500);
+        });
+    });
 }
