@@ -2498,7 +2498,7 @@ button {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2538,11 +2538,18 @@ button {
     text-align: center;
 }
 
-.close-hearts-btn {
+.no-hearts-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(8px, 2vw, 12px);
+    width: 100%;
+}
+
+.fill-hearts-btn {
     font-family: "Nunito", sans-serif;
-    font-size: clamp(18px, 4.5vw, 24px);
+    font-size: clamp(16px, 4vw, 20px);
     font-weight: 900;
-    padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+    padding: clamp(10px, 2.5vw, 14px) clamp(20px, 4.5vw, 28px);
     border-radius: 16px;
     border: 2px solid black;
     background: #aee96b;
@@ -2550,14 +2557,40 @@ button {
     color: black;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-.close-hearts-btn:hover {
-    transform: translateY(-2px);
+.fill-hearts-text {
+    font-size: clamp(18px, 4.5vw, 24px);
 }
 
-.close-hearts-btn:active {
-    transform: translateY(0);
+.fill-hearts-cost {
+    display: flex;
+    align-items: center;
+    gap: clamp(4px, 1vw, 6px);
+    font-size: clamp(16px, 4vw, 20px);
+}
+
+.fill-hearts-coin-icon {
+    width: clamp(20px, 5vw, 24px);
+    height: clamp(20px, 5vw, 24px);
+    object-fit: contain;
+}
+
+.close-hearts-btn {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(18px, 4.5vw, 24px);
+    font-weight: 900;
+    padding: clamp(8px, 2vw, 12px) clamp(16px, 4vw, 24px);
+    border-radius: 16px;
+    border: 2px solid black;
+    background: #141414;
+    box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 /* Shop Bottom Sheet */

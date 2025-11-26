@@ -136,3 +136,4 @@ The game is organized into focused, single-responsibility modules:
 - Do not start any server
 - Do not call "open index.html"
 - I will test everything manually
+- You do not have to add :hover and :active css modifier, since this is a mobile-first game

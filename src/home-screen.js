@@ -1,6 +1,6 @@
 // home-screen.js - Home screen management
 
-import { loadShownGoalDialogs } from "./storage.js";
+import { loadShownGoalDialogs, saveHearts, saveLastRegenTime } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD } from "./config.js";
 
 /**
@@ -227,6 +227,7 @@ export function initializeHomeScreen(game) {
     const levelButton = document.getElementById("start-level-button");
     const noHeartsDialog = document.getElementById("noHeartsDialog");
     const closeNoHeartsBtn = document.getElementById("closeNoHeartsBtn");
+    const fillHeartsBtn = document.getElementById("fillHeartsBtn");
     const coinsDisplay = document.getElementById("coins-display");
     const shopDialog = document.getElementById("shopDialog");
     const closeShopBtn = document.getElementById("closeShopBtn");
@@ -246,6 +247,45 @@ export function initializeHomeScreen(game) {
         hideHomeScreen();
         game.startLevel();
     });
+
+    // Fill hearts with coins handler
+    if (fillHeartsBtn) {
+        fillHeartsBtn.addEventListener("click", () => {
+            const HEART_REFILL_COST = 800;
+
+            // Check if player has enough coins
+            if (game.coins >= HEART_REFILL_COST) {
+                // Deduct coins
+                game.coins -= HEART_REFILL_COST;
+                game.saveCoins();
+
+                // Fill hearts to max
+                game.hearts = game.MAX_HEARTS;
+                saveHearts(game.hearts);
+
+                // Update regeneration time
+                game.lastRegenTime = Date.now();
+                saveLastRegenTime(game.lastRegenTime);
+
+                // Update all displays
+                const heartsDisplay = document.getElementById("hearts-display");
+                updateHeartsDisplay(game, heartsDisplay);
+                updateCoinsDisplay(game, coinsDisplay);
+
+                // Close dialog
+                noHeartsDialog.classList.add("hidden");
+            } else {
+                // Not enough coins - open shop instead
+                noHeartsDialog.classList.add("hidden");
+                shopDialog.classList.remove("hidden");
+                // Update shop coins display
+                const shopCoinsDisplay = document.getElementById("shop-coins-display");
+                if (shopCoinsDisplay) {
+                    updateCoinsDisplay(game, shopCoinsDisplay);
+                }
+            }
+        });
+    }
 
     // Close dialog handler
     if (closeNoHeartsBtn) {

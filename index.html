@@ -133,8 +133,17 @@
         <div id="noHeartsDialog" class="no-hearts-dialog hidden">
             <div class="no-hearts-content">
                 <div class="no-hearts-message">Not enough hearts!</div>
-                <div class="no-hearts-submessage">Wait for them to regenerate or come back later.</div>
-                <button id="closeNoHeartsBtn" class="close-hearts-btn">Close</button>
+                <div class="no-hearts-submessage">Use coins to refill or wait for them to regenerate.</div>
+                <div class="no-hearts-buttons">
+                    <button id="fillHeartsBtn" class="fill-hearts-btn">
+                        <div class="fill-hearts-text">Fill up hearts</div>
+                        <div class="fill-hearts-cost">
+                            <img src="assets/shop/coin.png" class="fill-hearts-coin-icon" alt="Coins" />
+                            <span>800</span>
+                        </div>
+                    </button>
+                    <button id="closeNoHeartsBtn" class="close-hearts-btn">Close</button>
+                </div>
             </div>
         </div>
 
