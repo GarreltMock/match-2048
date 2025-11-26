@@ -19,8 +19,10 @@ import {
     loadUseTestLevels,
     saveUseTestLevels,
     loadUserId,
-    loadSmallestTileAction,
-    saveSmallestTileAction,
+    loadBoardUpgradeAction,
+    saveBoardUpgradeAction,
+    loadSuperUpgradeAction,
+    saveSuperUpgradeAction,
     loadStreak,
     saveStreak,
     loadHearts,
@@ -79,7 +81,8 @@ export class Match3Game {
         this.tileValues = this.defaultTileValues;
         this.useTestLevels = loadUseTestLevels(); // true or false
         this.score = loadScore();
-        this.smallestTileAction = loadSmallestTileAction(); // "disappear" or "blocked"
+        this.boardUpgradeAction = loadBoardUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
+        this.superUpgradeAction = loadSuperUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
@@ -1185,7 +1188,8 @@ export class Match3Game {
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
         const useTestLevelsCheckbox = document.getElementById("useTestLevels");
-        const smallestTileActionSelect = document.getElementById("smallestTileAction");
+        const boardUpgradeActionSelect = document.getElementById("boardUpgradeAction");
+        const superUpgradeActionSelect = document.getElementById("superUpgradeAction");
         let selectedLevels = this.useTestLevels;
 
         // Special tile reward selects
@@ -1260,7 +1264,8 @@ export class Match3Game {
                 levelSelect.value = this.currentLevel.toString();
             }
             useTestLevelsCheckbox.checked = selectedLevels;
-            smallestTileActionSelect.value = this.smallestTileAction;
+            boardUpgradeActionSelect.value = this.boardUpgradeAction;
+            superUpgradeActionSelect.value = this.superUpgradeAction;
 
             // Always show regular options (power-up rewards mode is removed)
             togglePowerUpOptions(false);
@@ -1339,9 +1344,11 @@ export class Match3Game {
                         }
                     }
 
-                    // Save smallest tile action
-                    this.smallestTileAction = smallestTileActionSelect.value;
-                    saveSmallestTileAction(this.smallestTileAction);
+                    // Save board upgrade actions
+                    this.boardUpgradeAction = boardUpgradeActionSelect.value;
+                    saveBoardUpgradeAction(this.boardUpgradeAction);
+                    this.superUpgradeAction = superUpgradeActionSelect.value;
+                    saveSuperUpgradeAction(this.superUpgradeAction);
 
                     // Save special tile configuration
                     this.specialTileConfig.line_4 = line4Select.value;
@@ -1446,8 +1453,8 @@ export class Match3Game {
                 return;
             }
 
-            // Determine which action to use (super streak overrides to "disappear")
-            const effectiveAction = this.superStreak >= SUPER_STREAK_THRESHOLD ? "disappear" : this.smallestTileAction;
+            // Determine which action to use (super streak uses superUpgradeAction, otherwise boardUpgradeAction)
+            const effectiveAction = this.superStreak >= SUPER_STREAK_THRESHOLD ? this.superUpgradeAction : this.boardUpgradeAction;
 
             // Animate tiles based on action type
             tilesToRemove.forEach(({ row, col }) => {
@@ -1505,7 +1512,7 @@ export class Match3Game {
                     }
 
                     // Remove the element so renderBoard can start fresh (except for double action)
-                    if (element && this.smallestTileAction !== "double") {
+                    if (element && effectiveAction !== "double") {
                         element.remove();
                     }
                 });
@@ -1516,7 +1523,7 @@ export class Match3Game {
                 this.tileValues.sort((a, b) => a - b);
 
                 // Re-render board for double action to show updated values
-                if (this.smallestTileAction === "double") {
+                if (effectiveAction === "double") {
                     this.renderBoard();
                 }
 

@@ -99,20 +99,37 @@ export function resetShownGoalDialogs() {
 
 
 /**
- * Load the smallest tile action setting
- * @returns {string} Action to take with smallest tiles ("disappear", "blocked", "blocked_movable", or "double")
+ * Load the board upgrade action setting
+ * @returns {string} Action to take with smallest tiles during board upgrade ("disappear", "blocked", "blocked_movable", or "double")
  */
-export function loadSmallestTileAction() {
-    const saved = localStorage.getItem("match2048_smallestTileAction");
+export function loadBoardUpgradeAction() {
+    const saved = localStorage.getItem("match2048_boardUpgradeAction");
     return saved || "blocked_movable";
 }
 
 /**
- * Save the smallest tile action setting
+ * Save the board upgrade action setting
  * @param {string} action - Action to take ("disappear", "blocked", "blocked_movable", or "double")
  */
-export function saveSmallestTileAction(action) {
-    localStorage.setItem("match2048_smallestTileAction", action);
+export function saveBoardUpgradeAction(action) {
+    localStorage.setItem("match2048_boardUpgradeAction", action);
+}
+
+/**
+ * Load the super upgrade action setting
+ * @returns {string} Action to take with smallest tiles during super streak upgrade ("disappear", "blocked", "blocked_movable", or "double")
+ */
+export function loadSuperUpgradeAction() {
+    const saved = localStorage.getItem("match2048_superUpgradeAction");
+    return saved || "disappear";
+}
+
+/**
+ * Save the super upgrade action setting
+ * @param {string} action - Action to take ("disappear", "blocked", "blocked_movable", or "double")
+ */
+export function saveSuperUpgradeAction(action) {
+    localStorage.setItem("match2048_superUpgradeAction", action);
 }
 
 

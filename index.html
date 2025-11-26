@@ -331,8 +331,18 @@
                     <div class="settings-section-title">Tile Level Management</div>
 
                     <div class="setting-item">
-                        <label for="smallestTileAction">Smallest Tile Action:</label>
-                        <select id="smallestTileAction">
+                        <label for="boardUpgradeAction">Board Upgrade Action:</label>
+                        <select id="boardUpgradeAction">
+                            <option value="disappear">Disappear</option>
+                            <option value="blocked">Transform to Blocked</option>
+                            <option value="blocked_movable">Transform to Blocked Movable</option>
+                            <option value="double">Double Value</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="superUpgradeAction">Super Upgrade Action:</label>
+                        <select id="superUpgradeAction">
                             <option value="disappear">Disappear</option>
                             <option value="blocked">Transform to Blocked</option>
                             <option value="blocked_movable">Transform to Blocked Movable</option>
