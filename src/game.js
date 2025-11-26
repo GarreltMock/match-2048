@@ -5,7 +5,6 @@ import {
     SPECIAL_TILE_TYPES,
     FORMATION_TYPES,
     DEFAULT_TILE_VALUES,
-    MAX_POWER_UP_USES,
     SUPER_STREAK_THRESHOLD,
     LEVELS,
     TEST_LEVELS,
@@ -47,6 +46,7 @@ import {
     createBlockedMovableTile,
     isCursed,
     getFontSize,
+    getDisplayValue,
 } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";

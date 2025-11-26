@@ -88,10 +88,6 @@ html {
     flex-grow: 0.5; /* take up half the remaining space */
 }
 
-.flex-spacer.quarter {
-    flex-grow: 0.25; /* take up a quarter of the remaining space */
-}
-
 body {
     font-family: Arial, sans-serif;
     background: #222 url("assets/bg.png");
@@ -196,33 +192,6 @@ button {
         transform: scale(1);
         opacity: 1;
     }
-}
-
-.info-item {
-    text-align: center;
-    color: white;
-}
-
-.info-item .label {
-    display: block;
-    font-size: clamp(0.75rem, 2vw, 0.9rem);
-    opacity: 0.8;
-    margin-bottom: clamp(3px, 1vw, 5px);
-}
-
-.info-item span:last-child {
-    font-size: clamp(1.1rem, 3vw, 1.4rem);
-    font-weight: bold;
-}
-
-.info-item:nth-child(2) span:last-child {
-    font-size: clamp(1.3rem, 3.5vw, 1.6rem);
-    background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
-    filter: drop-shadow(0 0 8px rgba(255, 107, 107, 0.2));
 }
 
 .game-info {
@@ -1268,21 +1237,6 @@ button {
     text-align: center;
 }
 
-.intro-close {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    background: none;
-    border: none;
-    color: #776e65;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 5px;
-    line-height: 1;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-
 .intro-content {
     padding: 20px;
     color: #333;
@@ -1668,11 +1622,6 @@ button {
     object-fit: contain;
 }
 
-.extra-move-option.primary-alt {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-}
-
 .extra-move-option.secondary {
     border-radius: 24px;
     border: 3px solid #000;
@@ -1767,22 +1716,6 @@ button {
 
 .extra-move-option.tertiary.hidden {
     display: none;
-}
-
-.option-icon {
-    font-size: 2.5rem;
-    flex-shrink: 0;
-}
-
-.option-title {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-
-.option-subtitle {
-    font-size: 0.9rem;
-    opacity: 0.9;
 }
 
 /* Settings Dialog Styles */
@@ -2142,14 +2075,6 @@ button {
     background: white;
 }
 
-.goal-dialog-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    animation: bounceIn 0.5s ease-out;
-}
-
 @keyframes bounceIn {
     0% {
         opacity: 0;
@@ -2239,37 +2164,6 @@ button {
     transform: translateY(0);
 }
 
-/* Flying power-up icon animation */
-.flying-powerup-icon {
-    position: fixed;
-    font-size: 2.5rem;
-    pointer-events: none;
-    z-index: 10000;
-    transition: transform 0.7s ease-in-out;
-    opacity: 1;
-    background: #141414;
-    border: 3px solid white;
-    border-radius: 30%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 3px 10px white inset;
-}
-
-@keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.2);
-    }
-    100% {
-        transform: scale(1);
-    }
-}
-
 /* Home Screen Styles */
 .home-screen {
     display: flex;
@@ -2303,7 +2197,7 @@ button {
     gap: 8px;
     position: relative;
     width: 100%;
-    margin-top: clamp(8px, 4vh, 20px);
+    margin-top: calc(20px + env(safe-area-inset-top));
 
     .hearts-display {
         font-family: "Nunito", sans-serif;
@@ -2372,7 +2266,7 @@ button {
         background: #141414;
         border: 3px solid #000;
         border-radius: 50%;
-        aspect-ratio: 1;
+        width: 1.6em;
         height: 1.6em;
         display: flex;
         align-items: center;
@@ -2781,32 +2675,6 @@ button {
     color: #fff;
     margin: 0;
     justify-self: start;
-}
-
-.shop-coins-balance {
-    position: absolute;
-    top: 10px;
-    display: flex;
-    align-items: center;
-    gap: clamp(6px, 1.5vw, 10px);
-    justify-self: center;
-
-    border-radius: 20px;
-    border: 2px solid #3a3a3a;
-    background: #2a2a2a;
-    padding: clamp(4px, 1vw, 6px) clamp(12px, 2.5vw, 16px);
-}
-
-.shop-coins-balance .coin-icon {
-    width: clamp(24px, 6vw, 32px);
-    height: clamp(24px, 6vw, 32px);
-}
-
-.shop-coins-balance .coin-count {
-    font-size: clamp(16px, 4vw, 20px);
-    color: white;
-    font-family: Nunito;
-    font-weight: bold;
 }
 
 .close-shop-btn {
