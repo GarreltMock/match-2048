@@ -158,7 +158,7 @@ export function hideHomeScreen() {
  * @param {Match3Game} game - The game instance
  * @param {HTMLElement} heartsDisplay - The hearts display element
  */
-function updateHeartsDisplay(game, heartsDisplay) {
+export function updateHeartsDisplay(game, heartsDisplay) {
     const hearts = game.hearts;
     const maxHearts = game.MAX_HEARTS;
 

@@ -77,17 +77,6 @@ html {
     --tile-blocked-movable-icon-color: white;
 }
 
-.flex-spacer {
-    flex-grow: 1; /* allow it to take up remaining space */
-    flex-shrink: 1; /* allow it to shrink */
-    flex-basis: 0; /* start with zero base size */
-    min-height: 0; /* allow it to shrink down to 0 height */
-}
-
-.flex-spacer.half {
-    flex-grow: 0.5; /* take up half the remaining space */
-}
-
 body {
     font-family: Arial, sans-serif;
     background: #222 url("assets/bg.png");
@@ -117,14 +106,34 @@ button {
     text-align: center;
     max-width: 600px;
     width: 100%;
+    height: 100dvh;
     padding: 10px clamp(10px, 3vw, 20px);
     display: none;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     gap: clamp(8px, 4vw, 20px);
     position: relative;
     overflow-y: auto;
     overflow-x: hidden;
+}
+
+.back-btn {
+    position: absolute;
+    top: calc(10px + env(safe-area-inset-top));
+    left: clamp(10px, 3vw, 20px);
+    background: #141414;
+    border: 3px solid #000;
+    border-radius: 35%;
+    width: clamp(30px, 6vw, 40px);
+    height: clamp(30px, 6vw, 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: clamp(16px, 4vw, 24px);
+    z-index: 10;
+    color: rgba(255, 255, 255, 0.8);
+    padding-bottom: 2px;
 }
 
 .level-text {
@@ -321,7 +330,7 @@ button {
     left: 50%;
     transform: translateX(-50%);
     background: #141414;
-    border-radius: 50%;
+    border-radius: 35%;
     font-size: 1rem;
     line-height: 1rem;
     width: 1.2rem;
@@ -554,7 +563,7 @@ button {
     background: var(--tile-cursed-badge-bg);
     width: 33%;
     height: 33%;
-    border-radius: 50%;
+    border-radius: 35%;
     color: var(--tile-cursed-color);
     display: flex;
     align-items: center;
@@ -622,7 +631,7 @@ button {
     background-color: var(--tile-power-badge-bg);
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     color: var(--tile-power-badge-color);
     font-weight: bold;
     display: flex;
@@ -643,7 +652,7 @@ button {
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-golden-badge-bg);
     color: var(--tile-golden-badge-color);
     font-weight: bold;
@@ -670,10 +679,10 @@ button {
     right: -4px;
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
     background-image: url("assets/arrow-all-directions.svg");
-    background-size: 60%;
+    background-size: 75%;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
@@ -693,10 +702,10 @@ button {
     right: -4px;
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
     background-image: url("assets/arrow-horizontal.svg");
-    background-size: 60%;
+    background-size: 75%;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
@@ -716,10 +725,10 @@ button {
     right: -4px;
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
     background-image: url("assets/arrow-vertical.svg");
-    background-size: 25%;
+    background-size: 38%;
     background-position: center;
     background-repeat: no-repeat;
     display: flex;
@@ -740,7 +749,7 @@ button {
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-hammer-badge-bg);
     color: var(--tile-hammer-badge-color);
     font-weight: bold;
@@ -762,7 +771,7 @@ button {
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-halver-badge-bg);
     color: var(--tile-halver-badge-color);
     font-weight: bold;
@@ -2167,12 +2176,12 @@ button {
     align-items: center;
     justify-content: center;
     width: 100vw;
-    height: 100vh;
     height: 100dvh;
     position: absolute;
     top: 0;
     left: 0;
     z-index: 1000;
+    padding: 8vh 0;
 }
 
 .home-content {
@@ -2180,9 +2189,7 @@ button {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    gap: clamp(40px, 8vh, 80px);
     flex: 1;
-    padding: 10vh 0;
     font-family: "Nunito", sans-serif;
     position: relative;
 }
@@ -2193,7 +2200,6 @@ button {
     gap: 8px;
     position: relative;
     width: 100%;
-    margin-top: calc(20px + env(safe-area-inset-top));
 
     .hearts-display {
         font-family: "Nunito", sans-serif;
@@ -2261,7 +2267,7 @@ button {
     .info-btn {
         background: #141414;
         border: 3px solid #000;
-        border-radius: 50%;
+        border-radius: 35%;
         width: 1.6em;
         height: 1.6em;
         display: flex;
@@ -2534,7 +2540,7 @@ button {
 
 .no-hearts-message {
     font-family: "Nunito", sans-serif;
-    font-size: clamp(24px, 6vw, 36px);
+    font-size: clamp(28px, 7vw, 40px);
     font-weight: 900;
     color: #fff;
     text-align: center;
@@ -2601,6 +2607,71 @@ button {
     color: white;
     cursor: pointer;
     transition: all 0.2s ease;
+}
+
+.give-up-confirm-btn {
+    background: #450a0a !important;
+    color: #fff !important;
+}
+
+.give-up-header {
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(28px, 7vw, 40px);
+    font-weight: 900;
+    color: #fff;
+    text-align: center;
+    /* margin-bottom: 8px; */
+}
+
+.give-up-losses {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* gap: 8px; */
+    padding: 12px 0;
+}
+
+.loss-item {
+    display: grid;
+    grid-template-columns: clamp(32px, 8vw, 40px) 1fr;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 700;
+}
+
+.loss-item > span:first-child {
+    font-size: clamp(24px, 6vw, 32px);
+    text-align: center;
+}
+
+.give-up-streak-display {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    /* gap: 8px; */
+}
+
+.give-up-streak-display .streak-item {
+    display: grid;
+    grid-template-columns: clamp(32px, 8vw, 40px) 1fr;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(16px, 4vw, 20px);
+    font-weight: 700;
+}
+
+.give-up-streak-display .streak-item > span:first-child,
+.give-up-streak-display .streak-item > img {
+    font-size: clamp(24px, 6vw, 32px);
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    text-align: center;
 }
 
 /* Shop Bottom Sheet */
@@ -2676,7 +2747,7 @@ button {
 .close-shop-btn {
     background: #2a2a2a;
     border: 2px solid #3a3a3a;
-    border-radius: 50%;
+    border-radius: 35%;
     width: clamp(32px, 8vw, 40px);
     height: clamp(32px, 8vw, 40px);
     display: flex;

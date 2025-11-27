@@ -69,6 +69,7 @@ import {
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
 import { showGoalDialog, hasDialogBeenShown, updateIntroDialogGoalsList } from "./goal-dialogs.js";
+import { showHomeScreen } from "./home-screen.js";
 
 export class Match3Game {
     constructor() {
@@ -361,6 +362,7 @@ export class Match3Game {
     setupControlButtons() {
         const restartBtn = document.getElementById("restartBtn");
         const nextBtn = document.getElementById("nextBtn");
+        const backBtn = document.getElementById("backBtn");
 
         if (restartBtn) {
             restartBtn.addEventListener("click", () => {
@@ -383,6 +385,13 @@ export class Match3Game {
             });
         }
 
+        // Setup back button
+        if (backBtn) {
+            backBtn.addEventListener("click", () => {
+                this.showGiveUpDialog();
+            });
+        }
+
         // Setup board upgrades click handler to show dialog
         const boardUpgradesContainer = document.getElementById("boardUpgradesContainer");
         if (boardUpgradesContainer) {
@@ -395,6 +404,9 @@ export class Match3Game {
                 }
             });
         }
+
+        // Setup give up dialog buttons
+        this.setupGiveUpDialog();
 
         // Setup power-ups
         this.setupPowerUps();
@@ -1008,6 +1020,86 @@ export class Match3Game {
         this.updateCoinsDisplays();
 
         extraMovesDialog.classList.remove("hidden");
+    }
+
+    showGiveUpDialog() {
+        const giveUpDialog = document.getElementById("giveUpDialog");
+        const streakDisplay = document.getElementById("giveUpStreakDisplay");
+
+        // Build streak display
+        let streaksHTML = "";
+
+        if (this.currentStreak > 0) {
+            streaksHTML += `<div class="streak-item"><span>🔥</span><span>Your ${this.currentStreak}-win streak</span></div>`;
+        }
+
+        if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
+            streaksHTML += `<div class="streak-item"><img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" /><span>Super Upgrade</span></div>`;
+        }
+
+        if (streakDisplay) {
+            streakDisplay.innerHTML = streaksHTML;
+        }
+
+        if (giveUpDialog) {
+            giveUpDialog.classList.remove("hidden");
+        }
+    }
+
+    setupGiveUpDialog() {
+        const giveUpDialog = document.getElementById("giveUpDialog");
+        const cancelGiveUpBtn = document.getElementById("cancelGiveUpBtn");
+        const confirmGiveUpBtnDialog = document.getElementById("confirmGiveUpBtnDialog");
+
+        if (cancelGiveUpBtn) {
+            cancelGiveUpBtn.addEventListener("click", () => {
+                giveUpDialog.classList.add("hidden");
+            });
+        }
+
+        if (confirmGiveUpBtnDialog) {
+            confirmGiveUpBtnDialog.addEventListener("click", () => {
+                giveUpDialog.classList.add("hidden");
+
+                // Go back to home screen
+                setTimeout(() => {
+                    // Decrease heart
+                    if (!this.heartDecreasedThisAttempt) {
+                        this.decreaseHeart();
+                        this.heartDecreasedThisAttempt = true;
+                    }
+
+                    // Reset streak on give up
+                    this.currentStreak = 0;
+                    saveStreak(this.currentStreak);
+
+                    if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
+                        // Reset super streak on give up
+                        this.superStreak = 0;
+                        saveSuperStreak(this.superStreak);
+                    }
+
+                    // Track that player gave up
+                    track("level_gave_up", {
+                        level: this.currentLevel,
+                        moves_used: this.movesUsed,
+                        max_moves: this.maxMoves,
+                    });
+
+                    // Show home screen with updated displays (hearts, streaks, etc.)
+                    showHomeScreen(this);
+                }, 100);
+            });
+        }
+
+        // Click outside to close
+        if (giveUpDialog) {
+            giveUpDialog.addEventListener("click", (e) => {
+                if (e.target === giveUpDialog) {
+                    giveUpDialog.classList.add("hidden");
+                }
+            });
+        }
     }
 
     setupPowerupShop() {

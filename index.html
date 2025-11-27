@@ -42,7 +42,7 @@
 
                 <stroked-text id="homeTitle" text="Match 2048" font-size="60" stroke-width="14"> </stroked-text>
 
-                <div style="flex: 1"></div>
+                <div style="flex: 2"></div>
 
                 <div>
                     <div id="super-streak-display" class="super-streak-display"></div>
@@ -53,6 +53,8 @@
         </div>
 
         <div class="game-container" id="game-container">
+            <button id="backBtn" class="back-btn" title="Back to Home">←</button>
+
             <div class="level-text">
                 <stroked-text
                     id="levelSolvedSvg"
@@ -75,7 +77,6 @@
                 >
                 </stroked-text>
             </div>
-            <div class="flex-spacer half"></div>
 
             <div class="game-info">
                 <div id="boardUpgradesContainer" class="board-upgrades-container" style="display: none">
@@ -101,11 +102,7 @@
                 </div>
             </div>
 
-            <div class="flex-spacer"></div>
-
             <div class="game-board" id="gameBoard"></div>
-
-            <div class="flex-spacer"></div>
 
             <div class="bottom-container">
                 <div class="controls">
@@ -146,6 +143,24 @@
                         </div>
                     </button>
                     <button id="closeNoHeartsBtn" class="close-hearts-btn">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Give Up Confirmation Dialog -->
+        <div id="giveUpDialog" class="no-hearts-dialog hidden">
+            <div class="no-hearts-content">
+                <div class="give-up-header">Are you sure?</div>
+                <div class="no-hearts-message">You will lose:</div>
+                <div class="give-up-losses">
+                    <div class="loss-item"><span>♥️</span><span>One heart</span></div>
+                    <div id="giveUpStreakDisplay" class="give-up-streak-display"></div>
+                </div>
+                <div class="no-hearts-buttons">
+                    <button id="confirmGiveUpBtnDialog" class="fill-hearts-btn give-up-confirm-btn">
+                        <div class="fill-hearts-text">Give up</div>
+                    </button>
+                    <button id="cancelGiveUpBtn" class="close-hearts-btn">Cancel</button>
                 </div>
             </div>
         </div>
