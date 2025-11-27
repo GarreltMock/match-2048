@@ -1996,10 +1996,6 @@ button {
         min-height: -webkit-fill-available;
         padding-top: env(safe-area-inset-top, 10px);
     }
-
-    .game-container {
-        justify-content: flex-start;
-    }
 }
 
 .invalid-swap {
@@ -2181,7 +2177,7 @@ button {
     top: 0;
     left: 0;
     z-index: 1000;
-    padding: 8vh 0;
+    padding: 4vh 0 8vh;
 }
 
 .home-content {
