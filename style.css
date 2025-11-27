@@ -547,7 +547,7 @@ button {
 .gem.tile-JOKER {
     background: var(--tile-joker-bg);
     color: var(--tile-joker-color);
-    border: 4px solid var(--tile-joker-border);
+    border: 3px solid var(--tile-joker-border);
     font-size: clamp(22px, 4.5vw, 32px);
     cursor: pointer;
     position: relative;
@@ -626,15 +626,15 @@ button {
 }
 
 .gem.power-tile {
-    border: 4px solid var(--tile-power-border);
+    border: 3px solid var(--tile-power-border);
     position: relative;
 }
 
 .gem.power-tile::after {
     content: "+";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     font-size: clamp(10px, 2vw, 16px);
     background-color: var(--tile-power-badge-bg);
     width: 40%;
@@ -648,15 +648,15 @@ button {
 }
 
 .gem.golden-tile {
-    border: 4px solid var(--tile-golden-border);
+    border: 3px solid var(--tile-golden-border);
     position: relative;
 }
 
 .gem.golden-tile::after {
     content: "★";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
@@ -670,12 +670,12 @@ button {
 }
 
 .gem.freeswap-tile {
-    border: 4px solid var(--tile-freeswap-border);
+    border: 3px solid var(--tile-freeswap-border);
     position: relative;
 }
 
 .gem.sticky-freeswap-tile {
-    border: 4px solid var(--tile-freeswap-border);
+    border: 3px solid var(--tile-freeswap-border);
     position: relative;
 }
 
@@ -683,8 +683,8 @@ button {
 .gem.freeswap-tile::after {
     content: "";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -699,15 +699,15 @@ button {
 }
 
 .gem.freeswap-horizontal-tile {
-    border: 4px solid var(--tile-freeswap-border);
+    border: 3px solid var(--tile-freeswap-border);
     position: relative;
 }
 
 .gem.freeswap-horizontal-tile::after {
     content: "";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -722,15 +722,15 @@ button {
 }
 
 .gem.freeswap-vertical-tile {
-    border: 4px solid var(--tile-freeswap-border);
+    border: 3px solid var(--tile-freeswap-border);
     position: relative;
 }
 
 .gem.freeswap-vertical-tile::after {
     content: "";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -745,15 +745,15 @@ button {
 }
 
 .gem.hammer-tile {
-    border: 4px solid var(--tile-hammer-border);
+    border: 3px solid var(--tile-hammer-border);
     position: relative;
 }
 
 .gem.hammer-tile::after {
     content: "🔨";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
@@ -767,15 +767,15 @@ button {
 }
 
 .gem.halver-tile {
-    border: 4px solid var(--tile-halver-border);
+    border: 3px solid var(--tile-halver-border);
     position: relative;
 }
 
 .gem.halver-tile::after {
     content: "✂️";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -3px;
+    right: -3px;
     font-size: clamp(8px, 2vw, 16px);
     width: 40%;
     height: 40%;
