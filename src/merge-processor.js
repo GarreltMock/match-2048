@@ -11,6 +11,7 @@ import {
     getTileValue,
     isTileStickyFreeSwapTile,
     getDisplayValue,
+    isRectangularBlocked,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
 import { savePowerUpCounts } from "./storage.js";
@@ -368,6 +369,9 @@ function unblockAdjacentTiles(game, matchGroups) {
     const goalTilesToDamage = [];
 
     matchGroups.forEach((group) => {
+        // Track which blocked tiles have been hit by this match group
+        const hitInThisGroup = new Set();
+
         // Get where the new merged tile(s) will be created
         let targetPositions = [];
         if (group.direction === "T-formation" || group.direction === "L-formation") {
@@ -398,8 +402,18 @@ function unblockAdjacentTiles(game, matchGroups) {
 
                     // Handle blocked tiles and blocked movable tiles (remove immediately)
                     if (isBlocked(tile) || isBlockedMovable(tile)) {
-                        // Avoid duplicates
-                        if (!blockedTilesToRemove.some((t) => t.row === pos.row && t.col === pos.col)) {
+                        // Use rectId for deduplication
+                        const key = isRectangularBlocked(tile)
+                            ? tile.rectId
+                            : `${pos.row}_${pos.col}`;
+
+                        // Skip if already hit by this match group
+                        if (hitInThisGroup.has(key)) {
+                            return;
+                        }
+                        hitInThisGroup.add(key);
+
+                        if (!blockedTilesToRemove.some((t) => t.key === key)) {
                             // Find the closest target position for animation
                             let closestTarget = targetPositions[0];
                             let closestDistance =
@@ -414,17 +428,31 @@ function unblockAdjacentTiles(game, matchGroups) {
                             });
 
                             blockedTilesToRemove.push({
+                                key: key,
                                 row: pos.row,
                                 col: pos.col,
                                 targetPos: closestTarget,
+                                tile: tile, // Store tile reference
                             });
                         }
                     }
                     // Handle blocked tiles with life (apply damage)
                     else if (isBlockedWithLife(tile)) {
-                        // Avoid duplicates - if already in list, add damage to existing entry
-                        const existingEntry = goalTilesToDamage.find((t) => t.row === pos.row && t.col === pos.col);
+                        // Use rectId for rectangular blocks, row_col for single cells
+                        const key = isRectangularBlocked(tile)
+                            ? tile.rectId
+                            : `${pos.row}_${pos.col}`;
+
+                        // Skip if already hit by this match group
+                        if (hitInThisGroup.has(key)) {
+                            return;
+                        }
+                        hitInThisGroup.add(key);
+
+                        const existingEntry = goalTilesToDamage.find((t) => t.key === key);
+
                         if (existingEntry) {
+                            // Accumulate damage from different match groups
                             existingEntry.damage += damageValue;
                         } else {
                             // Find the closest target position for animation
@@ -441,10 +469,12 @@ function unblockAdjacentTiles(game, matchGroups) {
                             });
 
                             goalTilesToDamage.push({
+                                key: key,
                                 row: pos.row,
                                 col: pos.col,
                                 damage: damageValue,
                                 targetPos: closestTarget,
+                                tile: tile, // Store tile reference for rectangular blocks
                             });
                         }
                     }

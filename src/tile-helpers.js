@@ -59,10 +59,11 @@ export function createTile(value, specialType = null, options = {}) {
     return tile;
 }
 
-export function createBlockedTile() {
+export function createBlockedTile(immovable = true) {
     return {
         type: TILE_TYPE.BLOCKED,
         value: null,
+        immovable: immovable,
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,
@@ -75,11 +76,12 @@ export function createBlockedTile() {
     };
 }
 
-export function createBlockedWithLifeTile(lifeValue) {
+export function createBlockedWithLifeTile(lifeValue, immovable = true) {
     return {
         type: TILE_TYPE.BLOCKED_WITH_LIFE,
         value: null,
         lifeValue: lifeValue,
+        immovable: immovable,
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,
@@ -130,6 +132,37 @@ export function createCursedTile(value, movesRemaining) {
         value: value,
         cursedMovesRemaining: movesRemaining,
         createdThisTurn: true, // Skip decrement on the turn this tile was created
+        isPowerTile: false,
+        isGoldenTile: false,
+        isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
+        isHammerTile: false,
+        isHalverTile: false,
+        hasBeenSwapped: false,
+    };
+}
+
+export function createRectangularBlockedTile(rectId, anchor, width, height, lifeValue) {
+    const baseType = lifeValue !== undefined
+        ? TILE_TYPE.BLOCKED_WITH_LIFE
+        : TILE_TYPE.BLOCKED;
+
+    return {
+        type: baseType,
+        value: null,
+        lifeValue: lifeValue,
+        immovable: true, // Rectangular blocks are always immovable
+
+        // Rectangular properties
+        isRectangular: true,
+        rectId: rectId,
+        rectAnchor: anchor,
+        rectWidth: width,
+        rectHeight: height,
+
+        // Standard properties (all false)
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,
@@ -208,6 +241,10 @@ export function isTileHalverTile(tile) {
 
 export function isCursed(tile) {
     return tile && tile.type === TILE_TYPE.CURSED;
+}
+
+export function isRectangularBlocked(tile) {
+    return tile && tile.isRectangular === true;
 }
 
 // Convert internal value (1, 2, 3...) to display value (powers of 2)

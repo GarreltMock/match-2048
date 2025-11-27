@@ -1,6 +1,6 @@
 // Animation coordination for swaps, merges, and tile drops
 
-import { createTile } from "./tile-helpers.js";
+import { createTile, isRectangularBlocked, isBlocked, isBlockedWithLife } from "./tile-helpers.js";
 import { getRandomTileValue } from "./board.js";
 import { trySwap } from "./input-handler.js";
 
@@ -226,11 +226,46 @@ function calculateMiddlePositions(_game, tiles, group = null) {
     return positions;
 }
 
+function animateRectangularBlockRemoval(game, tile) {
+    // Find the DOM element by rectId
+    const blockedElement = document.querySelector(`[data-rect-id="${tile.rectId}"]`);
+
+    if (blockedElement) {
+        blockedElement.classList.add("disappear");
+    }
+
+    // Remove from ALL cells of the rectangle
+    setTimeout(() => {
+        const { row: anchorRow, col: anchorCol } = tile.rectAnchor;
+        for (let r = anchorRow; r < anchorRow + tile.rectHeight; r++) {
+            for (let c = anchorCol; c < anchorCol + tile.rectWidth; c++) {
+                if (game.board[r] && game.board[r][c] === tile) {
+                    game.board[r][c] = null;
+                }
+            }
+        }
+    }, 400);
+}
+
 export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCallback, updateGoalDisplayCallback) {
     if (blockedTiles.length === 0) return;
 
-    blockedTiles.forEach((blockedTile) => {
-        const blockedElement = document.querySelector(`[data-row="${blockedTile.row}"][data-col="${blockedTile.col}"]`);
+    // Process each blocked tile for animation
+    blockedTiles.forEach((blockedEntry) => {
+        const tile = blockedEntry.tile || game.board[blockedEntry.row][blockedEntry.col];
+
+        if (!tile) return; // Already removed
+
+        // NEW: Handle rectangular blocks
+        if (isRectangularBlocked(tile)) {
+            animateRectangularBlockRemoval(game, tile);
+            return;
+        }
+
+        // EXISTING: Single-cell blocked tile animation
+        const blockedElement = document.querySelector(
+            `[data-row="${blockedEntry.row}"][data-col="${blockedEntry.col}"]`
+        );
 
         if (blockedElement) {
             // Add disappear animation class (reverse bounce - inflate then shrink)
@@ -239,7 +274,7 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
 
         // Remove from board data after animation completes (350ms)
         setTimeout(() => {
-            game.board[blockedTile.row][blockedTile.col] = null;
+            game.board[blockedEntry.row][blockedEntry.col] = null;
         }, 400);
     });
 
@@ -381,28 +416,90 @@ export function dropGems(game) {
     const movedGems = [];
     const newGems = [];
 
-    // Track which gems moved and which are new
+    // Process each column independently with section-based gravity
     for (let col = 0; col < game.boardWidth; col++) {
-        let writePos = game.boardHeight - 1;
-        let emptySpaces = 0;
+        // Step 1: Find all immovable blocked tiles in this column
+        const immovableBlockerPositions = [];
+        const processedRectangles = new Set(); // Track rectangular blocks we've already processed
 
-        // Count empty spaces and drop existing gems
-        for (let row = game.boardHeight - 1; row >= 0; row--) {
-            if (game.board[row][col] === null) {
-                emptySpaces++;
-            } else {
-                if (row !== writePos) {
-                    // This gem will move
-                    movedGems.push({ row: writePos, col, fromRow: row });
-                    game.board[writePos][col] = game.board[row][col];
-                    game.board[row][col] = null;
+        for (let row = 0; row < game.boardHeight; row++) {
+            const tile = game.board[row][col];
+
+            // Check if this tile should block gravity
+            if ((isBlocked(tile) || isBlockedWithLife(tile)) && tile.immovable !== false) {
+                if (isRectangularBlocked(tile)) {
+                    // For rectangular blocks, only process once per rectangle
+                    if (!processedRectangles.has(tile.rectId)) {
+                        processedRectangles.add(tile.rectId);
+                        // Add all rows that this rectangle occupies in this column
+                        const { row: anchorRow } = tile.rectAnchor;
+                        const { rectHeight } = tile;
+                        for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
+                            immovableBlockerPositions.push(r);
+                        }
+                    }
+                } else {
+                    // Single-cell blocked tile
+                    immovableBlockerPositions.push(row);
                 }
-                writePos--;
             }
         }
 
-        // Fill empty spaces from top with new gems
-        for (let i = 0; i < emptySpaces; i++) {
+        // Step 2: Define sections between immovable blockers
+        // Sort positions to ensure correct section boundaries
+        immovableBlockerPositions.sort((a, b) => a - b);
+
+        // Each section is { start: rowIndex, end: rowIndex }
+        const sections = [];
+        let currentSectionStart = 0;
+
+        for (const blockerRow of immovableBlockerPositions) {
+            if (blockerRow > currentSectionStart) {
+                // There's a section from currentSectionStart to blockerRow-1
+                sections.push({ start: currentSectionStart, end: blockerRow - 1 });
+            }
+            currentSectionStart = blockerRow + 1;
+        }
+
+        // Add final section from last blocker to bottom of board
+        if (currentSectionStart < game.boardHeight) {
+            sections.push({ start: currentSectionStart, end: game.boardHeight - 1 });
+        }
+
+        // Step 3: Process gravity within each section independently
+        let totalEmptySpaces = 0;
+
+        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
+            const section = sections[sectionIndex];
+            let writePos = section.end; // Start writing from bottom of this section
+            let sectionEmptyCount = 0;
+
+            // Scan this section from bottom to top
+            for (let row = section.end; row >= section.start; row--) {
+                const tile = game.board[row][col];
+
+                if (tile === null) {
+                    sectionEmptyCount++;
+                } else {
+                    // This is a movable tile (normal, movable_blocked, cursed, joker, etc.)
+                    if (row !== writePos) {
+                        // Tile needs to fall within this section
+                        movedGems.push({ row: writePos, col, fromRow: row });
+                        game.board[writePos][col] = game.board[row][col];
+                        game.board[row][col] = null;
+                    }
+                    writePos--;
+                }
+            }
+
+            // Only the topmost section (index 0) receives new tiles
+            if (sectionIndex === 0) {
+                totalEmptySpaces = sectionEmptyCount;
+            }
+        }
+
+        // Step 4: Spawn new tiles ONLY in the topmost section
+        for (let i = 0; i < totalEmptySpaces; i++) {
             game.board[i][col] = createTile(getRandomTileValue(game));
             newGems.push({ row: i, col });
         }

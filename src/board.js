@@ -1,7 +1,38 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, getTileValue } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, getTileValue, createRectangularBlockedTile, isRectangularBlocked } from "./tile-helpers.js";
 import { parsePresetTile } from "./serializer.js";
+
+function isRectangularBlockConfig(blockedPos) {
+    return blockedPos.width !== undefined && blockedPos.height !== undefined;
+}
+
+function placeRectangularBlockedTile(game, config) {
+    const { row, col, width, height, lifeValue } = config;
+
+    // Validate bounds
+    if (row + height > game.boardHeight || col + width > game.boardWidth) {
+        console.warn(`Rectangular blocked tile at (${row},${col}) with size ${width}x${height} exceeds board bounds`);
+        return;
+    }
+
+    // Create single shared tile object
+    const rectId = `rect_${row}_${col}_${width}_${height}`;
+    const sharedTile = createRectangularBlockedTile(
+        rectId,
+        { row, col },
+        width,
+        height,
+        lifeValue
+    );
+
+    // Place reference in all cells of the rectangle
+    for (let r = row; r < row + height; r++) {
+        for (let c = col; c < col + width; c++) {
+            game.board[r][c] = sharedTile; // All cells point to same object
+        }
+    }
+}
 
 export function createBoard(game) {
     game.board = [];
@@ -38,17 +69,29 @@ export function createBoard(game) {
         // Place blocked tiles (with or without life, movable or immovable) from blockedTiles config
         if (game.blockedTiles) {
             game.blockedTiles.forEach((blockedPos) => {
+                // NEW: Handle rectangular blocks
+                if (isRectangularBlockConfig(blockedPos)) {
+                    placeRectangularBlockedTile(game, blockedPos);
+                    return; // Skip rest of iteration
+                }
+
                 // Determine tile creator based on properties
+                // movable: true = swappable (BLOCKED_MOVABLE) - can drop and swap
+                // movable: false = immovable (blocks gravity)
+                // movable: undefined (omitted) = droppable (can fall, cannot swap)
+                const movable = blockedPos.movable;
+                const immovable = movable === false;
+
                 let tileCreator;
-                if (blockedPos.lifeValue !== undefined) {
-                    // Has life value - create blocked with life tile
-                    tileCreator = () => createBlockedWithLifeTile(blockedPos.lifeValue);
-                } else if (blockedPos.movable === true) {
-                    // Movable blocked tile
+                if (movable === true) {
+                    // Movable blocked tile (swappable)
                     tileCreator = createBlockedMovableTile;
+                } else if (blockedPos.lifeValue !== undefined) {
+                    // Has life value - create blocked with life tile
+                    tileCreator = () => createBlockedWithLifeTile(blockedPos.lifeValue, immovable);
                 } else {
                     // Regular blocked tile
-                    tileCreator = createBlockedTile;
+                    tileCreator = () => createBlockedTile(immovable);
                 }
 
                 if (blockedPos.row !== undefined && blockedPos.col !== undefined) {

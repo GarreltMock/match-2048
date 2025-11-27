@@ -680,11 +680,10 @@ export class Match3Game {
     handlePowerUpAction(row, col, element) {
         const tile = this.board[row][col];
 
-        // Skip blocked tiles
-        if (tile && tile.type === TILE_TYPE.BLOCKED) return;
-
         switch (this.activePowerUp) {
             case "hammer":
+                // Hammer only works on normal tiles (not on any blocked tiles)
+                if (!tile || (tile.type !== TILE_TYPE.NORMAL && tile.type !== TILE_TYPE.BLOCKED_MOVABLE)) return;
                 this.usePowerUpHammer(row, col, element);
                 break;
             case "halve":
@@ -1453,7 +1452,8 @@ export class Match3Game {
             }
 
             // Determine which action to use (super streak uses superUpgradeAction, otherwise boardUpgradeAction)
-            const effectiveAction = this.superStreak >= SUPER_STREAK_THRESHOLD ? this.superUpgradeAction : this.boardUpgradeAction;
+            const effectiveAction =
+                this.superStreak >= SUPER_STREAK_THRESHOLD ? this.superUpgradeAction : this.boardUpgradeAction;
 
             // Animate tiles based on action type
             tilesToRemove.forEach(({ row, col }) => {

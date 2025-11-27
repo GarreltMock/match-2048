@@ -18,9 +18,40 @@ import {
     isTileHalverTile,
     getDisplayValue,
     getFontSize,
+    isRectangularBlocked,
 } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
-import { SUPER_STREAK_THRESHOLD } from "./config.js";
+import { SUPER_STREAK_THRESHOLD, TILE_TYPE } from "./config.js";
+
+function createRectangularBlockedElement(tile) {
+    const gem = document.createElement("div");
+
+    // Set data attributes for identification
+    gem.dataset.rectId = tile.rectId;
+    gem.dataset.row = tile.rectAnchor.row;
+    gem.dataset.col = tile.rectAnchor.col;
+    gem.dataset.rectWidth = tile.rectWidth;
+    gem.dataset.rectHeight = tile.rectHeight;
+
+    // CSS Grid positioning (1-indexed)
+    const gridRowStart = tile.rectAnchor.row + 1;
+    const gridRowEnd = gridRowStart + tile.rectHeight;
+    const gridColStart = tile.rectAnchor.col + 1;
+    const gridColEnd = gridColStart + tile.rectWidth;
+
+    gem.style.gridRow = `${gridRowStart} / ${gridRowEnd}`;
+    gem.style.gridColumn = `${gridColStart} / ${gridColEnd}`;
+
+    // Apply appropriate class
+    if (tile.type === TILE_TYPE.BLOCKED_WITH_LIFE) {
+        gem.className = `gem tile-BLOCKED_WITH_LIFE rectangular-blocked`;
+        gem.dataset.life = tile.lifeValue;
+    } else {
+        gem.className = `gem tile-BLOCKED rectangular-blocked`;
+    }
+
+    return gem;
+}
 
 export function renderBoard(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -42,10 +73,28 @@ export function renderBoard(game) {
 
     gameBoard.style.width = `${maxWidth}px`;
 
+    // Track which rectangular blocks have been rendered
+    const renderedRectangles = new Set();
+
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
-            const gem = document.createElement("div");
             const tile = game.board[row][col];
+
+            // NEW: Handle rectangular blocked tiles
+            if (isRectangularBlocked(tile)) {
+                // Only render once per rectangle
+                if (renderedRectangles.has(tile.rectId)) {
+                    continue; // Skip other cells of this rectangle
+                }
+                renderedRectangles.add(tile.rectId);
+
+                const gem = createRectangularBlockedElement(tile);
+                gameBoard.appendChild(gem);
+                continue;
+            }
+
+            // EXISTING: Regular tile rendering
+            const gem = document.createElement("div");
             gem.dataset.row = row;
             gem.dataset.col = col;
 
