@@ -132,16 +132,14 @@ export function renderBoard(game) {
                 if (tile.targetValue !== null && tile.targetValue !== undefined) {
                     const displayValue = getDisplayValue(tile.targetValue);
                     const fontSize = getFontSize(displayValue);
-                    targetValueDisplay = `<div style="font-size: ${
+                    targetValueDisplay = `<span style="font-size: ${
                         fontSize * 0.7
-                    }cqw; opacity: 0.6; margin-top: -15cqw;">${displayValue}</div>`;
+                    }cqw;" class="preview-value">${displayValue}</span>`;
                 }
 
                 gem.innerHTML = `
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding-bottom: 3cqw;">
-                        <div style="font-size: 75cqw; margin-bottom: -36cqw; font-weight: bold;">*</div>
-                        ${targetValueDisplay}
-                    </div>
+                    <span class="star-value" style="">*</span>
+                    ${targetValueDisplay}
                 `;
                 gem.classList.add("joker-tile");
             } else if (isCursed(tile)) {
