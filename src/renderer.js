@@ -22,6 +22,21 @@ import {
 } from "./tile-helpers.js";
 import { saveScore } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, TILE_TYPE } from "./config.js";
+import { findBestJokerValue } from "./input-handler.js";
+
+// Helper function to update target values for all joker tiles
+function updateJokerTargetValues(game) {
+    for (let row = 0; row < game.boardHeight; row++) {
+        for (let col = 0; col < game.boardWidth; col++) {
+            const tile = game.board[row][col];
+            if (isJoker(tile)) {
+                // Calculate what value this joker would become if activated
+                const targetValue = findBestJokerValue(game, row, col);
+                tile.targetValue = targetValue;
+            }
+        }
+    }
+}
 
 function createRectangularBlockedElement(tile) {
     const gem = document.createElement("div");
@@ -73,6 +88,9 @@ export function renderBoard(game) {
 
     gameBoard.style.width = `${maxWidth}px`;
 
+    // Update target values for all joker tiles before rendering
+    updateJokerTargetValues(game);
+
     // Track which rectangular blocks have been rendered
     const renderedRectangles = new Set();
 
@@ -108,7 +126,23 @@ export function renderBoard(game) {
                 gem.className = `gem tile-BLOCKED_MOVABLE`;
             } else if (isJoker(tile)) {
                 gem.className = `gem tile-JOKER`;
-                gem.textContent = "🃏";
+
+                // Calculate what value this joker would become
+                let targetValueDisplay = "";
+                if (tile.targetValue !== null && tile.targetValue !== undefined) {
+                    const displayValue = getDisplayValue(tile.targetValue);
+                    const fontSize = getFontSize(displayValue);
+                    targetValueDisplay = `<div style="font-size: ${
+                        fontSize * 0.7
+                    }cqw; opacity: 0.6; margin-top: -15cqw;">${displayValue}</div>`;
+                }
+
+                gem.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding-bottom: 3cqw;">
+                        <div style="font-size: 75cqw; margin-bottom: -36cqw; font-weight: bold;">*</div>
+                        ${targetValueDisplay}
+                    </div>
+                `;
                 gem.classList.add("joker-tile");
             } else if (isCursed(tile)) {
                 const value = getTileValue(tile);

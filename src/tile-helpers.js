@@ -110,10 +110,11 @@ export function createBlockedMovableTile() {
     };
 }
 
-export function createJokerTile() {
+export function createJokerTile(targetValue = null) {
     return {
         type: TILE_TYPE.JOKER,
         value: null,
+        targetValue: targetValue, // The value this joker will become when activated
         isPowerTile: false,
         isGoldenTile: false,
         isFreeSwapTile: false,

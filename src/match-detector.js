@@ -13,16 +13,15 @@ export function hasMatchesForSwap(game, row1, col1, row2, col2) {
     const matches = findMatches(game);
 
     // Check if any match contains either of the swapped positions
-    return matches.some(match => {
-        return match.tiles.some(tile => {
-            return (tile.row === row1 && tile.col === col1) ||
-                   (tile.row === row2 && tile.col === col2);
+    return matches.some((match) => {
+        return match.tiles.some((tile) => {
+            return (tile.row === row1 && tile.col === col1) || (tile.row === row2 && tile.col === col2);
         });
     });
 }
 
 export function findMatches(game) {
-    // During user swap, activate jokers first
+    // During user swap, activate jokers that can participate in matches
     if (game.isUserSwap) {
         activateJokers(game);
     }
@@ -42,12 +41,15 @@ export function findMatches(game) {
 }
 
 function activateJokers(game) {
+    // Activate jokers that can form valid matches involving the swapped tiles
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
             if (isJoker(tile)) {
-                const bestValue = findBestJokerValue(game, row, col);
+                // Pass true to require that matches include swapped tiles
+                const bestValue = findBestJokerValue(game, row, col, true);
                 if (bestValue !== null) {
+                    // Convert joker to the best matching value
                     game.board[row][col] = createTile(bestValue);
                 }
             }
@@ -136,9 +138,8 @@ function scanLine(game, index, isHorizontal, targetLength) {
 
 function createLineMatch(tiles, value, hasGoldenTile, isHorizontal) {
     const direction = isHorizontal ? "horizontal" : "vertical";
-    const formationType = tiles.length === 4 ? `line_4_${direction}` :
-                         tiles.length === 5 ? `line_5_${direction}` :
-                         direction;
+    const formationType =
+        tiles.length === 4 ? `line_4_${direction}` : tiles.length === 5 ? `line_5_${direction}` : direction;
 
     return {
         tiles: [...tiles],
@@ -180,8 +181,8 @@ function findSpecialFormations(game, type) {
 export function checkTFormation(game, row, col, value) {
     // T-formation: 3 tiles in one direction + 2 tiles perpendicular at center
     const patterns = [
-        { horizontal: [-1, 0, 1], vertical: [1, 2] },   // T down
-        { vertical: [-1, 0, 1], horizontal: [1, 2] },   // T right
+        { horizontal: [-1, 0, 1], vertical: [1, 2] }, // T down
+        { vertical: [-1, 0, 1], horizontal: [1, 2] }, // T right
         { horizontal: [-1, 0, 1], vertical: [-2, -1] }, // T up
         { vertical: [-1, 0, 1], horizontal: [-2, -1] }, // T left
     ];
@@ -209,10 +210,10 @@ export function checkTFormation(game, row, col, value) {
 export function checkLFormation(game, row, col, value) {
     // L-formation: 3 tiles horizontal + 3 tiles vertical with shared corner
     const patterns = [
-        { horizontal: [0, 1, 2], vertical: [0, 1, 2] },    // L right-down
-        { horizontal: [0, -1, -2], vertical: [0, 1, 2] },  // L left-down
-        { horizontal: [0, 1, 2], vertical: [0, -1, -2] },  // L right-up
-        { horizontal: [0, -1, -2], vertical: [0, -1, -2] },// L left-up
+        { horizontal: [0, 1, 2], vertical: [0, 1, 2] }, // L right-down
+        { horizontal: [0, -1, -2], vertical: [0, 1, 2] }, // L left-down
+        { horizontal: [0, 1, 2], vertical: [0, -1, -2] }, // L right-up
+        { horizontal: [0, -1, -2], vertical: [0, -1, -2] }, // L left-up
     ];
 
     for (const pattern of patterns) {
@@ -297,7 +298,7 @@ export function checkBlockFormation(game, row, col, value) {
         value,
         direction: "block_4_formation",
         intersections: [
-            { row: row + 1, col },          // bottom-left
+            { row: row + 1, col }, // bottom-left
             { row: row + 1, col: col + 1 }, // bottom-right
         ],
         hasGoldenTile,
@@ -345,7 +346,7 @@ function getTileAt(game, row, col) {
 // Find all line matches (3+, 4+, or 5+ tiles) that overlap with the given formation tiles
 function findOverlappingLineMatches(game, formationTiles, value) {
     const formationSet = new Set();
-    formationTiles.forEach(tile => {
+    formationTiles.forEach((tile) => {
         formationSet.add(`${tile.row},${tile.col}`);
     });
 
@@ -443,8 +444,8 @@ function findOverlappingLineMatches(game, formationTiles, value) {
 
     // Convert set back to array of position objects
     const result = [];
-    additionalTiles.forEach(key => {
-        const [row, col] = key.split(',').map(Number);
+    additionalTiles.forEach((key) => {
+        const [row, col] = key.split(",").map(Number);
         result.push({ row, col });
     });
 
@@ -456,13 +457,11 @@ function filterOverlappingMatches(matches) {
     const usedTiles = new Set();
 
     for (const match of matches) {
-        const hasOverlap = match.tiles.some(tile =>
-            usedTiles.has(`${tile.row},${tile.col}`)
-        );
+        const hasOverlap = match.tiles.some((tile) => usedTiles.has(`${tile.row},${tile.col}`));
 
         if (!hasOverlap) {
             result.push(match);
-            match.tiles.forEach(tile => {
+            match.tiles.forEach((tile) => {
                 usedTiles.add(`${tile.row},${tile.col}`);
             });
         }

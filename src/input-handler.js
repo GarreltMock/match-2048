@@ -80,9 +80,18 @@ export function getUniqueTileValues(game) {
     return allValues;
 }
 
-export function findBestJokerValue(game, jokerRow, jokerCol) {
+export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnection = false) {
     // Find the best value to transform the joker into
     // Returns the value if a match is found, null otherwise
+    // If requireSwapConnection is true, only returns values that create matches involving swapped tiles
+
+    // Store the original tile to restore it properly
+    const originalTile = game.board[jokerRow][jokerCol];
+
+    // If it's not actually a joker, return null
+    if (!isJoker(originalTile)) {
+        return null;
+    }
 
     const allValues = getUniqueTileValues(game);
 
@@ -100,9 +109,21 @@ export function findBestJokerValue(game, jokerRow, jokerCol) {
         // Check if any match includes our joker position AND has no other jokers
         const validMatch = matches.find((match) => {
             // Check if this match includes our joker position
-            const includesJokerPos = match.tiles.some((tile) => tile.row === jokerRow && tile.col === jokerCol);
+            const includesJoker = match.tiles.some((tile) => tile.row === jokerRow && tile.col === jokerCol);
 
-            if (!includesJokerPos) return false;
+            if (!includesJoker) return false;
+
+            // Optional: check if match includes at least one of the swapped tiles
+            if (requireSwapConnection && game.lastSwapPosition) {
+                const includesSwappedTile = match.tiles.some((tile) =>
+                    (tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col) ||
+                    (game.lastSwapPosition.movedFrom &&
+                        tile.row === game.lastSwapPosition.movedFrom.row &&
+                        tile.col === game.lastSwapPosition.movedFrom.col)
+                );
+
+                if (!includesSwappedTile) return false;
+            }
 
             // Check that no other jokers are in this match
             const hasOtherJokers = match.tiles.some((tile) => {
@@ -116,16 +137,14 @@ export function findBestJokerValue(game, jokerRow, jokerCol) {
         });
 
         if (validMatch) {
-            // Found a valid match! Return the value (board is already set)
+            // Found a valid match! Restore the original joker and return the value
+            game.board[jokerRow][jokerCol] = originalTile;
             return testValue;
         }
-
-        // No match, try next value
-        game.board[jokerRow][jokerCol] = createJokerTile();
     }
 
-    // No valid matches found, restore joker
-    game.board[jokerRow][jokerCol] = createJokerTile();
+    // No valid matches found, restore original joker tile
+    game.board[jokerRow][jokerCol] = originalTile;
     return null;
 }
 
@@ -228,6 +247,10 @@ function activateJokerByTap(game, row, col, element) {
         setTimeout(() => {
             element.style.transform = "scale(1)";
             game.board[row][col] = createTile(bestValue); // Update board
+
+            // Set lastSwapPosition to the joker position so other jokers connected to this one can activate
+            game.lastSwapPosition = { row, col, movedFrom: { row, col } };
+
             game.renderBoard(); // Re-render to show the updated tile
             setTimeout(() => {
                 game.isUserSwap = true; // Treat tap as user action
