@@ -1,6 +1,6 @@
 // Goal and level progression tracking
 
-import { isNormal, isBlocked, isBlockedWithLife, isCursed, getTileValue } from "./tile-helpers.js";
+import { isNormal, isBlocked, isBlockedWithLife, isBlockedMovable, isCursed, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel, saveStreak, saveSuperStreak, loadShownGoalDialogs } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
@@ -124,8 +124,8 @@ export function countBlockedTiles(game) {
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
-            // Count both blocked tiles and blocked with life tiles
-            if (isBlocked(tile) || isBlockedWithLife(tile)) {
+            // Count blocked tiles, blocked with life tiles, and movable blocked tiles
+            if (isBlocked(tile) || isBlockedWithLife(tile) || isBlockedMovable(tile)) {
                 count++;
             }
         }

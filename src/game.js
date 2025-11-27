@@ -1529,6 +1529,20 @@ export class Match3Game {
                 // Update board upgrades display to show completion
                 renderBoardUpgrades(this);
 
+                // If blocked tiles were added, update the blocked goal target
+                if (effectiveAction === "blocked" || effectiveAction === "blocked_movable") {
+                    const blockedTilesAdded = tilesToRemove.length;
+                    this.levelGoals.forEach((goal) => {
+                        if (goal.goalType === "blocked") {
+                            goal.target += blockedTilesAdded;
+                            // Update initialBlockedTileCount to reflect new total
+                            this.initialBlockedTileCount += blockedTilesAdded;
+                        }
+                    });
+                    // Update the goal display to reflect new target
+                    updateGoalDisplay(this);
+                }
+
                 // Continue with the cascade - dropGems will handle rendering and animation
                 resolve();
             }, 400);

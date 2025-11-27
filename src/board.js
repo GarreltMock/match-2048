@@ -1,6 +1,6 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, getTileValue } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, getTileValue } from "./tile-helpers.js";
 import { parsePresetTile } from "./serializer.js";
 
 export function createBoard(game) {
@@ -35,12 +35,21 @@ export function createBoard(game) {
             }
         }
 
-        // Place blocked tiles (with or without life) from blockedTiles config
+        // Place blocked tiles (with or without life, movable or immovable) from blockedTiles config
         if (game.blockedTiles) {
             game.blockedTiles.forEach((blockedPos) => {
-                // If lifeValue is specified, create a blocked with life tile instead of regular blocked tile
-                const hasLifeValue = blockedPos.lifeValue !== undefined;
-                const tileCreator = hasLifeValue ? () => createBlockedWithLifeTile(blockedPos.lifeValue) : createBlockedTile;
+                // Determine tile creator based on properties
+                let tileCreator;
+                if (blockedPos.lifeValue !== undefined) {
+                    // Has life value - create blocked with life tile
+                    tileCreator = () => createBlockedWithLifeTile(blockedPos.lifeValue);
+                } else if (blockedPos.movable === true) {
+                    // Movable blocked tile
+                    tileCreator = createBlockedMovableTile;
+                } else {
+                    // Regular blocked tile
+                    tileCreator = createBlockedTile;
+                }
 
                 if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
                     const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
@@ -50,14 +59,14 @@ export function createBoard(game) {
                         }
                     }
                 } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
-                    // Entire row: { row: 2 } or { row: 2, lifeValue: 128 }
+                    // Entire row: { row: 2 } or { row: 2, lifeValue: 128 } or { row: 2, movable: true }
                     if (blockedPos.row < game.boardHeight) {
                         for (let col = 0; col < game.boardWidth; col++) {
                             game.board[blockedPos.row][col] = tileCreator();
                         }
                     }
                 } else if (blockedPos.col !== undefined && blockedPos.row === undefined) {
-                    // Entire column: { col: 3 } or { col: 3, lifeValue: 128 }
+                    // Entire column: { col: 3 } or { col: 3, lifeValue: 128 } or { col: 3, movable: true }
                     if (blockedPos.col < game.boardWidth) {
                         for (let row = 0; row < game.boardHeight; row++) {
                             game.board[row][blockedPos.col] = tileCreator();
