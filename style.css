@@ -219,6 +219,7 @@ button {
     flex-shrink: 0;
     width: 100%;
     align-items: stretch;
+    min-height: 80px;
 }
 
 .goals-container,
@@ -1121,7 +1122,6 @@ button {
     position: absolute;
     top: -20%;
     right: -5%;
-    /* transform: translate(-50%, -50%); */
     font-size: 2rem;
     z-index: 10;
     pointer-events: none;

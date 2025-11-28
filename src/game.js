@@ -38,6 +38,7 @@ import {
     loadCoins,
     saveCoins,
     isFeatureUnlocked,
+    saveUnlockedFeature,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -382,18 +383,32 @@ export class Match3Game {
     checkAndUnlockFeature() {
         if (!this.levelConfig?.unlockFeature) return;
 
-        const featureKey = this.levelConfig.unlockFeature;
+        // Support both string and array formats
+        const features = Array.isArray(this.levelConfig.unlockFeature)
+            ? this.levelConfig.unlockFeature
+            : [this.levelConfig.unlockFeature];
 
-        // Only show dialog if feature not already unlocked
-        if (hasFeatureBeenUnlocked(featureKey)) return;
+        // Filter out already unlocked features
+        const featuresToUnlock = features.filter((key) => !hasFeatureBeenUnlocked(key));
+
+        if (featuresToUnlock.length === 0) return;
 
         // Wait a bit to ensure goal dialogs are shown first
         setTimeout(() => {
-            showFeatureUnlockDialog(featureKey, this, () => {
-                // Refresh power-up buttons if a power-up was unlocked
-                if (featureKey.startsWith("power_")) {
-                    this.updatePowerUpButtons();
-                }
+            // Show unlock dialogs sequentially
+            let delay = 0;
+            featuresToUnlock.forEach((featureKey) => {
+                setTimeout(() => {
+                    showFeatureUnlockDialog(featureKey, this, () => {
+                        saveUnlockedFeature(featureKey);
+
+                        // Refresh power-up buttons if a power-up was unlocked
+                        if (featureKey.startsWith("power_")) {
+                            this.updatePowerUpButtons();
+                        }
+                    });
+                }, delay);
+                delay += 500; // Stagger dialogs by 500ms
             });
         }, 500);
     }
