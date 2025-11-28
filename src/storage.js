@@ -241,3 +241,38 @@ export function loadCoins() {
 export function saveCoins(coins) {
     localStorage.setItem("match2048_coins", coins.toString());
 }
+
+/**
+ * Load unlocked features from localStorage
+ * @returns {Set<string>} Set of unlocked feature keys
+ */
+export function loadUnlockedFeatures() {
+    const stored = localStorage.getItem("match2048_unlockedFeatures");
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+}
+
+/**
+ * Save a newly unlocked feature
+ * @param {string} featureKey - The feature key to unlock
+ */
+export function saveUnlockedFeature(featureKey) {
+    const unlocked = loadUnlockedFeatures();
+    unlocked.add(featureKey);
+    localStorage.setItem("match2048_unlockedFeatures", JSON.stringify([...unlocked]));
+}
+
+/**
+ * Check if specific feature is unlocked
+ * @param {string} featureKey - The feature key to check
+ * @returns {boolean} True if feature is unlocked
+ */
+export function isFeatureUnlocked(featureKey) {
+    return loadUnlockedFeatures().has(featureKey);
+}
+
+/**
+ * Reset all unlocked features (for testing/reset functionality)
+ */
+export function resetUnlockedFeatures() {
+    localStorage.removeItem("match2048_unlockedFeatures");
+}

@@ -3,6 +3,8 @@
 import { getTileValue, isNormal, isCursed, isJoker, isTileGoldenTile, createTile } from "./tile-helpers.js";
 import { canMatch } from "./board.js";
 import { findBestJokerValue } from "./input-handler.js";
+import { isFeatureUnlocked } from "./storage.js";
+import { FEATURE_KEYS } from "./config.js";
 
 export function hasMatches(game) {
     return findMatches(game).length > 0;
@@ -27,14 +29,36 @@ export function findMatches(game) {
     }
 
     // Find all matches with priority: 5-line > T > L > 4-line > Block > 3-line
-    const allMatches = [
-        ...findLineMatches(game, 5),
-        ...findSpecialFormations(game, "T"),
-        ...findSpecialFormations(game, "L"),
-        ...findLineMatches(game, 4),
-        ...findSpecialFormations(game, "Block"),
-        ...findLineMatches(game, 3),
-    ];
+    // Only check for formations that have been unlocked
+    const allMatches = [];
+
+    // Check for 5-tile line matches (if unlocked)
+    if (isFeatureUnlocked(FEATURE_KEYS.LINE_5)) {
+        allMatches.push(...findLineMatches(game, 5));
+    }
+
+    // Check for T-formations (if unlocked)
+    if (isFeatureUnlocked(FEATURE_KEYS.T_FORMATION)) {
+        allMatches.push(...findSpecialFormations(game, "T"));
+    }
+
+    // Check for L-formations (if unlocked)
+    if (isFeatureUnlocked(FEATURE_KEYS.L_FORMATION)) {
+        allMatches.push(...findSpecialFormations(game, "L"));
+    }
+
+    // Check for 4-tile line matches (if unlocked)
+    if (isFeatureUnlocked(FEATURE_KEYS.LINE_4)) {
+        allMatches.push(...findLineMatches(game, 4));
+    }
+
+    // Check for block formations (if unlocked)
+    if (isFeatureUnlocked(FEATURE_KEYS.BLOCK_4)) {
+        allMatches.push(...findSpecialFormations(game, "Block"));
+    }
+
+    // 3-tile line matches are always available (core mechanic)
+    allMatches.push(...findLineMatches(game, 3));
 
     // Remove overlapping matches (keep higher priority)
     return filterOverlappingMatches(allMatches);

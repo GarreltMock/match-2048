@@ -21,8 +21,8 @@ import {
     getFontSize,
     isRectangularBlocked,
 } from "./tile-helpers.js";
-import { saveScore } from "./storage.js";
-import { SUPER_STREAK_THRESHOLD, TILE_TYPE } from "./config.js";
+import { saveScore, isFeatureUnlocked } from "./storage.js";
+import { SUPER_STREAK_THRESHOLD, TILE_TYPE, FEATURE_KEYS } from "./config.js";
 import { findBestJokerValue } from "./input-handler.js";
 
 // Helper function to update target values for all joker tiles
@@ -357,6 +357,12 @@ export function renderBoardUpgrades(game) {
     if (!upgradesContainer || !upgradesElement) return;
 
     const levelConfig = game.levelConfig;
+
+    // Check if board upgrades feature is unlocked
+    if (!isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+        upgradesContainer.style.display = "none";
+        return;
+    }
 
     // Only show if level has boardUpgrades configured
     if (!levelConfig.boardUpgrades || levelConfig.boardUpgrades.length === 0) {

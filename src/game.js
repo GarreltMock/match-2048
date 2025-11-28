@@ -8,6 +8,7 @@ import {
     SUPER_STREAK_THRESHOLD,
     LEVELS,
     TEST_LEVELS,
+    FEATURE_KEYS,
 } from "./config.js";
 import {
     loadSpecialTileConfig,
@@ -34,6 +35,7 @@ import {
     savePowerUpCounts,
     loadCoins,
     saveCoins,
+    isFeatureUnlocked,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -68,7 +70,13 @@ import {
     restartLevel,
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
-import { showGoalDialog, hasDialogBeenShown, updateIntroDialogGoalsList } from "./goal-dialogs.js";
+import {
+    showGoalDialog,
+    hasDialogBeenShown,
+    updateIntroDialogGoalsList,
+    showFeatureUnlockDialog,
+    hasFeatureBeenUnlocked,
+} from "./goal-dialogs.js";
 import { showHomeScreen } from "./home-screen.js";
 
 export class Match3Game {
@@ -320,15 +328,17 @@ export class Match3Game {
             swap: this.persistentPowerUpCounts.swap,
         };
 
-        // Apply streak bonus power-ups (temporary for this level only)
-        if (this.currentStreak >= 1) {
-            this.powerUpRemaining.halve += 1;
-        }
-        if (this.currentStreak >= 2) {
-            this.powerUpRemaining.hammer += 1;
-        }
-        if (this.currentStreak >= 3) {
-            this.powerUpRemaining.swap += 1;
+        // Apply streak bonus power-ups (temporary for this level only) - only if streak feature is unlocked
+        if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
+            if (this.currentStreak >= 1) {
+                this.powerUpRemaining.halve += 1;
+            }
+            if (this.currentStreak >= 2) {
+                this.powerUpRemaining.hammer += 1;
+            }
+            if (this.currentStreak >= 3) {
+                this.powerUpRemaining.swap += 1;
+            }
         }
 
         // Deactivate any power-ups when loading a level
@@ -357,6 +367,26 @@ export class Match3Game {
         renderGoals(this);
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
+        this.checkAndUnlockFeature();
+    }
+
+    checkAndUnlockFeature() {
+        if (!this.levelConfig?.unlockFeature) return;
+
+        const featureKey = this.levelConfig.unlockFeature;
+
+        // Only show dialog if feature not already unlocked
+        if (hasFeatureBeenUnlocked(featureKey)) return;
+
+        // Wait a bit to ensure goal dialogs are shown first
+        setTimeout(() => {
+            showFeatureUnlockDialog(featureKey, this, () => {
+                // Refresh power-up buttons if a power-up was unlocked
+                if (featureKey.startsWith("power_")) {
+                    this.updatePowerUpButtons();
+                }
+            });
+        }, 500);
     }
 
     setupControlButtons() {
@@ -396,9 +426,9 @@ export class Match3Game {
         const boardUpgradesContainer = document.getElementById("boardUpgradesContainer");
         if (boardUpgradesContainer) {
             boardUpgradesContainer.addEventListener("click", () => {
-                // Only show dialog if level has board upgrades
-                if (this.levelConfig?.boardUpgrades?.length > 0) {
-                    showGoalDialog("board_upgrades", this, () => {
+                // Only show dialog if level has board upgrades and feature is unlocked
+                if (this.levelConfig?.boardUpgrades?.length > 0 && isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+                    showFeatureUnlockDialog("board_upgrades", this, () => {
                         // Dialog closed, do nothing
                     });
                 }
@@ -502,6 +532,7 @@ export class Match3Game {
         renderGoals(this);
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
+        this.checkAndUnlockFeature();
     }
 
     saveScore() {
@@ -583,6 +614,12 @@ export class Match3Game {
                 if (!this.gameActive) return;
 
                 const powerUpType = button.dataset.powerup;
+                const featureKey = `power_${powerUpType}`;
+
+                // Check if power-up is unlocked
+                if (!isFeatureUnlocked(featureKey)) {
+                    return; // Ignore clicks on locked power-ups
+                }
 
                 // Check if power-up has uses remaining
                 if (this.powerUpRemaining[powerUpType] <= 0) {
@@ -645,6 +682,25 @@ export class Match3Game {
 
         powerUpButtons.forEach((button) => {
             const powerUpType = button.dataset.powerup;
+            const featureKey = `power_${powerUpType}`;
+
+            // Check if power-up is unlocked
+            if (!isFeatureUnlocked(featureKey)) {
+                button.classList.add("locked");
+                button.disabled = true;
+                button.title = "Unlock by progressing through levels";
+                // Remove any existing indicators
+                const existingIndicator = button.querySelector(".use-indicator");
+                if (existingIndicator) {
+                    existingIndicator.remove();
+                }
+                return;
+            }
+
+            // Power-up is unlocked - show normal state
+            button.classList.remove("locked");
+            button.disabled = false;
+
             const usesLeft = this.powerUpRemaining[powerUpType];
 
             // Remove existing use indicators
@@ -1029,7 +1085,7 @@ export class Match3Game {
         // Build streak display
         let streaksHTML = "";
 
-        if (this.currentStreak > 0) {
+        if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
             streaksHTML += `<div class="streak-item"><span>🔥</span><span>Your ${this.currentStreak}-win streak</span></div>`;
         }
 
@@ -1069,9 +1125,11 @@ export class Match3Game {
                         this.heartDecreasedThisAttempt = true;
                     }
 
-                    // Reset streak on give up
-                    this.currentStreak = 0;
-                    saveStreak(this.currentStreak);
+                    // Reset streak on give up - only if streak feature is unlocked
+                    if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
+                        this.currentStreak = 0;
+                        saveStreak(this.currentStreak);
+                    }
 
                     if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
                         // Reset super streak on give up
@@ -1227,9 +1285,11 @@ export class Match3Game {
             this.heartDecreasedThisAttempt = true;
         }
 
-        // Reset streak on level loss
-        this.currentStreak = 0;
-        saveStreak(this.currentStreak);
+        // Reset streak on level loss - only if streak feature is unlocked
+        if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
+            this.currentStreak = 0;
+            saveStreak(this.currentStreak);
+        }
 
         if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
             // Reset super streak on level loss
@@ -1488,6 +1548,11 @@ export class Match3Game {
     checkAndShiftTileLevels(newlyCreatedValue) {
         const currentLevelConfig = LEVELS[this.currentLevel - 1];
 
+        // Check if board upgrades feature is unlocked
+        if (!isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+            return;
+        }
+
         // Check for per-level board upgrades
         if (currentLevelConfig.boardUpgrades) {
             const upgrades = currentLevelConfig.boardUpgrades;
@@ -1712,6 +1777,7 @@ export class Match3Game {
                     this.createBoard();
                     this.renderBoard();
                     this.showGoalDialogIfNeeded();
+                    this.checkAndUnlockFeature();
                 }
             });
         }

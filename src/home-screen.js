@@ -1,7 +1,7 @@
 // home-screen.js - Home screen management
 
-import { loadShownGoalDialogs, saveHearts, saveLastRegenTime } from "./storage.js";
-import { SUPER_STREAK_THRESHOLD } from "./config.js";
+import { saveHearts, saveLastRegenTime, isFeatureUnlocked } from "./storage.js";
+import { SUPER_STREAK_THRESHOLD, FEATURE_KEYS } from "./config.js";
 
 /**
  * Shows the home screen with current level information
@@ -23,8 +23,7 @@ export function showHomeScreen(game) {
     levelButton.textContent = `Level ${game.currentLevel}`;
 
     // Update super streak display (above regular streak) - only if feature is unlocked
-    const shownDialogs = loadShownGoalDialogs();
-    if (shownDialogs.has("board_upgrades")) {
+    if (isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
         updateSuperStreakDisplay(game, superStreakDisplay);
     } else {
         // Hide super streak display if feature is not unlocked yet
@@ -33,8 +32,16 @@ export function showHomeScreen(game) {
         }
     }
 
-    // Update streak display
-    updateStreakDisplay(game, streakDisplay);
+    // Update streak display - only if streak feature is unlocked
+    if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
+        updateStreakDisplay(game, streakDisplay);
+    } else {
+        // Hide streak display if feature is not unlocked yet
+        if (streakDisplay) {
+            streakDisplay.innerHTML = "";
+            streakDisplay.style.display = "none";
+        }
+    }
 
     // Update hearts display
     updateHeartsDisplay(game, heartsDisplay);
@@ -139,6 +146,7 @@ function updateStreakDisplay(game, streakDisplay) {
         </div>`;
     }
 
+    streakDisplay.style.display = "flex";
     streakDisplay.innerHTML = content;
 }
 

@@ -1,5 +1,18 @@
 // Constants and configuration for Match 2048 game
 
+export const FEATURE_KEYS = {
+    BLOCK_4: "block_4",
+    LINE_4: "line_4",
+    L_FORMATION: "l_formation",
+    T_FORMATION: "t_formation",
+    LINE_5: "line_5",
+    HAMMER: "power_hammer",
+    HALVE: "power_halve",
+    SWAP: "power_swap",
+    BOARD_UPGRADES: "board_upgrades",
+    STREAK: "streak",
+};
+
 export const TILE_TYPE = {
     NORMAL: "normal",
     BLOCKED: "blocked",
@@ -589,7 +602,7 @@ export const LEVELS = [
         boardHeight: 8,
         maxMoves: 30,
         boardUpgrades: [6, 8], // Upgrade when creating 32 and 256
-        showGoalDialog: "board_upgrades", // First level with board upgrades
+        unlockFeature: "board_upgrades", // First level with board upgrades
         goals: [
             { tileValue: 9, target: 1, current: 0, goalType: "created" }, // 512
             { tileValue: 7, target: 2, current: 0, goalType: "created" }, // 128
@@ -743,6 +756,7 @@ export const TEST_LEVELS = [
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
+        unlockFeature: "streak", // Example: Unlocks hammer power-up when this level starts
     },
     {
         level: 2,
@@ -821,6 +835,7 @@ export const TEST_LEVELS = [
             { tileValue: 7, target: 2, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
+        unlockFeature: "block_4", // Example: Unlocks block formation merges
     },
     {
         level: 6,
@@ -881,6 +896,7 @@ export const TEST_LEVELS = [
             { tileValue: 8, target: 1, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
+        unlockFeature: "l_formation", // Example: Unlocks L-formation merges
     },
     {
         level: 9,
@@ -1181,7 +1197,7 @@ export const TEST_LEVELS = [
         boardHeight: 6,
         maxMoves: 10,
         goals: [{ goalType: "blocked", current: 0 }],
-        blockedTiles: [{ row: 1, col: 2, width: 2, height: 2 }],
+        blockedTiles: [{ row: 3, col: 2, width: 2, height: 3 }],
         spawnableTiles: [1, 2, 3, 4], //[0, 0, 0],
     },
     {

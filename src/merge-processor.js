@@ -15,7 +15,8 @@ import {
     isRectangularBlocked,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
-import { savePowerUpCounts } from "./storage.js";
+import { savePowerUpCounts, isFeatureUnlocked } from "./storage.js";
+import { FEATURE_KEYS } from "./config.js";
 
 export function processMatches(game) {
     const matchGroups = game.findMatches();
@@ -322,7 +323,19 @@ function getFormationConfig(direction) {
         line_5_horizontal: "line_5",
         line_5_vertical: "line_5",
     };
-    return formationMap[direction] || null;
+
+    const formationType = formationMap[direction] || null;
+
+    // Only return the formation type if it's unlocked (or if it's a regular 3-tile match)
+    if (formationType) {
+        // Check if feature is unlocked
+        const featureKey = FEATURE_KEYS[formationType.toUpperCase()];
+        if (featureKey && !isFeatureUnlocked(featureKey)) {
+            return null; // Formation is locked, treat as regular match
+        }
+    }
+
+    return formationType;
 }
 
 function calculateMiddlePositions(game, tiles, group = null) {

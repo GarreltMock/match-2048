@@ -1,9 +1,10 @@
 // Goal and level progression tracking
 
 import { isNormal, isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount, isCursed, getTileValue } from "./tile-helpers.js";
-import { saveCurrentLevel, saveStreak, saveSuperStreak, loadShownGoalDialogs } from "./storage.js";
+import { saveCurrentLevel, saveStreak, saveSuperStreak, isFeatureUnlocked } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
+import { FEATURE_KEYS } from "./config.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -28,13 +29,14 @@ export function checkLevelComplete(game) {
         game.gameActive = false;
         game.deactivatePowerUp();
 
-        // Increment streak (capped at 3)
-        game.currentStreak = Math.min(game.currentStreak + 1, 3);
-        saveStreak(game.currentStreak);
+        // Increment streak (capped at 3) - only if streak feature is unlocked
+        if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
+            game.currentStreak = Math.min(game.currentStreak + 1, 3);
+            saveStreak(game.currentStreak);
+        }
 
-        // Increment super streak (no cap) - only if board_upgrades dialog has been shown
-        const shownDialogs = loadShownGoalDialogs();
-        if (shownDialogs.has("board_upgrades")) {
+        // Increment super streak (no cap) - only if board_upgrades feature is unlocked
+        if (isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
             game.superStreak = game.superStreak + 1;
             saveSuperStreak(game.superStreak);
         }
