@@ -134,7 +134,9 @@ function scanLine(game, index, isHorizontal, targetLength) {
                 } else {
                     // End current match and start new one
                     if (matchGroup.length >= targetLength) {
-                        matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+                        // Take exactly targetLength tiles from the group
+                        const matchTiles = matchGroup.slice(0, targetLength);
+                        matches.push(createLineMatch(matchTiles, baseValue, hasGoldenTile, isHorizontal));
                     }
                     matchGroup = [{ row, col }];
                     baseValue = value;
@@ -144,7 +146,9 @@ function scanLine(game, index, isHorizontal, targetLength) {
         } else {
             // End current match
             if (matchGroup.length >= targetLength) {
-                matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+                // Take exactly targetLength tiles from the group
+                const matchTiles = matchGroup.slice(0, targetLength);
+                matches.push(createLineMatch(matchTiles, baseValue, hasGoldenTile, isHorizontal));
             }
             matchGroup = [];
             baseValue = null;
@@ -154,7 +158,9 @@ function scanLine(game, index, isHorizontal, targetLength) {
 
     // Check remaining match at end
     if (matchGroup.length >= targetLength) {
-        matches.push(createLineMatch(matchGroup, baseValue, hasGoldenTile, isHorizontal));
+        // Take exactly targetLength tiles from the group
+        const matchTiles = matchGroup.slice(0, targetLength);
+        matches.push(createLineMatch(matchTiles, baseValue, hasGoldenTile, isHorizontal));
     }
 
     return matches;
