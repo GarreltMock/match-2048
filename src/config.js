@@ -1211,3 +1211,19 @@ export const TEST_LEVELS = [
         spawnableTiles: [1, 2, 3, 4], //[0, 0, 0],
     },
 ];
+
+// Level configuration options
+export const LEVEL_CONFIGS = [
+    {
+        key: "main",
+        name: "Main Levels",
+        levels: LEVELS,
+        respectsFeatureLocks: false,
+    },
+    {
+        key: "test",
+        name: "Test Levels",
+        levels: TEST_LEVELS,
+        respectsFeatureLocks: false,
+    },
+];

@@ -8,6 +8,7 @@ import {
     SUPER_STREAK_THRESHOLD,
     LEVELS,
     TEST_LEVELS,
+    LEVEL_CONFIGS,
     FEATURE_KEYS,
 } from "./config.js";
 import {
@@ -17,8 +18,9 @@ import {
     saveCurrentLevel,
     loadScore,
     saveScore,
-    loadUseTestLevels,
-    saveUseTestLevels,
+    loadLevelConfigKey,
+    saveLevelConfigKey,
+    saveRespectsLocks,
     loadUserId,
     loadBoardUpgradeAction,
     saveBoardUpgradeAction,
@@ -88,7 +90,7 @@ export class Match3Game {
         this.boardHeight = 8; // Default height, will be updated by loadLevel
         this.defaultTileValues = DEFAULT_TILE_VALUES; // Internal representation: 1=2, 2=4, 3=8, 4=16
         this.tileValues = this.defaultTileValues;
-        this.useTestLevels = loadUseTestLevels(); // true or false
+        this.levelConfigKey = loadLevelConfigKey(); // "main", "test", etc.
         this.score = loadScore();
         this.boardUpgradeAction = loadBoardUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
         this.superUpgradeAction = loadSuperUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
@@ -169,7 +171,7 @@ export class Match3Game {
         // Track app start first, before any level is loaded
         track("app_start", {
             current_level: this.currentLevel,
-            use_test_levels: this.useTestLevels,
+            level_config_key: this.levelConfigKey,
         });
 
         this.initializeLevels();
@@ -185,7 +187,14 @@ export class Match3Game {
     }
 
     initializeLevels() {
-        this.levels = this.useTestLevels ? TEST_LEVELS : LEVELS;
+        // Find the level config by key
+        const config = LEVEL_CONFIGS.find((c) => c.key === this.levelConfigKey);
+        this.levels = config ? config.levels : LEVELS;
+
+        // Save the respectsFeatureLocks setting for this config (in case it wasn't saved before)
+        const respectsLocks = config ? config.respectsFeatureLocks : true;
+        saveRespectsLocks(respectsLocks);
+
         this.loadLevel(this.currentLevel);
     }
 
@@ -1338,10 +1347,10 @@ export class Match3Game {
         const settingsDialog = document.getElementById("settingsDialog");
         const saveSettingsBtn = document.getElementById("saveSettings");
         const levelSelect = document.getElementById("levelSelect");
-        const useTestLevelsCheckbox = document.getElementById("useTestLevels");
+        const levelConfigSelect = document.getElementById("levelConfigSelect");
         const boardUpgradeActionSelect = document.getElementById("boardUpgradeAction");
         const superUpgradeActionSelect = document.getElementById("superUpgradeAction");
-        let selectedLevels = this.useTestLevels;
+        let selectedLevelConfigKey = this.levelConfigKey;
 
         // Special tile reward selects
         const line4Select = document.getElementById("line4Reward");
@@ -1386,14 +1395,29 @@ export class Match3Game {
             }
         };
 
-        // Populate level selector initially
+        // Function to populate level config selector
+        const populateLevelConfigSelect = () => {
+            if (levelConfigSelect) {
+                levelConfigSelect.innerHTML = "";
+                LEVEL_CONFIGS.forEach((config) => {
+                    const option = document.createElement("option");
+                    option.value = config.key;
+                    option.textContent = config.name;
+                    levelConfigSelect.appendChild(option);
+                });
+            }
+        };
+
+        // Populate selectors initially
+        populateLevelConfigSelect();
         populateLevelSelect();
 
-        // Handle test levels checkbox change
-        if (useTestLevelsCheckbox) {
-            useTestLevelsCheckbox.addEventListener("change", () => {
-                selectedLevels = useTestLevelsCheckbox.checked;
-                this.levels = selectedLevels ? TEST_LEVELS : LEVELS;
+        // Handle level config dropdown change
+        if (levelConfigSelect) {
+            levelConfigSelect.addEventListener("change", () => {
+                selectedLevelConfigKey = levelConfigSelect.value;
+                const config = LEVEL_CONFIGS.find((c) => c.key === selectedLevelConfigKey);
+                this.levels = config ? config.levels : LEVELS;
                 populateLevelSelect();
                 if (levelSelect) {
                     levelSelect.value = "1"; // Reset to level 1 when switching
@@ -1414,7 +1438,7 @@ export class Match3Game {
                 }
                 levelSelect.value = this.currentLevel.toString();
             }
-            useTestLevelsCheckbox.checked = selectedLevels;
+            levelConfigSelect.value = selectedLevelConfigKey;
             boardUpgradeActionSelect.value = this.boardUpgradeAction;
             superUpgradeActionSelect.value = this.superUpgradeAction;
 
@@ -1477,10 +1501,13 @@ export class Match3Game {
                     let levelChanged = false;
                     let levelSetChanged = false;
 
-                    // Save test levels preference first
-                    if (selectedLevels !== this.useTestLevels) {
-                        this.useTestLevels = selectedLevels;
-                        saveUseTestLevels(this.useTestLevels);
+                    // Save level config preference first
+                    if (selectedLevelConfigKey !== this.levelConfigKey) {
+                        this.levelConfigKey = selectedLevelConfigKey;
+                        const config = LEVEL_CONFIGS.find((c) => c.key === this.levelConfigKey);
+                        const respectsLocks = config ? config.respectsFeatureLocks : true;
+                        saveLevelConfigKey(this.levelConfigKey);
+                        saveRespectsLocks(respectsLocks);
                         levelSetChanged = true;
                         levelChanged = true; // Force reload when switching level sets
                     }
@@ -1653,10 +1680,7 @@ export class Match3Game {
                         // Double the value (add 1 to internal value: 2→3, 3→4, etc.)
                         const currentTile = this.board[row][col];
                         if (currentTile && currentTile.value === minValue) {
-                            this.board[row][col] = createTile(
-                                minValue + 1,
-                                currentTile.specialType
-                            );
+                            this.board[row][col] = createTile(minValue + 1, currentTile.specialType);
                         }
                         // Element will be updated by renderBoard below
                     } else {

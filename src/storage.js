@@ -37,13 +37,43 @@ export function saveScore(score) {
     localStorage.setItem("match2048_score", score.toString());
 }
 
-export function loadUseTestLevels() {
-    const saved = localStorage.getItem("match2048_useTestLevels");
+export function loadLevelConfigKey() {
+    const saved = localStorage.getItem("match2048_levelConfigKey");
+    // Default to "main" if not set, or migrate old useTestLevels boolean
+    if (!saved) {
+        const oldUseTestLevels = localStorage.getItem("match2048_useTestLevels");
+        if (oldUseTestLevels === "true") {
+            return "test";
+        }
+        return "main";
+    }
+    return saved;
+}
+
+export function saveLevelConfigKey(levelConfigKey) {
+    localStorage.setItem("match2048_levelConfigKey", levelConfigKey);
+}
+
+export function loadRespectsLocks() {
+    const saved = localStorage.getItem("match2048_respectLocks");
+    // Default to true if not set
+    if (saved === null) {
+        return true;
+    }
     return saved === "true";
 }
 
+export function saveRespectsLocks(respectsLocks) {
+    localStorage.setItem("match2048_respectLocks", respectsLocks.toString());
+}
+
+// Deprecated functions - kept for backwards compatibility but not used
+export function loadUseTestLevels() {
+    return loadLevelConfigKey() === "test";
+}
+
 export function saveUseTestLevels(useTestLevels) {
-    localStorage.setItem("match2048_useTestLevels", useTestLevels.toString());
+    saveLevelConfigKey(useTestLevels ? "test" : "main");
 }
 
 export function generateUUID() {
@@ -267,6 +297,12 @@ export function saveUnlockedFeature(featureKey) {
  * @returns {boolean} True if feature is unlocked
  */
 export function isFeatureUnlocked(featureKey) {
+    // Check if feature locks should be respected
+    const respectsLocks = loadRespectsLocks();
+    if (!respectsLocks) {
+        return true; // All features unlocked
+    }
+
     return loadUnlockedFeatures().has(featureKey);
 }
 
