@@ -15,45 +15,27 @@ import { TILE_TYPE } from "./config.js";
 export function createTile(value, specialType = null, options = {}) {
     const { transferStickyFreeSwap = false, isHorizontal = null } = options;
 
-    // Base tile with all special properties set to false
+    // Base tile
     const tile = {
         type: TILE_TYPE.NORMAL,
         value: value,
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 
     // Apply special type
-    if (specialType === "power") {
-        tile.isPowerTile = true;
-    } else if (specialType === "golden") {
-        tile.isGoldenTile = true;
-    } else if (specialType === "freeswap") {
-        tile.isFreeSwapTile = true;
-    } else if (specialType === "sticky_freeswap") {
-        tile.isStickyFreeSwapTile = true;
-    } else if (specialType === "freeswap_horizontal" || specialType === "freeswap_vertical") {
-        // For directional free swaps, use isHorizontal option if provided
-        if (isHorizontal !== null) {
-            tile.isFreeSwapHorizontalTile = isHorizontal;
-            tile.isFreeSwapVerticalTile = !isHorizontal;
+    if (specialType) {
+        tile.specialType = specialType;
+
+        // For directional free swaps, override with isHorizontal option if provided
+        if ((specialType === "freeswap_horizontal" || specialType === "freeswap_vertical") && isHorizontal !== null) {
+            tile.specialType = isHorizontal ? "freeswap_horizontal" : "freeswap_vertical";
         }
-    } else if (specialType === "hammer") {
-        tile.isHammerTile = true;
-    } else if (specialType === "halver") {
-        tile.isHalverTile = true;
     }
 
     // Transfer sticky free swap ability if requested (for cascading merges)
     if (transferStickyFreeSwap) {
-        tile.isStickyFreeSwapTile = true;
+        tile.specialType = "sticky_freeswap";
     }
 
     return tile;
@@ -64,14 +46,7 @@ export function createBlockedTile(immovable = true) {
         type: TILE_TYPE.BLOCKED,
         value: null,
         immovable: immovable,
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -82,14 +57,7 @@ export function createBlockedWithLifeTile(lifeValue, immovable = true) {
         value: null,
         lifeValue: lifeValue,
         immovable: immovable,
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -98,14 +66,7 @@ export function createBlockedMovableTile() {
     return {
         type: TILE_TYPE.BLOCKED_MOVABLE,
         value: null,
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -115,14 +76,7 @@ export function createJokerTile(targetValue = null) {
         type: TILE_TYPE.JOKER,
         value: null,
         targetValue: targetValue, // The value this joker will become when activated
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -133,14 +87,7 @@ export function createCursedTile(value, movesRemaining) {
         value: value,
         cursedMovesRemaining: movesRemaining,
         createdThisTurn: true, // Skip decrement on the turn this tile was created
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -163,15 +110,7 @@ export function createRectangularBlockedTile(rectId, anchor, width, height, life
         rectWidth: width,
         rectHeight: height,
 
-        // Standard properties (all false)
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -197,18 +136,10 @@ export function createRectangularBlockedWithMergeCount(rectId, anchor, width, he
         rectWidth: width,
         rectHeight: height,
 
-        // NEW: Per-cell merge tracking
+        // Per-cell merge tracking
         cellMergeCounts: cellMergeCounts,
 
-        // Standard properties (all false)
-        isPowerTile: false,
-        isGoldenTile: false,
-        isFreeSwapTile: false,
-        isStickyFreeSwapTile: false,
-        isFreeSwapHorizontalTile: false,
-        isFreeSwapVerticalTile: false,
-        isHammerTile: false,
-        isHalverTile: false,
+        specialType: null,
         hasBeenSwapped: false,
     };
 }
@@ -246,35 +177,35 @@ export function isNormal(tile) {
 }
 
 export function isTilePowerTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isPowerTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "power";
 }
 
 export function isTileGoldenTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isGoldenTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "golden";
 }
 
 export function isTileFreeSwapTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "freeswap";
 }
 
 export function isTileStickyFreeSwapTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isStickyFreeSwapTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "sticky_freeswap";
 }
 
 export function isTileFreeSwapHorizontalTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapHorizontalTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "freeswap_horizontal";
 }
 
 export function isTileFreeSwapVerticalTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isFreeSwapVerticalTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "freeswap_vertical";
 }
 
 export function isTileHammerTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isHammerTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "hammer";
 }
 
 export function isTileHalverTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.isHalverTile === true;
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "halver";
 }
 
 export function isCursed(tile) {

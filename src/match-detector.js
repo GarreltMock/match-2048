@@ -101,7 +101,7 @@ function scanLine(game, index, isHorizontal, targetLength) {
                 if (canMatch(tile, prevTile, game)) {
                     matchGroup.push({ row, col });
                     // For power tiles, use maximum value
-                    if (prevTile.isPowerTile || tile.isPowerTile) {
+                    if (prevTile.specialType === "power" || tile.specialType === "power") {
                         baseValue = Math.max(baseValue, value);
                     }
                     if (isTileGoldenTile(tile)) {

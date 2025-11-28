@@ -138,8 +138,8 @@ export function canMatch(tile1, tile2, game) {
     if (val1 === val2) return true;
 
     // Check if either tile is a power tile
-    const isPower1 = tile1 && tile1.isPowerTile === true;
-    const isPower2 = tile2 && tile2.isPowerTile === true;
+    const isPower1 = tile1 && tile1.specialType === "power";
+    const isPower2 = tile2 && tile2.specialType === "power";
 
     // Power tile matches with its value or higher
     if (isPower1 && val2 >= val1) return true;

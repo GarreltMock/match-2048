@@ -1590,10 +1590,7 @@ export class Match3Game {
                         if (currentTile && currentTile.value === minValue) {
                             this.board[row][col] = createTile(
                                 minValue + 1,
-                                currentTile.isPowerTile,
-                                currentTile.isGoldenTile,
-                                currentTile.isFreeSwapTile,
-                                currentTile.isStickyFreeSwapTile
+                                currentTile.specialType
                             );
                         }
                         // Element will be updated by renderBoard below
