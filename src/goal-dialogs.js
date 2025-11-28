@@ -190,34 +190,36 @@ export const GOAL_DIALOGS = {
 
 // Feature unlock dialogs for game mechanics
 export const FEATURE_UNLOCK_DIALOGS = {
-    block_4: {
-        title: "🔲 Block Merges Unlocked!",
-        subtitle: "Match tiles in a 2x2 square",
-        content: `
-            <p>You've unlocked Block Merges! Create powerful matches by forming 2x2 squares of identical tiles.</p>
-            <ul>
-                <li>Match 4 tiles in a square pattern</li>
-                <li>Creates 2 tiles at double the value</li>
-                <li>Great for clearing space on the board</li>
-            </ul>
-            <p><em>Tip: Look for opportunities to form squares as you play!</em></p>
-        `,
-    },
+    // block_4: {
+    //     title: "🔲 Block Merges Unlocked!",
+    //     subtitle: "Match tiles in a 2x2 square",
+    //     content: `
+    //         <p>You've unlocked Block Merges! Create powerful matches by forming 2x2 squares of identical tiles.</p>
+    //         <ul>
+    //             <li>Match 4 tiles in a square pattern</li>
+    //             <li>Creates 2 tiles at double the value</li>
+    //             <li>Great for clearing space on the board</li>
+    //         </ul>
+    //         <p><em>Tip: Look for opportunities to form squares as you play!</em></p>
+    //     `,
+    // },
     line_4: {
-        title: "➖ 4-Tile Line Merges Unlocked!",
-        subtitle: "Match 4 tiles in a row",
+        title: "4-Tile Merges Unlocked",
+        subtitle: "Match 4 tiles in a row or in a block",
         content: `
-            <p>You've unlocked 4-Tile Line Merges! Create more powerful matches by lining up 4 identical tiles.</p>
+            <p>You've unlocked 4-Tile Merges!</p>
+            <p>Create more powerful matches by lining up 4 identical tiles</p>
+            <p>or by forming 2x2 squares of identical tiles.</p>
             <ul>
                 <li>Match 4 tiles horizontally or vertically</li>
+                <li>Match 4 tiles in a 2x2 square</li>
                 <li>Creates 1 tile at double the value</li>
-                <li>More efficient than 3-tile matches</li>
             </ul>
-            <p><em>Tip: Plan ahead to create longer lines for better merges!</em></p>
+            <p><em>This adds the ability to make a free swap with one of the resulting tiles</em></p>
         `,
     },
     l_formation: {
-        title: "↪️ L-Formation Merges Unlocked!",
+        title: "↪️ L-Formation Merges Unlocked",
         subtitle: "Master the L-shape pattern",
         content: `
             <p>You've unlocked L-Formation Merges! Create advanced matches with L-shaped patterns.</p>
@@ -229,21 +231,21 @@ export const FEATURE_UNLOCK_DIALOGS = {
             <p><em>Tip: L-formations give you huge value boosts - use them strategically!</em></p>
         `,
     },
-    t_formation: {
-        title: "⊤ T-Formation Merges Unlocked!",
-        subtitle: "Master the T-shape pattern",
-        content: `
-            <p>You've unlocked T-Formation Merges! Create advanced matches with T-shaped patterns.</p>
-            <ul>
-                <li>Match 5 tiles in a T-shape (3 in one direction + 2 perpendicular)</li>
-                <li>Creates 1 tile at 4x the value</li>
-                <li>One of the most powerful merge types</li>
-            </ul>
-            <p><em>Tip: T-formations give you huge value boosts - use them strategically!</em></p>
-        `,
-    },
+    // t_formation: {
+    //     title: "⊤ T-Formation Merges Unlocked",
+    //     subtitle: "Master the T-shape pattern",
+    //     content: `
+    //         <p>You've unlocked T-Formation Merges! Create advanced matches with T-shaped patterns.</p>
+    //         <ul>
+    //             <li>Match 5 tiles in a T-shape (3 in one direction + 2 perpendicular)</li>
+    //             <li>Creates 1 tile at 4x the value</li>
+    //             <li>One of the most powerful merge types</li>
+    //         </ul>
+    //         <p><em>Tip: T-formations give you huge value boosts - use them strategically!</em></p>
+    //     `,
+    // },
     line_5: {
-        title: "═ 5-Tile Line Merges Unlocked!",
+        title: "═ 5-Tile Line Merges Unlocked",
         subtitle: "The ultimate line match",
         content: `
             <p>You've unlocked 5-Tile Line Merges! Create the most powerful line matches possible.</p>
@@ -256,10 +258,10 @@ export const FEATURE_UNLOCK_DIALOGS = {
         `,
     },
     power_hammer: {
-        title: "🔨 Hammer Power-up Unlocked!",
-        subtitle: "Remove any tile from the board",
+        title: "🔨 Hammer Joker Unlocked",
+        subtitle: "Remove any movable tile from the board",
         content: `
-            <p>You've unlocked the Hammer power-up! Use it to remove problematic tiles from the board.</p>
+            <p>You've unlocked the Hammer Joker! Use it to remove problematic tiles from the board.</p>
             <ul>
                 <li>Click the hammer, then click any tile to remove it</li>
                 <li>Works on normal tiles and movable blocked tiles</li>
@@ -269,10 +271,10 @@ export const FEATURE_UNLOCK_DIALOGS = {
         `,
     },
     power_halve: {
-        title: "✂️ Halve Power-up Unlocked!",
+        title: "✂️ Halve Joker Unlocked",
         subtitle: "Reduce a tile's value",
         content: `
-            <p>You've unlocked the Halve power-up! Use it to reduce a tile's value by half.</p>
+            <p>You've unlocked the Halve Joker! Use it to reduce a tile's value by half.</p>
             <ul>
                 <li>Click the scissors, then click any tile to halve its value</li>
                 <li>Great for making matches with high-value tiles</li>
@@ -282,10 +284,10 @@ export const FEATURE_UNLOCK_DIALOGS = {
         `,
     },
     power_swap: {
-        title: "🔄 Swap Power-up Unlocked!",
+        title: "🔄 Swap Joker Unlocked",
         subtitle: "Swap any two tiles",
         content: `
-            <p>You've unlocked the Swap power-up! Use it to swap any two tiles on the board.</p>
+            <p>You've unlocked the Swap Joker! Use it to swap any two tiles on the board.</p>
             <ul>
                 <li>Click the swap icon, then click two tiles to swap them</li>
                 <li>No adjacency required - swap across the board!</li>
@@ -296,7 +298,7 @@ export const FEATURE_UNLOCK_DIALOGS = {
     },
     board_upgrades: {
         title: `<img src="assets/upgrade-icon.png" style="display: inline-block; height: 2rem; vertical-align: bottom" /> Board Upgrades Unlocked!`,
-        subtitle: "Unlock higher tile values!",
+        subtitle: "Unlock higher tile values",
         content: `
             <p>You've unlocked Board Upgrades! This level features upgrades that unlock when you reach specific tile milestones.</p>
             <ul>
@@ -308,7 +310,7 @@ export const FEATURE_UNLOCK_DIALOGS = {
         `,
     },
     streak: {
-        title: "🔥 Win Streak Unlocked!",
+        title: "🔥 Win Streak Unlocked",
         subtitle: "Earn bonus power-ups for consecutive wins",
         content: `
             <p>You've unlocked the Win Streak system! Win levels consecutively to earn temporary power-up bonuses.</p>
@@ -524,7 +526,7 @@ export function hasFeatureBeenUnlocked(featureKey) {
 export function showFeatureUnlockDialog(featureKey, game, onClose) {
     const dialog = FEATURE_UNLOCK_DIALOGS[featureKey];
     if (!dialog) {
-        console.error(`Unknown feature: ${featureKey}`);
+        console.warn(`Unknown feature: ${featureKey}`);
         if (onClose) onClose();
         return;
     }
@@ -546,19 +548,18 @@ export function showFeatureUnlockDialog(featureKey, game, onClose) {
             ${dialog.content}
         </div>
         <div class="goal-dialog-footer">
-            <button class="goal-dialog-button" id="featureUnlockClose">Got it!</button>
+            <button class="goal-dialog-button">Got it!</button>
         </div>
     `;
 
     overlay.appendChild(dialogElement);
     document.body.appendChild(overlay);
 
-    // Add close handler
-    const closeButton = document.getElementById("featureUnlockClose");
+    // Add close handler - use querySelector on the overlay instead of getElementById
+    const closeButton = overlay.querySelector(".goal-dialog-button");
     closeButton.addEventListener("click", () => {
         overlay.classList.add("hidden");
         setTimeout(() => overlay.remove(), 300);
-        saveUnlockedFeature(featureKey);
         if (onClose) onClose();
     });
 

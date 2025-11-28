@@ -1,5 +1,4 @@
 // Constants and configuration for Match 2048 game
-
 export const FEATURE_KEYS = {
     BLOCK_4: "block_4",
     LINE_4: "line_4",
@@ -60,7 +59,7 @@ export const LEVELS = [
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
         goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }], // 32
         spawnableTiles: [1, 2, 3], // 2, 4, 8
-        // showGoalDialog: "created", // First level with created goals
+        // 4: "created", // First level with created goals
     },
     {
         level: 2,
@@ -1212,11 +1211,189 @@ export const TEST_LEVELS = [
     },
 ];
 
+export const NEW_LEVELS = [
+    {
+        level: 1,
+        title: "Tile Goal",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "created",
+    },
+    {
+        level: 2,
+        title: "4-Tile Merge",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        goals: [{ tileValue: 5, target: 3, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3, 4],
+        unlockFeature: ["block_4", "line_4"],
+    },
+    {
+        level: 3,
+        title: "L and T Merge",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 15,
+        goals: [
+            { tileValue: 5, target: 3, current: 0, goalType: "created" },
+            { tileValue: 6, target: 1, current: 0, goalType: "created" },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+        unlockFeature: ["t_formation", "l_formation"],
+    },
+    {
+        level: 4,
+        title: "5-Line Merge",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 15,
+        goals: [{ tileValue: 7, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3, 4],
+        unlockFeature: ["line_5"],
+    },
+    {
+        level: 5,
+        title: "Blocked Tile Goal",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "blocked",
+    },
+    {
+        level: 6,
+        title: "Hammer",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        spawnableTiles: [1, 2, 3, 4], // 4, 8, 16, 32
+        unlockFeature: "power_hammer",
+    },
+    {
+        level: 7,
+        title: "Halfer",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        spawnableTiles: [1, 2, 3, 4], // 4, 8, 16, 32
+        unlockFeature: "power_halve",
+    },
+    {
+        level: 8,
+        title: "Swap",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        spawnableTiles: [1, 2, 3, 4], // 4, 8, 16, 32
+        unlockFeature: "power_swap",
+    },
+    {
+        level: 9,
+        title: "Score Goal",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [{ goalType: "score", target: 100, current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "score",
+    },
+    {
+        level: 10,
+        title: "Streak Feature",
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [
+            { goalType: "score", target: 200, current: 0 },
+            { goalType: "blocked", current: 0 },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+        unlockFeature: "streak",
+    },
+    {
+        level: 11,
+        title: "Movable Blocked Tiles",
+        maxMoves: 10,
+        blockedTiles: [{ row: 2, movable: true }, { row: 3, movable: true }, { row: 6 }, { row: 7 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+        //showGoalDialog: "blocked_movable" // TODO
+    },
+    {
+        level: 12,
+        title: "Streak Feature",
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
+        spawnableTiles: [1, 2, 3, 4],
+        boardUpgrades: [6],
+        unlockFeature: "board_upgrades",
+    },
+    {
+        level: 13,
+        title: "Lifebased Blocked Tiles",
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6, lifeValue: 32 }, { row: 7, lifeValue: 64 }],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+        showGoalDialog: "blocked_with_life",
+    },
+    {
+        level: 14,
+        title: "Blocked Area",
+        maxMoves: 10,
+        blockedTiles: [
+            { row: 2, col: 3, width: 2, height: 2 },
+            { row: 4, col: 3, width: 2, height: 2 },
+            { row: 6, col: 3, width: 2, height: 2 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+        // showGoalDialog: "blocked_with_life",
+    },
+    {
+        level: 15,
+        title: "Lifebased Blocked Area",
+        maxMoves: 10,
+        blockedTiles: [
+            { row: 2, col: 3, width: 2, height: 2, lifeValue: 32 },
+            { row: 4, col: 3, width: 2, height: 2, lifeValue: 64 },
+            { row: 6, col: 3, width: 2, height: 2, lifeValue: 128 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        spawnableTiles: [1, 2, 3, 4],
+        // showGoalDialog: "blocked_with_life",
+    },
+];
+
 // Level configuration options
 export const LEVEL_CONFIGS = [
     {
+        key: "new",
+        name: "New Levels",
+        levels: NEW_LEVELS,
+        respectsFeatureLocks: true,
+    },
+    {
         key: "main",
-        name: "Main Levels",
+        name: "Legacy Levels",
         levels: LEVELS,
         respectsFeatureLocks: false,
     },
