@@ -41,10 +41,6 @@ export function loadLevelConfigKey() {
     const saved = localStorage.getItem("match2048_levelConfigKey");
     // Default to "main" if not set, or migrate old useTestLevels boolean
     if (!saved) {
-        const oldUseTestLevels = localStorage.getItem("match2048_useTestLevels");
-        if (oldUseTestLevels === "true") {
-            return "test";
-        }
         return "main";
     }
     return saved;
@@ -127,7 +123,6 @@ export function resetShownGoalDialogs() {
     localStorage.removeItem("match2048_shownGoalDialogs");
 }
 
-
 /**
  * Load the board upgrade action setting
  * @returns {string} Action to take with smallest tiles during board upgrade ("disappear", "blocked", "blocked_movable", or "double")
@@ -161,7 +156,6 @@ export function loadSuperUpgradeAction() {
 export function saveSuperUpgradeAction(action) {
     localStorage.setItem("match2048_superUpgradeAction", action);
 }
-
 
 /**
  * Load the current streak level (0-3)
@@ -226,7 +220,6 @@ export function loadSuperStreak() {
 export function saveSuperStreak(superStreak) {
     localStorage.setItem("match2048_superStreak", superStreak.toString());
 }
-
 
 /**
  * Load persistent power-up counts (hammer, halve, swap)
