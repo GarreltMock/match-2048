@@ -7,6 +7,7 @@ import {
     isBlocked,
     isBlockedWithLife,
     isBlockedMovable,
+    isBlockedWithMergeCount,
     isCursed,
     getTileValue,
     isTileStickyFreeSwapTile,
@@ -367,6 +368,7 @@ function calculateMiddlePositions(game, tiles, group = null) {
 function unblockAdjacentTiles(game, matchGroups) {
     const blockedTilesToRemove = [];
     const goalTilesToDamage = [];
+    const cellsToDecrement = new Set(); // Track individual cells to decrement for merge-count blocks
 
     matchGroups.forEach((group) => {
         // Track which blocked tiles have been hit by this match group
@@ -401,47 +403,11 @@ function unblockAdjacentTiles(game, matchGroups) {
                     const tile = game.board[pos.row][pos.col];
 
                     // Handle blocked tiles and blocked movable tiles (remove immediately)
-                    if (isBlocked(tile) || isBlockedMovable(tile)) {
-                        // Use rectId for deduplication
-                        const key = isRectangularBlocked(tile)
-                            ? tile.rectId
-                            : `${pos.row}_${pos.col}`;
 
-                        // Skip if already hit by this match group
-                        if (hitInThisGroup.has(key)) {
-                            return;
-                        }
-                        hitInThisGroup.add(key);
-
-                        if (!blockedTilesToRemove.some((t) => t.key === key)) {
-                            // Find the closest target position for animation
-                            let closestTarget = targetPositions[0];
-                            let closestDistance =
-                                Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
-
-                            targetPositions.forEach((target) => {
-                                const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
-                                if (distance < closestDistance) {
-                                    closestDistance = distance;
-                                    closestTarget = target;
-                                }
-                            });
-
-                            blockedTilesToRemove.push({
-                                key: key,
-                                row: pos.row,
-                                col: pos.col,
-                                targetPos: closestTarget,
-                                tile: tile, // Store tile reference
-                            });
-                        }
-                    }
                     // Handle blocked tiles with life (apply damage)
-                    else if (isBlockedWithLife(tile)) {
+                    if (isBlockedWithLife(tile)) {
                         // Use rectId for rectangular blocks, row_col for single cells
-                        const key = isRectangularBlocked(tile)
-                            ? tile.rectId
-                            : `${pos.row}_${pos.col}`;
+                        const key = isRectangularBlocked(tile) ? tile.rectId : `${pos.row}_${pos.col}`;
 
                         // Skip if already hit by this match group
                         if (hitInThisGroup.has(key)) {
@@ -478,6 +444,92 @@ function unblockAdjacentTiles(game, matchGroups) {
                             });
                         }
                     }
+                    // Handle blocked tiles with merge count (per-rectangle tracking)
+                    else if (isBlockedWithMergeCount(tile)) {
+                        // Skip if this RECTANGLE was already hit in this match group
+                        // One match should only clear ONE cell from the entire block
+                        if (hitInThisGroup.has(tile.rectId)) {
+                            return;
+                        }
+                        hitInThisGroup.add(tile.rectId);
+
+                        // Find any cell in this rectangle that still needs clearing
+                        let cellToClear = null;
+                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                                const cellKey = `${r}_${c}`;
+                                if (tile.cellMergeCounts[cellKey] > 0) {
+                                    cellToClear = { row: r, col: c, cellKey: cellKey };
+                                    break;
+                                }
+                            }
+                            if (cellToClear) break;
+                        }
+
+                        // If we found a cell to clear, decrement it
+                        if (cellToClear) {
+                            const rectCellKey = `${tile.rectId}_${cellToClear.cellKey}`;
+                            cellsToDecrement.add(rectCellKey);
+
+                            // Find the closest target position for animation
+                            let closestTarget = targetPositions[0];
+                            let closestDistance =
+                                Math.abs(cellToClear.row - closestTarget.row) +
+                                Math.abs(cellToClear.col - closestTarget.col);
+
+                            targetPositions.forEach((target) => {
+                                const distance =
+                                    Math.abs(cellToClear.row - target.row) + Math.abs(cellToClear.col - target.col);
+                                if (distance < closestDistance) {
+                                    closestDistance = distance;
+                                    closestTarget = target;
+                                }
+                            });
+
+                            // Store for animation purposes
+                            blockedTilesToRemove.push({
+                                rectId: tile.rectId,
+                                cellKey: cellToClear.cellKey,
+                                row: cellToClear.row,
+                                col: cellToClear.col,
+                                targetPos: closestTarget,
+                                tile: tile,
+                                isMergeCount: true, // Flag for animation
+                            });
+                        }
+                    } else if (isBlocked(tile) || isBlockedMovable(tile)) {
+                        // Use rectId for deduplication
+                        const key = isRectangularBlocked(tile) ? tile.rectId : `${pos.row}_${pos.col}`;
+
+                        // Skip if already hit by this match group
+                        if (hitInThisGroup.has(key)) {
+                            return;
+                        }
+                        hitInThisGroup.add(key);
+
+                        if (!blockedTilesToRemove.some((t) => t.key === key)) {
+                            // Find the closest target position for animation
+                            let closestTarget = targetPositions[0];
+                            let closestDistance =
+                                Math.abs(pos.row - closestTarget.row) + Math.abs(pos.col - closestTarget.col);
+
+                            targetPositions.forEach((target) => {
+                                const distance = Math.abs(pos.row - target.row) + Math.abs(pos.col - target.col);
+                                if (distance < closestDistance) {
+                                    closestDistance = distance;
+                                    closestTarget = target;
+                                }
+                            });
+
+                            blockedTilesToRemove.push({
+                                key: key,
+                                row: pos.row,
+                                col: pos.col,
+                                targetPos: closestTarget,
+                                tile: tile, // Store tile reference
+                            });
+                        }
+                    }
                 }
             });
         });
@@ -495,6 +547,41 @@ function unblockAdjacentTiles(game, matchGroups) {
                     col: entry.col,
                     targetPos: entry.targetPos,
                 });
+            }
+        }
+    });
+
+    // Decrement merge counts for affected cells
+    const processedRects = new Set(); // Track which rectangles we've checked for full removal
+    cellsToDecrement.forEach((rectCellKey) => {
+        // Parse rectCellKey format: "rect_2_3_2_2_2_3" -> extract cell coordinates
+        const parts = rectCellKey.split("_");
+        const cellKey = `${parts[parts.length - 2]}_${parts[parts.length - 1]}`;
+
+        // Find the tile object (any cell in the rectangle will point to it)
+        const [row, col] = cellKey.split("_").map(Number);
+        const tile = game.board[row][col];
+
+        if (tile && isBlockedWithMergeCount(tile)) {
+            // Decrement the cell's merge count
+            tile.cellMergeCounts[cellKey]--;
+
+            // Check if ALL cells are cleared (all counts === 0) only once per rectangle
+            if (!processedRects.has(tile.rectId)) {
+                processedRects.add(tile.rectId);
+
+                const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
+
+                if (allCleared) {
+                    // Mark entire rectangular block for removal
+                    blockedTilesToRemove.push({
+                        rectId: tile.rectId,
+                        row: tile.rectAnchor.row,
+                        col: tile.rectAnchor.col,
+                        tile: tile,
+                        isFullRemoval: true,
+                    });
+                }
             }
         }
     });
@@ -584,4 +671,3 @@ export function checkAndCreateCursedTile(game, value, position) {
 
     return false; // Not cursed
 }
-

@@ -1,6 +1,6 @@
 // Goal and level progression tracking
 
-import { isNormal, isBlocked, isBlockedWithLife, isBlockedMovable, isCursed, getTileValue } from "./tile-helpers.js";
+import { isNormal, isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount, isCursed, getTileValue } from "./tile-helpers.js";
 import { saveCurrentLevel, saveStreak, saveSuperStreak, loadShownGoalDialogs } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
@@ -101,7 +101,10 @@ export function countBlockedLevelTiles(game) {
 
     let count = 0;
     game.blockedTiles.forEach((blockedPos) => {
-        if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
+        // Handle rectangular blocks (with width and height)
+        if (blockedPos.width !== undefined && blockedPos.height !== undefined) {
+            count += blockedPos.width * blockedPos.height;
+        } else if (blockedPos.row !== undefined && blockedPos.col !== undefined) {
             const colArray = Array.isArray(blockedPos.col) ? blockedPos.col : [blockedPos.col];
             count += colArray.length;
         } else if (blockedPos.row !== undefined && blockedPos.col === undefined) {
@@ -121,12 +124,31 @@ export function countBlockedTiles(game) {
     if (!game.board || !game.board[0]) return 0;
 
     let count = 0;
+    const countedRects = new Set(); // Track rectangular blocks we've already counted
+
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
-            // Count blocked tiles, blocked with life tiles, and movable blocked tiles
-            if (isBlocked(tile) || isBlockedWithLife(tile) || isBlockedMovable(tile)) {
-                count++;
+
+            // Handle merge-count tiles specially - count only cells that still need clearing
+            if (isBlockedWithMergeCount(tile)) {
+                const cellKey = `${row}_${col}`;
+                // Only count this cell if it still needs clearing
+                if (tile.cellMergeCounts[cellKey] > 0) {
+                    count++;
+                }
+            }
+            // Handle regular blocked tiles (not merge-count)
+            else if (isBlocked(tile) || isBlockedWithLife(tile) || isBlockedMovable(tile)) {
+                // If it's a rectangular block, only count it once
+                if (tile.isRectangular) {
+                    if (!countedRects.has(tile.rectId)) {
+                        countedRects.add(tile.rectId);
+                        count += tile.rectWidth * tile.rectHeight;
+                    }
+                } else {
+                    count++;
+                }
             }
         }
     }

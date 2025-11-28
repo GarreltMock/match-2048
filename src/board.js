@@ -1,6 +1,14 @@
 // Board state management and generation
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, getTileValue, createRectangularBlockedTile, isRectangularBlocked } from "./tile-helpers.js";
+import {
+    createTile,
+    createBlockedTile,
+    createBlockedWithLifeTile,
+    createBlockedMovableTile,
+    getTileValue,
+    createRectangularBlockedTile,
+    createRectangularBlockedWithMergeCount,
+} from "./tile-helpers.js";
 import { parsePresetTile } from "./serializer.js";
 
 function isRectangularBlockConfig(blockedPos) {
@@ -18,13 +26,10 @@ function placeRectangularBlockedTile(game, config) {
 
     // Create single shared tile object
     const rectId = `rect_${row}_${col}_${width}_${height}`;
-    const sharedTile = createRectangularBlockedTile(
-        rectId,
-        { row, col },
-        width,
-        height,
-        lifeValue
-    );
+    const sharedTile =
+        lifeValue !== undefined
+            ? createRectangularBlockedTile(rectId, { row, col }, width, height, lifeValue)
+            : createRectangularBlockedWithMergeCount(rectId, { row, col }, width, height);
 
     // Place reference in all cells of the rectangle
     for (let r = row; r < row + height; r++) {

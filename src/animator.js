@@ -1,6 +1,6 @@
 // Animation coordination for swaps, merges, and tile drops
 
-import { createTile, isRectangularBlocked, isBlocked, isBlockedWithLife } from "./tile-helpers.js";
+import { createTile, isRectangularBlocked, isBlocked, isBlockedWithLife, isBlockedWithMergeCount } from "./tile-helpers.js";
 import { getRandomTileValue } from "./board.js";
 import { trySwap } from "./input-handler.js";
 
@@ -256,7 +256,28 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
 
         if (!tile) return; // Already removed
 
-        // NEW: Handle rectangular blocks
+        // NEW: Handle individual cell X removal for merge-count tiles
+        if (blockedEntry.isMergeCount && !blockedEntry.isFullRemoval) {
+            // Remove just the X visual for this specific cell
+            const blockedElement = document.querySelector(`[data-rect-id="${tile.rectId}"]`);
+            if (blockedElement) {
+                const xMarker = blockedElement.querySelector(`[data-cell-key="${blockedEntry.cellKey}"]`);
+                if (xMarker) {
+                    xMarker.classList.add("cell-x-removing");
+                    setTimeout(() => xMarker.remove(), 300);
+                }
+            }
+            // Don't remove tile from board - just cleared one cell
+            return;
+        }
+
+        // NEW: Full rectangular block removal (all cells cleared)
+        if (blockedEntry.isFullRemoval && isRectangularBlocked(tile)) {
+            animateRectangularBlockRemoval(game, tile);
+            return;
+        }
+
+        // NEW: Handle rectangular blocks (existing types)
         if (isRectangularBlocked(tile)) {
             animateRectangularBlockRemoval(game, tile);
             return;
@@ -426,7 +447,7 @@ export function dropGems(game) {
             const tile = game.board[row][col];
 
             // Check if this tile should block gravity
-            if ((isBlocked(tile) || isBlockedWithLife(tile)) && tile.immovable !== false) {
+            if ((isBlocked(tile) || isBlockedWithLife(tile) || isBlockedWithMergeCount(tile)) && tile.immovable !== false) {
                 if (isRectangularBlocked(tile)) {
                     // For rectangular blocks, only process once per rectangle
                     if (!processedRectangles.has(tile.rectId)) {

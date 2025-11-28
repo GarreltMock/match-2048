@@ -176,6 +176,43 @@ export function createRectangularBlockedTile(rectId, anchor, width, height, life
     };
 }
 
+export function createRectangularBlockedWithMergeCount(rectId, anchor, width, height) {
+    // Initialize cellMergeCounts dictionary
+    const cellMergeCounts = {};
+    for (let r = anchor.row; r < anchor.row + height; r++) {
+        for (let c = anchor.col; c < anchor.col + width; c++) {
+            cellMergeCounts[`${r}_${c}`] = 1; // Each cell needs 1 merge
+        }
+    }
+
+    return {
+        type: TILE_TYPE.BLOCKED, // Use regular BLOCKED type
+        value: null,
+        immovable: true, // Always immovable
+
+        // Rectangular properties
+        isRectangular: true,
+        rectId: rectId,
+        rectAnchor: anchor,
+        rectWidth: width,
+        rectHeight: height,
+
+        // NEW: Per-cell merge tracking
+        cellMergeCounts: cellMergeCounts,
+
+        // Standard properties (all false)
+        isPowerTile: false,
+        isGoldenTile: false,
+        isFreeSwapTile: false,
+        isStickyFreeSwapTile: false,
+        isFreeSwapHorizontalTile: false,
+        isFreeSwapVerticalTile: false,
+        isHammerTile: false,
+        isHalverTile: false,
+        hasBeenSwapped: false,
+    };
+}
+
 export function getTileValue(tile) {
     if (!tile || (tile.type !== TILE_TYPE.NORMAL && tile.type !== TILE_TYPE.CURSED)) {
         return null;
@@ -246,6 +283,10 @@ export function isCursed(tile) {
 
 export function isRectangularBlocked(tile) {
     return tile && tile.isRectangular === true;
+}
+
+export function isBlockedWithMergeCount(tile) {
+    return tile && tile.type === TILE_TYPE.BLOCKED && tile.cellMergeCounts !== undefined;
 }
 
 // Convert internal value (1, 2, 3...) to display value (powers of 2)

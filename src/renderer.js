@@ -5,6 +5,7 @@ import {
     isBlocked,
     isBlockedWithLife,
     isBlockedMovable,
+    isBlockedWithMergeCount,
     isJoker,
     isCursed,
     isNormal,
@@ -61,6 +62,32 @@ function createRectangularBlockedElement(tile) {
     if (tile.type === TILE_TYPE.BLOCKED_WITH_LIFE) {
         gem.className = `gem tile-BLOCKED_WITH_LIFE rectangular-blocked`;
         gem.dataset.life = tile.lifeValue;
+    } else if (tile.cellMergeCounts !== undefined) {
+        // Blocked tile with merge count (has cellMergeCounts property)
+        gem.className = `gem tile-BLOCKED tile-BLOCKED-merge-count rectangular-blocked`;
+
+        // Set CSS custom properties for grid
+        gem.style.setProperty('--rect-width', tile.rectWidth);
+        gem.style.setProperty('--rect-height', tile.rectHeight);
+
+        // Create individual X markers for each cell that needs clearing
+        for (let r = 0; r < tile.rectHeight; r++) {
+            for (let c = 0; c < tile.rectWidth; c++) {
+                const cellRow = tile.rectAnchor.row + r;
+                const cellCol = tile.rectAnchor.col + c;
+                const cellKey = `${cellRow}_${cellCol}`;
+
+                // Only render X if cell still needs clearing
+                if (tile.cellMergeCounts[cellKey] > 0) {
+                    const xMarker = document.createElement("div");
+                    xMarker.className = "cell-x-marker";
+                    xMarker.dataset.cellKey = cellKey;
+                    xMarker.style.gridRow = r + 1;
+                    xMarker.style.gridColumn = c + 1;
+                    gem.appendChild(xMarker);
+                }
+            }
+        }
     } else {
         gem.className = `gem tile-BLOCKED rectangular-blocked`;
     }
