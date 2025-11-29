@@ -599,7 +599,7 @@
     height: 40%;
     border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
-    background-image: url("assets/arrow-all-directions.svg");
+    background-image: url("/assets/arrow-all-directions.svg");
     background-size: 75%;
     background-position: center;
     background-repeat: no-repeat;
@@ -622,7 +622,7 @@
     height: 40%;
     border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
-    background-image: url("assets/arrow-horizontal.svg");
+    background-image: url("/assets/arrow-horizontal.svg");
     background-size: 75%;
     background-position: center;
     background-repeat: no-repeat;
@@ -645,7 +645,7 @@
     height: 40%;
     border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
-    background-image: url("assets/arrow-vertical.svg");
+    background-image: url("/assets/arrow-vertical.svg");
     background-size: 38%;
     background-position: center;
     background-repeat: no-repeat;
@@ -828,7 +828,7 @@
     top: 44%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-image: url("assets/arrow-all-directions.svg");
+    background-image: url("/assets/arrow-all-directions.svg");
     background-size: 60%;
     background-position: center;
     background-repeat: no-repeat;
