@@ -63,7 +63,7 @@
                     fill="#aee96b"
                     stroke-width="10"
                     svg-style="width: 100%;"
-                    style="display: none"
+                    style="visibility: hidden"
                 >
                 </stroked-text>
                 <stroked-text
@@ -73,7 +73,7 @@
                     fill="#ff6b6b"
                     stroke-width="10"
                     svg-style="width: 100%;"
-                    style="display: none"
+                    style="visibility: hidden"
                 >
                 </stroked-text>
             </div>
@@ -105,16 +105,6 @@
             <div class="game-board" id="gameBoard"></div>
 
             <div id="bottom-container" class="bottom-container">
-                <div class="controls">
-                    <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">
-                        Continue
-                    </button>
-                    <button id="nextBtn" class="control-btn next" tabindex="1" style="display: none">Next Level</button>
-                    <button id="restartBtn" class="control-btn continue" tabindex="1" style="display: none">
-                        Try again
-                    </button>
-                </div>
-
                 <div class="power-ups">
                     <button id="hammerPowerUp" class="power-up-btn" data-powerup="hammer" title="Remove a tile">
                         🔨
@@ -124,6 +114,18 @@
                     </button>
                     <button id="swapPowerUp" class="power-up-btn" data-powerup="swap" title="Swap any two tiles">
                         🔄
+                    </button>
+                </div>
+
+                <div class="controls">
+                    <button id="continueBtn" class="control-btn continue" tabindex="1" style="visibility: hidden">
+                        Continue
+                    </button>
+                    <button id="nextBtn" class="control-btn next" tabindex="1" style="visibility: hidden">
+                        Next Level
+                    </button>
+                    <button id="restartBtn" class="control-btn continue" tabindex="1" style="visibility: hidden">
+                        Try again
                     </button>
                 </div>
             </div>

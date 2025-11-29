@@ -338,10 +338,10 @@ export class Match3Game {
         const restartBtn = document.getElementById("restartBtn");
         const nextBtn = document.getElementById("nextBtn");
         if (restartBtn) {
-            restartBtn.style.display = "none";
+            restartBtn.style.visibility = "hidden";
         }
         if (nextBtn) {
-            nextBtn.style.display = "none";
+            nextBtn.style.visibility = "hidden";
         }
 
         // Show power-ups during active gameplay
@@ -727,14 +727,14 @@ export class Match3Game {
     showPowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {
-            powerUpsContainer.style.display = "flex";
+            powerUpsContainer.style.visibility = "visible";
         }
     }
 
     hidePowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {
-            powerUpsContainer.style.display = "none";
+            powerUpsContainer.style.visibility = "hidden";
         }
     }
 
@@ -1035,7 +1035,7 @@ export class Match3Game {
 
                     this.updateMovesDisplay();
                     extraMovesDialog.classList.add("hidden");
-                    continueBtn.style.display = "none";
+                    continueBtn.style.visibility = "hidden";
                     this.gameActive = true;
                     this.showPowerUps();
 
@@ -1074,7 +1074,7 @@ export class Match3Game {
                 this.updatePowerUpButtons();
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.display = "none";
+                continueBtn.style.visibility = "hidden";
                 this.gameActive = true;
                 this.showPowerUps();
             });
@@ -1110,7 +1110,7 @@ export class Match3Game {
                 giveUpWarning.classList.add("hidden");
                 loseProgressBtn.style.display = "block";
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.display = "none";
+                continueBtn.style.visibility = "hidden";
 
                 // Show level failed state
                 setTimeout(() => {
@@ -1130,7 +1130,7 @@ export class Match3Game {
         if (showBoardBtn) {
             showBoardBtn.addEventListener("click", () => {
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.display = "inline-block";
+                continueBtn.style.visibility = "visible";
             });
         }
 
@@ -1335,9 +1335,9 @@ export class Match3Game {
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
 
-        if (levelFailedSvg) levelFailedSvg.style.display = "none";
+        if (levelFailedSvg) levelFailedSvg.style.visibility = "hidden";
         if (levelSolvedSvg) {
-            levelSolvedSvg.style.display = "block";
+            levelSolvedSvg.style.visibility = "visible";
             // Trigger animation by adding class
             levelSolvedSvg.classList.remove("animate");
             // Force reflow to restart animation
@@ -1350,7 +1350,7 @@ export class Match3Game {
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
 
         if (levelSolvedSvg) {
-            levelSolvedSvg.style.display = "none";
+            levelSolvedSvg.style.visibility = "hidden";
             levelSolvedSvg.classList.remove("animate");
         }
     }
@@ -1382,9 +1382,9 @@ export class Match3Game {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const restartBtn = document.getElementById("restartBtn");
 
-        if (levelSolvedSvg) levelSolvedSvg.style.display = "none";
+        if (levelSolvedSvg) levelSolvedSvg.style.visibility = "hidden";
         if (levelFailedSvg) {
-            levelFailedSvg.style.display = "block";
+            levelFailedSvg.style.visibility = "visible";
             // Trigger animation by adding class
             levelFailedSvg.classList.remove("animate");
             // Force reflow to restart animation
@@ -1394,7 +1394,7 @@ export class Match3Game {
 
         // Show restart button
         if (restartBtn) {
-            restartBtn.style.display = "inline-block";
+            restartBtn.style.visibility = "visible";
         }
     }
 
@@ -1403,11 +1403,11 @@ export class Match3Game {
         const restartBtn = document.getElementById("restartBtn");
 
         if (levelFailedSvg) {
-            levelFailedSvg.style.display = "none";
+            levelFailedSvg.style.visibility = "hidden";
             levelFailedSvg.classList.remove("animate");
         }
         if (restartBtn) {
-            restartBtn.style.display = "none";
+            restartBtn.style.visibility = "hidden";
         }
     }
 
