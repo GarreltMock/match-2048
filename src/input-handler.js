@@ -496,10 +496,17 @@ export function trySwap(game, row1, col1, row2, col2) {
                 // Decrement remaining count and deactivate power-up after successful swap
                 game.powerUpRemaining.swap--;
 
-                // Decrement persistent count (consuming persistent before streak bonuses)
-                // Use Math.max to prevent going negative
-                game.persistentPowerUpCounts.swap = Math.max(0, game.persistentPowerUpCounts.swap - 1);
-                savePowerUpCounts(game.persistentPowerUpCounts);
+                // Consumption priority: extra moves bonus > streak bonus > persistent count
+                // Only decrement persistent count if we're consuming from it
+                if (game.extraMovesPowerUpCounts.swap > 0) {
+                    // Consume extra moves bonus first
+                    game.extraMovesPowerUpCounts.swap--;
+                } else if (game.powerUpRemaining.swap < game.persistentPowerUpCounts.swap) {
+                    // We're consuming from persistent count (streak is gone)
+                    game.persistentPowerUpCounts.swap = Math.max(0, game.persistentPowerUpCounts.swap - 1);
+                    savePowerUpCounts(game.persistentPowerUpCounts);
+                }
+                // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
 
                 game.updatePowerUpButtons();
 

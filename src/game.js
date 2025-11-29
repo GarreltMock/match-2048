@@ -150,6 +150,12 @@ export class Match3Game {
             halve: 0,
             swap: 0,
         };
+        // Track extra moves power-ups (separate from persistent and streak bonuses)
+        this.extraMovesPowerUpCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
+        };
 
         // Special tiles configuration
         this.specialTileConfig = loadSpecialTileConfig();
@@ -277,6 +283,13 @@ export class Match3Game {
         this.movesUsed = 0;
         this.extraMovesUsed = false; // Reset extra moves flag for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
+
+        // Reset extra moves power-up counts for new level
+        this.extraMovesPowerUpCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
+        };
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -751,9 +764,12 @@ export class Match3Game {
 
             const usesLeft = this.powerUpRemaining[powerUpType];
             const persistentUses = this.persistentPowerUpCounts[powerUpType];
+            const extraMovesUses = this.extraMovesPowerUpCounts[powerUpType];
 
-            // Check if this power-up has a streak bonus (more uses than persistent count)
-            const hasStreakBonus = usesLeft > persistentUses;
+            // Check if this power-up has extra moves bonus
+            const hasExtraMovesBonus = extraMovesUses > 0;
+            // Check if this power-up has a streak bonus (more uses than persistent + extra moves)
+            const hasStreakBonus = usesLeft > (persistentUses + extraMovesUses);
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -775,7 +791,17 @@ export class Match3Game {
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
 
-                if (hasStreakBonus) {
+                if (hasExtraMovesBonus) {
+                    // Show extra moves icon instead of number
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", "⏩");
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.classList.add("extra-moves-bonus");
+                    indicator.appendChild(strokedText);
+                } else if (hasStreakBonus) {
                     // Show streak icon instead of number
                     const strokedText = document.createElement("stroked-text");
                     strokedText.setAttribute("text", "🔥");
@@ -806,7 +832,9 @@ export class Match3Game {
                     button.classList.remove("disabled");
                     // Update title
                     const baseTitle = button.title.split(" - ")[0];
-                    if (hasStreakBonus) {
+                    if (hasExtraMovesBonus) {
+                        button.title = `${baseTitle} - Extra moves bonus available!`;
+                    } else if (hasStreakBonus) {
                         button.title = `${baseTitle} - Streak bonus available!`;
                     } else {
                         button.title = `${baseTitle} - ${usesLeft} uses left`;
@@ -839,10 +867,17 @@ export class Match3Game {
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
 
-        // Decrement persistent count (consuming persistent before streak bonuses)
-        // Use Math.max to prevent going negative
-        this.persistentPowerUpCounts.hammer = Math.max(0, this.persistentPowerUpCounts.hammer - 1);
-        savePowerUpCounts(this.persistentPowerUpCounts);
+        // Consumption priority: extra moves bonus > streak bonus > persistent count
+        // Only decrement persistent count if we're consuming from it
+        if (this.extraMovesPowerUpCounts.hammer > 0) {
+            // Consume extra moves bonus first
+            this.extraMovesPowerUpCounts.hammer--;
+        } else if (this.powerUpRemaining.hammer < this.persistentPowerUpCounts.hammer) {
+            // We're consuming from persistent count (streak is gone)
+            this.persistentPowerUpCounts.hammer = Math.max(0, this.persistentPowerUpCounts.hammer - 1);
+            savePowerUpCounts(this.persistentPowerUpCounts);
+        }
+        // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
 
         this.updatePowerUpButtons();
 
@@ -881,10 +916,17 @@ export class Match3Game {
             // Decrement remaining count
             this.powerUpRemaining.halve--;
 
-            // Decrement persistent count (consuming persistent before streak bonuses)
-            // Use Math.max to prevent going negative
-            this.persistentPowerUpCounts.halve = Math.max(0, this.persistentPowerUpCounts.halve - 1);
-            savePowerUpCounts(this.persistentPowerUpCounts);
+            // Consumption priority: extra moves bonus > streak bonus > persistent count
+            // Only decrement persistent count if we're consuming from it
+            if (this.extraMovesPowerUpCounts.halve > 0) {
+                // Consume extra moves bonus first
+                this.extraMovesPowerUpCounts.halve--;
+            } else if (this.powerUpRemaining.halve < this.persistentPowerUpCounts.halve) {
+                // We're consuming from persistent count (streak is gone)
+                this.persistentPowerUpCounts.halve = Math.max(0, this.persistentPowerUpCounts.halve - 1);
+                savePowerUpCounts(this.persistentPowerUpCounts);
+            }
+            // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
 
             this.updatePowerUpButtons();
 
@@ -970,7 +1012,7 @@ export class Match3Game {
                     track("extra_moves_used", {
                         level: this.currentLevel,
                         extra_moves_count: 5,
-                        included_swap: false,
+                        included_powerups: true,
                         moves_used: this.movesUsed,
                     });
 
@@ -978,6 +1020,19 @@ export class Match3Game {
                     this.extraMovesUsed = true;
 
                     this.maxMoves += 5;
+
+                    // Add one of each power-up (temporary for this level only, like streak bonuses)
+                    this.powerUpRemaining.hammer++;
+                    this.powerUpRemaining.halve++;
+                    this.powerUpRemaining.swap++;
+
+                    // Track that these came from extra moves (not persisted)
+                    this.extraMovesPowerUpCounts.hammer++;
+                    this.extraMovesPowerUpCounts.halve++;
+                    this.extraMovesPowerUpCounts.swap++;
+
+                    this.updatePowerUpButtons();
+
                     this.updateMovesDisplay();
                     extraMovesDialog.classList.add("hidden");
                     continueBtn.style.display = "none";

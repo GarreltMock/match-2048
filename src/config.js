@@ -1092,10 +1092,10 @@ export const TEST_LEVELS = [
         maxMoves: 1,
         boardPreset: [
             [0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 1, 0, 1, 0],
             [0, 0, 0, 0, 0],
-            [0, 1, 1, 1, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
+            [0, 5, 0, 0, 0],
         ],
         goals: [{ tileValue: 4, target: 10, current: 0, goalType: "created" }], // 32
         spawnableTiles: [0], // 2, 4, 8

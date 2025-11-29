@@ -347,7 +347,6 @@ export function initializeHomeScreen(game) {
                 noHeartsDialog.classList.add("hidden");
             } else {
                 // Not enough coins - open shop instead
-                noHeartsDialog.classList.add("hidden");
                 shopDialog.classList.remove("hidden");
                 // Update shop coins display
                 const shopCoinsDisplay = document.getElementById("shop-coins-display");

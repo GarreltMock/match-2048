@@ -1159,6 +1159,15 @@ button {
     &.streak-bonus {
         background: #aee96b;
     }
+
+    &.extra-moves-bonus {
+        background: #aee96b;
+
+        stroked-text {
+            width: 80%;
+            height: 80%;
+        }
+    }
 }
 
 .use-indicator stroked-text {
@@ -1684,8 +1693,8 @@ button {
 
 .button-container stroked-text {
     position: absolute;
-    top: -14px;
-    right: 0;
+    top: -18px;
+    right: 8px;
     pointer-events: none;
 }
 
