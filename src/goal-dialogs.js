@@ -100,10 +100,10 @@ export const FEATURE_DESCRIPTIONS = {
 export const GOAL_DIALOGS = {
     created: {
         title: "Your Goal",
-        subtitle: "Create the target tile!",
+        subtitle: "Create the target tile",
         content: `
-            <p>Create the tile shown above one time to complete the goal.</p>
-            <p>You create this tile by merging 3+ same value tiles.</p>
+            <p>Create the 32-tile shown above one time to complete the level</p>
+            <p><em>You create this tile by merging 3+ tiles with the same value</em></p>
         `,
     },
     current: {

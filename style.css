@@ -2147,6 +2147,7 @@ button {
     animation: slideIn 0.3s ease-out;
     display: flex;
     flex-direction: column;
+    font-family: "Nunito", sans-serif;
 }
 
 .goal-dialog-header {
@@ -2162,8 +2163,8 @@ button {
 }
 
 .goal-dialog-header h2 {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 2.5rem;
+    font-weight: 900;
 }
 
 .goal-dialog-header h3 {
