@@ -99,16 +99,11 @@ export const FEATURE_DESCRIPTIONS = {
 // Dialog content for each goal type
 export const GOAL_DIALOGS = {
     created: {
-        title: "⭐ Created Goals",
-        subtitle: "Track your progress across the entire level!",
+        title: "Your Goal",
+        subtitle: "Create the target tile!",
         content: `
-            <p>Created goals count every time you create a specific tile value throughout the level.</p>
-            <ul>
-                <li>The count never decreases - only increases</li>
-                <li>If a tile is merged or removed, it still counts toward your goal</li>
-                <li>Focus on making matches that create the target tile values</li>
-            </ul>
-            <p><em>Tip: Plan your moves to maximize the tiles you create!</em></p>
+            <p>Create the tile shown above one time to complete the goal.</p>
+            <p>You create this tile by merging 3+ same value tiles.</p>
         `,
     },
     current: {

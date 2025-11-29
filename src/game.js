@@ -181,7 +181,6 @@ export class Match3Game {
         });
 
         this.initializeLevels();
-        this.showIntroDialog();
         this.setupInfoButton();
         this.setupSettingsButton();
         this.setupExtraMovesDialog();
@@ -947,54 +946,6 @@ export class Match3Game {
 
             this.deactivatePowerUp();
         }
-    }
-
-    // UI setup methods
-    showIntroDialog() {
-        // Check if user has opted to not show the dialog
-        const dontShowAgain = localStorage.getItem("match2048_dontShowIntro") === "true";
-        if (dontShowAgain) {
-            return;
-        }
-
-        const introDialog = document.getElementById("introDialog");
-        const startBtn = document.getElementById("startGame");
-        const dontShowCheckbox = document.getElementById("dontShowAgain");
-
-        // Update the goal types list based on seen dialogs
-        updateIntroDialogGoalsList();
-
-        // Show the dialog
-        introDialog.classList.remove("hidden");
-
-        // Close dialog function
-        const closeDialog = () => {
-            if (dontShowCheckbox.checked) {
-                localStorage.setItem("match2048_dontShowIntro", "true");
-            }
-            introDialog.classList.add("hidden");
-        };
-
-        // Event listeners
-        startBtn.addEventListener("click", closeDialog);
-
-        // Close on overlay click (but not on dialog content)
-        introDialog.addEventListener("click", (e) => {
-            if (e.target === introDialog) {
-                closeDialog();
-            }
-        });
-
-        // Close on Escape key
-        document.addEventListener(
-            "keydown",
-            (e) => {
-                if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
-                    closeDialog();
-                }
-            },
-            { once: true }
-        );
     }
 
     setupExtraMovesDialog() {
@@ -1804,12 +1755,8 @@ export class Match3Game {
 
                 // Set up event listeners (reuse the same logic as showIntroDialog)
                 const startBtn = document.getElementById("startGame");
-                const dontShowCheckbox = document.getElementById("dontShowAgain");
 
                 const closeDialog = () => {
-                    if (dontShowCheckbox.checked) {
-                        localStorage.setItem("match2048_dontShowIntro", "true");
-                    }
                     introDialog.classList.add("hidden");
                 };
 
