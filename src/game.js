@@ -1801,22 +1801,11 @@ export class Match3Game {
                 if (
                     confirm("Are you sure you want to reset all progress? This will delete your saved level and score.")
                 ) {
-                    // Clear localStorage data
-                    localStorage.removeItem("match2048_currentLevel");
-                    localStorage.removeItem("match2048_score");
+                    // Clear all localStorage
+                    localStorage.clear();
 
-                    // Reset game state
-                    this.currentLevel = 1;
-                    this.score = 0;
-                    saveCurrentLevel(this.currentLevel);
-                    saveScore(this.score);
-
-                    // Load level 1 and restart the game
-                    this.loadLevel(1);
-                    this.createBoard();
-                    this.renderBoard();
-                    this.showGoalDialogIfNeeded();
-                    this.checkAndUnlockFeature();
+                    // Refresh the page
+                    location.reload();
                 }
             });
         }
