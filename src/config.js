@@ -1,10 +1,5 @@
 // Constants and configuration for Match 2048 game
 export const FEATURE_KEYS = {
-    BLOCK_4: "block_4",
-    LINE_4: "line_4",
-    L_FORMATION: "l_formation",
-    T_FORMATION: "t_formation",
-    LINE_5: "line_5",
     HAMMER: "power_hammer",
     HALVE: "power_halve",
     SWAP: "power_swap",
@@ -756,7 +751,6 @@ export const TEST_LEVELS = [
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
-        unlockFeature: "streak", // Example: Unlocks hammer power-up when this level starts
     },
     {
         level: 2,
@@ -835,7 +829,6 @@ export const TEST_LEVELS = [
             { tileValue: 7, target: 2, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
-        unlockFeature: "block_4", // Example: Unlocks block formation merges
     },
     {
         level: 6,
@@ -896,7 +889,6 @@ export const TEST_LEVELS = [
             { tileValue: 8, target: 1, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
-        unlockFeature: "l_formation", // Example: Unlocks L-formation merges
     },
     {
         level: 9,
@@ -1269,7 +1261,6 @@ export const NEW_LEVELS = [
         maxMoves: 10,
         goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [1, 2, 3],
-        unlockFeature: ["block_4", "line_4"],
         tutorialSwaps: [
             {
                 from: { row: 0, col: 2 },
@@ -1303,7 +1294,6 @@ export const NEW_LEVELS = [
         maxMoves: 10,
         goals: [{ tileValue: 8, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [1, 2, 3],
-        unlockFeature: ["t_formation", "l_formation"],
         tutorialSwaps: [
             {
                 from: { row: 0, col: 1 },
@@ -1337,7 +1327,6 @@ export const NEW_LEVELS = [
         maxMoves: 10,
         goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [1, 2, 3, 4],
-        unlockFeature: ["line_5"],
         tutorialSwaps: [
             {
                 from: { row: 1, col: 2 },
