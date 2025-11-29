@@ -341,17 +341,8 @@ export class Match3Game {
         renderGoals(this);
         updateMovesDisplay(this);
 
-        // Hide control buttons and show power-ups at start of level
-        const restartBtn = document.getElementById("restartBtn");
-        const nextBtn = document.getElementById("nextBtn");
-        if (restartBtn) {
-            restartBtn.style.visibility = "hidden";
-        }
-        if (nextBtn) {
-            nextBtn.style.visibility = "hidden";
-        }
-
-        // Show power-ups during active gameplay
+        // Hide controls and show power-ups at start of level
+        this.hideControls();
         this.showPowerUps();
 
         // Set power-up remaining for level: persistent counts + streak bonuses
@@ -757,6 +748,20 @@ export class Match3Game {
         }
     }
 
+    showControls() {
+        const controlsContainer = document.querySelector(".controls");
+        if (controlsContainer) {
+            controlsContainer.style.display = "flex";
+        }
+    }
+
+    hideControls() {
+        const controlsContainer = document.querySelector(".controls");
+        if (controlsContainer) {
+            controlsContainer.style.display = "none";
+        }
+    }
+
     updatePowerUpButtons() {
         const powerUpButtons = document.querySelectorAll(".power-up-btn");
 
@@ -1054,7 +1059,7 @@ export class Match3Game {
 
                     this.updateMovesDisplay();
                     extraMovesDialog.classList.add("hidden");
-                    continueBtn.style.visibility = "hidden";
+                    this.hideControls();
                     this.gameActive = true;
                     this.showPowerUps();
 
@@ -1093,7 +1098,7 @@ export class Match3Game {
                 this.updatePowerUpButtons();
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.visibility = "hidden";
+                this.hideControls();
                 this.gameActive = true;
                 this.showPowerUps();
             });
@@ -1129,7 +1134,7 @@ export class Match3Game {
                 giveUpWarning.classList.add("hidden");
                 loseProgressBtn.style.display = "block";
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.visibility = "hidden";
+                this.hideControls();
 
                 // Show level failed state
                 setTimeout(() => {
@@ -1149,7 +1154,15 @@ export class Match3Game {
         if (showBoardBtn) {
             showBoardBtn.addEventListener("click", () => {
                 extraMovesDialog.classList.add("hidden");
-                continueBtn.style.visibility = "visible";
+                this.showControls();
+
+                // Show only continue button
+                const continueBtn = document.getElementById("continueBtn");
+                const nextBtn = document.getElementById("nextBtn");
+                const restartBtn = document.getElementById("restartBtn");
+                if (continueBtn) continueBtn.style.display = "inline-block";
+                if (nextBtn) nextBtn.style.display = "none";
+                if (restartBtn) restartBtn.style.display = "none";
             });
         }
 
@@ -1354,7 +1367,9 @@ export class Match3Game {
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
 
-        if (levelFailedSvg) levelFailedSvg.style.visibility = "hidden";
+        if (levelFailedSvg) {
+            levelFailedSvg.style.visibility = "hidden";
+        }
         if (levelSolvedSvg) {
             levelSolvedSvg.style.visibility = "visible";
             // Trigger animation by adding class
@@ -1400,8 +1415,12 @@ export class Match3Game {
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const restartBtn = document.getElementById("restartBtn");
+        const nextBtn = document.getElementById("nextBtn");
+        const continueBtn = document.getElementById("continueBtn");
 
-        if (levelSolvedSvg) levelSolvedSvg.style.visibility = "hidden";
+        if (levelSolvedSvg) {
+            levelSolvedSvg.style.visibility = "hidden";
+        }
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "visible";
             // Trigger animation by adding class
@@ -1411,22 +1430,19 @@ export class Match3Game {
             levelFailedSvg.classList.add("animate");
         }
 
-        // Show restart button
-        if (restartBtn) {
-            restartBtn.style.visibility = "visible";
-        }
+        // Show controls and only show restart button
+        this.showControls();
+        if (restartBtn) restartBtn.style.display = "inline-block";
+        if (nextBtn) nextBtn.style.display = "none";
+        if (continueBtn) continueBtn.style.display = "none";
     }
 
     hideLevelFailed() {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
-        const restartBtn = document.getElementById("restartBtn");
 
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "hidden";
             levelFailedSvg.classList.remove("animate");
-        }
-        if (restartBtn) {
-            restartBtn.style.visibility = "hidden";
         }
     }
 

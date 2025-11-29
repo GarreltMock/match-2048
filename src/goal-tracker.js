@@ -51,9 +51,14 @@ export function checkLevelComplete(game) {
 
         // Hide power-ups and show control buttons
         game.hidePowerUps();
-        if (game.currentLevel < game.levels.length) {
-            nextBtn.style.visibility = "visible";
-        }
+        game.showControls();
+
+        // Show only the next button
+        const restartBtn = document.getElementById("restartBtn");
+        const continueBtn = document.getElementById("continueBtn");
+        if (nextBtn) nextBtn.style.display = "inline-block";
+        if (restartBtn) restartBtn.style.display = "none";
+        if (continueBtn) continueBtn.style.display = "none";
         setTimeout(() => {
             // Tracking happens in showLevelSolved
             game.showLevelSolved();
@@ -79,7 +84,7 @@ export function checkLevelComplete(game) {
             }
         }, 800);
     } else if (game.gameActive) {
-        nextBtn.style.visibility = "hidden";
+        game.hideControls();
         // Show power-ups during active gameplay
         game.showPowerUps();
     }
@@ -179,9 +184,7 @@ export function updateBlockedTileGoals(game) {
 }
 
 export function nextLevel(game) {
-    const nextBtn = document.getElementById("nextBtn");
-    nextBtn.style.visibility = "hidden";
-
+    game.hideControls();
     game.hideLevelSolved();
 
     if (game.currentLevel < game.levels.length) {

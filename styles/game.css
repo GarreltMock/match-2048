@@ -987,6 +987,8 @@
     display: flex;
     gap: clamp(8px, 2vw, 16px);
     justify-content: center;
+    position: relative;
+    z-index: 10;
 }
 
 .power-up-btn {
