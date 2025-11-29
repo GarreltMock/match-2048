@@ -86,7 +86,7 @@ export function isValidTutorialSwap(game, row1, col1, row2, col2) {
 }
 
 /**
- * Check if the current tutorial step is a tap-only step (from and to are the same)
+ * Check if the current tutorial step is a tap-only step
  * @param {Match3Game} game - Game instance
  * @returns {boolean} True if current step is tap-only
  */
@@ -94,10 +94,8 @@ export function isTutorialTapStep(game) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return false;
 
-    const from = currentSwap.from;
-    const to = currentSwap.to;
-
-    return from.row === to.row && from.col === to.col;
+    // Check if step has a tap property
+    return currentSwap.tap !== undefined;
 }
 
 /**
@@ -111,8 +109,12 @@ export function isValidTutorialTap(game, row, col) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return false;
 
-    const from = currentSwap.from;
-    return row === from.row && col === from.col;
+    // Check if step has a tap property
+    if (currentSwap.tap) {
+        return row === currentSwap.tap.row && col === currentSwap.tap.col;
+    }
+
+    return false;
 }
 
 /**
@@ -128,11 +130,19 @@ export function canDragTileInTutorial(game, row, col) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return false;
 
-    const from = currentSwap.from;
-    const to = currentSwap.to;
+    // If this is a tap-only step, allow selecting the tap tile (but not dragging)
+    if (currentSwap.tap) {
+        return row === currentSwap.tap.row && col === currentSwap.tap.col;
+    }
 
-    // Allow dragging if this is one of the tutorial tiles
-    return (row === from.row && col === from.col) || (row === to.row && col === to.col);
+    // For swap steps, allow dragging if this is one of the tutorial tiles
+    if (currentSwap.from && currentSwap.to) {
+        const from = currentSwap.from;
+        const to = currentSwap.to;
+        return (row === from.row && col === from.col) || (row === to.row && col === to.col);
+    }
+
+    return false;
 }
 
 /**
@@ -196,8 +206,14 @@ function updateTutorialUI(game) {
     // Update hint text
     hintText.textContent = currentSwap.text;
 
-    // Update hand animation
-    updateTutorialAnimation(game, currentSwap.from, currentSwap.to);
+    // Update hand animation based on step type
+    if (currentSwap.tap) {
+        // Tap-only step
+        updateTutorialTapAnimation(game, currentSwap.tap);
+    } else if (currentSwap.from && currentSwap.to) {
+        // Swap step
+        updateTutorialSwapAnimation(game, currentSwap.from, currentSwap.to);
+    }
 }
 
 /**
@@ -209,7 +225,7 @@ export function hideTutorialUI(game) {
 
     const { overlay, hand } = game.tutorialElements;
 
-    hand.classList.remove("animating");
+    hand.classList.remove("animating-swipe", "animating-tap");
     overlay.classList.add("hidden");
 
     // Show power-ups again after tutorial
@@ -220,12 +236,12 @@ export function hideTutorialUI(game) {
 }
 
 /**
- * Position and animate the tutorial hand
+ * Position and animate the tutorial hand for swipe gesture
  * @param {Match3Game} game - Game instance
  * @param {Object} fromCell - {row, col} starting cell
  * @param {Object} toCell - {row, col} destination cell
  */
-function updateTutorialAnimation(game, fromCell, toCell) {
+function updateTutorialSwapAnimation(game, fromCell, toCell) {
     if (!game.tutorialElements) return;
 
     const { hand } = game.tutorialElements;
@@ -253,16 +269,49 @@ function updateTutorialAnimation(game, fromCell, toCell) {
     const dx = toCenterX - fromCenterX;
     const dy = toCenterY - fromCenterY;
 
-    // Position hand at from cell center (accounting for hand size)
+    // Position hand at from cell center
     hand.style.left = `${fromCenterX}px`;
     hand.style.top = `${fromCenterY}px`;
-    // hand.style.transform = "translate(-50%, -50%)";
 
     // Set CSS custom properties for animation
     hand.style.setProperty("--hand-dx", `${dx}px`);
     hand.style.setProperty("--hand-dy", `${dy}px`);
 
-    // Show hand and start animation
-    hand.classList.remove("hidden");
-    hand.classList.add("animating");
+    // Remove tap animation and add swipe animation
+    hand.classList.remove("hidden", "animating-tap");
+    hand.classList.add("animating-swipe");
+}
+
+/**
+ * Position and animate the tutorial hand for tap gesture
+ * @param {Match3Game} game - Game instance
+ * @param {Object} tapCell - {row, col} cell to tap
+ */
+function updateTutorialTapAnimation(game, tapCell) {
+    if (!game.tutorialElements) return;
+
+    const { hand } = game.tutorialElements;
+
+    // Query DOM for cell element
+    const tapElement = document.querySelector(`.gem[data-row="${tapCell.row}"][data-col="${tapCell.col}"]`);
+
+    if (!tapElement) {
+        console.warn("Tutorial: Could not find tap cell element", tapCell);
+        return;
+    }
+
+    // Get bounding rectangle
+    const tapRect = tapElement.getBoundingClientRect();
+
+    // Calculate center position
+    const centerX = tapRect.left + tapRect.width / 2;
+    const centerY = tapRect.top + tapRect.height / 2;
+
+    // Position hand at cell center
+    hand.style.left = `${centerX}px`;
+    hand.style.top = `${centerY}px`;
+
+    // Remove swipe animation and add tap animation
+    hand.classList.remove("hidden", "animating-swipe");
+    hand.classList.add("animating-tap");
 }

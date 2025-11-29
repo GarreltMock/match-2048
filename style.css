@@ -3118,8 +3118,12 @@ button {
     display: none;
 }
 
-.tutorial-hand.animating {
+.tutorial-hand.animating-swipe {
     animation: tutorialHandSwipe 2s ease-in-out infinite;
+}
+
+.tutorial-hand.animating-tap {
+    animation: tutorialHandTap 1.5s ease-in-out infinite;
 }
 
 @keyframes tutorialHandSwipe {
@@ -3136,6 +3140,18 @@ button {
     75%,
     100% {
         transform: translate(calc(var(--hand-dx)), calc(var(--hand-dy)));
+        opacity: 1;
+    }
+}
+
+@keyframes tutorialHandTap {
+    0%,
+    100% {
+        transform: translate(30%, 30%) scale(1);
+        opacity: 0.85;
+    }
+    50% {
+        transform: translate(30%, 30%) scale(0.85);
         opacity: 1;
     }
 }

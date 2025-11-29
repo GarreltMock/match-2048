@@ -1270,7 +1270,7 @@ export const NEW_LEVELS = [
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "4-Tile blocks create a special tile, which can be moved in the shown direction without a merge!",
+                text: "4-Tile blocks create a special tile, which can be moved in the shown direction without a valid merge!",
             },
             {
                 from: { row: 2, col: 2 },
@@ -1285,15 +1285,15 @@ export const NEW_LEVELS = [
         boardWidth: 5,
         boardHeight: 5,
         boardPreset: [
-            [1, 4, 1, 2, 3],
+            [1, 4, 3, 2, 3],
             [4, 2, 4, 1, 2],
-            [2, 4, 6, 3, 1],
+            [3, 4, 6, 3, 1],
             [2, 4, 6, 2, 1],
             [1, 5, 5, 6, 6],
         ],
         maxMoves: 10,
         goals: [{ tileValue: 8, target: 1, current: 0, goalType: "created" }],
-        spawnableTiles: [1, 2, 3],
+        spawnableTiles: [1, 2, 3, 4],
         tutorialSwaps: [
             {
                 from: { row: 0, col: 1 },
@@ -1314,7 +1314,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 4,
-        title: "L and T Merge",
+        title: "5-Tile Line Merge",
         boardWidth: 5,
         boardHeight: 5,
         boardPreset: [
@@ -1334,11 +1334,18 @@ export const NEW_LEVELS = [
                 text: "Finally the most valuable merge is a 5-Tile line!",
             },
             {
-                from: { row: 2, col: 2 },
-                to: { row: 2, col: 2 },
+                tap: { row: 2, col: 2 },
                 text: "This creates a wildcard, which can merged with anything or transformed in the value shown!",
             },
         ],
+    },
+    {
+        level: 4,
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 20,
+        goals: [{ tileValue: 6, target: 3, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3, 4],
     },
     {
         level: 5,
