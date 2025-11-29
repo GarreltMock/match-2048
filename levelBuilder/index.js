@@ -8,7 +8,7 @@
  * but fair levels that account for power-ups and game mechanics.
  */
 
-const fs = require('fs');
+const fs = require("fs");
 
 class LevelBuilder {
     constructor() {
@@ -19,15 +19,15 @@ class LevelBuilder {
 
         // Tile progression (powers of 2)
         this.TILE_VALUES = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048];
-        this.DEFAULT_SPAWNABLE = [2, 4, 8, 16];
+        this.DEFAULT_SPAWNABLE = [1, 2, 3, 4];
 
         // Difficulty thresholds for level classification
         this.DIFFICULTY_THRESHOLDS = {
-            'very-easy': 0.25,
-            'easy': 0.45,
-            'medium': 0.65,
-            'hard': 0.8,
-            'very-hard': 1.0
+            "very-easy": 0.25,
+            easy: 0.45,
+            medium: 0.65,
+            hard: 0.8,
+            "very-hard": 1.0,
         };
 
         // Load existing levels from script.js
@@ -46,11 +46,7 @@ class LevelBuilder {
 
         // Weighted difficulty score (0.0 to 1.0+)
         // Put more weight on resource efficiency to make hard levels achievable
-        const difficulty = (
-            goalComplexity.score * 0.3 +
-            boardConstraints.score * 0.2 +
-            resourceEfficiency.score * 0.5
-        );
+        const difficulty = goalComplexity.score * 0.3 + boardConstraints.score * 0.2 + resourceEfficiency.score * 0.5;
 
         return {
             totalScore: Math.round(difficulty * 100) / 100,
@@ -58,9 +54,9 @@ class LevelBuilder {
             breakdown: {
                 goalComplexity,
                 boardConstraints,
-                resourceEfficiency
+                resourceEfficiency,
             },
-            recommendations: this.generateRecommendations(level, difficulty, resourceEfficiency)
+            recommendations: this.generateRecommendations(level, difficulty, resourceEfficiency),
         };
     }
 
@@ -80,7 +76,7 @@ class LevelBuilder {
             const quantityMultiplier = Math.min(goal.target / 5, 2.0); // Cap at 2x
 
             // Goal type modifier
-            const typeModifier = goal.goalType === 'current' ? 1.5 : 1.0;
+            const typeModifier = goal.goalType === "current" ? 1.5 : 1.0;
 
             const goalScore = tileComplexity * quantityMultiplier * typeModifier;
             totalComplexity += goalScore;
@@ -89,7 +85,7 @@ class LevelBuilder {
                 tile: goal.tileValue,
                 target: goal.target,
                 type: goal.goalType,
-                score: Math.round(goalScore * 100) / 100
+                score: Math.round(goalScore * 100) / 100,
             });
         }
 
@@ -100,7 +96,7 @@ class LevelBuilder {
         return {
             score: Math.min(totalComplexity, 1.0), // Cap at 1.0
             details,
-            multiGoalMultiplier
+            multiGoalMultiplier,
         };
     }
 
@@ -130,7 +126,7 @@ class LevelBuilder {
         const spaceRatio = availableSpaces / totalSpaces;
 
         // Smaller boards and more blocked tiles = higher difficulty
-        const sizeScore = 1.0 - ((totalSpaces - 36) / (64 - 36)); // 6x6 to 8x8 range
+        const sizeScore = 1.0 - (totalSpaces - 36) / (64 - 36); // 6x6 to 8x8 range
         const blockageScore = 1.0 - spaceRatio;
 
         const constraintScore = (sizeScore * 0.4 + blockageScore * 0.6) * 0.8; // Max 0.8
@@ -140,7 +136,7 @@ class LevelBuilder {
             totalSpaces,
             availableSpaces,
             blockedSpaces,
-            spaceRatio: Math.round(spaceRatio * 100) / 100
+            spaceRatio: Math.round(spaceRatio * 100) / 100,
         };
     }
 
@@ -162,7 +158,7 @@ class LevelBuilder {
                 estimatedMovesNeeded: 0,
                 efficiency: 0,
                 error: validation.error,
-                impossible: true
+                impossible: true,
             };
         }
 
@@ -187,7 +183,7 @@ class LevelBuilder {
             effectiveMoves,
             estimatedMovesNeeded: Math.round(totalMovesNeeded),
             efficiency: Math.round(efficiency * 100) / 100,
-            validation
+            validation,
         };
     }
 
@@ -201,7 +197,7 @@ class LevelBuilder {
             if (goal.tileValue <= maxSpawnable) {
                 return {
                     valid: false,
-                    error: `Goal ${goal.tileValue} is <= max spawnable ${maxSpawnable} - makes level trivial or impossible`
+                    error: `Goal ${goal.tileValue} is <= max spawnable ${maxSpawnable} - makes level trivial or impossible`,
                 };
             }
 
@@ -209,7 +205,7 @@ class LevelBuilder {
             if ((goal.tileValue & (goal.tileValue - 1)) !== 0) {
                 return {
                     valid: false,
-                    error: `Goal ${goal.tileValue} is not a power of 2`
+                    error: `Goal ${goal.tileValue} is not a power of 2`,
                 };
             }
         }
@@ -264,7 +260,7 @@ class LevelBuilder {
                 return label;
             }
         }
-        return 'extreme';
+        return "extreme";
     }
 
     /**
@@ -291,7 +287,7 @@ class LevelBuilder {
             recommendations.push("Move limit seems excessive - consider reducing for better challenge");
         }
 
-        if ((level.goals || []).every(g => g.goalType === 'created')) {
+        if ((level.goals || []).every((g) => g.goalType === "created")) {
             recommendations.push("Consider mixing 'current' and 'created' goal types for variety");
         }
 
@@ -317,8 +313,8 @@ class LevelBuilder {
             levelNumber = 1,
             boardWidth = 6,
             boardHeight = 6,
-            goalTypes = ['created'],
-            maxIterations = 100
+            goalTypes = ["created"],
+            maxIterations = 100,
         } = options;
 
         let bestLevel = null;
@@ -330,7 +326,7 @@ class LevelBuilder {
                 boardWidth,
                 boardHeight,
                 goalTypes,
-                targetDifficulty
+                targetDifficulty,
             });
 
             const analysis = this.calculateDifficulty(level);
@@ -349,7 +345,7 @@ class LevelBuilder {
             level: bestLevel,
             analysis: this.calculateDifficulty(bestLevel),
             targetDifficulty,
-            accuracy: Math.round((1 - bestScore) * 100)
+            accuracy: Math.round((1 - bestScore) * 100),
         };
     }
 
@@ -396,7 +392,7 @@ class LevelBuilder {
             maxMoves,
             blockedTiles,
             goals,
-            spawnableTiles
+            spawnableTiles,
         };
     }
 
@@ -424,9 +420,10 @@ class LevelBuilder {
         const goals = [];
 
         // More goals for higher difficulty
-        const numGoals = targetDifficulty > 0.7 ?
-            (Math.floor(Math.random() * 2) + 2) : // 2-3 goals for hard levels
-            (Math.floor(Math.random() * 2) + 1);  // 1-2 goals for normal levels
+        const numGoals =
+            targetDifficulty > 0.7
+                ? Math.floor(Math.random() * 2) + 2 // 2-3 goals for hard levels
+                : Math.floor(Math.random() * 2) + 1; // 1-2 goals for normal levels
 
         for (let i = 0; i < numGoals; i++) {
             // More aggressive doubling for higher difficulties
@@ -474,7 +471,7 @@ class LevelBuilder {
                 tileValue,
                 target,
                 current: 0,
-                goalType
+                goalType,
             });
         }
 
@@ -517,7 +514,7 @@ class LevelBuilder {
                 maxMoves: 10,
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }], // Bottom 3 rows (rows 3,4,5 in 6x6)
                 goals: [{ tileValue: 32, target: 1, current: 0, goalType: "created" }],
-                spawnableTiles: [2, 4, 8]
+                spawnableTiles: [2, 4, 8],
             },
             {
                 level: 2,
@@ -527,9 +524,9 @@ class LevelBuilder {
                 blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }], // Bottom 3 rows (rows 3,4,5 in 6x6)
                 goals: [
                     { tileValue: 64, target: 1, current: 0, goalType: "created" },
-                    { tileValue: 32, target: 3, current: 0, goalType: "created" }
+                    { tileValue: 32, target: 3, current: 0, goalType: "created" },
                 ],
-                spawnableTiles: [2, 4, 8]
+                spawnableTiles: [2, 4, 8],
             },
             {
                 level: 3,
@@ -539,9 +536,9 @@ class LevelBuilder {
                 blockedTiles: [{ row: 4 }, { row: 5 }],
                 goals: [
                     { tileValue: 64, target: 2, current: 0, goalType: "created" },
-                    { tileValue: 32, target: 5, current: 0, goalType: "created" }
+                    { tileValue: 32, target: 5, current: 0, goalType: "created" },
                 ],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 4,
@@ -550,7 +547,7 @@ class LevelBuilder {
                 boardHeight: 8,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 128, target: 1, current: 0, goalType: "created" }],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 5,
@@ -559,7 +556,7 @@ class LevelBuilder {
                 boardHeight: 8,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 128, target: 4, current: 0, goalType: "created" }],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 6,
@@ -569,9 +566,9 @@ class LevelBuilder {
                 blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
                     { tileValue: 256, target: 1, current: 0, goalType: "created" },
-                    { tileValue: 64, target: 4, current: 0, goalType: "created" }
+                    { tileValue: 64, target: 4, current: 0, goalType: "created" },
                 ],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 7,
@@ -580,7 +577,7 @@ class LevelBuilder {
                 boardHeight: 8,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 64, target: 8, current: 0, goalType: "current" }],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 8,
@@ -591,9 +588,9 @@ class LevelBuilder {
                 goals: [
                     { tileValue: 256, target: 1, current: 0, goalType: "created" },
                     { tileValue: 128, target: 2, current: 0, goalType: "created" },
-                    { tileValue: 64, target: 4, current: 0, goalType: "created" }
+                    { tileValue: 64, target: 4, current: 0, goalType: "created" },
                 ],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 9,
@@ -603,9 +600,9 @@ class LevelBuilder {
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [
                     { tileValue: 512, target: 1, current: 0, goalType: "created" },
-                    { tileValue: 128, target: 2, current: 0, goalType: "created" }
+                    { tileValue: 128, target: 2, current: 0, goalType: "created" },
                 ],
-                spawnableTiles: [2, 4, 8, 16]
+                spawnableTiles: [2, 4, 8, 16],
             },
             {
                 level: 10,
@@ -614,8 +611,8 @@ class LevelBuilder {
                 boardHeight: 8,
                 blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
                 goals: [{ tileValue: 1024, target: 1, current: 0, goalType: "created" }],
-                spawnableTiles: [4, 8, 16, 32]
-            }
+                spawnableTiles: [4, 8, 16, 32],
+            },
         ];
     }
 
@@ -623,7 +620,7 @@ class LevelBuilder {
      * Analyze all existing levels
      */
     analyzeExistingLevels() {
-        console.log('=== EXISTING LEVEL ANALYSIS ===\n');
+        console.log("=== EXISTING LEVEL ANALYSIS ===\n");
 
         const analyses = [];
 
@@ -633,11 +630,15 @@ class LevelBuilder {
 
             console.log(`Level ${level.level}: ${analysis.classification.toUpperCase()} (${analysis.totalScore})`);
             console.log(`  Moves: ${level.maxMoves}, Goals: ${level.goals?.length || 0}`);
-            console.log(`  Board: ${level.boardWidth || 8}x${level.boardHeight || 8}, Blocked: ${level.blockedTiles?.length || 0} patterns`);
+            console.log(
+                `  Board: ${level.boardWidth || 8}x${level.boardHeight || 8}, Blocked: ${
+                    level.blockedTiles?.length || 0
+                } patterns`
+            );
 
             if (analysis.recommendations.length > 0) {
-                console.log('  Recommendations:');
-                analysis.recommendations.forEach(rec => console.log(`    - ${rec}`));
+                console.log("  Recommendations:");
+                analysis.recommendations.forEach((rec) => console.log(`    - ${rec}`));
             }
             console.log();
         }
@@ -654,7 +655,7 @@ class LevelBuilder {
             numLevels = 10,
             startDifficulty = 0.2,
             endDifficulty = 0.95, // Increased to reach very-hard levels
-            boardProgression = true
+            boardProgression = true,
         } = options;
 
         const levels = [];
@@ -662,18 +663,17 @@ class LevelBuilder {
 
         for (let i = 0; i < numLevels; i++) {
             const levelNum = startLevel + i;
-            const targetDifficulty = startDifficulty + (i * difficultyStep);
+            const targetDifficulty = startDifficulty + i * difficultyStep;
 
             // Progressive board size
-            const boardSize = boardProgression ?
-                Math.min(6 + Math.floor(i / 3), 8) : 6;
+            const boardSize = boardProgression ? Math.min(6 + Math.floor(i / 3), 8) : 6;
 
             const result = this.generateLevel({
                 targetDifficulty,
                 levelNumber: levelNum,
                 boardWidth: boardSize,
                 boardHeight: boardSize,
-                goalTypes: i > 5 ? ['created', 'current'] : ['created']
+                goalTypes: i > 5 ? ["created", "current"] : ["created"],
             });
 
             levels.push(result);
@@ -685,15 +685,15 @@ class LevelBuilder {
     /**
      * Export levels to JSON format
      */
-    exportLevels(levels, filename = 'generated-levels.json') {
+    exportLevels(levels, filename = "generated-levels.json") {
         const exportData = {
             generated: new Date().toISOString(),
-            levels: levels.map(l => l.level || l),
-            metadata: levels.map(l => ({
+            levels: levels.map((l) => l.level || l),
+            metadata: levels.map((l) => ({
                 level: l.level?.level || l.level,
                 difficulty: l.analysis?.totalScore,
-                classification: l.analysis?.classification
-            }))
+                classification: l.analysis?.classification,
+            })),
         };
 
         fs.writeFileSync(filename, JSON.stringify(exportData, null, 2));
@@ -705,14 +705,14 @@ class LevelBuilder {
      */
     run() {
         const args = process.argv.slice(2);
-        const command = args[0] || 'analyze';
+        const command = args[0] || "analyze";
 
         switch (command) {
-            case 'analyze':
+            case "analyze":
                 this.analyzeExistingLevels();
                 break;
 
-            case 'generate':
+            case "generate":
                 const numLevels = parseInt(args[1]) || 5;
                 const difficulty = parseFloat(args[2]) || 0.6;
                 console.log(`Generating ${numLevels} levels with target difficulty ${difficulty}...\n`);
@@ -721,7 +721,7 @@ class LevelBuilder {
                 for (let i = 1; i <= numLevels; i++) {
                     const result = this.generateLevel({
                         targetDifficulty: difficulty,
-                        levelNumber: i
+                        levelNumber: i,
                     });
                     levels.push(result);
 
@@ -731,17 +731,21 @@ class LevelBuilder {
                 this.exportLevels(levels);
                 break;
 
-            case 'sequence':
+            case "sequence":
                 const seqLevels = parseInt(args[1]) || 10;
                 console.log(`Generating progressive sequence of ${seqLevels} levels...\n`);
 
                 const sequence = this.generateLevelSequence({ numLevels: seqLevels });
 
                 sequence.forEach((result, i) => {
-                    console.log(`Level ${i + 1}: ${result.analysis.classification} (${result.analysis.totalScore}) - ${result.accuracy}% accuracy`);
+                    console.log(
+                        `Level ${i + 1}: ${result.analysis.classification} (${result.analysis.totalScore}) - ${
+                            result.accuracy
+                        }% accuracy`
+                    );
                 });
 
-                this.exportLevels(sequence, 'level-sequence.json');
+                this.exportLevels(sequence, "level-sequence.json");
                 break;
 
             default:
