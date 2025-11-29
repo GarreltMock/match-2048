@@ -24,7 +24,11 @@ import {
     advanceTutorialStep,
     canDragTileInTutorial,
     isTutorialTapStep,
-    isValidTutorialTap
+    isValidTutorialTap,
+    isTutorialPowerUpStep,
+    isValidTutorialPowerUp,
+    isValidTutorialPowerUpTarget,
+    updateTutorialUI
 } from "./tutorial.js";
 
 export function setupEventListeners(game) {
@@ -175,8 +179,20 @@ function startDrag(game, x, y) {
             // Prevent power-up usage during animations
             if (game.animating) return;
 
+            // Check tutorial validation for power-up usage
+            if (isTutorialActive(game) && isTutorialPowerUpStep(game)) {
+                // Only allow clicking on the specified tutorial target
+                if (!isValidTutorialPowerUpTarget(game, row, col)) {
+                    return; // Block usage on wrong tile
+                }
+            }
+
             const handled = game.handlePowerUpAction(row, col, element);
             if (handled !== false) {
+                // If power-up was used successfully, advance tutorial
+                if (isTutorialActive(game) && isTutorialPowerUpStep(game)) {
+                    advanceTutorialStep(game);
+                }
                 return;
             }
             // If handlePowerUpAction returns false (swap case), continue with normal drag

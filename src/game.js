@@ -81,7 +81,14 @@ import {
     hasFeatureBeenUnlocked,
 } from "./goal-dialogs.js";
 import { showHomeScreen } from "./home-screen.js";
-import { initTutorial, isTutorialActive, showTutorialUI } from "./tutorial.js";
+import {
+    initTutorial,
+    isTutorialActive,
+    showTutorialUI,
+    isTutorialPowerUpStep,
+    isValidTutorialPowerUp,
+    updateTutorialUI,
+} from "./tutorial.js";
 
 export class Match3Game {
     constructor() {
@@ -684,6 +691,13 @@ export class Match3Game {
                     return;
                 }
 
+                // Tutorial validation - only allow the specified power-up
+                if (isTutorialActive(this) && isTutorialPowerUpStep(this)) {
+                    if (!isValidTutorialPowerUp(this, powerUpType)) {
+                        return; // Block clicking non-tutorial power-ups
+                    }
+                }
+
                 if (this.activePowerUp === powerUpType) {
                     // Deselect power-up
                     this.deactivatePowerUp();
@@ -696,8 +710,8 @@ export class Match3Game {
     }
 
     activatePowerUp(type) {
-        // Block power-ups during tutorial
-        if (isTutorialActive(this)) {
+        // Block power-ups during tutorial (except during power-up tutorial steps)
+        if (isTutorialActive(this) && !isTutorialPowerUpStep(this)) {
             return;
         }
 
@@ -709,6 +723,11 @@ export class Match3Game {
         const button = document.querySelector(`[data-powerup="${type}"]`);
         if (button) {
             button.classList.add("active");
+        }
+
+        // Update tutorial UI to show next step (tap on target tile)
+        if (isTutorialActive(this) && isTutorialPowerUpStep(this)) {
+            updateTutorialUI(this);
         }
     }
 

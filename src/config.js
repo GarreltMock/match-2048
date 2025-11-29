@@ -1219,6 +1219,68 @@ export const TEST_LEVELS = [
             },
         ],
     },
+    {
+        level: 31,
+        title: "Tutorial Power-Up - Hammer",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 10,
+        boardPreset: [[, , 5, ,], [, 5, 6, 5], [, , 5, ,], [], []],
+        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3],
+        tutorialSwaps: [
+            {
+                powerUp: {
+                    type: "hammer",
+                    target: { row: 1, col: 2 },
+                },
+                text: "Use the hammer power-up to remove this tile!",
+            },
+        ],
+    },
+    {
+        level: 32,
+        title: "Tutorial Power-Up - Halve",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 10,
+        boardPreset: [[, , 5, ,], [, 5, 7, 5], [, , 5, ,], [], []],
+        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3],
+        tutorialSwaps: [
+            {
+                powerUp: {
+                    type: "halve",
+                    target: { row: 1, col: 2 },
+                },
+                text: "Use the halve power-up to reduce this tile's value!",
+            },
+        ],
+    },
+    {
+        level: 33,
+        title: "Tutorial Power-Up - Swap",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 10,
+        boardPreset: [[, , 5, ,], [5, , , , 5], [, , 5, ,], [], []],
+        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3],
+        tutorialSwaps: [
+            {
+                powerUp: {
+                    type: "swap",
+                    target: { row: 1, col: 0 },
+                },
+                text: "First, activate the swap power-up, then tap this tile...",
+            },
+            {
+                from: { row: 1, col: 0 },
+                to: { row: 1, col: 2 },
+                text: "...now drag it here to swap with a distant tile!",
+            },
+        ],
+    },
 ];
 
 export const NEW_LEVELS = [

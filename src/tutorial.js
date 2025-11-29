@@ -61,6 +61,19 @@ export function getCurrentTutorialSwap(game) {
 }
 
 /**
+ * Check if the current tutorial step is a power-up step
+ * @param {Match3Game} game - Game instance
+ * @returns {boolean} True if current step is power-up step
+ */
+export function isTutorialPowerUpStep(game) {
+    const currentSwap = getCurrentTutorialSwap(game);
+    if (!currentSwap) return false;
+
+    // Check if step has a powerUp property
+    return currentSwap.powerUp !== undefined;
+}
+
+/**
  * Check if a swap matches the current tutorial step (bidirectional)
  * @param {Match3Game} game - Game instance
  * @param {number} row1 - First tile row
@@ -130,6 +143,17 @@ export function canDragTileInTutorial(game, row, col) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return false;
 
+    // If this is a power-up step, allow interaction ONLY if power-up is active
+    // This allows clicking tiles when power-up is activated
+    if (currentSwap.powerUp) {
+        // If power-up is active, allow clicking the target tile
+        if (game.activePowerUp === currentSwap.powerUp.type) {
+            return row === currentSwap.powerUp.target.row && col === currentSwap.powerUp.target.col;
+        }
+        // Power-up not active yet, don't allow tile interaction
+        return false;
+    }
+
     // If this is a tap-only step, allow selecting the tap tile (but not dragging)
     if (currentSwap.tap) {
         return row === currentSwap.tap.row && col === currentSwap.tap.col;
@@ -146,6 +170,38 @@ export function canDragTileInTutorial(game, row, col) {
 }
 
 /**
+ * Check if the tutorial expects a specific power-up to be activated
+ * @param {Match3Game} game - Game instance
+ * @param {string} powerUpType - Type of power-up ("hammer", "halve", "swap")
+ * @returns {boolean} True if power-up matches tutorial
+ */
+export function isValidTutorialPowerUp(game, powerUpType) {
+    const currentSwap = getCurrentTutorialSwap(game);
+    if (!currentSwap) return false;
+
+    if (currentSwap.powerUp) {
+        return currentSwap.powerUp.type === powerUpType;
+    }
+
+    return false;
+}
+
+/**
+ * Check if a tile is valid for the current power-up tutorial step
+ * @param {Match3Game} game - Game instance
+ * @param {number} row - Tile row
+ * @param {number} col - Tile column
+ * @returns {boolean} True if tile is valid for tutorial power-up
+ */
+export function isValidTutorialPowerUpTarget(game, row, col) {
+    const currentSwap = getCurrentTutorialSwap(game);
+    if (!currentSwap || !currentSwap.powerUp) return false;
+
+    const target = currentSwap.powerUp.target;
+    return row === target.row && col === target.col;
+}
+
+/**
  * Advance to the next tutorial step or complete tutorial
  * @param {Match3Game} game - Game instance
  */
@@ -159,6 +215,15 @@ export function advanceTutorialStep(game) {
         completeTutorial(game);
     } else {
         // Update UI for next step
+        const currentSwap = getCurrentTutorialSwap(game);
+        const isPowerUpTutorial = currentSwap && currentSwap.powerUp;
+
+        // Show/hide power-ups based on next step type
+        const powerUpsContainer = document.getElementById("bottom-container");
+        if (powerUpsContainer) {
+            powerUpsContainer.style.display = isPowerUpTutorial ? "" : "none";
+        }
+
         updateTutorialUI(game);
     }
 }
@@ -184,10 +249,15 @@ export function showTutorialUI(game) {
     const { overlay } = game.tutorialElements;
     overlay.classList.remove("hidden");
 
-    // Hide power-ups during tutorial
+    // Hide power-ups during tutorial UNLESS it's a power-up tutorial step
+    const currentSwap = getCurrentTutorialSwap(game);
+    const isPowerUpTutorial = currentSwap && currentSwap.powerUp;
+
     const powerUpsContainer = document.getElementById("bottom-container");
-    if (powerUpsContainer) {
+    if (powerUpsContainer && !isPowerUpTutorial) {
         powerUpsContainer.style.display = "none";
+    } else if (powerUpsContainer && isPowerUpTutorial) {
+        powerUpsContainer.style.display = "";
     }
 
     updateTutorialUI(game);
@@ -197,17 +267,33 @@ export function showTutorialUI(game) {
  * Update tutorial UI for current step
  * @param {Match3Game} game - Game instance
  */
-function updateTutorialUI(game) {
+export function updateTutorialUI(game) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return;
 
-    const { hintText } = game.tutorialElements;
+    const { hintText, hintBox } = game.tutorialElements;
 
     // Update hint text
     hintText.textContent = currentSwap.text;
 
+    // Position hint box based on step type
+    if (currentSwap.powerUp && !game.activePowerUp) {
+        // Power-up step BEFORE activation - position above power-ups
+        if (hintBox) {
+            hintBox.style.bottom = "25vh"; // Above the power-ups
+        }
+    } else {
+        // All other steps - position at bottom
+        if (hintBox) {
+            hintBox.style.bottom = "4vh";
+        }
+    }
+
     // Update hand animation based on step type
-    if (currentSwap.tap) {
+    if (currentSwap.powerUp) {
+        // Power-up tutorial step - show tap on power-up button, then tap on tile
+        updateTutorialPowerUpAnimation(game, currentSwap.powerUp);
+    } else if (currentSwap.tap) {
         // Tap-only step
         updateTutorialTapAnimation(game, currentSwap.tap);
     } else if (currentSwap.from && currentSwap.to) {
@@ -314,4 +400,65 @@ function updateTutorialTapAnimation(game, tapCell) {
     // Remove swipe animation and add tap animation
     hand.classList.remove("hidden", "animating-swipe");
     hand.classList.add("animating-tap");
+}
+
+/**
+ * Position and animate the tutorial hand for power-up usage
+ * @param {Match3Game} game - Game instance
+ * @param {Object} powerUpConfig - {type: "hammer"|"halve"|"swap", target: {row, col}}
+ */
+function updateTutorialPowerUpAnimation(game, powerUpConfig) {
+    if (!game.tutorialElements) return;
+
+    const { hand } = game.tutorialElements;
+
+    // If power-up is not active, show hand on power-up button
+    if (!game.activePowerUp || game.activePowerUp !== powerUpConfig.type) {
+        const powerUpButton = document.querySelector(`[data-powerup="${powerUpConfig.type}"]`);
+
+        if (!powerUpButton) {
+            console.warn("Tutorial: Could not find power-up button", powerUpConfig.type);
+            return;
+        }
+
+        // Get bounding rectangle
+        const buttonRect = powerUpButton.getBoundingClientRect();
+
+        // Calculate center position
+        const centerX = buttonRect.left + buttonRect.width / 2;
+        const centerY = buttonRect.top + buttonRect.height / 2;
+
+        // Position hand at button center
+        hand.style.left = `${centerX}px`;
+        hand.style.top = `${centerY}px`;
+
+        // Add tap animation
+        hand.classList.remove("hidden", "animating-swipe");
+        hand.classList.add("animating-tap");
+    } else {
+        // Power-up is active, show hand on target tile
+        const targetElement = document.querySelector(
+            `.gem[data-row="${powerUpConfig.target.row}"][data-col="${powerUpConfig.target.col}"]`
+        );
+
+        if (!targetElement) {
+            console.warn("Tutorial: Could not find target tile element", powerUpConfig.target);
+            return;
+        }
+
+        // Get bounding rectangle
+        const targetRect = targetElement.getBoundingClientRect();
+
+        // Calculate center position
+        const centerX = targetRect.left + targetRect.width / 2;
+        const centerY = targetRect.top + targetRect.height / 2;
+
+        // Position hand at tile center
+        hand.style.left = `${centerX}px`;
+        hand.style.top = `${centerY}px`;
+
+        // Add tap animation
+        hand.classList.remove("hidden", "animating-swipe");
+        hand.classList.add("animating-tap");
+    }
 }
