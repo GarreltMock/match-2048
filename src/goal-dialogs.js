@@ -120,15 +120,11 @@ export const GOAL_DIALOGS = {
         `,
     },
     blocked: {
-        title: "♻️ Blocked Tile Goals",
-        subtitle: "Clear obstacles from the board!",
+        title: "Blocked Tiles",
+        subtitle: "Clear obstacles from the board",
         content: `
-            <p>Blocked tiles can't be moved, but you can clear them by making matches adjacent to them.</p>
-            <ul>
-                <li>Each match next to a blocked tile removes one layer</li>
-                <li>Clear all blocked tiles to complete the goal</li>
-            </ul>
-            <p><em>Tip: Plan your matches to reach all blocked tiles!</em></p>
+            <p>Blocked tiles can't be moved, but you can clear them by making matches adjacent to them</p>
+            <p><em>Each match next to a blocked tile removes one layer</em></p>
         `,
     },
     blocked_with_life: {
