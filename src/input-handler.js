@@ -18,6 +18,14 @@ import {
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
 import { savePowerUpCounts } from "./storage.js";
+import {
+    isTutorialActive,
+    isValidTutorialSwap,
+    advanceTutorialStep,
+    canDragTileInTutorial,
+    isTutorialTapStep,
+    isValidTutorialTap
+} from "./tutorial.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -157,6 +165,11 @@ function startDrag(game, x, y) {
         const col = parseInt(element.dataset.col);
         const tile = game.board[row][col];
 
+        // Block dragging tiles during tutorial if not part of the tutorial step
+        if (isTutorialActive(game) && !canDragTileInTutorial(game, row, col)) {
+            return;
+        }
+
         // Handle power-ups (but not during animations)
         if (game.activePowerUp) {
             // Prevent power-up usage during animations
@@ -212,7 +225,16 @@ function endDrag(game) {
     } else if (isJoker(game.selectedGem.tile) && !game.activePowerUp) {
         // User tapped on joker without dragging - try to activate it
         // Only activate if not in power-up mode
-        activateJokerByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
+
+        // Check if this is a valid tutorial tap
+        if (isTutorialActive(game) && isTutorialTapStep(game)) {
+            if (isValidTutorialTap(game, game.selectedGem.row, game.selectedGem.col)) {
+                activateJokerByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
+                // Note: Tutorial progression is handled in the joker activation callback
+            }
+        } else if (!isTutorialActive(game)) {
+            activateJokerByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
+        }
     } else if (isTileHammerTile(game.selectedGem.tile) && !game.activePowerUp) {
         // User tapped on hammer tile without dragging - activate it
         // Only activate if not in power-up mode
@@ -252,6 +274,12 @@ function activateJokerByTap(game, row, col, element) {
             game.lastSwapPosition = { row, col, movedFrom: { row, col } };
 
             game.renderBoard(); // Re-render to show the updated tile
+
+            // Progress tutorial if this was a tap-only tutorial step
+            if (isTutorialActive(game) && isTutorialTapStep(game)) {
+                advanceTutorialStep(game);
+            }
+
             setTimeout(() => {
                 game.isUserSwap = true; // Treat tap as user action
                 game.processMatches();
@@ -355,6 +383,14 @@ function previewSwap(row1, col1, row2, col2) {
 export function trySwap(game, row1, col1, row2, col2) {
     if (!game.gameActive) return;
 
+    // Tutorial validation - only allow defined swaps during tutorial
+    if (isTutorialActive(game)) {
+        if (!isValidTutorialSwap(game, row1, col1, row2, col2)) {
+            game.animateRevert(row1, col1, row2, col2);
+            return false;
+        }
+    }
+
     // Prevent swapping if either tile is blocked or blocked with life
     // BLOCKED_MOVABLE tiles CAN be swapped
     if (
@@ -450,6 +486,11 @@ export function trySwap(game, row1, col1, row2, col2) {
 
         game.animateSwap(row1, col1, row2, col2, () => {
             game.renderBoard();
+
+            // Progress tutorial if active
+            if (isTutorialActive(game)) {
+                advanceTutorialStep(game);
+            }
 
             if (isSwapPowerUp) {
                 // Decrement remaining count and deactivate power-up after successful swap

@@ -104,7 +104,7 @@
 
             <div class="game-board" id="gameBoard"></div>
 
-            <div class="bottom-container">
+            <div id="bottom-container" class="bottom-container">
                 <div class="controls">
                     <button id="continueBtn" class="control-btn continue" tabindex="1" style="display: none">
                         Continue
@@ -655,6 +655,14 @@
                     <button class="intro-button" id="startGame">Close</button>
                 </div>
             </div>
+        </div>
+
+        <!-- Tutorial Overlay -->
+        <div id="tutorialOverlay" class="tutorial-overlay hidden">
+            <div class="tutorial-hint-box">
+                <p id="tutorialHintText" class="tutorial-hint-text"></p>
+            </div>
+            <img id="tutorialHand" src="assets/tutorial_hand.svg" class="tutorial-hand hidden" alt="Tutorial Hand" />
         </div>
 
         <script type="module" src="src/main.js"></script>

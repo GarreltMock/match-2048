@@ -1041,7 +1041,7 @@ button {
 }
 
 .bottom-container {
-    /* min-height: 12vw; */
+    min-height: 12vw;
 }
 
 .controls {
@@ -3065,4 +3065,87 @@ button {
     color: black;
     border: 2px solid black;
     width: clamp(250px, 70vw, 400px);
+}
+
+/* Tutorial System */
+.tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100dvh;
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.tutorial-overlay.hidden {
+    display: none;
+}
+
+.tutorial-hint-box {
+    position: absolute;
+    bottom: 4vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(20, 20, 20, 1);
+    border: 3px solid #000;
+    border-radius: 16px;
+    padding: 16px 24px;
+    max-width: 80%;
+    box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25);
+    animation: tutorialHintPulse 2s ease-in-out infinite;
+}
+
+.tutorial-hint-text {
+    color: #fff;
+    font-family: Nunito, Arial, sans-serif;
+    font-size: clamp(14px, 3.5vw, 18px);
+    font-weight: 700;
+    text-align: center;
+    margin: 0;
+}
+
+.tutorial-hand {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+    z-index: 1001;
+}
+
+.tutorial-hand.hidden {
+    display: none;
+}
+
+.tutorial-hand.animating {
+    animation: tutorialHandSwipe 2s ease-in-out infinite;
+}
+
+@keyframes tutorialHandSwipe {
+    0% {
+        transform: translate(0, 0);
+        scale: 1.4;
+        opacity: 1;
+    }
+    25% {
+        transform: translate(0, 0);
+        opacity: 1;
+        scale: 1;
+    }
+    75%,
+    100% {
+        transform: translate(calc(var(--hand-dx)), calc(var(--hand-dy)));
+        opacity: 1;
+    }
+}
+
+@keyframes tutorialHintPulse {
+    0%,
+    100% {
+        transform: translateX(-50%) scale(1);
+    }
+    50% {
+        transform: translateX(-50%) scale(1.02);
+    }
 }

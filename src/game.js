@@ -81,6 +81,7 @@ import {
     hasFeatureBeenUnlocked,
 } from "./goal-dialogs.js";
 import { showHomeScreen } from "./home-screen.js";
+import { initTutorial, isTutorialActive, showTutorialUI } from "./tutorial.js";
 
 export class Match3Game {
     constructor() {
@@ -168,6 +169,10 @@ export class Match3Game {
         // Level timing
         this.levelStartTime = null;
         this.settingsChangedDuringLevel = false;
+
+        // Tutorial system
+        this.tutorialState = null; // { active: bool, currentStep: number, swaps: array }
+        this.tutorialElements = null; // { overlay, hand, hintBox, hintText }
 
         // Track app start first, before any level is loaded
         track("app_start", {
@@ -367,6 +372,11 @@ export class Match3Game {
             goal_count: this.levelGoals.length,
             spawnable_tiles: this.tileValues.join(","),
         });
+
+        // Initialize tutorial if level has tutorial swaps
+        if (level.tutorialSwaps && level.tutorialSwaps.length > 0) {
+            initTutorial(this);
+        }
     }
 
     init() {
@@ -378,6 +388,11 @@ export class Match3Game {
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
         this.checkAndUnlockFeature();
+
+        // Show tutorial UI if active
+        if (isTutorialActive(this)) {
+            showTutorialUI(this);
+        }
     }
 
     checkAndUnlockFeature() {
@@ -557,6 +572,11 @@ export class Match3Game {
         updateMovesDisplay(this);
         this.showGoalDialogIfNeeded();
         this.checkAndUnlockFeature();
+
+        // Show tutorial UI if active
+        if (isTutorialActive(this)) {
+            showTutorialUI(this);
+        }
     }
 
     saveScore() {
@@ -664,6 +684,11 @@ export class Match3Game {
     }
 
     activatePowerUp(type) {
+        // Block power-ups during tutorial
+        if (isTutorialActive(this)) {
+            return;
+        }
+
         this.deactivatePowerUp(); // Clear any active power-up first
         this.activePowerUp = type;
         this.powerUpSwapTiles = [];
