@@ -1,7 +1,8 @@
 // home-screen.js - Home screen management
 
-import { saveHearts, saveLastRegenTime, isFeatureUnlocked } from "./storage.js";
+import { saveHearts, saveLastRegenTime, isFeatureUnlocked, saveUnlockedFeature } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, FEATURE_KEYS } from "./config.js";
+import { showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
 
 /**
  * Shows the home screen with current level information
@@ -23,7 +24,7 @@ export function showHomeScreen(game) {
     levelButton.textContent = `Level ${game.currentLevel}`;
 
     // Update super streak display (above regular streak) - only if feature is unlocked
-    if (isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+    if (isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
         updateSuperStreakDisplay(game, superStreakDisplay);
     } else {
         // Hide super streak display if feature is not unlocked yet
@@ -52,6 +53,9 @@ export function showHomeScreen(game) {
     // Show home screen, hide game
     homeScreen.style.display = "flex";
     gameContainer.style.display = "none";
+
+    // Check and show feature unlock dialogs after a short delay
+    checkAndShowFeatureUnlockDialogs(game);
 }
 
 /**
@@ -110,6 +114,65 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
     `;
 
     superStreakDisplay.innerHTML = content;
+}
+
+/**
+ * Check and show feature unlock dialogs for specific features on the home screen
+ * Currently only shows the streak feature unlock dialog on home screen
+ * @param {Match3Game} game - The game instance
+ */
+function checkAndShowFeatureUnlockDialogs(game) {
+    if (!game.levelConfig?.unlockFeature) return;
+
+    // Support both string and array formats
+    const features = Array.isArray(game.levelConfig.unlockFeature)
+        ? game.levelConfig.unlockFeature
+        : [game.levelConfig.unlockFeature];
+
+    // Features to show on home screen: streak and board upgrades
+    const featuresToShowOnHome = [FEATURE_KEYS.STREAK, FEATURE_KEYS.SUPER_STREAK];
+
+    // Filter to only home screen features and check if they're not already unlocked
+    const featuresToUnlock = features.filter(
+        (key) => featuresToShowOnHome.includes(key) && !hasFeatureBeenUnlocked(key)
+    );
+
+    if (featuresToUnlock.length === 0) return;
+
+    // Wait a bit to ensure home screen is fully shown
+    setTimeout(() => {
+        // Show unlock dialogs sequentially
+        let delay = 0;
+        featuresToUnlock.forEach((featureKey) => {
+            setTimeout(() => {
+                showFeatureUnlockDialog(featureKey, game, () => {
+                    saveUnlockedFeature(featureKey);
+
+                    // Initialize and refresh displays after unlocking
+                    if (featureKey === FEATURE_KEYS.STREAK) {
+                        // Start with streak of 1 when first unlocking
+                        game.currentStreak = 1;
+                        game.saveStreak();
+
+                        const streakDisplay = document.getElementById("streak-display");
+                        if (streakDisplay) {
+                            updateStreakDisplay(game, streakDisplay);
+                        }
+                    } else if (featureKey === FEATURE_KEYS.SUPER_STREAK) {
+                        // Start with super streak of 1 when first unlocking
+                        game.superStreak = 1;
+                        game.saveSuperStreak();
+
+                        const superStreakDisplay = document.getElementById("super-streak-display");
+                        if (superStreakDisplay) {
+                            updateSuperStreakDisplay(game, superStreakDisplay);
+                        }
+                    }
+                });
+            }, delay);
+            delay += 500; // Stagger dialogs by 500ms
+        });
+    }, 300);
 }
 
 /**

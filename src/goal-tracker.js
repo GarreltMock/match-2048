@@ -1,6 +1,14 @@
 // Goal and level progression tracking
 
-import { isNormal, isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount, isCursed, getTileValue } from "./tile-helpers.js";
+import {
+    isNormal,
+    isBlocked,
+    isBlockedWithLife,
+    isBlockedMovable,
+    isBlockedWithMergeCount,
+    isCursed,
+    getTileValue,
+} from "./tile-helpers.js";
 import { saveCurrentLevel, saveStreak, saveSuperStreak, isFeatureUnlocked } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
@@ -36,7 +44,7 @@ export function checkLevelComplete(game) {
         }
 
         // Increment super streak (no cap) - only if board_upgrades feature is unlocked
-        if (isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+        if (isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
             game.superStreak = game.superStreak + 1;
             saveSuperStreak(game.superStreak);
         }

@@ -8,8 +8,9 @@ export const FEATURE_KEYS = {
     HAMMER: "power_hammer",
     HALVE: "power_halve",
     SWAP: "power_swap",
-    BOARD_UPGRADES: "board_upgrades",
     STREAK: "streak",
+    BOARD_UPGRADES: "board_upgrades",
+    SUPER_STREAK: "super_streak",
 };
 
 export const TILE_TYPE = {

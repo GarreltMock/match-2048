@@ -451,7 +451,7 @@ export class Match3Game {
         if (boardUpgradesContainer) {
             boardUpgradesContainer.addEventListener("click", () => {
                 // Only show dialog if level has board upgrades and feature is unlocked
-                if (this.levelConfig?.boardUpgrades?.length > 0 && isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+                if (this.levelConfig?.boardUpgrades?.length > 0 && isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
                     showFeatureUnlockDialog("board_upgrades", this, () => {
                         // Dialog closed, do nothing
                     });
@@ -1614,7 +1614,7 @@ export class Match3Game {
         const currentLevelConfig = LEVELS[this.currentLevel - 1];
 
         // Check if board upgrades feature is unlocked
-        if (!isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+        if (!isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
             return;
         }
 

@@ -5,7 +5,6 @@ import {
     isBlocked,
     isBlockedWithLife,
     isBlockedMovable,
-    isBlockedWithMergeCount,
     isJoker,
     isCursed,
     isNormal,
@@ -67,8 +66,8 @@ function createRectangularBlockedElement(tile) {
         gem.className = `gem tile-BLOCKED tile-BLOCKED-merge-count rectangular-blocked`;
 
         // Set CSS custom properties for grid
-        gem.style.setProperty('--rect-width', tile.rectWidth);
-        gem.style.setProperty('--rect-height', tile.rectHeight);
+        gem.style.setProperty("--rect-width", tile.rectWidth);
+        gem.style.setProperty("--rect-height", tile.rectHeight);
 
         // Create individual X markers for each cell that needs clearing
         for (let r = 0; r < tile.rectHeight; r++) {
@@ -359,7 +358,7 @@ export function renderBoardUpgrades(game) {
     const levelConfig = game.levelConfig;
 
     // Check if board upgrades feature is unlocked
-    if (!isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
+    if (!isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
         upgradesContainer.style.display = "none";
         return;
     }

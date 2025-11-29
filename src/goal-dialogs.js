@@ -322,6 +322,19 @@ export const FEATURE_UNLOCK_DIALOGS = {
             <p><em>Tip: These bonuses are temporary for the next level only. Keep your streak going!</em></p>
         `,
     },
+    super_streak: {
+        title: "🔥 Super Streak Unlocked",
+        subtitle: "Earn enhanced power-ups for longer win streaks",
+        content: `
+            <p>You've unlocked the Super Streak system! Win multiple levels consecutively to earn enhanced power-up bonuses.</p>
+            <ul>
+                <li>Create the tiles shown to t rigger an upgrade</li>
+                <li>Each upgrade removes the smallest tiles from the board</li>
+                <li>Higher value tiles become available to spawn</li>
+            </ul>
+            <p><em>Tip: Upgrades help you reach even higher tiles - aim for those milestones!</em></p>
+        `,
+    },
 };
 
 /**
