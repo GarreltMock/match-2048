@@ -726,6 +726,10 @@ export class Match3Game {
             button.disabled = false;
 
             const usesLeft = this.powerUpRemaining[powerUpType];
+            const persistentUses = this.persistentPowerUpCounts[powerUpType];
+
+            // Check if this power-up has a streak bonus (more uses than persistent count)
+            const hasStreakBonus = usesLeft > persistentUses;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -746,13 +750,28 @@ export class Match3Game {
                 // Add use indicator
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
-                const strokedText = document.createElement("stroked-text");
-                strokedText.setAttribute("text", usesLeft);
-                strokedText.setAttribute("font-size", "26");
-                strokedText.setAttribute("width", "40");
-                strokedText.setAttribute("height", "40");
-                strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                indicator.appendChild(strokedText);
+
+                if (hasStreakBonus) {
+                    // Show streak icon instead of number
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", "🔥");
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.classList.add("streak-bonus");
+                    indicator.appendChild(strokedText);
+                } else {
+                    // Show regular use count
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", usesLeft);
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.appendChild(strokedText);
+                }
+
                 button.appendChild(indicator);
 
                 // Check if temporarily disabled due to one-per-swap rule
@@ -763,7 +782,11 @@ export class Match3Game {
                     button.classList.remove("disabled");
                     // Update title
                     const baseTitle = button.title.split(" - ")[0];
-                    button.title = `${baseTitle} - ${usesLeft} uses left`;
+                    if (hasStreakBonus) {
+                        button.title = `${baseTitle} - Streak bonus available!`;
+                    } else {
+                        button.title = `${baseTitle} - ${usesLeft} uses left`;
+                    }
                 }
             }
         });

@@ -1145,7 +1145,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #902009;
+    /* border: 2px solid #902009; */
     z-index: 10;
 
     color: #fff;
@@ -1153,6 +1153,10 @@ button {
     font-family: Nunito;
     font-size: 16px;
     font-weight: 900;
+
+    &.streak-bonus {
+        background: #aee96b;
+    }
 }
 
 .use-indicator stroked-text {
