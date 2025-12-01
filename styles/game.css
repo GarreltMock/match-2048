@@ -996,7 +996,6 @@
     color: white;
     font-size: clamp(16px, 8vw, 50px);
     cursor: pointer;
-    transition: all 0.2s ease;
     backdrop-filter: blur(10px);
     display: flex;
     align-items: center;

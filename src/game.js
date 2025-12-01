@@ -736,7 +736,7 @@ export class Match3Game {
     showPowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {
-            powerUpsContainer.style.visibility = "visible";
+            powerUpsContainer.style.visibility = "";
         }
     }
 
