@@ -999,9 +999,11 @@ button {
 }
 
 .goal-dialog {
-    background: #ffffff;
+    padding: 20px;
+    background: #141414;
     border-radius: 24px;
     max-width: 500px;
+    border: 3px solid black;
     width: 90%;
     max-height: 85vh;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
@@ -1009,15 +1011,16 @@ button {
     display: flex;
     flex-direction: column;
     font-family: "Nunito", sans-serif;
+    color: white;
 }
 
 .goal-dialog-header {
-    background: #222 url("assets/bg.png");
+    /* background: #222 url("assets/bg.png"); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     color: white;
-    padding: 25px 20px;
+    /* padding: 25px 20px; */
     border-radius: 24px 24px 0 0;
     text-align: center;
     position: relative;
@@ -1068,10 +1071,12 @@ button {
 }
 
 .goal-dialog-content {
-    padding: 25px 20px;
+    padding: 16px 0px;
     color: #333;
     flex: 1;
     overflow-y: auto;
+    display: flex;
+    justify-content: center;
 }
 
 .goal-dialog-content p {
@@ -1110,12 +1115,12 @@ button {
 }
 
 .goal-dialog-footer {
-    background: #f8f9fa;
-    padding: 20px;
+    /* background: #f8f9fa; */
+    /* padding: 20px; */
     border-radius: 0 0 24px 24px;
     display: flex;
     justify-content: center;
-    border-top: 1px solid #e9ecef;
+    /* border-top: 1px solid #e9ecef; */
 }
 
 .goal-dialog-button {
@@ -1123,12 +1128,14 @@ button {
     box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
     color: black;
     border: none;
-    padding: 14px 32px;
+    padding: 12px 32px;
     border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
+    font-size: clamp(26px, 8vw, 40px);
+    font-weight: 900;
     cursor: pointer;
     transition: all 0.2s;
+    font-family: 'Nunito', sans-serif;
+    width: 100%;
 }
 
 .goal-dialog-button:active {
@@ -1476,7 +1483,8 @@ button {
     border: 3px solid #000;
     border-radius: 16px;
     padding: 16px 8px;
-    max-width: 90%;
+    /* max-width: 115%; */
+    width: 80%;
     box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25);
     animation: tutorialHintPulse 2s ease-in-out infinite;
 }

@@ -101,10 +101,7 @@ export const GOAL_DIALOGS = {
     created: {
         title: "Your Goal",
         subtitle: "Create the target tile",
-        content: `
-            <p>Create the 32-tile shown above one time to complete the level</p>
-            <p><em>You create this tile by merging 3+ tiles with the same value</em></p>
-        `,
+        content: ``,
     },
     current: {
         title: "📍 Current Goals",
@@ -122,23 +119,12 @@ export const GOAL_DIALOGS = {
     blocked: {
         title: "Blocked Tiles",
         subtitle: "Clear obstacles from the board",
-        content: `
-            <p>Blocked tiles can't be moved, but you can clear them by making matches adjacent to them</p>
-            <p><em>Each match next to a blocked tile removes one layer</em></p>
-        `,
+        content: ``,
     },
     blocked_with_life: {
-        title: "♻️ Life-Based Blocked Tiles",
+        title: "Life-Based Blocked Tiles",
         subtitle: "Break through reinforced obstacles!",
-        content: `
-            <p>These special blocked tiles have a life value that determines how much damage they need to be cleared.</p>
-            <ul>
-                <li>The life value is displayed on the tile</li>
-                <li>Adjacent matches reduce the life by the sum of the merged tile values</li>
-                <li>When life reaches 0, the blocked tile is cleared</li>
-            </ul>
-            <p><em>Tip: Create high-value tiles and merge them next to blocked tiles for maximum impact!</em></p>
-        `,
+        content: ``,
     },
     cursed: {
         title: "💀 Cursed Tiles",
@@ -166,97 +152,58 @@ export const GOAL_DIALOGS = {
         `,
     },
     score: {
-        title: "💯 Score Goals",
-        subtitle: "Accumulate points through matches!",
-        content: `
-            <p>Score goals require you to earn a target number of points by merging tiles.</p>
-            <ul>
-                <li>Each match adds points equal to the sum of the merged tile values</li>
-                <li>Example: Merging three 2s earns 6 points (2+2+2)</li>
-            </ul>
-            <p><em>Tip: Larger matches and higher-value tiles earn more points!</em></p>
-        `,
+        title: "Score Goal",
+        subtitle: "Earn a target number of points by merging tiles",
+        content: ``,
     },
 };
 
 // Feature unlock dialogs for game mechanics
 export const FEATURE_UNLOCK_DIALOGS = {
     power_hammer: {
-        title: "🔨 Hammer Joker Unlocked",
+        title: `Hammer Joker <span style="color: #aee96b">Unlocked</span>`,
         subtitle: "Remove any movable tile from the board",
         content: `
-            <p>You've unlocked the Hammer Joker! Use it to remove problematic tiles from the board.</p>
-            <ul>
-                <li>Click the hammer, then click any tile to remove it</li>
-                <li>Works on normal tiles and movable blocked tiles</li>
-                <li>Limited uses per level - use wisely!</li>
-            </ul>
-            <p><em>Tip: Save hammers for when you're stuck or need to clear space quickly!</em></p>
+            <button class="power-up-btn" title="Remove a tile">
+                <span>🔨</span>
+            </button>
         `,
     },
     power_halve: {
-        title: "✂️ Halve Joker Unlocked",
-        subtitle: "Reduce a tile's value",
+        title: `Halver Joker <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: "Halve a tile's value",
         content: `
-            <p>You've unlocked the Halve Joker! Use it to reduce a tile's value by half.</p>
-            <ul>
-                <li>Click the scissors, then click any tile to halve its value</li>
-                <li>Great for making matches with high-value tiles</li>
-                <li>Can trigger cascading matches</li>
-            </ul>
-            <p><em>Tip: Use on high-value tiles to create matches with nearby tiles!</em></p>
+            <button class="power-up-btn" title="Halve a tile's value">
+                <span>✂️</span>
+            </button>
         `,
     },
     power_swap: {
-        title: "🔄 Swap Joker Unlocked",
+        title: `Swap Joker <span style="color: #aee96b">Unlocked</span>`,
         subtitle: "Swap any two tiles",
         content: `
-            <p>You've unlocked the Swap Joker! Use it to swap any two tiles on the board.</p>
-            <ul>
-                <li>Click the swap icon, then click two tiles to swap them</li>
-                <li>No adjacency required - swap across the board!</li>
-                <li>Perfect for setting up difficult matches</li>
-            </ul>
-            <p><em>Tip: Use swaps to create special formations or rescue difficult situations!</em></p>
+            <button class="power-up-btn" title="Swap any two tiles">
+                <span>🔄</span>
+            </button>
         `,
     },
     board_upgrades: {
-        title: `<img src="assets/upgrade-icon.png" style="display: inline-block; height: 2rem; vertical-align: bottom" /> Board Upgrades Unlocked!`,
-        subtitle: "Unlock higher tile values",
+        title: `Board Upgrades <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: "Remove the lowest tile value on the board and get higher value tiles",
         content: `
-            <p>You've unlocked Board Upgrades! This level features upgrades that unlock when you reach specific tile milestones.</p>
-            <ul>
-                <li>Create the tiles shown to trigger an upgrade</li>
-                <li>Each upgrade removes the smallest tiles from the board</li>
-                <li>Higher value tiles become available to spawn</li>
-            </ul>
-            <p><em>Tip: Upgrades help you reach even higher tiles - aim for those milestones!</em></p>
+            <img src="assets/upgrade-icon.png" style="display: inline-block; height: clamp(40px, 18vw, 75px); vertical-align: bottom" /> 
         `,
     },
     streak: {
-        title: "🔥 Win Streak Unlocked",
+        title: 'Win Streak <span style="color: #aee96b">Unlocked</span>',
         subtitle: "Earn bonus power-ups for consecutive wins",
-        content: `
-            <p>You've unlocked the Win Streak system! Win levels consecutively to earn temporary power-up bonuses.</p>
-            <ul>
-                <li>Win 1 level in a row: +1 Halve power-up</li>
-                <li>Win 2 levels in a row: +1 Hammer power-up</li>
-                <li>Win 3 levels in a row: +1 Swap power-up</li>
-            </ul>
-            <p><em>Tip: These bonuses are temporary for the next level only. Keep your streak going!</em></p>
-        `,
+        content: `<span style="font-size: clamp(40px, 18vw, 75px);">🔥</span>`,
     },
     super_streak: {
-        title: "🔥 Super Streak Unlocked",
-        subtitle: "Earn enhanced power-ups for longer win streaks",
+        title: 'Super Streak <span style="color: #aee96b">Unlocked</span>',
+        subtitle: "Complete 5 Levels to get better board upgrades",
         content: `
-            <p>You've unlocked the Super Streak system! Win multiple levels consecutively to earn enhanced power-up bonuses.</p>
-            <ul>
-                <li>Create the tiles shown to t rigger an upgrade</li>
-                <li>Each upgrade removes the smallest tiles from the board</li>
-                <li>Higher value tiles become available to spawn</li>
-            </ul>
-            <p><em>Tip: Upgrades help you reach even higher tiles - aim for those milestones!</em></p>
+            <img src="assets/upgrade-icon_streak.png" style="display: inline-block; height: clamp(40px, 18vw, 75px); vertical-align: bottom" />
         `,
     },
 };

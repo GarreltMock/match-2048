@@ -1586,7 +1586,7 @@ export const NEW_LEVELS = [
             { row: 6, col: 3, width: 2, height: 2 },
         ],
         goals: [{ goalType: "blocked", current: 0 }],
-        // showGoalDialog: "blocked_with_life",
+        showGoalDialog: "blocked_with_life",
     },
     {
         level: 23,
