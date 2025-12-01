@@ -86,6 +86,9 @@ export function isValidTutorialSwap(game, row1, col1, row2, col2) {
     const currentSwap = getCurrentTutorialSwap(game);
     if (!currentSwap) return false;
 
+    // If this is a tap-only step, swapping is not valid
+    if (!currentSwap.from || !currentSwap.to) return false;
+
     const from = currentSwap.from;
     const to = currentSwap.to;
 
