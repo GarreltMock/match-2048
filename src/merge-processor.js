@@ -172,6 +172,16 @@ export function createMergedTiles(game, group) {
     const hasStickyFreeSwap = group.hasStickyFreeSwap || false;
     const transferStickyFreeSwap = hasStickyFreeSwap && !game.isUserSwap;
 
+    // Track intermediate values for formations that skip a level (T, L, 5-line)
+    // When tiles of value N merge into 1 tile of value N+2, conceptually there's an intermediate step:
+    // - T/L formation (5 tiles): 5 tiles → 3 tiles of N+1 → 1 tile of N+2
+    // - 5-line formation (5 tiles): 5 tiles → 3 tiles of N+1 → 1 tile of N+2
+    // So we track 3 creations of the intermediate value (N+1)
+    if (isTLFormation || is5LineFormation) {
+        const intermediateValue = group.value + 1;
+        trackGoalProgress(game, intermediateValue, 3);
+    }
+
     // Track intermediate value if golden bonus was applied
     if (goldenBonus > 0) {
         trackGoalProgress(game, newValue - goldenBonus, 1);
