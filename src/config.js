@@ -1403,14 +1403,14 @@ export const NEW_LEVELS = [
         level: 5,
         boardWidth: 6,
         boardHeight: 6,
-        maxMoves: 15,
+        maxMoves: 25,
         goals: [{ tileValue: 6, target: 3, current: 0, goalType: "created" }],
     },
     {
         level: 6,
         boardWidth: 6,
         boardHeight: 6,
-        maxMoves: 20,
+        maxMoves: 30,
         goals: [
             { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
@@ -1421,7 +1421,7 @@ export const NEW_LEVELS = [
         title: "Blocked Tile Goal",
         boardWidth: 6,
         boardHeight: 6,
-        maxMoves: 10,
+        maxMoves: 20,
         blockedTiles: [{ row: 4 }, { row: 5 }],
         goals: [{ current: 0, goalType: "blocked" }],
         spawnableTiles: [1, 2, 3, 4],
@@ -1546,7 +1546,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 20,
-        title: "Super Streak Feature",
+        title: "Board Upgrades",
         maxMoves: 10,
         blockedTiles: [{ row: 4 }, { row: 5 }],
         goals: [
@@ -1555,6 +1555,18 @@ export const NEW_LEVELS = [
         ],
         boardUpgrades: [6],
         unlockFeature: "board_upgrades",
+    },
+    {
+        level: 20,
+        title: "Super Streak Feature",
+        maxMoves: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        goals: [
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
+        boardUpgrades: [6],
+        unlockFeature: "super_streak",
     },
     {
         level: 21,

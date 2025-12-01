@@ -7,7 +7,6 @@ import {
     DEFAULT_TILE_VALUES,
     SUPER_STREAK_THRESHOLD,
     LEVELS,
-    TEST_LEVELS,
     LEVEL_CONFIGS,
     FEATURE_KEYS,
 } from "./config.js";
@@ -476,7 +475,7 @@ export class Match3Game {
         if (boardUpgradesContainer) {
             boardUpgradesContainer.addEventListener("click", () => {
                 // Only show dialog if level has board upgrades and feature is unlocked
-                if (this.levelConfig?.boardUpgrades?.length > 0 && isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
+                if (this.levelConfig?.boardUpgrades?.length > 0 && isFeatureUnlocked(FEATURE_KEYS.BOARD_UPGRADES)) {
                     showFeatureUnlockDialog("board_upgrades", this, () => {
                         // Dialog closed, do nothing
                     });
@@ -793,7 +792,7 @@ export class Match3Game {
             // Check if this power-up has extra moves bonus
             const hasExtraMovesBonus = extraMovesUses > 0;
             // Check if this power-up has a streak bonus (more uses than persistent + extra moves)
-            const hasStreakBonus = usesLeft > (persistentUses + extraMovesUses);
+            const hasStreakBonus = usesLeft > persistentUses + extraMovesUses;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -1677,12 +1676,7 @@ export class Match3Game {
      * This is called after tiles are merged - it just sets a flag
      */
     checkAndShiftTileLevels(newlyCreatedValue) {
-        const currentLevelConfig = LEVELS[this.currentLevel - 1];
-
-        // Check if board upgrades feature is unlocked
-        if (!isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
-            return;
-        }
+        const currentLevelConfig = this.levels[this.currentLevel - 1];
 
         // Check for per-level board upgrades
         if (currentLevelConfig.boardUpgrades) {
@@ -1702,7 +1696,7 @@ export class Match3Game {
      */
     shiftTileLevels() {
         return new Promise((resolve) => {
-            const currentLevelConfig = LEVELS[this.currentLevel - 1];
+            const currentLevelConfig = this.levels[this.currentLevel - 1];
             const hasPerLevelUpgrades = currentLevelConfig?.boardUpgrades?.length > 0;
 
             // Check if we should proceed with shift

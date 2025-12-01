@@ -357,12 +357,6 @@ export function renderBoardUpgrades(game) {
 
     const levelConfig = game.levelConfig;
 
-    // Check if board upgrades feature is unlocked
-    if (!isFeatureUnlocked(FEATURE_KEYS.SUPER_STREAK)) {
-        upgradesContainer.style.display = "none";
-        return;
-    }
-
     // Only show if level has boardUpgrades configured
     if (!levelConfig.boardUpgrades || levelConfig.boardUpgrades.length === 0) {
         upgradesContainer.style.display = "none";
