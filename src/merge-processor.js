@@ -15,7 +15,6 @@ import {
     isRectangularBlocked,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
-import { savePowerUpCounts } from "./storage.js";
 
 export function processMatches(game) {
     const matchGroups = game.findMatches();
@@ -26,6 +25,7 @@ export function processMatches(game) {
     if (matchGroups.length === 0) {
         // No matches found, allow interactions again
         game.animating = false;
+        game.updateGoalDisplay(true);
         return;
     }
 
