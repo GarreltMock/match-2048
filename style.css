@@ -490,10 +490,6 @@ button {
     align-items: center;
 }
 
-.extra-moves-header > * {
-    display: block;
-}
-
 .extra-moves-header .loss-icon {
     height: 84px;
 }
@@ -524,11 +520,35 @@ button {
     font-weight: 900;
 }
 
-.button-container stroked-text {
-    position: absolute;
-    top: -18px;
-    right: 8px;
-    pointer-events: none;
+.button-container .reward {
+    padding: 6px 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.button-container .power-up-btn {
+    width: clamp(40px, 12vw, 60px);
+    height: clamp(40px, 12vw, 60px);
+    font-size: 28px;
+    border-radius: 16px;
+    background: #252525;
+    flex-shrink: 0;
+    container-type: inline-size;
+    container-name: card;
+
+    .use-indicator {
+        display: none;
+    }
+
+    span {
+        font-size: 65cqw;
+    }
+}
+
+.button-container:has(#extraMoves5) {
+    background: black;
+    border-radius: 24px;
 }
 
 .extra-move-option {
@@ -540,10 +560,9 @@ button {
     position: relative;
     overflow: hidden;
     width: 100%;
-
     font-family: Nunito;
     font-weight: 900;
-    font-size: 40px;
+    font-size: clamp(24px, 4vh, 32px);
     border-radius: 24px;
 }
 
@@ -566,7 +585,7 @@ button {
 .extra-move-text {
     font-family: Nunito;
     font-weight: 900;
-    font-size: 40px;
+    font-size: clamp(28px, 4.8vh, 40px);
     line-height: 1;
 }
 
@@ -576,7 +595,7 @@ button {
     gap: 6px;
     font-family: Nunito;
     font-weight: 800;
-    font-size: 24px;
+    font-size: clamp(18px, 3.2vh, 24px);
 }
 
 .extra-move-coin-icon {
@@ -673,7 +692,7 @@ button {
     width: fit-content;
     color: white;
     padding: 8px 15px;
-    font-size: 26px;
+    font-size: clamp(18px, 3vh, 28px);
     margin: 0 auto;
 }
 
