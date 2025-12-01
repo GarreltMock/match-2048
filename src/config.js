@@ -1304,7 +1304,7 @@ export const NEW_LEVELS = [
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "Swap these two tiles to create your first merge!",
+                text: "💡 Swap these two tiles to create your first merge",
             },
         ],
     },
@@ -1327,17 +1327,17 @@ export const NEW_LEVELS = [
             {
                 from: { row: 0, col: 2 },
                 to: { row: 1, col: 2 },
-                text: "Create a 4-tile line merge!",
+                text: "💡 Create a 4-tile line merge",
             },
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "4-Tile blocks create a special tile, which can be moved in the shown direction without a valid merge!",
+                text: "💡 4-Tile blocks create a special tile, which can be moved in the shown direction without a valid merge!",
             },
             {
                 from: { row: 2, col: 2 },
                 to: { row: 3, col: 2 },
-                text: "You can also create a 2x2 block merge!",
+                text: "💡 You can also create a 2x2 block merge!",
             },
         ],
     },
@@ -1359,17 +1359,17 @@ export const NEW_LEVELS = [
             {
                 from: { row: 0, col: 1 },
                 to: { row: 1, col: 1 },
-                text: "A T-Merge with 5 Tiles creates an even higher tile!",
+                text: "💡 A T-Merge with 5 Tiles creates an even higher tile!",
             },
             {
                 from: { row: 3, col: 1 },
                 to: { row: 4, col: 1 },
-                text: "This creates a special tile, which can be moved in any direction!",
+                text: "💡 This creates a special tile, which can be moved in any direction!",
             },
             {
                 from: { row: 4, col: 1 },
                 to: { row: 4, col: 2 },
-                text: "You can also create a L-Merge with 5 Tiles!",
+                text: "💡 You can also create a L-Merge with 5 Tiles!",
             },
         ],
     },
@@ -1391,11 +1391,11 @@ export const NEW_LEVELS = [
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "Finally the most valuable merge is a 5-Tile line!",
+                text: "💡 Finally the most valuable merge is a 5-Tile line!",
             },
             {
                 tap: { row: 2, col: 2 },
-                text: "This creates a wildcard, which can merged with anything or transformed in the value shown!",
+                text: "💡 This creates a wildcard, which can merged with anything or transformed in the value shown!",
             },
         ],
     },

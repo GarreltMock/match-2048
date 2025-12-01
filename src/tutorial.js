@@ -224,7 +224,7 @@ export function advanceTutorialStep(game) {
         // Show/hide power-ups based on next step type
         const powerUpsContainer = document.getElementById("bottom-container");
         if (powerUpsContainer) {
-            powerUpsContainer.style.display = isPowerUpTutorial ? "" : "none";
+            powerUpsContainer.style.visibility = isPowerUpTutorial ? "" : "hidden";
         }
 
         updateTutorialUI(game);
@@ -258,9 +258,9 @@ export function showTutorialUI(game) {
 
     const powerUpsContainer = document.getElementById("bottom-container");
     if (powerUpsContainer && !isPowerUpTutorial) {
-        powerUpsContainer.style.display = "none";
+        powerUpsContainer.style.visibility = "hidden";
     } else if (powerUpsContainer && isPowerUpTutorial) {
-        powerUpsContainer.style.display = "";
+        powerUpsContainer.style.visibility = "";
     }
 
     updateTutorialUI(game);
@@ -320,7 +320,7 @@ export function hideTutorialUI(game) {
     // Show power-ups again after tutorial
     const powerUpsContainer = document.getElementById("bottom-container");
     if (powerUpsContainer) {
-        powerUpsContainer.style.display = "";
+        powerUpsContainer.style.visibility = "";
     }
 }
 
