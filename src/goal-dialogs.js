@@ -166,6 +166,15 @@ export const FEATURE_UNLOCK_DIALOGS = {
         content: `
             <button class="power-up-btn" title="Remove a tile">
                 <span>🔨</span>
+                <div class="use-indicator">
+                    <stroked-text
+                        text="2"
+                        font-size="26"
+                        width="40"
+                        height="40"
+                        svg-style="width: 100%; height: 100%;"
+                    ></stroked-text>
+                </div>
             </button>
         `,
     },
@@ -175,6 +184,15 @@ export const FEATURE_UNLOCK_DIALOGS = {
         content: `
             <button class="power-up-btn" title="Halve a tile's value">
                 <span>✂️</span>
+                <div class="use-indicator">
+                    <stroked-text
+                        text="2"
+                        font-size="26"
+                        width="40"
+                        height="40"
+                        svg-style="width: 100%; height: 100%;"
+                    ></stroked-text>
+                </div>
             </button>
         `,
     },
@@ -184,6 +202,15 @@ export const FEATURE_UNLOCK_DIALOGS = {
         content: `
             <button class="power-up-btn" title="Swap any two tiles">
                 <span>🔄</span>
+                <div class="use-indicator">
+                    <stroked-text
+                        text="2"
+                        font-size="26"
+                        width="40"
+                        height="40"
+                        svg-style="width: 100%; height: 100%;"
+                    ></stroked-text>
+                </div>
             </button>
         `,
     },
