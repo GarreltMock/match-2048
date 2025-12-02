@@ -1004,7 +1004,7 @@ button {
     border-radius: 24px;
     max-width: 500px;
     border: 3px solid black;
-    width: 90%;
+    width: 85%;
     max-height: 85vh;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
     animation: slideIn 0.3s ease-out;
@@ -1042,7 +1042,7 @@ button {
     gap: 12px;
     justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 15px;
+    /* margin-bottom: 15px; */
 }
 
 .goal-dialog-goals .goal-icon {
@@ -1068,13 +1068,30 @@ button {
 
 .goal-dialog-goals .goal-card {
     animation: bounceIn 0.5s ease-out;
+    scale: 1.2;
+}
+
+div#featureUnlockDialog {
+    background: url(assets/confetti.png), rgba(0, 0, 0, 0.85);
+    background-size: contain;
+    background-repeat: no-repeat;
+
+    .goal-dialog-content {
+        background: url("assets/rays.png");
+        background-position: center center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        padding: 36px 0px 10px;
+    }
 }
 
 .goal-dialog-content {
-    padding: 16px 0px;
+    padding: 20px 0px;
+    margin-bottom: 12px;
+    overflow: hidden;
     color: #333;
     flex: 1;
-    overflow-y: auto;
+    /* overflow-y: auto; */
     display: flex;
     justify-content: center;
 }
