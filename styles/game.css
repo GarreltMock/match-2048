@@ -40,19 +40,24 @@
     font-style: normal;
     font-weight: 900;
     line-height: normal;
-    position: relative;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 100;
+    pointer-events: none;
+    width: 90%;
 }
 
 #levelSolvedSvg {
     position: relative;
-    top: -10px;
 }
 
 #levelFailedSvg {
     position: absolute;
-    top: -10px;
     width: 100%;
     left: 0;
+    top: 0;
 }
 
 #levelSolvedSvg.animate {
@@ -932,7 +937,8 @@
 }
 
 .bottom-container {
-    min-height: 12vw;
+    min-height: 20vw;
+    flex: 1 1 0;
     position: relative;
 }
 

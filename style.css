@@ -1134,7 +1134,7 @@ button {
     font-weight: 900;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Nunito', sans-serif;
+    font-family: "Nunito", sans-serif;
     width: 100%;
 }
 
@@ -1423,6 +1423,7 @@ button {
 .powerup-shop-coin-icon {
     width: clamp(16px, 4vw, 20px);
     height: clamp(16px, 4vw, 20px);
+
     object-fit: contain;
 }
 
