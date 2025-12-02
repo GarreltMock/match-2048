@@ -123,8 +123,35 @@ export const GOAL_DIALOGS = {
     },
     blocked_with_life: {
         title: "Life-Based Blocked Tiles",
-        subtitle: "Break through reinforced obstacles!",
+        subtitle: "Break through reinforced obstacles",
         content: ``,
+    },
+    blocked_movable: {
+        title: "Movable Blocked Tiles",
+        subtitle: "You have more control how you clear these",
+        content: `
+            <div class="goal-card goal-blocked">
+                <div class="gem tile-BLOCKED_MOVABLE goal-tile"></div>
+            </div>
+        `,
+    },
+    blocked_area: {
+        title: "Blocked Areas",
+        subtitle: "Hit them X many times",
+        content: `
+            <div class="goal-card goal-blocked">
+                <div data-rect-id="rect_5_0_2_3" data-rect-width="2" data-rect-height="3" class="gem tile-BLOCKED tile-BLOCKED-merge-count rectangular-blocked goal-tile" style="grid-area: 6 / 1 / 9 / 3; --rect-width: 2; --rect-height: 2;"><div class="cell-x-marker" data-cell-key="5_0" style="grid-area: 1 / 1;"></div><div class="cell-x-marker" data-cell-key="5_1" style="grid-area: 1 / 2;"></div><div class="cell-x-marker" data-cell-key="6_0" style="grid-area: 2 / 1;"></div><div class="cell-x-marker" data-cell-key="6_1" style="grid-area: 2 / 2;"></div></div>
+            </div>
+        `,
+    },
+    blocked_area_with_life: {
+        title: "Life-Based Blocked Area",
+        subtitle: "Break through reinforced areas",
+        content: `
+            <div class="goal-card goal-blocked">
+                <div data-rect-id="rect_2_3_2_2" data-rect-width="2" data-rect-height="2" class="gem tile-BLOCKED_WITH_LIFE rectangular-blocked goal-tile" data-life="32" style="grid-area: 3 / 4 / 5 / 6;"></div>
+            </div>
+        `,
     },
     cursed: {
         title: "💀 Cursed Tiles",
@@ -307,12 +334,6 @@ function generateGoalVisualsHTML(game, dialogType) {
         if (dialogType === "created" && goal.goalType === "created") return true;
         if (dialogType === "current" && goal.goalType === "current") return true;
         if (dialogType === "blocked" && goal.goalType === "blocked" && !hasLifeBasedBlockedTiles(game.blockedTiles))
-            return true;
-        if (
-            dialogType === "blocked_with_life" &&
-            goal.goalType === "blocked" &&
-            hasLifeBasedBlockedTiles(game.blockedTiles)
-        )
             return true;
         if (dialogType === "cursed" && goal.goalType === "cursed" && !goal.implode) return true;
         if (dialogType === "cursed_implode" && goal.goalType === "cursed" && goal.implode) return true;

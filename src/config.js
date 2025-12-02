@@ -1285,7 +1285,7 @@ export const TEST_LEVELS = [
 
 export const NEW_LEVELS = [
     {
-        level: 1,
+        level: 0,
         title: "Tile Goal",
         boardWidth: 5,
         boardHeight: 4,
@@ -1309,7 +1309,7 @@ export const NEW_LEVELS = [
         ],
     },
     {
-        level: 2,
+        level: 1,
         title: "4-Tile Merge",
         boardWidth: 5,
         boardHeight: 5,
@@ -1342,7 +1342,7 @@ export const NEW_LEVELS = [
         ],
     },
     {
-        level: 3,
+        level: 2,
         title: "L and T Merge",
         boardWidth: 5,
         boardHeight: 5,
@@ -1374,7 +1374,7 @@ export const NEW_LEVELS = [
         ],
     },
     {
-        level: 4,
+        level: 3,
         title: "5-Tile Line Merge",
         boardWidth: 5,
         boardHeight: 5,
@@ -1400,14 +1400,14 @@ export const NEW_LEVELS = [
         ],
     },
     {
-        level: 5,
+        level: 4,
         boardWidth: 6,
         boardHeight: 6,
         maxMoves: 25,
         goals: [{ tileValue: 6, target: 3, current: 0, goalType: "created" }],
     },
     {
-        level: 6,
+        level: 5,
         boardWidth: 6,
         boardHeight: 6,
         maxMoves: 30,
@@ -1417,7 +1417,7 @@ export const NEW_LEVELS = [
         ],
     },
     {
-        level: 7,
+        level: 6,
         title: "Blocked Tile Goal",
         boardWidth: 6,
         boardHeight: 6,
@@ -1428,20 +1428,20 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked",
     },
     {
-        level: 8,
+        level: 7,
         maxMoves: 25,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
-        level: 10,
+        level: 8,
         maxMoves: 30,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
-        level: 11,
+        level: 9,
         boardWidth: 9,
         maxMoves: 30,
         blockedTiles: [
@@ -1455,20 +1455,19 @@ export const NEW_LEVELS = [
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
-        level: 8,
+        level: 10,
+        maxMoves: 25,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+    },
+    {
+        level: 11,
         maxMoves: 25,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { current: 0, goalType: "blocked" },
             { tileValue: 6, target: 5, current: 0, goalType: "created" },
         ],
-    },
-    {
-        level: 9,
-        title: "This is actually hard",
-        maxMoves: 35,
-        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
-        goals: [{ current: 0, goalType: "blocked" }],
     },
     {
         level: 12,
@@ -1538,14 +1537,46 @@ export const NEW_LEVELS = [
     },
     {
         level: 19,
+        maxMoves: 30,
+        boardHeight: 9,
+        blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }],
+        goals: [
+            { goalType: "score", target: 4000, current: 0 },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
+    },
+    {
+        level: 20,
+        maxMoves: 35,
+        boardHeight: 10,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 8 }, { row: 9 }],
+        goals: [
+            { goalType: "score", target: 4000, current: 0 },
+            { goalType: "blocked", current: 0 },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
+    },
+    {
+        level: 21,
         title: "Movable Blocked Tiles",
         maxMoves: 10,
         blockedTiles: [{ row: 2, movable: true }, { row: 3, movable: true }, { row: 6 }, { row: 7 }],
         goals: [{ goalType: "blocked", current: 0 }],
-        //showGoalDialog: "blocked_movable" // TODO
+        showGoalDialog: "blocked_movable",
     },
     {
-        level: 20,
+        level: 22,
+        maxMoves: 15,
+        blockedTiles: [
+            { row: 2, col: [2, 3, 4, 5], movable: true },
+            { row: 3, col: [2, 3, 4, 5], movable: true },
+            { row: 4, col: [2, 3, 4, 5], movable: true },
+            { row: 5, col: [2, 3, 4, 5], movable: true },
+        ],
+        goals: [{ current: 0, goalType: "blocked" }],
+    },
+    {
+        level: 23,
         title: "Board Upgrades",
         maxMoves: 10,
         blockedTiles: [{ row: 4 }, { row: 5 }],
@@ -1557,7 +1588,7 @@ export const NEW_LEVELS = [
         unlockFeature: "board_upgrades",
     },
     {
-        level: 20,
+        level: 24,
         title: "Super Streak Feature",
         maxMoves: 10,
         blockedTiles: [{ row: 4 }, { row: 5 }],
@@ -1569,7 +1600,7 @@ export const NEW_LEVELS = [
         unlockFeature: "super_streak",
     },
     {
-        level: 21,
+        level: 25,
         title: "Lifebased Blocked Tiles",
         maxMoves: 10,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6, lifeValue: 32 }, { row: 7, lifeValue: 64 }],
@@ -1577,7 +1608,7 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked_with_life",
     },
     {
-        level: 22,
+        level: 26,
         title: "Blocked Area",
         maxMoves: 10,
         blockedTiles: [
@@ -1586,10 +1617,21 @@ export const NEW_LEVELS = [
             { row: 6, col: 3, width: 2, height: 2 },
         ],
         goals: [{ goalType: "blocked", current: 0 }],
-        showGoalDialog: "blocked_with_life",
+        showGoalDialog: "blocked_area",
     },
     {
-        level: 23,
+        level: 26,
+        maxMoves: 20,
+        blockedTiles: [
+            { row: 5, col: 0, width: 2, height: 3 },
+            { row: 5, col: 2, width: 2, height: 3 },
+            { row: 5, col: 4, width: 2, height: 3 },
+            { row: 5, col: 6, width: 2, height: 3 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+    },
+    {
+        level: 27,
         title: "Lifebased Blocked Area",
         maxMoves: 10,
         blockedTiles: [
@@ -1598,7 +1640,7 @@ export const NEW_LEVELS = [
             { row: 6, col: 3, width: 2, height: 2, lifeValue: 128 },
         ],
         goals: [{ goalType: "blocked", current: 0 }],
-        // showGoalDialog: "blocked_with_life",
+        showGoalDialog: "blocked_area_with_life",
     },
 ];
 
