@@ -124,7 +124,11 @@ export const GOAL_DIALOGS = {
     blocked_with_life: {
         title: "Life-Based Blocked Tiles",
         subtitle: "Break through reinforced obstacles",
-        content: ``,
+        content: `
+        <div class="goal-card goal-blocked">
+            <div class="gem tile-BLOCKED_WITH_LIFE goal-tile" data-life="32"></div>
+        </div>
+        `,
     },
     blocked_movable: {
         title: "Movable Blocked Tiles",
@@ -180,7 +184,7 @@ export const GOAL_DIALOGS = {
     },
     score: {
         title: "Score Goal",
-        subtitle: "Earn a target number of points by merging tiles",
+        subtitle: "Earn a target number of points",
         content: ``,
     },
 };

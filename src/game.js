@@ -46,7 +46,13 @@ import {
     createCursedTile,
     createBlockedTile,
     createBlockedMovableTile,
+    createBlockedWithLifeTile,
     isCursed,
+    isBlocked,
+    isBlockedWithLife,
+    isBlockedMovable,
+    isRectangularBlocked,
+    isBlockedWithMergeCount,
     getFontSize,
     getDisplayValue,
 } from "./tile-helpers.js";
@@ -872,8 +878,16 @@ export class Match3Game {
 
         switch (this.activePowerUp) {
             case "hammer":
-                // Hammer only works on normal tiles (not on any blocked tiles)
-                if (!tile || (tile.type !== TILE_TYPE.NORMAL && tile.type !== TILE_TYPE.BLOCKED_MOVABLE)) return;
+                // Hammer works on normal tiles, blocked movable tiles, and blocked tiles
+                if (!tile) return;
+                // Allow hammer on NORMAL, BLOCKED_MOVABLE, BLOCKED, and BLOCKED_WITH_LIFE tiles
+                const allowedTypes = [
+                    TILE_TYPE.NORMAL,
+                    TILE_TYPE.BLOCKED_MOVABLE,
+                    TILE_TYPE.BLOCKED,
+                    TILE_TYPE.BLOCKED_WITH_LIFE,
+                ];
+                if (!allowedTypes.includes(tile.type)) return;
                 this.usePowerUpHammer(row, col, element);
                 break;
             case "halve":
@@ -887,6 +901,8 @@ export class Match3Game {
     }
 
     usePowerUpHammer(row, col, element) {
+        const tile = this.board[row][col];
+
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
 
@@ -915,19 +931,186 @@ export class Match3Game {
         // Block interactions during animation
         this.animating = true;
 
-        // Animate the tile shrinking away
-        element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-        element.style.opacity = "0";
-        element.style.transform = "scale(0)";
+        // Handle different tile types
+        if (isBlockedWithLife(tile)) {
+            // For blocked tiles with life, decrease life by 1
+            const newLifeValue = tile.lifeValue - 1;
 
-        setTimeout(() => {
-            // Remove the tile from the board state
-            this.board[row][col] = null;
+            if (newLifeValue <= 0) {
+                // Life is depleted, remove the tile completely
+                element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+                element.style.opacity = "0";
+                element.style.transform = "scale(0)";
 
-            // Let dropGems handle the DOM updates via renderBoard
-            this.dropGems();
-            this.deactivatePowerUp();
-        }, 300);
+                setTimeout(() => {
+                    // Handle rectangular blocked tiles
+                    if (isRectangularBlocked(tile)) {
+                        // Remove all cells in the rectangle
+                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
+                                    this.board[r][c] = null;
+                                }
+                            }
+                        }
+                    } else {
+                        // Single cell blocked tile
+                        this.board[row][col] = null;
+                    }
+
+                    // Update blocked tile goals
+                    this.updateBlockedTileGoals();
+
+                    // Let dropGems handle the DOM updates via renderBoard
+                    this.dropGems();
+                    this.deactivatePowerUp();
+                }, 300);
+            } else {
+                // Still has life, just reduce it
+                // Animate a "bump" to show damage
+                element.style.transition = "transform 0.2s ease";
+                element.style.transform = "scale(1.1)";
+
+                setTimeout(() => {
+                    element.style.transform = "scale(1)";
+
+                    // Update tile with reduced life
+                    if (isRectangularBlocked(tile)) {
+                        // Update all cells in the rectangle
+                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
+                                    const existingTile = this.board[r][c];
+                                    if (existingTile && existingTile.rectId === tile.rectId) {
+                                        this.board[r][c] = {
+                                            ...existingTile,
+                                            lifeValue: newLifeValue,
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        // Single cell - update the life value
+                        this.board[row][col] = createBlockedWithLifeTile(newLifeValue, tile.immovable);
+                    }
+
+                    // Re-render to show updated life value
+                    this.renderBoard();
+
+                    this.animating = false;
+                    this.deactivatePowerUp();
+                }, 200);
+            }
+        } else if (isBlockedWithMergeCount(tile)) {
+            // For blocked tiles with merge count, decrement one random cell
+            // Find a cell that still needs clearing
+            let cellToClear = null;
+            for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                    const cellKey = `${r}_${c}`;
+                    if (tile.cellMergeCounts[cellKey] > 0) {
+                        cellToClear = { row: r, col: c, cellKey: cellKey };
+                        break;
+                    }
+                }
+                if (cellToClear) break;
+            }
+
+            if (cellToClear) {
+                // Decrement the cell count
+                tile.cellMergeCounts[cellToClear.cellKey]--;
+
+                // Check if all cells are cleared
+                const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
+
+                if (allCleared) {
+                    // All cells cleared, remove the entire block
+                    element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+                    element.style.opacity = "0";
+                    element.style.transform = "scale(0)";
+
+                    setTimeout(() => {
+                        // Remove all cells in the rectangle
+                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
+                                    this.board[r][c] = null;
+                                }
+                            }
+                        }
+
+                        // Update blocked tile goals
+                        this.updateBlockedTileGoals();
+
+                        // Let dropGems handle the DOM updates via renderBoard
+                        this.dropGems();
+                        this.deactivatePowerUp();
+                    }, 300);
+                } else {
+                    // Still has cells to clear, just show animation
+                    element.style.transition = "transform 0.2s ease";
+                    element.style.transform = "scale(1.1)";
+
+                    setTimeout(() => {
+                        element.style.transform = "scale(1)";
+
+                        // Re-render to show updated state
+                        this.renderBoard();
+
+                        this.animating = false;
+                        this.deactivatePowerUp();
+                    }, 200);
+                }
+            } else {
+                // No cells to clear? This shouldn't happen, but handle gracefully
+                this.animating = false;
+                this.deactivatePowerUp();
+            }
+        } else if (isBlocked(tile) || isBlockedMovable(tile)) {
+            // Regular blocked tiles - remove immediately
+            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+            element.style.opacity = "0";
+            element.style.transform = "scale(0)";
+
+            setTimeout(() => {
+                // Handle rectangular blocked tiles
+                if (isRectangularBlocked(tile)) {
+                    // Remove all cells in the rectangle
+                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                            if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
+                                this.board[r][c] = null;
+                            }
+                        }
+                    }
+                } else {
+                    // Single cell blocked tile
+                    this.board[row][col] = null;
+                }
+
+                // Update blocked tile goals
+                this.updateBlockedTileGoals();
+
+                // Let dropGems handle the DOM updates via renderBoard
+                this.dropGems();
+                this.deactivatePowerUp();
+            }, 300);
+        } else {
+            // Normal tiles or blocked movable - remove as before
+            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+            element.style.opacity = "0";
+            element.style.transform = "scale(0)";
+
+            setTimeout(() => {
+                // Remove the tile from the board state
+                this.board[row][col] = null;
+
+                // Let dropGems handle the DOM updates via renderBoard
+                this.dropGems();
+                this.deactivatePowerUp();
+            }, 300);
+        }
     }
 
     usePowerUpHalve(row, col, element) {

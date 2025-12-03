@@ -1,6 +1,6 @@
 // home-screen.js - Home screen management
 
-import { saveHearts, saveLastRegenTime, isFeatureUnlocked, saveUnlockedFeature } from "./storage.js";
+import { saveHearts, saveLastRegenTime, isFeatureUnlocked, saveUnlockedFeature, saveStreak, saveSuperStreak } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, FEATURE_KEYS } from "./config.js";
 import { showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
 
@@ -152,7 +152,7 @@ function checkAndShowFeatureUnlockDialogs(game) {
                     if (featureKey === FEATURE_KEYS.STREAK) {
                         // Start with streak of 1 when first unlocking
                         game.currentStreak = 1;
-                        game.saveStreak();
+                        saveStreak(game.currentStreak);
 
                         const streakDisplay = document.getElementById("streak-display");
                         if (streakDisplay) {
@@ -161,7 +161,7 @@ function checkAndShowFeatureUnlockDialogs(game) {
                     } else if (featureKey === FEATURE_KEYS.SUPER_STREAK) {
                         // Start with super streak of 1 when first unlocking
                         game.superStreak = 1;
-                        game.saveSuperStreak();
+                        saveSuperStreak(game.superStreak);
 
                         const superStreakDisplay = document.getElementById("super-streak-display");
                         if (superStreakDisplay) {
