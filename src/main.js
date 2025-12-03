@@ -1,6 +1,6 @@
 // Entry point for Match 2048 game
 import { Match3Game } from "./game.js";
-import { initializeHomeScreen, showHomeScreen } from "./home-screen.js";
+import { initializeHomeScreen, showHomeScreen, hideHomeScreen } from "./home-screen.js";
 import "./components/stroked-text.js";
 
 function registerServiceWorker() {
@@ -55,4 +55,91 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Show home screen on initial load
     showHomeScreen(game);
+
+    // Keyboard shortcuts for level navigation
+    document.addEventListener("keydown", (e) => {
+        // 'n' for next level
+        if (e.key === "n" || e.key === "N") {
+            // Close any open dialogs
+            closeAllDialogs();
+
+            game.nextLevel();
+            hideHomeScreen();
+            game.startLevel();
+        }
+        // 'b' for previous (before) level
+        else if (e.key === "b" || e.key === "B") {
+            if (game.currentLevel > 1) {
+                // Close any open dialogs
+                closeAllDialogs();
+
+                game.currentLevel -= 2; // Subtract 2 because nextLevel() will add 1
+                game.nextLevel();
+                hideHomeScreen();
+                game.startLevel();
+            }
+        }
+    });
 });
+
+// Helper function to close all open dialogs and tutorials
+function closeAllDialogs() {
+    // Close tutorial overlay
+    const tutorialOverlay = document.getElementById("tutorialOverlay");
+    if (tutorialOverlay) {
+        tutorialOverlay.classList.add("hidden");
+    }
+
+    // Close any goal dialogs
+    const goalDialog = document.getElementById("goalDialog");
+    if (goalDialog) {
+        goalDialog.remove();
+    }
+
+    // Close feature unlock dialog
+    const featureUnlockDialog = document.getElementById("featureUnlockDialog");
+    if (featureUnlockDialog) {
+        featureUnlockDialog.remove();
+    }
+
+    // Close intro dialog
+    const introDialog = document.getElementById("introDialog");
+    if (introDialog) {
+        introDialog.classList.add("hidden");
+    }
+
+    // Close extra moves dialog
+    const extraMovesDialog = document.getElementById("extraMovesDialog");
+    if (extraMovesDialog) {
+        extraMovesDialog.classList.add("hidden");
+    }
+
+    // Close settings dialog
+    const settingsDialog = document.getElementById("settingsDialog");
+    if (settingsDialog) {
+        settingsDialog.classList.add("hidden");
+    }
+
+    // Close no hearts dialog
+    const noHeartsDialog = document.getElementById("noHeartsDialog");
+    if (noHeartsDialog) {
+        noHeartsDialog.classList.add("hidden");
+    }
+
+    // Close give up dialog
+    const giveUpDialog = document.getElementById("giveUpDialog");
+    if (giveUpDialog) {
+        giveUpDialog.classList.add("hidden");
+    }
+
+    // Close shop dialogs
+    const shopDialog = document.getElementById("shopDialog");
+    if (shopDialog) {
+        shopDialog.classList.add("hidden");
+    }
+
+    const powerupShopDialog = document.getElementById("powerupShopDialog");
+    if (powerupShopDialog) {
+        powerupShopDialog.classList.add("hidden");
+    }
+}
