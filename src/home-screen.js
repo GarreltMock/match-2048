@@ -1,6 +1,13 @@
 // home-screen.js - Home screen management
 
-import { saveHearts, saveLastRegenTime, isFeatureUnlocked, saveUnlockedFeature, saveStreak, saveSuperStreak } from "./storage.js";
+import {
+    saveHearts,
+    saveLastRegenTime,
+    isFeatureUnlocked,
+    saveUnlockedFeature,
+    saveStreak,
+    saveSuperStreak,
+} from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, FEATURE_KEYS } from "./config.js";
 import { showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
 
@@ -122,12 +129,11 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
  * @param {Match3Game} game - The game instance
  */
 function checkAndShowFeatureUnlockDialogs(game) {
-    if (!game.levelConfig?.unlockFeature) return;
+    const levelConfig = game.levels[game.currentLevel - 1];
+    if (!levelConfig?.unlockFeature) return;
 
     // Support both string and array formats
-    const features = Array.isArray(game.levelConfig.unlockFeature)
-        ? game.levelConfig.unlockFeature
-        : [game.levelConfig.unlockFeature];
+    const features = Array.isArray(levelConfig.unlockFeature) ? levelConfig.unlockFeature : [levelConfig.unlockFeature];
 
     // Features to show on home screen: streak and board upgrades
     const featuresToShowOnHome = [FEATURE_KEYS.STREAK, FEATURE_KEYS.SUPER_STREAK];

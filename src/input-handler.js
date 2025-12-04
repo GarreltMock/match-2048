@@ -28,7 +28,7 @@ import {
     isTutorialPowerUpStep,
     isValidTutorialPowerUp,
     isValidTutorialPowerUpTarget,
-    updateTutorialUI
+    updateTutorialUI,
 } from "./tutorial.js";
 
 export function setupEventListeners(game) {
@@ -125,16 +125,13 @@ export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnecti
 
             if (!includesJoker) return false;
 
-            // Optional: check if match includes at least one of the swapped tiles
+            // Optional: check if match includes the actively dragged tile (source, not target)
             if (requireSwapConnection && game.lastSwapPosition) {
-                const includesSwappedTile = match.tiles.some((tile) =>
-                    (tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col) ||
-                    (game.lastSwapPosition.movedFrom &&
-                        tile.row === game.lastSwapPosition.movedFrom.row &&
-                        tile.col === game.lastSwapPosition.movedFrom.col)
+                const includesSourceTile = match.tiles.some(
+                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col
                 );
 
-                if (!includesSwappedTile) return false;
+                if (!includesSourceTile) return false;
             }
 
             // Check that no other jokers are in this match
@@ -445,22 +442,22 @@ export function trySwap(game, row1, col1, row2, col2) {
     const tile2 = game.board[row2][col2];
 
     // Determine if this swap is horizontal or vertical
-    const isHorizontalSwap = (row1 === row2); // Same row means horizontal swap
-    const isVerticalSwap = (col1 === col2); // Same column means vertical swap
+    const isHorizontalSwap = row1 === row2; // Same row means horizontal swap
+    const isVerticalSwap = col1 === col2; // Same column means vertical swap
 
     // Check for regular free swap tiles
     const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
     const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
 
     // Check for directional free swap tiles and validate direction
-    const isDirectionalFreeSwap1 = !tile1.hasBeenSwapped && (
-        (isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
-        (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap)
-    );
-    const isDirectionalFreeSwap2 = !tile2.hasBeenSwapped && (
-        (isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
-        (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap)
-    );
+    const isDirectionalFreeSwap1 =
+        !tile1.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
+    const isDirectionalFreeSwap2 =
+        !tile2.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
 
     const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
 

@@ -957,7 +957,7 @@
     flex-shrink: 0;
     align-items: center;
     position: absolute;
-    bottom: 0;
+    bottom: 8vh;
     left: 0;
     width: 100%;
 }
@@ -1029,16 +1029,6 @@
     cursor: not-allowed;
     position: relative;
     display: none;
-}
-
-.power-up-btn.locked::after {
-    content: "🔒";
-    position: absolute;
-    top: -20%;
-    right: -5%;
-    font-size: 2rem;
-    z-index: 10;
-    pointer-events: none;
 }
 
 .power-up-btn.active {

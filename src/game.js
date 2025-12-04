@@ -666,7 +666,7 @@ export class Match3Game {
 
     // Power-up methods
     setupPowerUps() {
-        const powerUpButtons = document.querySelectorAll(".power-up-btn");
+        const powerUpButtons = document.querySelectorAll(".power-up-btn.game");
 
         powerUpButtons.forEach((button) => {
             button.addEventListener("click", () => {
@@ -768,7 +768,7 @@ export class Match3Game {
     }
 
     updatePowerUpButtons() {
-        const powerUpButtons = document.querySelectorAll(".power-up-btn");
+        const powerUpButtons = document.querySelectorAll(".power-up-btn.game");
 
         powerUpButtons.forEach((button) => {
             const powerUpType = button.dataset.powerup;
@@ -1371,25 +1371,17 @@ export class Match3Game {
         const swapUnlocked = isFeatureUnlocked(FEATURE_KEYS.SWAP);
         const anyPowerUpUnlocked = hammerUnlocked || halveUnlocked || swapUnlocked;
 
+        console.log({
+            hammerUnlocked,
+            halveUnlocked,
+            swapUnlocked,
+            anyPowerUpUnlocked,
+        });
+
         // Update the text based on whether any power-ups are unlocked
         if (fiveExtraMovesText) {
             const newText = anyPowerUpUnlocked ? "5 Moves +" : "+5 Moves";
             fiveExtraMovesText.setAttribute("text", newText);
-        }
-
-        // Show/hide power-up buttons based on unlock status
-        const powerUpHammer = document.getElementById("powerUpHammer");
-        const powerUpHalve = document.getElementById("powerUpHalve");
-        const powerUpSwap = document.getElementById("powerUpSwap");
-
-        if (powerUpHammer) {
-            powerUpHammer.style.display = hammerUnlocked ? "" : "none";
-        }
-        if (powerUpHalve) {
-            powerUpHalve.style.display = halveUnlocked ? "" : "none";
-        }
-        if (powerUpSwap) {
-            powerUpSwap.style.display = swapUnlocked ? "" : "none";
         }
 
         // Update coins display

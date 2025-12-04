@@ -956,8 +956,8 @@ export const TEST_LEVELS = [
         maxMoves: 5,
         boardPreset: [
             [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, "J", 6, 6, 0],
+            [0, "J", 6, 5, 0],
+            [0, 6, 5, 6, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
@@ -1429,14 +1429,14 @@ export const NEW_LEVELS = [
     },
     {
         level: 7,
-        maxMoves: 25,
+        maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
         level: 8,
         title: "Hammer",
-        maxMoves: 30,
+        maxMoves: 20,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [{ current: 0, goalType: "blocked" }],
@@ -1513,20 +1513,21 @@ export const NEW_LEVELS = [
     },
     {
         level: 16,
-        maxMoves: 25,
+        maxMoves: 26,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { goalType: "score", target: 2048, current: 0 },
-            { tileValue: 8, target: 2, current: 0, goalType: "current" },
+            { tileValue: 8, target: 1, current: 0, goalType: "current" },
         ],
     },
     {
         level: 17,
         title: "Streak Feature",
-        maxMoves: 25,
+        maxMoves: 28,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 8, target: 1, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
         unlockFeature: "streak",
@@ -1538,18 +1539,18 @@ export const NEW_LEVELS = [
         blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }],
         goals: [
             { goalType: "score", target: 4096, current: 0 },
-            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 2, current: 0, goalType: "created" },
         ],
     },
     {
         level: 19,
-        maxMoves: 35,
+        maxMoves: 32,
         boardHeight: 10,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 8 }, { row: 9 }],
         goals: [
             { goalType: "score", target: 4096, current: 0 },
             { goalType: "blocked", current: 0 },
-            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+            { tileValue: 8, target: 2, current: 0, goalType: "created" },
         ],
     },
     {
