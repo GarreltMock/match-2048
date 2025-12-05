@@ -1332,7 +1332,7 @@ export const NEW_LEVELS = [
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "4-Tile blocks create a special tile, which can be moved in the shown direction without a valid merge",
+                text: "You can move this in the shown direction without a valid merge",
             },
             {
                 from: { row: 2, col: 2 },
@@ -1359,17 +1359,17 @@ export const NEW_LEVELS = [
             {
                 from: { row: 0, col: 1 },
                 to: { row: 1, col: 1 },
-                text: "A T-Merge with 5 Tiles creates an even higher tile",
+                text: "A T-Merge creates an even higher tile",
             },
             {
                 from: { row: 3, col: 1 },
                 to: { row: 4, col: 1 },
-                text: "This creates a special tile, which can be moved in any direction",
+                text: "You can move this in ANY direction without a valid merge",
             },
             {
                 from: { row: 4, col: 1 },
                 to: { row: 4, col: 2 },
-                text: "You can also create a L-Merge with 5 Tiles",
+                text: "You can also create a L-Merge",
             },
         ],
     },
@@ -1395,7 +1395,7 @@ export const NEW_LEVELS = [
             },
             {
                 tap: { row: 2, col: 2 },
-                text: "This creates a wildcard, which can merged with anything or transformed in the value shown",
+                text: "This is a wildcard, which can merge with anything or transform on tap",
             },
         ],
     },

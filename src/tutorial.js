@@ -288,7 +288,7 @@ export function updateTutorialUI(game) {
     } else {
         // All other steps - position at bottom
         if (hintBox) {
-            hintBox.style.bottom = "4vh";
+            hintBox.style.bottom = "6vh";
         }
     }
 
