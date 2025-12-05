@@ -826,8 +826,8 @@
 
 .gem.tile-BLOCKED_MOVABLE::after {
     content: "";
-    width: 80%;
-    height: 80%;
+    width: 60%;
+    height: 60%;
     position: absolute;
     top: 44%;
     left: 50%;
