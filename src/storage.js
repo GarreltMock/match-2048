@@ -254,7 +254,7 @@ export function savePowerUpCounts(powerUpCounts) {
  */
 export function loadCoins() {
     const coins = localStorage.getItem("match2048_coins");
-    return coins !== null ? parseInt(coins, 10) : 2000; // Default to 2000 coins
+    return coins !== null ? parseInt(coins, 10) : 1000; // Default to 1000 coins
 }
 
 /**
