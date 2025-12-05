@@ -1340,10 +1340,10 @@ export class Match3Game {
 
                 // Show only continue button
                 const continueBtn = document.getElementById("continueBtn");
-                const nextBtn = document.getElementById("nextBtn");
+                const nextLevelContainer = document.getElementById("nextLevelContainer");
                 const restartBtn = document.getElementById("restartBtn");
                 if (continueBtn) continueBtn.style.display = "inline-block";
-                if (nextBtn) nextBtn.style.display = "none";
+                if (nextLevelContainer) nextLevelContainer.style.display = "none";
                 if (restartBtn) restartBtn.style.display = "none";
             });
         }
@@ -1634,8 +1634,9 @@ export class Match3Game {
 
         // Show controls and only show restart button
         this.showControls();
+        const nextLevelContainer = document.getElementById("nextLevelContainer");
         if (restartBtn) restartBtn.style.display = "inline-block";
-        if (nextBtn) nextBtn.style.display = "none";
+        if (nextLevelContainer) nextLevelContainer.style.display = "none";
         if (continueBtn) continueBtn.style.display = "none";
     }
 

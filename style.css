@@ -524,7 +524,7 @@ button {
     justify-content: center;
     align-items: center;
 
-    padding: 6px 4px 30px;
+    padding: 6px 4px 24px;
     margin-bottom: -24px;
     display: flex;
     justify-content: center;
@@ -601,7 +601,8 @@ button {
     font-size: clamp(18px, 3.2vh, 24px);
 }
 
-.extra-move-coin-icon {
+.extra-move-coin-icon,
+.reward-coin-icon {
     width: 24px;
     height: 24px;
     object-fit: contain;

@@ -9,7 +9,7 @@ import {
     isCursed,
     getTileValue,
 } from "./tile-helpers.js";
-import { saveCurrentLevel, saveStreak, saveSuperStreak, isFeatureUnlocked } from "./storage.js";
+import { saveCurrentLevel, saveStreak, saveSuperStreak, isFeatureUnlocked, loadCoins, saveCoins } from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
 import { FEATURE_KEYS } from "./config.js";
@@ -49,14 +49,21 @@ export function checkLevelComplete(game) {
             saveSuperStreak(game.superStreak);
         }
 
+        // Award 50 coins for completing the level
+        const currentCoins = loadCoins();
+        const newCoins = currentCoins + 50;
+        saveCoins(newCoins);
+        game.coins = newCoins;
+
         // Hide power-ups and show control buttons
         game.hidePowerUps();
         game.showControls();
 
-        // Show only the next button
+        // Show only the next button with reward container
         const restartBtn = document.getElementById("restartBtn");
         const continueBtn = document.getElementById("continueBtn");
-        if (nextBtn) nextBtn.style.display = "inline-block";
+        const nextLevelContainer = document.getElementById("nextLevelContainer");
+        if (nextLevelContainer) nextLevelContainer.style.display = "block";
         if (restartBtn) restartBtn.style.display = "none";
         if (continueBtn) continueBtn.style.display = "none";
         setTimeout(() => {
