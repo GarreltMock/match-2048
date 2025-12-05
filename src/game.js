@@ -6,7 +6,7 @@ import {
     FORMATION_TYPES,
     DEFAULT_TILE_VALUES,
     SUPER_STREAK_THRESHOLD,
-    LEVELS,
+    DEFAULT_LEVEL,
     LEVEL_CONFIGS,
     FEATURE_KEYS,
 } from "./config.js";
@@ -212,7 +212,7 @@ export class Match3Game {
     initializeLevels() {
         // Find the level config by key
         const config = LEVEL_CONFIGS.find((c) => c.key === this.levelConfigKey);
-        this.levels = config ? config.levels : LEVELS;
+        this.levels = config ? config.levels : DEFAULT_LEVEL;
 
         // Save the respectsFeatureLocks setting for this config (in case it wasn't saved before)
         const respectsLocks = config ? config.respectsFeatureLocks : true;
@@ -1724,7 +1724,7 @@ export class Match3Game {
             levelConfigSelect.addEventListener("change", () => {
                 selectedLevelConfigKey = levelConfigSelect.value;
                 const config = LEVEL_CONFIGS.find((c) => c.key === selectedLevelConfigKey);
-                this.levels = config ? config.levels : LEVELS;
+                this.levels = config ? config.levels : DEFAULT_LEVEL;
                 populateLevelSelect();
                 if (levelSelect) {
                     levelSelect.value = "1"; // Reset to level 1 when switching

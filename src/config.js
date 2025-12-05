@@ -1919,16 +1919,16 @@ export const NEW_LEVELS = [
 // Level configuration options
 export const LEVEL_CONFIGS = [
     {
-        key: "main",
-        name: "Legacy Levels",
-        levels: LEVELS,
-        respectsFeatureLocks: false,
-    },
-    {
         key: "new",
         name: "New Levels",
         levels: NEW_LEVELS,
         respectsFeatureLocks: true,
+    },
+    {
+        key: "main",
+        name: "Legacy Levels",
+        levels: LEVELS,
+        respectsFeatureLocks: false,
     },
     {
         key: "test",
@@ -1937,3 +1937,5 @@ export const LEVEL_CONFIGS = [
         respectsFeatureLocks: false,
     },
 ];
+
+export const DEFAULT_LEVEL = NEW_LEVELS;

@@ -39,9 +39,8 @@ export function saveScore(score) {
 
 export function loadLevelConfigKey() {
     const saved = localStorage.getItem("match2048_levelConfigKey");
-    // Default to "main" if not set, or migrate old useTestLevels boolean
     if (!saved) {
-        return "main";
+        return "new";
     }
     return saved;
 }
