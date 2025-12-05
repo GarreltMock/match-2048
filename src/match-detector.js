@@ -196,9 +196,12 @@ export function checkTFormation(game, row, col, value) {
     for (const pattern of patterns) {
         const result = checkPattern(game, row, col, value, pattern);
         if (result && result.positions.length === 5) {
-            // Find overlapping line matches and add their tiles
-            const additionalTiles = findOverlappingLineMatches(game, result.positions, value);
-            const allTiles = [...result.positions, ...additionalTiles];
+            // Find overlapping line matches and add their tiles (only during user swaps)
+            let allTiles = result.positions;
+            if (game.isUserSwap) {
+                const additionalTiles = findOverlappingLineMatches(game, result.positions, value);
+                allTiles = [...result.positions, ...additionalTiles];
+            }
 
             return {
                 tiles: allTiles,
@@ -253,9 +256,12 @@ export function checkLFormation(game, row, col, value) {
         }
 
         if (valid && positions.length === 5) {
-            // Find overlapping line matches and add their tiles
-            const additionalTiles = findOverlappingLineMatches(game, positions, value);
-            const allTiles = [...positions, ...additionalTiles];
+            // Find overlapping line matches and add their tiles (only during user swaps)
+            let allTiles = positions;
+            if (game.isUserSwap) {
+                const additionalTiles = findOverlappingLineMatches(game, positions, value);
+                allTiles = [...positions, ...additionalTiles];
+            }
 
             return {
                 tiles: allTiles,
@@ -295,9 +301,12 @@ export function checkBlockFormation(game, row, col, value) {
         }
     }
 
-    // Find overlapping line matches and add their tiles
-    const additionalTiles = findOverlappingLineMatches(game, positions, value);
-    const allTiles = [...positions, ...additionalTiles];
+    // Find overlapping line matches and add their tiles (only during user swaps)
+    let allTiles = positions;
+    if (game.isUserSwap) {
+        const additionalTiles = findOverlappingLineMatches(game, positions, value);
+        allTiles = [...positions, ...additionalTiles];
+    }
 
     return {
         tiles: allTiles,
