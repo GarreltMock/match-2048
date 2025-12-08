@@ -92,7 +92,7 @@ export const FEATURE_DESCRIPTIONS = {
     streak: {
         icon: "🔥",
         title: "Win Streak",
-        description: "Earn bonus power-ups by winning consecutive levels",
+        description: "Earn bonus Joker by winning consecutive levels",
     },
 };
 
@@ -254,7 +254,7 @@ export const FEATURE_UNLOCK_DIALOGS = {
     },
     streak: {
         title: 'Win Streak <span style="color: #aee96b">Unlocked</span>',
-        subtitle: "Earn bonus power-ups for consecutive wins",
+        subtitle: "Earn bonus Joker for consecutive wins",
         content: `<span style="font-size: clamp(40px, 18vw, 75px);">🔥</span>`,
     },
     super_streak: {

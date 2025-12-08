@@ -1466,7 +1466,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 12,
-        maxMoves: 25,
+        maxMoves: 28,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { current: 0, goalType: "blocked" },
@@ -1476,7 +1476,7 @@ export const NEW_LEVELS = [
     {
         level: 13,
         title: "🔄",
-        maxMoves: 25,
+        maxMoves: 28,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [
             { current: 0, goalType: "blocked" },
@@ -1486,12 +1486,12 @@ export const NEW_LEVELS = [
     },
     {
         level: 14,
-        maxMoves: 30,
+        maxMoves: 32,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { current: 0, goalType: "blocked" },
             { tileValue: 6, target: 5, current: 0, goalType: "created" },
-            { tileValue: 7, target: 5, current: 0, goalType: "created" },
+            { tileValue: 7, target: 3, current: 0, goalType: "created" },
         ],
     },
     {
@@ -1516,36 +1516,36 @@ export const NEW_LEVELS = [
         maxMoves: 22,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { goalType: "score", target: 2048, current: 0 },
             { tileValue: 7, target: 1, current: 0, goalType: "current" },
         ],
         unlockFeature: "streak",
     },
     {
         level: 17,
-        maxMoves: 25,
+        maxMoves: 30,
         boardWidth: 6,
         boardHeight: 10,
-        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+        blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { goalType: "score", target: 2048, current: 0 },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
         level: 17,
-        maxMoves: 25,
+        maxMoves: 30,
         boardHeight: 9,
         blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }, { col: 0 }, { col: 7 }],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { goalType: "score", target: 2048, current: 0 },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
         level: 18,
         title: "💸 PoS",
-        maxMoves: 26,
+        maxMoves: 28,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { goalType: "score", target: 2048, current: 0 },
@@ -1630,14 +1630,14 @@ export const NEW_LEVELS = [
         boardHeight: 6,
         maxMoves: 30,
         blockedTiles: [
-            { row: 4, lifeValue: 32 },
-            { row: 5, movable: true },
+            { row: 4, movable: true },
+            { row: 5, lifeValue: 32 },
         ],
         goals: [{ goalType: "blocked", current: 0 }],
     },
     {
         level: 25,
-        maxMoves: 28,
+        maxMoves: 32,
         blockedTiles: [
             { row: 3, col: [3, 4], lifeValue: 64 },
             { row: 4, col: [3, 4], lifeValue: 64 },
@@ -1653,11 +1653,11 @@ export const NEW_LEVELS = [
     },
     {
         level: 26,
-        maxMoves: 24,
+        maxMoves: 31,
         blockedTiles: [
-            { row: 3, movable: true },
-            { row: 4, movable: true },
-            { row: 5, movable: true },
+            { row: 0, movable: true },
+            { row: 1, movable: true },
+            { row: 2, movable: true },
             { row: 6, lifeValue: 32 },
             { row: 7, lifeValue: 64 },
         ],
