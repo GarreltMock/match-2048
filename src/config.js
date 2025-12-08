@@ -1659,7 +1659,7 @@ export const NEW_LEVELS = [
             { row: 1, movable: true },
             { row: 2, movable: true },
             { row: 6, lifeValue: 8 },
-            { row: 7, lifeValue: 64 },
+            { row: 7, lifeValue: 32 },
         ],
         goals: [
             { goalType: "score", target: 2048, current: 0 },
