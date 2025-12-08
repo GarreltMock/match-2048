@@ -1436,7 +1436,7 @@ export const NEW_LEVELS = [
     {
         level: 9,
         title: "🔨",
-        maxMoves: 20,
+        maxMoves: 30,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [{ current: 0, goalType: "blocked" }],
