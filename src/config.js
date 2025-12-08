@@ -1439,7 +1439,10 @@ export const NEW_LEVELS = [
         maxMoves: 30,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
-        goals: [{ current: 0, goalType: "blocked" }],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
+        ],
         unlockFeature: "power_hammer",
     },
     {
@@ -1454,14 +1457,20 @@ export const NEW_LEVELS = [
             { row: 7, col: [0, 1, 2, 3, 5, 6, 7, 8] },
             { row: 8 },
         ],
-        goals: [{ current: 0, goalType: "blocked" }],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
     },
     {
         level: 11,
         title: "✂️",
         maxMoves: 25,
         blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
-        goals: [{ current: 0, goalType: "blocked" }],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 5, target: 10, current: 0, goalType: "created" },
+        ],
         unlockFeature: "power_halve",
     },
     {
