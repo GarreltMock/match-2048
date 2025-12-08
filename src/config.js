@@ -1653,16 +1653,16 @@ export const NEW_LEVELS = [
     },
     {
         level: 26,
-        maxMoves: 31,
+        maxMoves: 38,
         blockedTiles: [
             { row: 0, movable: true },
             { row: 1, movable: true },
             { row: 2, movable: true },
-            { row: 6, lifeValue: 32 },
+            { row: 6, lifeValue: 8 },
             { row: 7, lifeValue: 64 },
         ],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { goalType: "score", target: 2048, current: 0 },
             { tileValue: 6, target: 10, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
         ],
