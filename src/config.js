@@ -1916,6 +1916,34 @@ export const NEW_LEVELS = [
     },
     {
         level: 44,
+        maxMoves: 34,
+        blockedTiles: [
+            { row: 6, col: 0, width: 2, height: 2, lifeValue: 256 },
+            { row: 4, col: 2, width: 4, height: 4 },
+            { row: 6, col: 6, width: 2, height: 2, lifeValue: 256 },
+        ],
+        goals: [{ goalType: "blocked", current: 0 }],
+        boardUpgrades: [6, 8],
+    },
+    {
+        level: 45,
+        maxMoves: 36,
+        blockedTiles: [
+            { row: 5, col: 0, width: 8, height: 1 },
+            { row: 6, col: 0, width: 2, height: 2, lifeValue: 256 },
+            { row: 6, col: 2, width: 2, height: 2, lifeValue: 256 },
+            { row: 6, col: 4, width: 2, height: 2, lifeValue: 256 },
+            { row: 6, col: 6, width: 2, height: 2, lifeValue: 256 },
+        ],
+        goals: [
+            { goalType: "score", target: 4096, current: 0 },
+            { goalType: "blocked", current: 0 },
+            { goalType: "created", tileValue: 8, target: 1, current: 0 },
+        ],
+        boardUpgrades: [7],
+    },
+    {
+        level: 46,
         title: "💸 PoS - God Level",
         maxMoves: 36,
         boardHeight: 10,
