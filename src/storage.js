@@ -304,3 +304,19 @@ export function isFeatureUnlocked(featureKey) {
 export function resetUnlockedFeatures() {
     localStorage.removeItem("match2048_unlockedFeatures");
 }
+
+/**
+ * Load the stored app version from localStorage
+ * @returns {string|null} Stored version string (e.g., "0.4.0") or null if not set
+ */
+export function loadVersion() {
+    return localStorage.getItem("match2048_version");
+}
+
+/**
+ * Save the app version to localStorage
+ * @param {string} version - Version string to save (e.g., "0.4.0")
+ */
+export function saveVersion(version) {
+    localStorage.setItem("match2048_version", version);
+}

@@ -1,6 +1,8 @@
 // Entry point for Match 2048 game
 import { Match3Game } from "./game.js";
 import { initializeHomeScreen, showHomeScreen, hideHomeScreen } from "./home-screen.js";
+import { loadVersion, saveVersion } from "./storage.js";
+import { APP_VERSION } from "./version.js";
 import "./components/stroked-text.js";
 
 function registerServiceWorker() {
@@ -43,8 +45,47 @@ async function unregisterServiceWorkers() {
     }
 }
 
+/**
+ * Check version and reset game if major version has changed or no version exists
+ * @returns {boolean} True if game was reset, false otherwise
+ */
+function checkVersionAndReset() {
+    const storedVersion = loadVersion();
+
+    // If no stored version exists, this is a new install or old version without version tracking
+    if (!storedVersion) {
+        console.log("No stored version found. Resetting game and saving version:", APP_VERSION);
+        localStorage.clear();
+        saveVersion(APP_VERSION);
+        return true;
+    }
+
+    // Parse major version from stored and current versions
+    const storedMajor = parseInt(storedVersion.split(".")[0], 10);
+    const currentMajor = parseInt(APP_VERSION.split(".")[0], 10);
+
+    // If major version has changed, reset the game
+    if (storedMajor !== currentMajor) {
+        console.log(`Major version changed from ${storedVersion} to ${APP_VERSION}. Resetting game.`);
+        localStorage.clear();
+        saveVersion(APP_VERSION);
+        return true;
+    }
+
+    // Update stored version to current version (for minor/patch updates)
+    if (storedVersion !== APP_VERSION) {
+        console.log(`Version updated from ${storedVersion} to ${APP_VERSION}`);
+        saveVersion(APP_VERSION);
+    }
+
+    return false;
+}
+
 // Initialize the game when the page loads
 document.addEventListener("DOMContentLoaded", () => {
+    // Check version and reset if necessary
+    checkVersionAndReset();
+
     // Remove any existing service workers
     unregisterServiceWorkers();
 
