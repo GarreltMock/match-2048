@@ -33,6 +33,11 @@
     padding-bottom: 2px;
 }
 
+.top-spacer {
+    flex: 1 999 0;
+    min-height: 0;
+}
+
 .level-text {
     margin: 0;
     color: rgba(255, 255, 255, 0.5);
@@ -945,8 +950,8 @@
 }
 
 .bottom-container {
-    min-height: 20vw;
     flex: 1 1 0;
+    min-height: clamp(100px, 20vw, 150px);
     position: relative;
 }
 
@@ -957,7 +962,7 @@
     flex-shrink: 0;
     align-items: center;
     position: absolute;
-    bottom: 8vh;
+    bottom: 6vh;
     left: 0;
     width: 100%;
 }
