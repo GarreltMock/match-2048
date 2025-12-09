@@ -1738,13 +1738,13 @@ export const NEW_LEVELS = [
     },
     {
         level: 29,
-        maxMoves: 28,
+        maxMoves: 32,
         blockedTiles: [
             { row: 3, movable: true },
             { row: 4, movable: true },
             { row: 5, movable: true },
-            { row: 6, lifeValue: 256 },
-            { row: 7, lifeValue: 512 },
+            { row: 6, lifeValue: 128 },
+            { row: 7, lifeValue: 256 },
         ],
         goals: [
             { current: 0, goalType: "blocked" },
@@ -1755,7 +1755,7 @@ export const NEW_LEVELS = [
     {
         level: 30,
         title: "Super Streak",
-        maxMoves: 25,
+        maxMoves: 35,
         blockedTiles: [{ row: 4 }, { row: 5, movable: true }, { row: 6 }, { row: 7, lifeValue: 128 }],
         goals: [{ tileValue: 8, target: 10, current: 0, goalType: "created" }],
         boardUpgrades: [5],
