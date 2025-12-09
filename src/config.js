@@ -1806,7 +1806,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 36,
-        title: "Active Super Streak",
+        title: "*Active Super Streak*",
         maxMoves: 32,
         goals: [{ goalType: "score", target: 8192, current: 0 }],
         boardUpgrades: [7, 8],
