@@ -9,7 +9,15 @@ import {
     isCursed,
     getTileValue,
 } from "./tile-helpers.js";
-import { saveCurrentLevel, saveStreak, saveSuperStreak, isFeatureUnlocked, loadCoins, saveCoins } from "./storage.js";
+import {
+    saveCurrentLevel,
+    saveStreak,
+    saveSuperStreak,
+    isFeatureUnlocked,
+    loadCoins,
+    saveCoins,
+    savePowerUpCounts,
+} from "./storage.js";
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
 import { FEATURE_KEYS } from "./config.js";
@@ -54,6 +62,33 @@ export function checkLevelComplete(game) {
         const newCoins = currentCoins + 50;
         saveCoins(newCoins);
         game.coins = newCoins;
+
+        // Award one random unlocked power-up
+        const unlockedPowerUps = [];
+        if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
+        if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
+        if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
+
+        if (unlockedPowerUps.length > 0) {
+            const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
+            game.persistentPowerUpCounts[randomPowerUp]++;
+            savePowerUpCounts(game.persistentPowerUpCounts);
+
+            // Show the power-up reward in the UI
+            const powerUpReward = document.getElementById("powerUpReward");
+            const powerUpRewardIcon = document.getElementById("powerUpRewardIcon");
+
+            if (powerUpReward && powerUpRewardIcon) {
+                const powerUpIcons = {
+                    hammer: "🔨",
+                    halve: "✂️",
+                    swap: "🔄",
+                };
+
+                powerUpRewardIcon.textContent = powerUpIcons[randomPowerUp];
+                powerUpReward.style.display = "flex";
+            }
+        }
 
         // Hide power-ups and show control buttons
         game.hidePowerUps();
@@ -193,6 +228,11 @@ export function updateBlockedTileGoals(game) {
 export function nextLevel(game) {
     game.hideControls();
     game.hideLevelSolved();
+    // Hide power-up reward
+    const powerUpReward = document.getElementById("powerUpReward");
+    if (powerUpReward) {
+        powerUpReward.style.display = "none";
+    }
 
     if (game.currentLevel < game.levels.length) {
         game.currentLevel++;
@@ -207,6 +247,11 @@ export function nextLevel(game) {
 export function restartLevel(game) {
     game.hideLevelSolved();
     game.hideLevelFailed();
+    // Hide power-up reward
+    const powerUpReward = document.getElementById("powerUpReward");
+    if (powerUpReward) {
+        powerUpReward.style.display = "none";
+    }
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();

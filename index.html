@@ -127,16 +127,29 @@
                 <div class="controls" style="display: none">
                     <button id="continueBtn" class="control-btn continue" tabindex="1">Continue</button>
                     <div class="button-container" id="nextLevelContainer" style="display: none">
-                        <div class="reward">
-                            <stroked-text
-                                id="levelCompleteRewardText"
-                                text="+50"
-                                font-size="24"
-                                text-anchor="end"
-                                svg-style="width: 100%; flex-shrink: 1;"
-                            >
-                            </stroked-text>
-                            <img src="assets/shop/coin.png" class="reward-coin-icon" alt="Coins" />
+                        <div class="reward-box">
+                            <div class="reward">
+                                <stroked-text
+                                    id="levelCompleteRewardText"
+                                    text="+50"
+                                    font-size="24"
+                                    text-anchor="end"
+                                    svg-style="width: 100%; flex-shrink: 1;"
+                                >
+                                </stroked-text>
+                                <img src="assets/shop/coin.png" class="reward-coin-icon" alt="Coins" />
+                            </div>
+                            <div class="reward" id="powerUpReward" style="display: none">
+                                <stroked-text
+                                    id="powerUpRewardText"
+                                    text="+1"
+                                    font-size="24"
+                                    text-anchor="end"
+                                    svg-style="width: 100%; flex-shrink: 1;"
+                                >
+                                </stroked-text>
+                                <div id="powerUpRewardIcon" class="reward-powerup-icon"></div>
+                            </div>
                         </div>
                         <button id="nextBtn" class="control-btn next" tabindex="1">Next Level</button>
                     </div>
@@ -196,7 +209,7 @@
 
                 <div class="extra-moves-content">
                     <div class="button-container">
-                        <div class="reward">
+                        <div class="reward-box">
                             <stroked-text
                                 id="fiveExtraMovesText"
                                 text="5 Moves +"

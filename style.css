@@ -518,7 +518,7 @@ button {
     font-weight: 900;
 }
 
-.button-container .reward {
+.button-container .reward-box {
     padding: 6px 4px;
     display: flex;
     justify-content: center;
@@ -529,9 +529,16 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 8px;
     background: #141414;
     border: 3px solid black;
     border-radius: 24px 24px 0 0;
+
+    .reward {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 .button-container .power-up-btn {
@@ -606,6 +613,15 @@ button {
     width: 24px;
     height: 24px;
     object-fit: contain;
+}
+
+.reward-powerup-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .extra-move-option.secondary {
