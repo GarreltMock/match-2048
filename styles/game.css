@@ -36,6 +36,9 @@
 .top-spacer {
     flex: 1 999 0;
     min-height: 0;
+    justify-content: center;
+    display: flex;
+    align-items: center;
 }
 
 .level-text {
