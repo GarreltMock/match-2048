@@ -1371,12 +1371,20 @@ export class Match3Game {
         const swapUnlocked = isFeatureUnlocked(FEATURE_KEYS.SWAP);
         const anyPowerUpUnlocked = hammerUnlocked || halveUnlocked || swapUnlocked;
 
-        console.log({
-            hammerUnlocked,
-            halveUnlocked,
-            swapUnlocked,
-            anyPowerUpUnlocked,
-        });
+        // Show/hide power-up buttons based on unlock status
+        const hammerBtn = document.getElementById("powerUpHammer");
+        const halveBtn = document.getElementById("powerUpHalve");
+        const swapBtn = document.getElementById("powerUpSwap");
+
+        if (hammerBtn) {
+            hammerBtn.style.display = hammerUnlocked ? "" : "none";
+        }
+        if (halveBtn) {
+            halveBtn.style.display = halveUnlocked ? "" : "none";
+        }
+        if (swapBtn) {
+            swapBtn.style.display = swapUnlocked ? "" : "none";
+        }
 
         // Update the text based on whether any power-ups are unlocked
         if (fiveExtraMovesText) {
