@@ -1430,7 +1430,12 @@ export const NEW_LEVELS = [
     {
         level: 8,
         maxMoves: 30,
-        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        blockedTiles: [
+            { row: 4, col: [1, 2, 3, 4, 5, 6] },
+            { row: 5, col: [1, 2, 3, 4, 5, 6] },
+            { row: 6, col: [1, 2, 3, 4, 5, 6] },
+            { row: 7, col: [1, 2, 3, 4, 5, 6] },
+        ],
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
@@ -1448,7 +1453,7 @@ export const NEW_LEVELS = [
     {
         level: 10,
         boardWidth: 9,
-        maxMoves: 30,
+        maxMoves: 32,
         blockedTiles: [
             { row: 4, col: 0 },
             { row: 4, col: 8 },
@@ -1679,7 +1684,7 @@ export const NEW_LEVELS = [
     {
         level: 29,
         title: "💸 PoS",
-        maxMoves: 32,
+        maxMoves: 30,
         boardWidth: 9,
         blockedTiles: [
             { row: 0, col: [4], lifeValue: 64 },
@@ -1738,7 +1743,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 31,
-        maxMoves: 32,
+        maxMoves: 40,
         blockedTiles: [
             { row: 3, movable: true },
             { row: 4, movable: true },
