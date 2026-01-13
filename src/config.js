@@ -1559,7 +1559,7 @@ export const NEW_LEVELS = [
     {
         level: 20,
         title: "💸 PoS",
-        maxMoves: 28,
+        maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { goalType: "score", target: 2048, current: 0 },
@@ -1749,7 +1749,8 @@ export const NEW_LEVELS = [
             { row: 4, movable: true },
             { row: 5, movable: true },
             { row: 6, lifeValue: 128 },
-            { row: 7, lifeValue: 256 },
+            { row: 7, lifeValue: 128 },
+            { row: 7, col: [2, 3, 4, 5], lifeValue: 256 },
         ],
         goals: [
             { current: 0, goalType: "blocked" },
