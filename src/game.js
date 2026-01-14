@@ -933,75 +933,34 @@ export class Match3Game {
 
         // Handle different tile types
         if (isBlockedWithLife(tile)) {
-            // For blocked tiles with life, decrease life by 1
-            const newLifeValue = tile.lifeValue - 1;
+            // For blocked tiles with life, remove the entire tile regardless of life value
+            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+            element.style.opacity = "0";
+            element.style.transform = "scale(0)";
 
-            if (newLifeValue <= 0) {
-                // Life is depleted, remove the tile completely
-                element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-                element.style.opacity = "0";
-                element.style.transform = "scale(0)";
-
-                setTimeout(() => {
-                    // Handle rectangular blocked tiles
-                    if (isRectangularBlocked(tile)) {
-                        // Remove all cells in the rectangle
-                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
-                                    this.board[r][c] = null;
-                                }
+            setTimeout(() => {
+                // Handle rectangular blocked tiles
+                if (isRectangularBlocked(tile)) {
+                    // Remove all cells in the rectangle
+                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                            if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
+                                this.board[r][c] = null;
                             }
                         }
-                    } else {
-                        // Single cell blocked tile
-                        this.board[row][col] = null;
                     }
+                } else {
+                    // Single cell blocked tile
+                    this.board[row][col] = null;
+                }
 
-                    // Update blocked tile goals
-                    this.updateBlockedTileGoals();
+                // Update blocked tile goals
+                this.updateBlockedTileGoals();
 
-                    // Let dropGems handle the DOM updates via renderBoard
-                    this.dropGems();
-                    this.deactivatePowerUp();
-                }, 300);
-            } else {
-                // Still has life, just reduce it
-                // Animate a "bump" to show damage
-                element.style.transition = "transform 0.2s ease";
-                element.style.transform = "scale(1.1)";
-
-                setTimeout(() => {
-                    element.style.transform = "scale(1)";
-
-                    // Update tile with reduced life
-                    if (isRectangularBlocked(tile)) {
-                        // Update all cells in the rectangle
-                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
-                                    const existingTile = this.board[r][c];
-                                    if (existingTile && existingTile.rectId === tile.rectId) {
-                                        this.board[r][c] = {
-                                            ...existingTile,
-                                            lifeValue: newLifeValue,
-                                        };
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        // Single cell - update the life value
-                        this.board[row][col] = createBlockedWithLifeTile(newLifeValue, tile.immovable);
-                    }
-
-                    // Re-render to show updated life value
-                    this.renderBoard();
-
-                    this.animating = false;
-                    this.deactivatePowerUp();
-                }, 200);
-            }
+                // Let dropGems handle the DOM updates via renderBoard
+                this.dropGems();
+                this.deactivatePowerUp();
+            }, 300);
         } else if (isBlockedWithMergeCount(tile)) {
             // For blocked tiles with merge count, decrement one random cell
             // Find a cell that still needs clearing
