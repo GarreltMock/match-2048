@@ -544,7 +544,7 @@
                         <h3>✨ Valid Matches</h3>
 
                         <div class="formation-example">
-                            <h4>3 tiles → 1 tile (2x value)</h4>
+                            <h4>3-Tile Match</h4>
                             <div class="example-tiles" style="margin-bottom: 0">
                                 <div class="example-grid example-tiles">
                                     <div class="example-tile">4</div>
@@ -554,11 +554,10 @@
                                 <span class="arrow">→</span>
                                 <div class="example-tile highlight">8</div>
                             </div>
-                            <!-- <p>3 tiles → 1 tile (2x value)</p> -->
                         </div>
 
                         <div class="formation-example">
-                            <h4>4 tiles → 2 tiles (2x value)</h4>
+                            <h4>4-Tile Matches</h4>
 
                             <div class="example-formations-row">
                                 <div class="example-grid example-tiles">
@@ -582,24 +581,18 @@
 
                             <div class="example-result-row">
                                 <span class="arrow">→</span>
-                                <div class="example-tile highlight" style="margin-right: 2px">8</div>
+                                <div
+                                    class="example-tile highlight gem freeswap-horizontal-tile"
+                                    style="margin-right: 2px"
+                                >
+                                    8
+                                </div>
                                 <div class="example-tile highlight">8</div>
                             </div>
-                            <!-- <p>4 tiles → 2 tile (2x value)</p> -->
                         </div>
 
                         <div class="formation-example">
-                            <h4>5 tiles → 1 tile (4x value)</h4>
-
-                            <div class="example-formations-row">
-                                <div class="example-grid example-tiles">
-                                    <div class="example-tile">4</div>
-                                    <div class="example-tile">4</div>
-                                    <div class="example-tile target-highlight">4</div>
-                                    <div class="example-tile">4</div>
-                                    <div class="example-tile">4</div>
-                                </div>
-                            </div>
+                            <h4>5-Tile Matches</h4>
 
                             <div class="example-formations-row">
                                 <div class="example-grid">
@@ -641,15 +634,33 @@
 
                             <div class="example-result-row">
                                 <span class="arrow">→</span>
-                                <div class="example-tile highlight double">16</div>
+                                <div class="example-tile highlight double gem freeswap-tile">16</div>
                             </div>
-                            <!-- <p>5 tiles → 1 tile (4x value)</p> -->
+
+                            <div class="example-formations-row" style="margin-top: 40px">
+                                <div class="example-grid example-tiles">
+                                    <div class="example-tile">4</div>
+                                    <div class="example-tile">4</div>
+                                    <div class="example-tile target-highlight">4</div>
+                                    <div class="example-tile">4</div>
+                                    <div class="example-tile">4</div>
+                                </div>
+                            </div>
+
+                            <div class="example-result-row">
+                                <span class="arrow">→</span>
+                                <div class="example-tile gem tile-JOKER joker-tile">
+                                    <span class="star-value" style="">*</span>
+                                    <!-- <span style="font-size: 35cqw" class="preview-value">32</span> -->
+                                </div>
+                                <!-- <div class="example-tile highlight double gem joker-tile tile-JOKER">16</div> -->
+                            </div>
                         </div>
                     </div>
 
                     <div class="intro-section" id="powerupsSection">
                         <h3>⚡ Joker</h3>
-                        <p>Use joker to help you complete challenging levels:</p>
+                        <!-- <p>Use joker to help you complete challenging levels:</p> -->
 
                         <div class="powerup-list" id="powerupList">
                             <!-- Dynamically populated based on unlocked power-ups -->
