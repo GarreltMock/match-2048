@@ -54,6 +54,7 @@
 
         <div class="game-container" id="game-container">
             <button id="backBtn" class="back-btn" title="Back to Home">←</button>
+            <button id="infoBtnGame" class="info-btn game-info-btn" title="Show Tutorial" tabindex="2">?</button>
 
             <div class="top-spacer">
                 <stroked-text
@@ -535,24 +536,10 @@
         <div id="introDialog" class="intro-dialog-overlay hidden">
             <div class="intro-dialog">
                 <div class="intro-header">
-                    <h2>🎮 Welcome to Match 2048</h2>
+                    <h2>Instructions</h2>
                 </div>
 
                 <div class="intro-content">
-                    <div class="intro-section">
-                        <h3>🎯 How to Play</h3>
-                        <p>
-                            Match 3 or more tiles of the same number by swapping adjacent tiles. Create higher numbers
-                            to reach your level goals!
-                        </p>
-
-                        <h4>📋 Level Goals</h4>
-                        <p>Each level has specific tile goals you must achieve with a limited number of moves.</p>
-                        <ul id="goalTypesList">
-                            <!-- Dynamically populated based on seen goal dialogs -->
-                        </ul>
-                    </div>
-
                     <div class="intro-section">
                         <h3>✨ Valid Matches</h3>
 
@@ -660,43 +647,13 @@
                         </div>
                     </div>
 
-                    <div class="intro-section">
-                        <h3>⚡ Power-ups</h3>
-                        <p>Use special power-ups to help you complete challenging levels:</p>
+                    <div class="intro-section" id="powerupsSection">
+                        <h3>⚡ Joker</h3>
+                        <p>Use joker to help you complete challenging levels:</p>
 
-                        <div class="powerup-list">
-                            <div class="powerup-item">
-                                <span class="powerup-icon">🔨</span>
-                                <div class="powerup-info">
-                                    <strong>Hammer</strong><br />
-                                    Remove any tile from the board
-                                </div>
-                            </div>
-                            <div class="powerup-item">
-                                <span class="powerup-icon">✂️</span>
-                                <div class="powerup-info">
-                                    <strong>Halve</strong><br />
-                                    Halve the value of any tile instantly
-                                </div>
-                            </div>
-                            <div class="powerup-item">
-                                <span class="powerup-icon">🔄</span>
-                                <div class="powerup-info">
-                                    <strong>Swap</strong><br />
-                                    Swap adjacent tiles even without matches
-                                </div>
-                            </div>
+                        <div class="powerup-list" id="powerupList">
+                            <!-- Dynamically populated based on unlocked power-ups -->
                         </div>
-                    </div>
-
-                    <div class="intro-section">
-                        <h3>🎲 Tips</h3>
-                        <ul>
-                            <li>Plan your moves carefully - you have limited moves per level!</li>
-                            <li>Special formations give better value than regular matches</li>
-                            <li>Look for opportunities to create T, L, and block patterns</li>
-                            <li>Complete all level goals to advance</li>
-                        </ul>
                     </div>
                 </div>
 

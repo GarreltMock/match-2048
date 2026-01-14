@@ -193,7 +193,7 @@ export const GOAL_DIALOGS = {
 export const FEATURE_UNLOCK_DIALOGS = {
     power_hammer: {
         title: `Hammer Joker <span style="color: #aee96b">Unlocked</span>`,
-        subtitle: "Remove any movable tile from the board",
+        subtitle: "Remove any tile from the board",
         content: `
             <button class="power-up-btn" title="Remove a tile">
                 <span>🔨</span>
@@ -506,32 +506,46 @@ export function showFeatureUnlockDialog(featureKey, game, onClose) {
 }
 
 /**
- * Populate the intro dialog goal types list based on which dialogs have been shown
+ * Populate the intro dialog power-ups list based on which power-ups have been unlocked
  */
-export function updateIntroDialogGoalsList() {
-    const goalTypesList = document.getElementById("goalTypesList");
-    if (!goalTypesList) return;
+export function updateIntroDialogPowerupsList() {
+    const powerupList = document.getElementById("powerupList");
+    const powerupsSection = document.getElementById("powerupsSection");
+    if (!powerupList || !powerupsSection) return;
 
-    const shownDialogs = loadShownGoalDialogs();
+    // Define power-up information
+    const powerups = [
+        { key: "power_hammer", icon: "🔨", name: "Hammer", description: "Remove any tile from the board" },
+        { key: "power_halve", icon: "✂️", name: "Halve", description: "Halve the value of any tile instantly" },
+        { key: "power_swap", icon: "🔄", name: "Swap", description: "Swap adjacent tiles even without matches" },
+    ];
 
     // Clear existing list
-    goalTypesList.innerHTML = "";
+    powerupList.innerHTML = "";
 
-    // Always show Created Goals first since it's the foundational goal type
-    const createdGoalInfo = GOAL_TYPE_DESCRIPTIONS.created;
-    const createdLi = document.createElement("li");
-    createdLi.innerHTML = `<strong>${createdGoalInfo.icon} ${createdGoalInfo.title}:</strong> ${createdGoalInfo.description}`;
-    goalTypesList.appendChild(createdLi);
+    // Filter and add only unlocked power-ups
+    const unlockedPowerups = powerups.filter((powerup) => isFeatureUnlocked(powerup.key));
 
-    // Add other shown goal types (excluding 'created' since we already added it)
-    shownDialogs.forEach((dialogType) => {
-        if (dialogType === "created") return; // Skip created, already added
+    if (unlockedPowerups.length === 0) {
+        // Hide the entire power-ups section if no power-ups are unlocked
+        powerupsSection.style.display = "none";
+        return;
+    }
 
-        const goalInfo = GOAL_TYPE_DESCRIPTIONS[dialogType];
-        if (goalInfo) {
-            const li = document.createElement("li");
-            li.innerHTML = `<strong>${goalInfo.icon} ${goalInfo.title}:</strong> ${goalInfo.description}`;
-            goalTypesList.appendChild(li);
-        }
+    // Show the section
+    powerupsSection.style.display = "block";
+
+    // Add unlocked power-ups to the list
+    unlockedPowerups.forEach((powerup) => {
+        const powerupItem = document.createElement("div");
+        powerupItem.className = "powerup-item";
+        powerupItem.innerHTML = `
+            <span class="powerup-icon">${powerup.icon}</span>
+            <div class="powerup-info">
+                <strong>${powerup.name}</strong><br />
+                ${powerup.description}
+            </div>
+        `;
+        powerupList.appendChild(powerupItem);
     });
 }

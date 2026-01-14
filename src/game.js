@@ -81,7 +81,7 @@ import {
 import {
     showGoalDialog,
     hasDialogBeenShown,
-    updateIntroDialogGoalsList,
+    updateIntroDialogPowerupsList,
     showFeatureUnlockDialog,
     hasFeatureBeenUnlocked,
 } from "./goal-dialogs.js";
@@ -1997,52 +1997,61 @@ export class Match3Game {
     }
 
     setupInfoButton() {
+        const openIntroDialog = (e) => {
+            e.stopPropagation();
+            // Update the power-ups list based on unlocked features
+            updateIntroDialogPowerupsList();
+
+            // Force show the dialog, ignoring localStorage preference
+            const introDialog = document.getElementById("introDialog");
+            introDialog.classList.remove("hidden");
+
+            // Set up event listeners (reuse the same logic as showIntroDialog)
+            const startBtn = document.getElementById("startGame");
+
+            const closeDialog = () => {
+                introDialog.classList.add("hidden");
+            };
+
+            // Remove any existing listeners and add new ones
+            const newStartBtn = startBtn.cloneNode(true);
+            startBtn.parentNode.replaceChild(newStartBtn, startBtn);
+
+            newStartBtn.addEventListener("click", closeDialog);
+
+            // Close on overlay click
+            introDialog.addEventListener(
+                "click",
+                (e) => {
+                    if (e.target === introDialog) {
+                        closeDialog();
+                    }
+                },
+                { once: true }
+            );
+
+            // Close on Escape key
+            document.addEventListener(
+                "keydown",
+                (e) => {
+                    if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
+                        closeDialog();
+                    }
+                },
+                { once: true }
+            );
+        };
+
+        // Setup home screen info button
         const infoBtn = document.getElementById("infoBtn");
         if (infoBtn) {
-            infoBtn.addEventListener("click", (e) => {
-                e.stopPropagation();
-                // Update the goal types list based on seen dialogs
-                updateIntroDialogGoalsList();
+            infoBtn.addEventListener("click", openIntroDialog);
+        }
 
-                // Force show the dialog, ignoring localStorage preference
-                const introDialog = document.getElementById("introDialog");
-                introDialog.classList.remove("hidden");
-
-                // Set up event listeners (reuse the same logic as showIntroDialog)
-                const startBtn = document.getElementById("startGame");
-
-                const closeDialog = () => {
-                    introDialog.classList.add("hidden");
-                };
-
-                // Remove any existing listeners and add new ones
-                const newStartBtn = startBtn.cloneNode(true);
-                startBtn.parentNode.replaceChild(newStartBtn, startBtn);
-
-                newStartBtn.addEventListener("click", closeDialog);
-
-                // Close on overlay click
-                introDialog.addEventListener(
-                    "click",
-                    (e) => {
-                        if (e.target === introDialog) {
-                            closeDialog();
-                        }
-                    },
-                    { once: true }
-                );
-
-                // Close on Escape key
-                document.addEventListener(
-                    "keydown",
-                    (e) => {
-                        if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
-                            closeDialog();
-                        }
-                    },
-                    { once: true }
-                );
-            });
+        // Setup game screen info button
+        const infoBtnGame = document.getElementById("infoBtnGame");
+        if (infoBtnGame) {
+            infoBtnGame.addEventListener("click", openIntroDialog);
         }
 
         const resetBtn = document.getElementById("resetBtn");
