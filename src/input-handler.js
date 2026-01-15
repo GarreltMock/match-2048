@@ -216,7 +216,18 @@ function updateDrag(game, x, y) {
     if (!game.isDragging || !game.selectedGem) return;
 
     const element = document.elementFromPoint(x, y);
-    if (element && element.classList.contains("gem") && element !== game.selectedGem.element) {
+    if (element && element.classList.contains("gem")) {
+        // If user drags back to the original tile, cancel the preview
+        if (element === game.selectedGem.element) {
+            document.querySelectorAll(".gem.preview").forEach((gem) => {
+                gem.classList.remove("preview");
+            });
+            document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
+                gem.classList.remove("merge-preview");
+            });
+            return;
+        }
+
         const targetRow = parseInt(element.dataset.row);
         const targetCol = parseInt(element.dataset.col);
 
