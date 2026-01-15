@@ -326,10 +326,27 @@ function calculateSwapScore(game, matches) {
         }
     }
 
-    // Check if level has blocked goals
+    // Check if level has blocked goals and if they're the only remaining goals
     let hasBlockedGoals = false;
+    let blockedIsOnlyRemainingGoal = false;
     if (game.currentLevel && game.currentLevel.goals) {
-        hasBlockedGoals = game.currentLevel.goals.some(goal => goal.goalType === "blocked");
+        const blockedGoals = game.currentLevel.goals.filter(goal => goal.goalType === "blocked");
+        hasBlockedGoals = blockedGoals.length > 0;
+
+        if (hasBlockedGoals) {
+            // Check if all non-blocked goals are complete
+            const nonBlockedGoals = game.currentLevel.goals.filter(goal => goal.goalType !== "blocked");
+            const allNonBlockedComplete = nonBlockedGoals.every(goal => {
+                const progress = game.goalProgress?.[goal.id] || 0;
+                return progress >= goal.count;
+            });
+            // Check if blocked goals are still incomplete
+            const blockedGoalsIncomplete = blockedGoals.some(goal => {
+                const progress = game.goalProgress?.[goal.id] || 0;
+                return progress < goal.count;
+            });
+            blockedIsOnlyRemainingGoal = allNonBlockedComplete && blockedGoalsIncomplete;
+        }
     }
 
     // Calculate position bonus (matches closer to bottom trigger more cascades)
@@ -350,7 +367,9 @@ function calculateSwapScore(game, matches) {
     score += maxFormationScore;
     score += totalTilesCleared * 50;
     score += goalProgress * 100;
-    score += hasBlockedGoals ? blockedCleared * 150 : 0;
+    // Much higher bonus when blocked is the only remaining goal
+    const blockedBonus = blockedIsOnlyRemainingGoal ? 500 : 150;
+    score += hasBlockedGoals ? blockedCleared * blockedBonus : 0;
     score += hasSpecialTile ? 200 : 0;
     score += maxValue * 5;
     score += positionBonus;
