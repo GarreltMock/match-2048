@@ -552,14 +552,22 @@
 
                         <div class="formation-example">
                             <h4>3-Tile Match</h4>
-                            <div class="example-tiles" style="margin-bottom: 0">
+                            <div class="example-formations-row">
                                 <div class="example-grid example-tiles">
                                     <div class="example-tile">4</div>
                                     <div class="example-tile target-highlight">4</div>
                                     <div class="example-tile">4</div>
                                 </div>
-                                <span class="arrow">→</span>
-                                <div class="example-tile highlight">8</div>
+                            </div>
+
+                            <div class="merge-indicator">
+                                <div class="merge-arrow">↓</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-tiles">
+                                    <div class="example-tile highlight">8</div>
+                                </div>
                             </div>
                         </div>
 
@@ -586,15 +594,21 @@
                                 </div>
                             </div>
 
-                            <div class="example-result-row">
-                                <span class="arrow">→</span>
-                                <div
-                                    class="example-tile highlight gem freeswap-horizontal-tile"
-                                    style="margin-right: 2px"
-                                >
-                                    8
+                            <div class="merge-indicator">
+                                <div class="merge-arrow">↓</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-tiles">
+                                    <div class="example-tile highlight gem freeswap-horizontal-tile">8</div>
+                                    <div class="example-tile highlight">8</div>
                                 </div>
-                                <div class="example-tile highlight">8</div>
+                                <div class="special-tile-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-icon gem freeswap-horizontal-tile"></div>
+                                        <span>Directional Free Swap - one free swap in that direction</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -639,12 +653,23 @@
                                 </div>
                             </div>
 
-                            <div class="example-result-row">
-                                <span class="arrow">→</span>
-                                <div class="example-tile highlight double gem freeswap-tile">16</div>
+                            <div class="merge-indicator">
+                                <div class="merge-arrow">↓</div>
                             </div>
 
-                            <div class="example-formations-row" style="margin-top: 40px">
+                            <div class="result-card">
+                                <div class="result-tiles">
+                                    <div class="example-tile highlight double gem freeswap-tile">16</div>
+                                </div>
+                                <div class="special-tile-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-icon gem freeswap-tile"></div>
+                                        <span>Free Swap - allows one free invalid swap</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="example-formations-row" style="margin-top: 24px">
                                 <div class="example-grid example-tiles">
                                     <div class="example-tile">4</div>
                                     <div class="example-tile">4</div>
@@ -654,13 +679,24 @@
                                 </div>
                             </div>
 
-                            <div class="example-result-row">
-                                <span class="arrow">→</span>
-                                <div class="example-tile gem tile-JOKER joker-tile">
-                                    <span class="star-value" style="">*</span>
-                                    <!-- <span style="font-size: 35cqw" class="preview-value">32</span> -->
+                            <div class="merge-indicator">
+                                <div class="merge-arrow">↓</div>
+                            </div>
+
+                            <div class="result-card">
+                                <div class="result-tiles">
+                                    <div class="example-tile gem tile-JOKER joker-tile">
+                                        <span class="star-value">*</span>
+                                    </div>
                                 </div>
-                                <!-- <div class="example-tile highlight double gem joker-tile tile-JOKER">16</div> -->
+                                <div class="special-tile-legend">
+                                    <div class="legend-item">
+                                        <div class="legend-icon gem tile-JOKER">
+                                            <span class="star-value">*</span>
+                                        </div>
+                                        <span>Joker - tap to merge with any adjacent tile</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

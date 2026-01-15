@@ -252,7 +252,7 @@ button {
     border-radius: 12px;
     padding: 15px;
     margin: 15px 0;
-    border-left: 4px solid #aee96b;
+    /* border-left: 4px solid #aee96b; */
 }
 
 .formation-example h4 {
@@ -269,9 +269,9 @@ button {
 }
 
 .example-grid {
-    background-color: #30303044;
+    /* background-color: rgba(255,255,255,0.1); */
     border-radius: 6px;
-    padding: 4px;
+    padding: 6px;
 }
 
 .example-tiles {
@@ -283,6 +283,7 @@ button {
 
 .example-formations-row {
     display: flex;
+    justify-content: center;
     align-items: flex-start;
     gap: 10px;
     margin: 10px 0px;
@@ -291,6 +292,123 @@ button {
 .example-result-row {
     display: flex;
     align-items: center;
+}
+
+.merge-indicator {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0;
+}
+
+.merge-arrow {
+    width: 32px;
+    height: 32px;
+    background: rgba(174, 233, 107, 0.2);
+    border: 2px solid rgba(174, 233, 107, 0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #aee96b;
+    font-weight: bold;
+}
+
+.result-card {
+    background: rgba(174, 233, 107, 0.1);
+    border: 1px solid rgba(174, 233, 107, 0.3);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.result-tiles {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+.special-tile-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.legend-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    background: var(--tile-4);
+    color: var(--tile-4-text);
+    container-type: inline-size;
+}
+
+.legend-icon.tile-JOKER {
+    background: var(--tile-joker-bg);
+    border: 2px solid var(--tile-joker-border);
+}
+
+.legend-icon.tile-JOKER .star-value {
+    font-size: 70cqw;
+    font-weight: bold;
+    color: white;
+}
+
+.legend-icon.freeswap-tile {
+    border: 2px solid var(--tile-freeswap-border);
+    position: relative;
+}
+
+.legend-icon.freeswap-tile::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--tile-freeswap-badge-bg);
+    background-image: url("assets/arrow-all-directions.svg");
+    background-size: 75%;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.legend-icon.freeswap-horizontal-tile {
+    border: 2px solid var(--tile-freeswap-border);
+    position: relative;
+}
+
+.legend-icon.freeswap-horizontal-tile::after {
+    content: "";
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--tile-freeswap-badge-bg);
+    background-image: url("assets/arrow-horizontal.svg");
+    background-size: 75%;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .grid-row {
