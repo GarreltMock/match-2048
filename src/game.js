@@ -2111,8 +2111,13 @@ export class Match3Game {
         // Clear existing timer
         this.clearHintTimer();
 
-        // Don't start timer if hints disabled, game inactive or animating
+        // Don't start timer if hints disabled, game inactive, animating, or level has tutorial swaps
         if (!this.hintsEnabled || !this.gameActive || this.animating) {
+            return;
+        }
+
+        // Skip hints for tutorial levels (they have their own guided swaps)
+        if (this.levelConfig?.tutorialSwaps?.length > 0) {
             return;
         }
 
