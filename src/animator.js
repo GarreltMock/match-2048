@@ -627,6 +627,9 @@ export function dropGems(game) {
 
             // Check level completion only after all animations are finished
             game.checkLevelComplete();
+
+            // Restart hint timer after all cascading and animations complete
+            game.startHintTimer();
         }
     }, totalTimeout);
 }

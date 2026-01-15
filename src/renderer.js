@@ -244,6 +244,11 @@ export function renderBoard(game) {
     }
 
     updateGoalDisplay(game);
+
+    // Restore hint highlight if active
+    if (game.currentHint) {
+        game.renderHintHighlight();
+    }
 }
 
 export function renderGoals(game) {

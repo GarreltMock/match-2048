@@ -369,7 +369,8 @@
     border-radius: 20%;
     cursor: pointer;
     position: relative;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease,
+        filter 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -391,8 +392,10 @@
 
 .gem.dragging {
     z-index: 10;
+    /* opacity: 0.7; */
+    /* transform: scale(0.95); */
     transform: scale(1.1);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); */
 }
 
 .gem.preview,
@@ -1208,4 +1211,71 @@
         transform: scale(1);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+}
+
+/* Hint System Styles - Nudge Animations */
+.hint-nudge-up {
+    animation: hintNudgeUp 0.8s ease-in-out infinite alternate;
+}
+
+.hint-nudge-down {
+    animation: hintNudgeDown 0.8s ease-in-out infinite alternate;
+}
+
+.hint-nudge-left {
+    animation: hintNudgeLeft 0.8s ease-in-out infinite alternate;
+}
+
+.hint-nudge-right {
+    animation: hintNudgeRight 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes hintNudgeUp {
+    0%,
+    50% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(-15%);
+    }
+}
+
+@keyframes hintNudgeDown {
+    0%,
+    50% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(15%);
+    }
+}
+
+@keyframes hintNudgeLeft {
+    0%,
+    50% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-15%);
+    }
+}
+
+@keyframes hintNudgeRight {
+    0%,
+    50% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(15%);
+    }
+}
+
+/* Merge Preview Styles - for hints */
+.hint-merge-preview,
+.merge-preview {
+    /* filter: brightness(0.7); */
+    /* outline: 2px dashed rgba(255, 255, 255, 1); */
+    outline: 2px dashed rgba(0, 0, 0, 0.4);
+    outline-offset: -4px;
+    z-index: 100;
 }

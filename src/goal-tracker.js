@@ -234,6 +234,10 @@ export function nextLevel(game) {
         powerUpReward.style.display = "none";
     }
 
+    // Clear hint and timer when leaving level
+    game.clearHint();
+    game.clearHintTimer();
+
     if (game.currentLevel < game.levels.length) {
         game.currentLevel++;
         saveCurrentLevel(game.currentLevel); // Save progress to localStorage
@@ -256,6 +260,11 @@ export function restartLevel(game) {
     game.createBoard();
     game.renderBoard();
     game.showGoalDialogIfNeeded();
+
+    // Reset hint system for restarted level
+    game.clearHint();
+    game.clearHintTimer();
+    game.startHintTimer();
 }
 
 export function decrementCursedTileTimers(game) {

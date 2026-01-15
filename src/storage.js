@@ -320,3 +320,24 @@ export function loadVersion() {
 export function saveVersion(version) {
     localStorage.setItem("match2048_version", version);
 }
+
+/**
+ * Load the hint system enabled setting
+ * @returns {boolean} True if hints are enabled (default: true)
+ */
+export function loadHintsEnabled() {
+    const saved = localStorage.getItem("match2048_hintsEnabled");
+    // Default to true if not set
+    if (saved === null) {
+        return true;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the hint system enabled setting
+ * @param {boolean} enabled - Whether hints should be enabled
+ */
+export function saveHintsEnabled(enabled) {
+    localStorage.setItem("match2048_hintsEnabled", enabled.toString());
+}

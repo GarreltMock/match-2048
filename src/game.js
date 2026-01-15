@@ -38,6 +38,8 @@ import {
     saveCoins,
     isFeatureUnlocked,
     saveUnlockedFeature,
+    loadHintsEnabled,
+    saveHintsEnabled,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -69,6 +71,7 @@ import {
 import { processMatches } from "./merge-processor.js";
 import { animateSwap, animateRevert, dropGems } from "./animator.js";
 import { renderBoard, renderGoals, renderBoardUpgrades, updateGoalDisplay, updateMovesDisplay } from "./renderer.js";
+import { findBestSwap } from "./hint-system.js";
 import {
     checkLevelComplete,
     updateTileCounts,
@@ -137,6 +140,12 @@ export class Match3Game {
         this.isUserSwap = false; // Track if we're processing a user swap
         this.interruptCascade = false; // Flag to interrupt ongoing cascade animations
         this.pendingSwap = null; // Store pending swap when interrupting
+
+        // Hint system
+        this.currentHint = null; // {row1, col1, row2, col2}
+        this.hintTimer = null; // setTimeout reference
+        this.hintTimeout = 4000; // 4 seconds
+        this.hintsEnabled = loadHintsEnabled();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -592,6 +601,9 @@ export class Match3Game {
         if (isTutorialActive(this)) {
             showTutorialUI(this);
         }
+
+        // Start hint timer after board is rendered
+        this.startHintTimer();
     }
 
     saveScore() {
@@ -903,6 +915,9 @@ export class Match3Game {
     usePowerUpHammer(row, col, element) {
         const tile = this.board[row][col];
 
+        // Reset hint timer on power-up usage
+        this.resetHintTimer();
+
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
 
@@ -1078,6 +1093,9 @@ export class Match3Game {
         const currentValue = tile && (tile.type === TILE_TYPE.NORMAL || isCursedTile) ? tile.value : null;
 
         if (currentValue && currentValue > 1) {
+            // Reset hint timer on power-up usage
+            this.resetHintTimer();
+
             // Decrement remaining count
             this.powerUpRemaining.halve--;
 
@@ -1633,6 +1651,9 @@ export class Match3Game {
         const tFormationSelect = document.getElementById("tFormationReward");
         const lFormationSelect = document.getElementById("lFormationReward");
 
+        // Gameplay settings
+        const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
+
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
             const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -1726,6 +1747,11 @@ export class Match3Game {
             tFormationSelect.value = this.specialTileConfig.t_formation;
             lFormationSelect.value = this.specialTileConfig.l_formation;
 
+            // Set gameplay settings
+            if (hintsEnabledCheckbox) {
+                hintsEnabledCheckbox.checked = this.hintsEnabled;
+            }
+
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
             if (userIdDisplay) {
@@ -1809,6 +1835,12 @@ export class Match3Game {
                     this.specialTileConfig.t_formation = tFormationSelect.value;
                     this.specialTileConfig.l_formation = lFormationSelect.value;
                     saveSpecialTileConfig(this.specialTileConfig);
+
+                    // Save gameplay settings
+                    if (hintsEnabledCheckbox) {
+                        this.hintsEnabled = hintsEnabledCheckbox.checked;
+                        saveHintsEnabled(this.hintsEnabled);
+                    }
 
                     // Mark that settings were changed during this level (if game is active)
                     if (this.gameActive && !levelChanged) {
@@ -2067,6 +2099,131 @@ export class Match3Game {
                     location.reload();
                 }
             });
+        }
+    }
+
+    // ===== Hint System Methods =====
+
+    /**
+     * Start or restart the hint timer
+     */
+    startHintTimer() {
+        // Clear existing timer
+        this.clearHintTimer();
+
+        // Don't start timer if hints disabled, game inactive or animating
+        if (!this.hintsEnabled || !this.gameActive || this.animating) {
+            return;
+        }
+
+        // Start new timer
+        this.hintTimer = setTimeout(() => {
+            this.showHint();
+        }, this.hintTimeout);
+    }
+
+    /**
+     * Stop the hint timer without clearing displayed hints
+     */
+    clearHintTimer() {
+        if (this.hintTimer) {
+            clearTimeout(this.hintTimer);
+            this.hintTimer = null;
+        }
+    }
+
+    /**
+     * Calculate and display the best hint
+     */
+    showHint() {
+        // Prevent during animations or inactive game
+        if (!this.gameActive || this.animating) {
+            return;
+        }
+
+        const bestSwap = findBestSwap(this);
+
+        if (!bestSwap) {
+            // No valid moves available - don't show anything
+            return;
+        }
+
+        this.currentHint = {
+            row1: bestSwap.row1,
+            col1: bestSwap.col1,
+            row2: bestSwap.row2,
+            col2: bestSwap.col2,
+            direction1: bestSwap.direction1,
+            direction2: bestSwap.direction2,
+            matchTiles: bestSwap.matchTiles || []
+        };
+
+        this.renderHintHighlight();
+    }
+
+    /**
+     * Clear the displayed hint
+     */
+    clearHint() {
+        if (!this.currentHint) return;
+
+        // Clear nudge classes from swap tiles
+        const gem1 = document.querySelector(
+            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`
+        );
+        const gem2 = document.querySelector(
+            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`
+        );
+
+        gem1?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
+        gem2?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
+
+        // Clear merge preview from all tiles
+        document.querySelectorAll(".hint-merge-preview").forEach(el => {
+            el.classList.remove("hint-merge-preview");
+        });
+
+        this.currentHint = null;
+    }
+
+    /**
+     * Clear hint display and restart timer
+     */
+    resetHintTimer() {
+        this.clearHint();
+        this.clearHintTimer();
+        this.startHintTimer();
+    }
+
+    /**
+     * Apply hint highlight CSS to hinted tiles
+     */
+    renderHintHighlight() {
+        if (!this.currentHint) return;
+
+        const gem1 = document.querySelector(
+            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`
+        );
+        const gem2 = document.querySelector(
+            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`
+        );
+
+        // Add directional nudge animation to swap tiles
+        if (gem1 && this.currentHint.direction1) {
+            gem1.classList.add(`hint-nudge-${this.currentHint.direction1}`);
+        }
+        if (gem2 && this.currentHint.direction2) {
+            gem2.classList.add(`hint-nudge-${this.currentHint.direction2}`);
+        }
+
+        // Highlight tiles that will merge
+        if (this.currentHint.matchTiles) {
+            for (const tile of this.currentHint.matchTiles) {
+                const matchGem = document.querySelector(
+                    `[data-row="${tile.row}"][data-col="${tile.col}"]`
+                );
+                matchGem?.classList.add("hint-merge-preview");
+            }
         }
     }
 }

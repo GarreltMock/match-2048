@@ -828,6 +828,17 @@ button {
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
+.setting-item-checkbox {
+    justify-content: space-between;
+}
+
+.setting-item-checkbox input[type="checkbox"] {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    accent-color: #667eea;
+}
+
 .settings-footer {
     background: #f8f9fa;
     padding: 20px;

@@ -18,6 +18,7 @@ import {
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
 import { savePowerUpCounts } from "./storage.js";
+import { getMatchTilesForSwap } from "./hint-system.js";
 import {
     isTutorialActive,
     isValidTutorialSwap,
@@ -160,6 +161,10 @@ export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnecti
 function startDrag(game, x, y) {
     if (!game.gameActive) return;
 
+    // Clear hint on user interaction (don't start timer until drag ends)
+    game.clearHint();
+    game.clearHintTimer();
+
     const element = document.elementFromPoint(x, y);
     if (element && element.classList.contains("gem")) {
         const row = parseInt(element.dataset.row);
@@ -217,7 +222,7 @@ function updateDrag(game, x, y) {
 
         // Check if gems are adjacent
         if (areAdjacent(game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
-            previewSwap(game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
+            previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
         }
     }
 }
@@ -260,8 +265,11 @@ function endDrag(game) {
 
     // Clean up
     document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("dragging", "preview");
+        gem.classList.remove("dragging", "preview", "merge-preview");
     });
+
+    // Reset hint timer after user interaction completes
+    game.resetHintTimer();
 
     game.selectedGem = null;
     game.isDragging = false;
@@ -377,10 +385,13 @@ function areAdjacent(row1, col1, row2, col2) {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
 }
 
-function previewSwap(row1, col1, row2, col2) {
+function previewSwap(game, row1, col1, row2, col2) {
     // Clear previous previews
     document.querySelectorAll(".gem.preview").forEach((gem) => {
         gem.classList.remove("preview");
+    });
+    document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
+        gem.classList.remove("merge-preview");
     });
 
     // Add preview to both gems
@@ -390,6 +401,17 @@ function previewSwap(row1, col1, row2, col2) {
     if (gem1 && gem2) {
         gem1.classList.add("preview");
         gem2.classList.add("preview");
+
+        // Get tiles that would merge if swap completes
+        const matchTiles = getMatchTilesForSwap(game, row1, col1, row2, col2);
+
+        // Highlight merge tiles
+        for (const tile of matchTiles) {
+            const matchGem = document.querySelector(
+                `[data-row="${tile.row}"][data-col="${tile.col}"]`
+            );
+            matchGem?.classList.add("merge-preview");
+        }
     }
 }
 
