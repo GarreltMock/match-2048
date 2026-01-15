@@ -283,10 +283,10 @@ button {
 
 .example-formations-row {
     display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    justify-content: space-around;
+    align-items: center;
     gap: 10px;
-    margin: 10px 0px;
+    /* margin: 10px 0px; */
 }
 
 .example-result-row {
