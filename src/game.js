@@ -1222,6 +1222,12 @@ export class Match3Game {
                     this.gameActive = true;
                     this.showPowerUps();
 
+                    // Remove level-ended opacity from game board
+                    const gameBoard = document.getElementById("gameBoard");
+                    if (gameBoard) {
+                        gameBoard.classList.remove("level-ended");
+                    }
+
                     // Update coins display
                     this.updateCoinsDisplays();
                 } else {
@@ -1260,6 +1266,12 @@ export class Match3Game {
                 this.hideControls();
                 this.gameActive = true;
                 this.showPowerUps();
+
+                // Remove level-ended opacity from game board
+                const gameBoard = document.getElementById("gameBoard");
+                if (gameBoard) {
+                    gameBoard.classList.remove("level-ended");
+                }
             });
         }
 
@@ -1336,6 +1348,11 @@ export class Match3Game {
         const extraMovesDialog = document.getElementById("extraMovesDialog");
         const showBoardBtn = document.getElementById("showBoardBtn");
         const fiveExtraMovesText = document.getElementById("fiveExtraMovesText");
+        const gameBoard = document.getElementById("gameBoard");
+
+        if (gameBoard) {
+            gameBoard.classList.add("level-ended");
+        }
 
         // Always show the review board button
         if (showBoardBtn) {
@@ -1553,7 +1570,11 @@ export class Match3Game {
 
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const gameBoard = document.getElementById("gameBoard");
 
+        if (gameBoard) {
+            gameBoard.classList.add("level-ended");
+        }
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "hidden";
         }
@@ -1569,7 +1590,11 @@ export class Match3Game {
 
     hideLevelSolved() {
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
+        const gameBoard = document.getElementById("gameBoard");
 
+        if (gameBoard) {
+            gameBoard.classList.remove("level-ended");
+        }
         if (levelSolvedSvg) {
             levelSolvedSvg.style.visibility = "hidden";
             levelSolvedSvg.classList.remove("animate");
@@ -1604,7 +1629,11 @@ export class Match3Game {
         const restartBtn = document.getElementById("restartBtn");
         const nextBtn = document.getElementById("nextBtn");
         const continueBtn = document.getElementById("continueBtn");
+        const gameBoard = document.getElementById("gameBoard");
 
+        if (gameBoard) {
+            gameBoard.classList.add("level-ended");
+        }
         if (levelSolvedSvg) {
             levelSolvedSvg.style.visibility = "hidden";
         }
@@ -1627,7 +1656,11 @@ export class Match3Game {
 
     hideLevelFailed() {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const gameBoard = document.getElementById("gameBoard");
 
+        if (gameBoard) {
+            gameBoard.classList.remove("level-ended");
+        }
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "hidden";
             levelFailedSvg.classList.remove("animate");
