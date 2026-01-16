@@ -429,12 +429,13 @@
                         <select id="line4Reward" class="special-tile-select">
                             <option value="none">None</option>
                             <option value="joker" class="regular-option">* Wildcard</option>
-                            <option value="power" class="regular-option">➕ Bonus</option>
                             <option value="freeswap" class="regular-option">✥ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">✥ Sticky Free Swap</option>
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
+                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+                            <option value="teleport" class="regular-option">🔀 Teleport</option>
                         </select>
                     </div>
 
@@ -443,13 +444,13 @@
                         <select id="block4Reward" class="special-tile-select">
                             <option value="none">None</option>
                             <option value="joker" class="regular-option">* Wildcard</option>
-                            <option value="power" class="regular-option">➕ Bonus</option>
-                            <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">✥ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">✥ Sticky Free Swap</option>
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
+                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+                            <option value="teleport" class="regular-option">🔀 Teleport</option>
                         </select>
                     </div>
 
@@ -458,13 +459,13 @@
                         <select id="line5Reward" class="special-tile-select">
                             <option value="none">None</option>
                             <option value="joker" class="regular-option">* Wildcard</option>
-                            <option value="power" class="regular-option">➕ Bonus</option>
-                            <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">✥ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">✥ Sticky Free Swap</option>
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
+                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+                            <option value="teleport" class="regular-option">🔀 Teleport</option>
                         </select>
                     </div>
 
@@ -473,13 +474,13 @@
                         <select id="lFormationReward" class="special-tile-select">
                             <option value="none">None</option>
                             <option value="joker" class="regular-option">* Wildcard</option>
-                            <option value="power" class="regular-option">➕ Bonus</option>
-                            <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">✥ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">✥ Sticky Free Swap</option>
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
+                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+                            <option value="teleport" class="regular-option">🔀 Teleport</option>
                         </select>
                     </div>
 
@@ -488,28 +489,30 @@
                         <select id="tFormationReward" class="special-tile-select">
                             <option value="none">None</option>
                             <option value="joker" class="regular-option">* Wildcard</option>
-                            <option value="power" class="regular-option">➕ Bonus</option>
-                            <option value="golden" class="regular-option">★ Golden</option>
                             <option value="freeswap" class="regular-option">✥ Free Swap</option>
                             <option value="sticky_freeswap" class="regular-option">✥ Sticky Free Swap</option>
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
+                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+                            <option value="teleport" class="regular-option">🔀 Teleport</option>
                         </select>
                     </div>
 
                     <div class="special-tile-help">
                         <strong>* Wildcard:</strong> Merges with any tile. Tap to trigger a merge or use it in a
                         merge.<br />
-                        <strong>➕ Bonus:</strong> Merges with same value or higher.<br />
-                        <strong>★ Golden:</strong> Doubles the value of any merge it's in.<br />
                         <strong>↔ Free Swap:</strong> Allows one free invalid swap.<br />
                         <strong>✥ Sticky Free Swap:</strong> Like Free Swap, but transfers ability to merged tile in
                         cascades.<br />
                         <strong>⇄ Directional Free Swap:</strong> Allows one free invalid swap, but only in the
                         direction (horizontal or vertical) of the swap that created it.<br />
                         <strong>🔨 Hammer Tile:</strong> Tap to remove the tile from the board (costs 1 move).<br />
-                        <strong>✂️ Halver Tile:</strong> Tap to halve the tile's value (costs 1 move).
+                        <strong>✂️ Halver Tile:</strong> Tap to halve the tile's value (costs 1 move).<br />
+                        <strong>🎁 Random Joker:</strong> When matched, grants a random Joker (hammer, halver, or
+                        swap).<br />
+                        <strong>🔀 Teleport:</strong> Tap to select, then tap another tile to swap positions (costs 1
+                        move).
                     </div>
 
                     <div class="settings-section-title">Gameplay</div>

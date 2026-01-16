@@ -20,14 +20,14 @@ export const TILE_TYPE = {
 export const SPECIAL_TILE_TYPES = {
     NONE: "none",
     JOKER: "joker",
-    POWER: "power",
-    GOLDEN: "golden",
     FREESWAP: "freeswap",
     STICKY_FREESWAP: "sticky_freeswap",
     FREESWAP_HORIZONTAL: "freeswap_horizontal",
     FREESWAP_VERTICAL: "freeswap_vertical",
     HAMMER: "hammer",
     HALVER: "halver",
+    RANDOM_POWERUP: "random_powerup",
+    TELEPORT: "teleport",
 };
 
 export const FORMATION_TYPES = {
@@ -911,14 +911,14 @@ export const TEST_LEVELS = [
     },
     {
         level: 10,
-        title: "Power Tile Match",
+        title: "Free Swap Tile Match",
         boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
-            [0, "5B", 6, 6, 0],
+            [0, "5S", 6, 6, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
@@ -930,21 +930,20 @@ export const TEST_LEVELS = [
     },
     {
         level: 11,
-        title: "Golden Tile Match",
+        title: "Sticky Free Swap Tile Match",
         boardWidth: 5,
         boardHeight: 5,
         maxMoves: 5,
         boardPreset: [
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
-            [0, "6G", 6, 6, 0],
+            [0, "6K", 6, 6, 0],
             [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ],
         goals: [
             { tileValue: 1, target: 1, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
-            { tileValue: 8, target: 1, current: 0, goalType: "created" },
         ],
         spawnableTiles: [0],
     },

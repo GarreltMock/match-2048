@@ -5,7 +5,7 @@ import { TILE_TYPE } from "./config.js";
 /**
  * Create a normal tile with optional special properties
  * @param {number} value - The tile's internal value
- * @param {string|null} specialType - Special tile type: "power", "golden", "freeswap", "sticky_freeswap",
+ * @param {string|null} specialType - Special tile type: "freeswap", "sticky_freeswap",
  *                                     "freeswap_horizontal", "freeswap_vertical", "hammer", "halver", or null
  * @param {Object} options - Additional options
  * @param {boolean} options.transferStickyFreeSwap - Whether to transfer sticky free swap ability
@@ -176,14 +176,6 @@ export function isNormal(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL;
 }
 
-export function isTilePowerTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "power";
-}
-
-export function isTileGoldenTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "golden";
-}
-
 export function isTileFreeSwapTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "freeswap";
 }
@@ -206,6 +198,14 @@ export function isTileHammerTile(tile) {
 
 export function isTileHalverTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "halver";
+}
+
+export function isTileRandomPowerupTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "random_powerup";
+}
+
+export function isTileTeleportTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "teleport";
 }
 
 export function isCursed(tile) {

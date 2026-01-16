@@ -163,9 +163,7 @@ export function createMergedTiles(game, group) {
     const positions = isTLFormation ? [group.intersection] : calculateMiddlePositions(game, group.tiles, group);
     const valueIncrement = isTLFormation || is5LineFormation ? 2 : 1;
 
-    // Check if any tile in the match was a golden tile - if so, add +1 to the result
-    const goldenBonus = group.hasGoldenTile ? 1 : 0;
-    const newValue = group.value + valueIncrement + goldenBonus;
+    const newValue = group.value + valueIncrement;
 
     // Check if sticky free swap should transfer (detected before tiles were cleared)
     // If so, and this was NOT a user swap, transfer the sticky free swap to the merged tile
@@ -182,11 +180,6 @@ export function createMergedTiles(game, group) {
         trackGoalProgress(game, intermediateValue, 3);
     }
 
-    // Track intermediate value if golden bonus was applied
-    if (goldenBonus > 0) {
-        trackGoalProgress(game, newValue - goldenBonus, 1);
-    }
-
     // Handle special tile types
     if (specialTileType === "joker") {
         // Joker is special - it creates a joker tile (different tile type), not a normal tile with properties
@@ -201,6 +194,13 @@ export function createMergedTiles(game, group) {
         } else {
             game.board[positions[0].row][positions[0].col] = createJokerTile();
         }
+    } else if (specialTileType === "random_powerup") {
+        // Random power-up grants a power-up immediately and creates normal tiles
+        game.grantRandomPowerUp();
+        positions.forEach((pos) => {
+            game.board[pos.row][pos.col] = createTile(newValue, null, { transferStickyFreeSwap });
+        });
+        trackGoalProgress(game, newValue, positions.length);
     } else if (specialTileType && specialTileType !== "none") {
         // All other special tile types use the same pattern
         // For directional free swaps, determine the direction

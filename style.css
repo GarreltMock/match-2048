@@ -50,14 +50,6 @@ html {
     --tile-cursed-color: white;
     --tile-cursed-badge-bg: #9c27b0;
 
-    --tile-power-border: #d91ce9;
-    --tile-power-badge-bg: #d91ce9;
-    --tile-power-badge-color: white;
-
-    --tile-golden-border: #ffd700;
-    --tile-golden-badge-bg: #ffd700;
-    --tile-golden-badge-color: black;
-
     --tile-freeswap-border: #00bcd4;
     --tile-freeswap-badge-bg: #00bcd4;
     --tile-freeswap-badge-color: white;
@@ -69,6 +61,10 @@ html {
     --tile-halver-border: #9c27b0;
     --tile-halver-badge-bg: #9c27b0;
     --tile-halver-badge-color: white;
+
+    --tile-teleport-border: #e040fb;
+    --tile-teleport-badge-bg: #e040fb;
+    --tile-teleport-badge-color: white;
 
     --tile-blocked-bg: #3c3c3c;
     --tile-blocked-border: #666;

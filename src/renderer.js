@@ -8,14 +8,13 @@ import {
     isJoker,
     isCursed,
     isNormal,
-    isTilePowerTile,
-    isTileGoldenTile,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
     isTileFreeSwapHorizontalTile,
     isTileFreeSwapVerticalTile,
     isTileHammerTile,
     isTileHalverTile,
+    isTileTeleportTile,
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
@@ -183,16 +182,6 @@ export function renderBoard(game) {
                 const displayValue = getDisplayValue(value);
                 gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
-                // Add power-tile class if this is a power tile
-                if (isTilePowerTile(tile)) {
-                    gem.classList.add("power-tile");
-                }
-
-                // Add golden-tile class if this is a golden tile
-                if (isTileGoldenTile(tile)) {
-                    gem.classList.add("golden-tile");
-                }
-
                 // Add freeswap-tile class if this is a free swap tile that hasn't been used
                 if (isTileFreeSwapTile(tile) && !tile.hasBeenSwapped) {
                     gem.classList.add("freeswap-tile");
@@ -220,6 +209,15 @@ export function renderBoard(game) {
                 // Add halver-tile class if this is a halver tile
                 if (isTileHalverTile(tile)) {
                     gem.classList.add("halver-tile");
+                }
+
+                // Add teleport-tile class if this is a teleport tile
+                if (isTileTeleportTile(tile)) {
+                    gem.classList.add("teleport-tile");
+                    // Add teleport-used class if the tile has already been swapped
+                    if (tile.hasBeenSwapped) {
+                        gem.classList.add("teleport-used");
+                    }
                 }
             }
 

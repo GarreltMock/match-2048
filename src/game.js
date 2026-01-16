@@ -177,6 +177,12 @@ export class Match3Game {
             halve: 0,
             swap: 0,
         };
+        // Track random power-up bonuses (from random power-up tiles)
+        this.randomPowerUpBonusCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
+        };
 
         // Special tiles configuration
         this.specialTileConfig = loadSpecialTileConfig();
@@ -307,6 +313,13 @@ export class Match3Game {
 
         // Reset extra moves power-up counts for new level
         this.extraMovesPowerUpCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
+        };
+
+        // Reset random power-up bonus counts for new level
+        this.randomPowerUpBonusCounts = {
             hammer: 0,
             halve: 0,
             swap: 0,
@@ -751,6 +764,19 @@ export class Match3Game {
         this.powerUpSwapTiles = [];
     }
 
+    grantRandomPowerUp() {
+        // Pick a random power-up type
+        const powerUpTypes = ["hammer", "halve", "swap"];
+        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+
+        // Increment the power-up count
+        this.powerUpRemaining[randomType]++;
+        this.randomPowerUpBonusCounts[randomType]++;
+
+        // Update the power-up buttons to show the new count with gift icon
+        this.updatePowerUpButtons();
+    }
+
     showPowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {
@@ -806,11 +832,14 @@ export class Match3Game {
             const usesLeft = this.powerUpRemaining[powerUpType];
             const persistentUses = this.persistentPowerUpCounts[powerUpType];
             const extraMovesUses = this.extraMovesPowerUpCounts[powerUpType];
+            const randomPowerUpUses = this.randomPowerUpBonusCounts[powerUpType];
 
             // Check if this power-up has extra moves bonus
             const hasExtraMovesBonus = extraMovesUses > 0;
-            // Check if this power-up has a streak bonus (more uses than persistent + extra moves)
-            const hasStreakBonus = usesLeft > persistentUses + extraMovesUses;
+            // Check if this power-up has random power-up bonus (from random power-up tiles)
+            const hasRandomPowerUpBonus = randomPowerUpUses > 0;
+            // Check if this power-up has a streak bonus (more uses than persistent + extra moves + random)
+            const hasStreakBonus = usesLeft > persistentUses + extraMovesUses + randomPowerUpUses;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -841,6 +870,16 @@ export class Match3Game {
                     strokedText.setAttribute("height", "40");
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("extra-moves-bonus");
+                    indicator.appendChild(strokedText);
+                } else if (hasRandomPowerUpBonus) {
+                    // Show gift icon for random power-up bonus
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", "🎁");
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.classList.add("random-powerup-bonus");
                     indicator.appendChild(strokedText);
                 } else if (hasStreakBonus) {
                     // Show streak icon instead of number
@@ -875,6 +914,8 @@ export class Match3Game {
                     const baseTitle = button.title.split(" - ")[0];
                     if (hasExtraMovesBonus) {
                         button.title = `${baseTitle} - Extra moves bonus available!`;
+                    } else if (hasRandomPowerUpBonus) {
+                        button.title = `${baseTitle} - Random power-up bonus!`;
                     } else if (hasStreakBonus) {
                         button.title = `${baseTitle} - Streak bonus available!`;
                     } else {
@@ -921,11 +962,14 @@ export class Match3Game {
         // Decrement remaining count
         this.powerUpRemaining.hammer--;
 
-        // Consumption priority: extra moves bonus > streak bonus > persistent count
+        // Consumption priority: extra moves bonus > random power-up bonus > streak bonus > persistent count
         // Only decrement persistent count if we're consuming from it
         if (this.extraMovesPowerUpCounts.hammer > 0) {
             // Consume extra moves bonus first
             this.extraMovesPowerUpCounts.hammer--;
+        } else if (this.randomPowerUpBonusCounts.hammer > 0) {
+            // Consume random power-up bonus second
+            this.randomPowerUpBonusCounts.hammer--;
         } else if (this.powerUpRemaining.hammer < this.persistentPowerUpCounts.hammer) {
             // We're consuming from persistent count (streak is gone)
             this.persistentPowerUpCounts.hammer = Math.max(0, this.persistentPowerUpCounts.hammer - 1);
@@ -1099,11 +1143,14 @@ export class Match3Game {
             // Decrement remaining count
             this.powerUpRemaining.halve--;
 
-            // Consumption priority: extra moves bonus > streak bonus > persistent count
+            // Consumption priority: extra moves bonus > random power-up bonus > streak bonus > persistent count
             // Only decrement persistent count if we're consuming from it
             if (this.extraMovesPowerUpCounts.halve > 0) {
                 // Consume extra moves bonus first
                 this.extraMovesPowerUpCounts.halve--;
+            } else if (this.randomPowerUpBonusCounts.halve > 0) {
+                // Consume random power-up bonus second
+                this.randomPowerUpBonusCounts.halve--;
             } else if (this.powerUpRemaining.halve < this.persistentPowerUpCounts.halve) {
                 // We're consuming from persistent count (streak is gone)
                 this.persistentPowerUpCounts.halve = Math.max(0, this.persistentPowerUpCounts.halve - 1);

@@ -576,50 +576,6 @@
     transition: background 0.1s ease-out;
 }
 
-.gem.power-tile {
-    border: 3px solid var(--tile-power-border);
-    position: relative;
-}
-
-.gem.power-tile::after {
-    content: "+";
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    font-size: clamp(10px, 2vw, 16px);
-    background-color: var(--tile-power-badge-bg);
-    width: 40%;
-    height: 40%;
-    border-radius: 35%;
-    color: var(--tile-power-badge-color);
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.gem.golden-tile {
-    border: 3px solid var(--tile-golden-border);
-    position: relative;
-}
-
-.gem.golden-tile::after {
-    content: "★";
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    font-size: clamp(8px, 2vw, 16px);
-    width: 40%;
-    height: 40%;
-    border-radius: 35%;
-    background-color: var(--tile-golden-badge-bg);
-    color: var(--tile-golden-badge-color);
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .gem.freeswap-tile {
     border: 3px solid var(--tile-freeswap-border);
     position: relative;
@@ -737,6 +693,51 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.gem.teleport-tile {
+    border: 3px solid var(--tile-teleport-border);
+    position: relative;
+}
+
+.gem.teleport-tile::after {
+    content: "🔀";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: clamp(8px, 2vw, 16px);
+    width: 40%;
+    height: 40%;
+    border-radius: 35%;
+    background-color: var(--tile-teleport-badge-bg);
+    color: var(--tile-teleport-badge-color);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Remove teleport styling after tile has been used */
+.gem.teleport-tile.teleport-used {
+    border: none;
+}
+
+.gem.teleport-tile.teleport-used::after {
+    display: none;
+}
+
+.gem.selected {
+    box-shadow: 0 0 15px 5px var(--tile-teleport-border);
+    animation: pulse-selected 1s infinite;
+}
+
+@keyframes pulse-selected {
+    0%, 100% {
+        box-shadow: 0 0 10px 3px var(--tile-teleport-border);
+    }
+    50% {
+        box-shadow: 0 0 20px 8px var(--tile-teleport-border);
+    }
 }
 
 .gem.tile-BLOCKED {
@@ -1101,6 +1102,15 @@
 
     &.extra-moves-bonus {
         background: #aee96b;
+
+        stroked-text {
+            width: 80%;
+            height: 80%;
+        }
+    }
+
+    &.random-powerup-bonus {
+        background: #4fc3f7;
 
         stroked-text {
             width: 80%;

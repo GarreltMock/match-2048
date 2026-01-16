@@ -11,7 +11,7 @@
 // Example array preset (as used in config.js):
 //   [[2, 4, "B", "2G", "J"], [0, "2P", "BM", "B64", "2C5"], [1, 1, 1, 1, 1]]
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTilePowerTile, isTileGoldenTile, isTileFreeSwapTile, isTileStickyFreeSwapTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTileFreeSwapTile, isTileStickyFreeSwapTile } from "./tile-helpers.js";
 import { TILE_TYPE } from "./config.js";
 
 /**
@@ -22,8 +22,6 @@ import { TILE_TYPE } from "./config.js";
  *   - "BM": blocked movable tile
  *   - "B64": blocked with life value (e.g., B64 for life=64)
  *   - "J": joker tile
- *   - "2P": power tile with value 2
- *   - "2G": golden tile with value 2
  *   - "2S": free swap tile with value 2
  *   - "2K": sticky free swap tile with value 2
  *   - "2C5": cursed tile with value 2 and 5 moves remaining
@@ -67,17 +65,13 @@ export function parsePresetTile(notation) {
         return createCursedTile(value, movesRemaining);
     }
 
-    // Parse special tiles with value prefix (e.g., "2P", "2G", "2S", "2K")
-    const match = str.match(/^(\d+)([PGSK])$/);
+    // Parse special tiles with value prefix (e.g., "2S", "2K")
+    const match = str.match(/^(\d+)([SK])$/);
     if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
 
         switch (type) {
-            case "P": // Power tile
-                return createTile(value, "power");
-            case "G": // Golden
-                return createTile(value, "golden");
             case "S": // Swap (Free swap)
                 return createTile(value, "freeswap");
             case "K": // sticKy free swap
@@ -131,12 +125,6 @@ export function tileToNotation(tile) {
 
     if (tileType === TILE_TYPE.NORMAL) {
         // Check for special normal tile properties
-        if (isTilePowerTile(tile)) {
-            return `${value}P`;
-        }
-        if (isTileGoldenTile(tile)) {
-            return `${value}G`;
-        }
         if (isTileStickyFreeSwapTile(tile)) {
             return `${value}K`;
         }
