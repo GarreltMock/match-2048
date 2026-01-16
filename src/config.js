@@ -1745,7 +1745,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 31,
-        maxMoves: 40,
+        maxMoves: 46,
         blockedTiles: [
             { row: 3, movable: true },
             { row: 4, movable: true },

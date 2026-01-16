@@ -375,7 +375,7 @@
     cursor: pointer;
     position: relative;
     transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease,
-        filter 0.3s ease;
+        filter 0.3s ease, outline-color 0.3s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -387,6 +387,7 @@
     container-type: inline-size;
     container-name: card;
     padding-bottom: 2px;
+    outline-color: rgba(0, 0, 0, 0);
 
     -webkit-tap-highlight-color: transparent;
 }

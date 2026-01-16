@@ -344,6 +344,10 @@ button {
     gap: 10px;
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.8);
+
+    span {
+        text-align: center;
+    }
 }
 
 .legend-icon {
@@ -379,11 +383,11 @@ button {
 .legend-icon.freeswap-tile::after {
     content: "";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -2px;
+    right: -2px;
     width: 14px;
     height: 14px;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
     background-image: url("assets/arrow-all-directions.svg");
     background-size: 75%;
@@ -399,11 +403,11 @@ button {
 .legend-icon.freeswap-horizontal-tile::after {
     content: "";
     position: absolute;
-    top: -4px;
-    right: -4px;
+    top: -2px;
+    right: -2px;
     width: 14px;
     height: 14px;
-    border-radius: 50%;
+    border-radius: 35%;
     background-color: var(--tile-freeswap-badge-bg);
     background-image: url("assets/arrow-horizontal.svg");
     background-size: 75%;
