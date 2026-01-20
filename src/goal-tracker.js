@@ -21,6 +21,7 @@ import {
 import { animateCursedExpiration } from "./animator.js";
 import { showHomeScreen } from "./home-screen.js";
 import { FEATURE_KEYS } from "./config.js";
+import { findBestSwap } from "./hint-system.js";
 
 export function checkLevelComplete(game) {
     // Don't check while animations are running
@@ -117,7 +118,7 @@ export function checkLevelComplete(game) {
         setTimeout(() => {
             if (game.extraMovesUsed) {
                 // Show level failed screen (heart decrease and streak reset happens in showLevelFailed)
-                game.showLevelFailed();
+                game.showLevelFailed("No moves left");
             } else {
                 // Show extra moves dialog (first time)
                 // Note: Streak is NOT reset here - only when level fully fails
@@ -126,9 +127,26 @@ export function checkLevelComplete(game) {
             }
         }, 800);
     } else if (game.gameActive) {
-        game.hideControls();
-        // Show power-ups during active gameplay
-        game.showPowerUps();
+        // Check if no valid moves are possible even if moves remain
+        const hasValidMoves = findBestSwap(game) !== null;
+        if (!hasValidMoves && !game.hasMatches()) {
+            // Game over: no valid moves possible
+            game.gameActive = false;
+            game.deactivatePowerUp();
+            game.hidePowerUps();
+
+            setTimeout(() => {
+                if (game.extraMovesUsed) {
+                    game.showLevelFailed("No moves possible");
+                } else {
+                    game.showExtraMovesDialog();
+                }
+            }, 800);
+        } else {
+            game.hideControls();
+            // Show power-ups during active gameplay
+            game.showPowerUps();
+        }
     }
 }
 

@@ -1356,7 +1356,7 @@ export class Match3Game {
 
                 // Show level failed state
                 setTimeout(() => {
-                    this.showLevelFailed();
+                    this.showLevelFailed("No moves left");
                 }, 300);
             });
         }
@@ -1648,7 +1648,7 @@ export class Match3Game {
         }
     }
 
-    showLevelFailed() {
+    showLevelFailed(reason = "No moves left") {
         // Decrease hearts on level loss (if not already decreased)
         // This handles both: giving up and running out of moves after extra moves
         if (!this.heartDecreasedThisAttempt) {
@@ -1673,6 +1673,7 @@ export class Match3Game {
 
         const levelSolvedSvg = document.getElementById("levelSolvedSvg");
         const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const failReasonText = document.getElementById("failReasonText");
         const restartBtn = document.getElementById("restartBtn");
         const nextBtn = document.getElementById("nextBtn");
         const continueBtn = document.getElementById("continueBtn");
@@ -1692,6 +1693,10 @@ export class Match3Game {
             void levelFailedSvg.offsetWidth;
             levelFailedSvg.classList.add("animate");
         }
+        if (failReasonText) {
+            failReasonText.textContent = reason;
+            failReasonText.style.visibility = "visible";
+        }
 
         // Show controls and only show restart button
         this.showControls();
@@ -1703,6 +1708,7 @@ export class Match3Game {
 
     hideLevelFailed() {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
+        const failReasonText = document.getElementById("failReasonText");
         const gameBoard = document.getElementById("gameBoard");
 
         if (gameBoard) {
@@ -1711,6 +1717,10 @@ export class Match3Game {
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "hidden";
             levelFailedSvg.classList.remove("animate");
+        }
+        if (failReasonText) {
+            failReasonText.style.visibility = "hidden";
+            failReasonText.textContent = "";
         }
     }
 
