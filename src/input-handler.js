@@ -373,10 +373,6 @@ function activateHammerTileByTap(game, row, col, element) {
         game.board[row][col] = null;
         game.renderBoard();
 
-        // Decrement moves
-        game.currentMoves--;
-        game.updateMovesDisplay();
-
         setTimeout(() => {
             // Drop tiles and process matches
             game.isUserSwap = true;
@@ -411,10 +407,6 @@ function activateHalverTileByTap(game, row, col, element) {
         // Update the tile to regular tile with new value (no longer a halver tile)
         game.board[row][col] = createTile(newValue);
         game.renderBoard();
-
-        // Decrement moves
-        game.currentMoves--;
-        game.updateMovesDisplay();
 
         setTimeout(() => {
             // Process any matches that may have been created
@@ -543,7 +535,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     const isSwapPowerUp = game.activePowerUp === "swap";
 
     if (game.hasMatchesForSwap(row1, col1, row2, col2) || isSwapPowerUp || hasFreeSwap) {
-        if (!isSwapPowerUp) {
+        if (!isSwapPowerUp && !hasFreeSwap) {
             game.movesUsed++;
             game.updateMovesDisplay();
         }
@@ -658,10 +650,6 @@ function performTeleportSwap(game, teleportRow, teleportCol, targetRow, targetCo
     const temp = game.board[teleportRow][teleportCol];
     game.board[teleportRow][teleportCol] = game.board[targetRow][targetCol];
     game.board[targetRow][targetCol] = temp;
-
-    // Use a move for the teleport
-    game.movesUsed++;
-    game.updateMovesDisplay();
 
     // Flag for cursed tile decrement
     game.shouldDecrementCursedTimers = true;
