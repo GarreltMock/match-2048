@@ -341,3 +341,30 @@ export function loadHintsEnabled() {
 export function saveHintsEnabled(enabled) {
     localStorage.setItem("match2048_hintsEnabled", enabled.toString());
 }
+
+/**
+ * Load set of already-shown formation tutorials from localStorage
+ * @returns {Set<string>} Set of formation types that have been shown
+ */
+export function loadShownFormationTutorials() {
+    const saved = localStorage.getItem("match2048_shownFormationTutorials");
+    if (saved) {
+        try {
+            return new Set(JSON.parse(saved));
+        } catch (e) {
+            console.error("Failed to parse shown formation tutorials:", e);
+            return new Set();
+        }
+    }
+    return new Set();
+}
+
+/**
+ * Save a formation tutorial type as shown to localStorage
+ * @param {string} formationType - The formation type to mark as shown
+ */
+export function saveShownFormationTutorial(formationType) {
+    const shown = loadShownFormationTutorials();
+    shown.add(formationType);
+    localStorage.setItem("match2048_shownFormationTutorials", JSON.stringify([...shown]));
+}

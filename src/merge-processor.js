@@ -15,6 +15,7 @@ import {
     isRectangularBlocked,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
+import { showFormationTutorialDialog, getFormationTypeFromDirection } from "./formation-tutorial.js";
 
 export function processMatches(game) {
     const matchGroups = game.findMatches();
@@ -103,6 +104,17 @@ export function processMerges(game, matchGroups) {
                 game.matchStats.match4Count++;
             } else if (tileCount === 3) {
                 game.matchStats.match3Count++;
+            }
+        });
+
+        // Show formation tutorial dialogs for new formations (only on user swaps, not automerges)
+        matchGroups.forEach((group) => {
+            const formationType = getFormationTypeFromDirection(group.direction);
+            if (formationType) {
+                // Show tutorial async (doesn't block gameplay)
+                setTimeout(() => {
+                    showFormationTutorialDialog(formationType, game);
+                }, 500);
             }
         });
     }
