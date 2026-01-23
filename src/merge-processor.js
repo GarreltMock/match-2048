@@ -97,7 +97,7 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
                 game.matchStats.tFormationCount++;
             } else if (direction === "L-formation") {
                 game.matchStats.lFormationCount++;
-            } else if (direction === "block") {
+            } else if (direction === "block_4_formation") {
                 game.matchStats.blockFormationCount++;
             } else if (tileCount === 5) {
                 game.matchStats.match5Count++;
@@ -109,14 +109,19 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
         });
 
         // Show formation tutorial dialogs for new formations (only on user swaps, not automerges)
+        // Dedupe formation types to avoid multiple dialogs for same formation in one merge
+        const formationTypesToShow = new Set();
         matchGroups.forEach((group) => {
             const formationType = getFormationTypeFromDirection(group.direction);
             if (formationType) {
-                // Show tutorial async (doesn't block gameplay)
-                setTimeout(() => {
-                    showFormationTutorialDialog(formationType, game);
-                }, 500);
+                formationTypesToShow.add(formationType);
             }
+        });
+        formationTypesToShow.forEach((formationType) => {
+            // Show tutorial async (doesn't block gameplay)
+            setTimeout(() => {
+                showFormationTutorialDialog(formationType);
+            }, 500);
         });
     }
 

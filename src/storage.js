@@ -350,9 +350,16 @@ export function loadShownFormationTutorials() {
     const saved = localStorage.getItem("match2048_shownFormationTutorials");
     if (saved) {
         try {
-            return new Set(JSON.parse(saved));
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                return new Set(parsed);
+            }
+            console.warn("Invalid format for shown formation tutorials in localStorage, resetting value.");
+            localStorage.removeItem("match2048_shownFormationTutorials");
+            return new Set();
         } catch (e) {
             console.error("Failed to parse shown formation tutorials:", e);
+            localStorage.removeItem("match2048_shownFormationTutorials");
             return new Set();
         }
     }

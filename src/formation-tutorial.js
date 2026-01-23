@@ -260,13 +260,15 @@ export function getFormationTypeFromDirection(direction) {
 /**
  * Show formation tutorial dialog
  * @param {string} formationType - The formation type to show
- * @param {Object} game - The game instance
  */
-export function showFormationTutorialDialog(formationType, game) {
+export function showFormationTutorialDialog(formationType) {
     // Check if already shown
     if (hasFormationTutorialBeenShown(formationType)) {
         return;
     }
+
+    // Mark as shown immediately to prevent duplicate dialogs from concurrent triggers
+    saveShownFormationTutorial(formationType);
 
     const dialog = FORMATION_TUTORIAL_DIALOGS[formationType];
     if (!dialog) {
@@ -277,7 +279,6 @@ export function showFormationTutorialDialog(formationType, game) {
     // Create dialog overlay
     const overlay = document.createElement("div");
     overlay.className = "goal-dialog-overlay";
-    overlay.id = "formationTutorialDialog";
 
     // Create dialog content
     const dialogElement = document.createElement("div");
@@ -291,21 +292,20 @@ export function showFormationTutorialDialog(formationType, game) {
             ${dialog.content}
         </div>
         <div class="goal-dialog-footer">
-            <button class="goal-dialog-button" id="formationTutorialClose">Got it!</button>
+            <button class="goal-dialog-button">Got it!</button>
         </div>
     `;
 
     overlay.appendChild(dialogElement);
     document.body.appendChild(overlay);
 
-    // Add close handler
-    const closeButton = document.getElementById("formationTutorialClose");
+    // Add close handler using scoped querySelector
+    const closeButton = overlay.querySelector(".goal-dialog-button");
     closeButton.addEventListener("click", () => {
         overlay.classList.add("hidden");
         setTimeout(() => {
             overlay.remove();
         }, 300);
-        saveShownFormationTutorial(formationType);
     });
 
     // Show dialog with animation
