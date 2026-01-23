@@ -354,8 +354,11 @@ function createScoreGoalCard(goal) {
 
 export function renderPowerUpRewards(game) {
     const container = document.getElementById("powerUpRewardsContainer");
-    const rewardsEl = document.getElementById("powerUpRewards");
-    if (!container || !rewardsEl) return;
+    const hammerTiles = document.getElementById("hammerRewardTiles");
+    const halveTiles = document.getElementById("halveRewardTiles");
+    const swapTiles = document.getElementById("swapRewardTiles");
+
+    if (!container || !hammerTiles || !halveTiles || !swapTiles) return;
 
     const rewards = game.levelConfig.powerUpRewards;
     if (!rewards || rewards.length === 0) {
@@ -364,16 +367,26 @@ export function renderPowerUpRewards(game) {
     }
 
     container.style.display = "flex";
-    rewardsEl.innerHTML = "";
 
-    rewards.sort((a, b) => a - b).forEach((tileValue) => {
+    // Clear all columns
+    hammerTiles.innerHTML = "";
+    halveTiles.innerHTML = "";
+    swapTiles.innerHTML = "";
+
+    // Sort rewards and distribute to columns based on cycling order
+    const sortedRewards = [...rewards].sort((a, b) => a - b);
+    const columns = [hammerTiles, halveTiles, swapTiles];
+
+    sortedRewards.forEach((tileValue, index) => {
         const isCompleted = game.completedPowerUpRewards.includes(tileValue);
         const displayValue = getDisplayValue(tileValue);
+        const columnIndex = index % 3;
 
         const tile = document.createElement("div");
         tile.className = `gem tile-${tileValue} powerup-reward-tile ${isCompleted ? "completed" : ""}`;
         tile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
-        rewardsEl.appendChild(tile);
+
+        columns[columnIndex].appendChild(tile);
     });
 }
 

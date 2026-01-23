@@ -228,18 +228,18 @@
     filter: grayscale(0.5);
 }
 
-/* Power-Up Rewards Container - horizontal layout */
+/* Power-Up Rewards Container - 3 columns matching power-up buttons */
 .powerup-rewards-container {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
-    gap: clamp(8px, 2vw, 16px);
-    padding: 6px 24px 6px 32px;
-    border-radius: 0 0 16px 16px;
-    /* border: 3px solid #000000a2; */
+    gap: clamp(8px, 2vw, 16px); /* Same gap as .power-ups */
+    border-radius: 16px;
     background: #141414a2;
     width: fit-content;
     align-self: center;
+    padding: 8px 0;
+    margin: 6px auto 0px;
     position: relative;
 }
 
@@ -249,19 +249,32 @@
     justify-content: center;
     flex-shrink: 0;
     position: absolute;
-    left: -24px;
+    left: -33px;
+    top: -3px;
 }
 
-.powerup-rewards {
+.powerup-reward-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    width: clamp(60px, 20vw, 120px); /* Same width as power-up buttons */
+    /* min-height: 30px; */
+    gap: 4px;
+}
+
+.powerup-reward-column .column-tiles {
     display: flex;
     flex-direction: row;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
     align-items: center;
 }
 
 .powerup-reward-tile {
-    width: 30px;
-    height: 30px;
+    width: 24px;
+    height: 24px;
     transition:
         opacity 0.3s ease,
         filter 0.3s ease;

@@ -1301,7 +1301,7 @@ export const TEST_LEVELS = [
             { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
-        powerUpRewards: [5, 6], // Grant power-up when 32 or 64 is created
+        powerUpRewards: [5, 6, 7, 8], // Grant power-up when 32 or 64 is created
     },
 ];
 
@@ -1873,6 +1873,25 @@ export const NEW_LEVELS = [
         ],
         goals: [{ goalType: "blocked", current: 0 }],
         boardUpgrades: [6, 7, 8],
+    },
+    {
+        level: 43,
+        title: "Joker Rewards",
+        maxMoves: 40,
+        blockedTiles: [
+            { row: 3, movable: true },
+            { row: 4, movable: true },
+            { row: 5, movable: true },
+            { row: 6, lifeValue: 128 },
+            { row: 7, lifeValue: 128 },
+            { row: 6, col: 3, width: 2, height: 2, lifeValue: 1024 },
+        ],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
+        ],
+        boardUpgrades: [6, 8],
+        powerUpRewards: [5, 6, 7],
     },
 ];
 

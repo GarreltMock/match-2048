@@ -779,9 +779,13 @@ export class Match3Game {
         const powerUpTypes = ["hammer", "halve", "swap"];
         const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
 
+        this.grantPowerUp(randomType);
+    }
+
+    grantPowerUp(powerUpType) {
         // Increment the power-up count
-        this.powerUpRemaining[randomType]++;
-        this.randomPowerUpBonusCounts[randomType]++;
+        this.powerUpRemaining[powerUpType]++;
+        this.randomPowerUpBonusCounts[powerUpType]++;
 
         // Update the power-up buttons to show the new count with gift icon
         this.updatePowerUpButtons();
@@ -2003,9 +2007,18 @@ export class Match3Game {
         const rewards = this.levelConfig.powerUpRewards;
         if (!rewards) return;
 
-        if (rewards.includes(newlyCreatedValue) && !this.completedPowerUpRewards.includes(newlyCreatedValue)) {
+        // Sort rewards to ensure consistent ordering
+        const sortedRewards = [...rewards].sort((a, b) => a - b);
+        const rewardIndex = sortedRewards.indexOf(newlyCreatedValue);
+
+        if (rewardIndex !== -1 && !this.completedPowerUpRewards.includes(newlyCreatedValue)) {
             this.completedPowerUpRewards.push(newlyCreatedValue);
-            this.grantRandomPowerUp();
+
+            // Cycle through power-ups: hammer → halver → swap → hammer...
+            const powerUpTypes = ["hammer", "halve", "swap"];
+            const powerUpType = powerUpTypes[rewardIndex % 3];
+
+            this.grantPowerUp(powerUpType);
             renderPowerUpRewards(this);
         }
     }
