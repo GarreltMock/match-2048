@@ -141,7 +141,7 @@ export const GOAL_DIALOGS = {
     },
     blocked_area: {
         title: "Blocked Areas",
-        subtitle: "Hit them X many times",
+        subtitle: "Hit them multiple times",
         content: `
             <div class="goal-card goal-blocked">
                 <div data-rect-id="rect_5_0_2_3" data-rect-width="2" data-rect-height="3" class="gem tile-BLOCKED tile-BLOCKED-merge-count rectangular-blocked goal-tile" style="grid-area: 6 / 1 / 9 / 3; --rect-width: 2; --rect-height: 2;"><div class="cell-x-marker" data-cell-key="5_0" style="grid-area: 1 / 1;"></div><div class="cell-x-marker" data-cell-key="5_1" style="grid-area: 1 / 2;"></div><div class="cell-x-marker" data-cell-key="6_0" style="grid-area: 2 / 1;"></div><div class="cell-x-marker" data-cell-key="6_1" style="grid-area: 2 / 2;"></div></div>

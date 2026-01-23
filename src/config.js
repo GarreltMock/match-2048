@@ -1294,141 +1294,34 @@ export const TEST_LEVELS = [
 export const NEW_LEVELS = [
     {
         level: 1,
-        title: "Tile Goal",
+        title: "Blocked Tile Goal",
         boardWidth: 5,
-        boardHeight: 4,
+        boardHeight: 5,
         boardPreset: [
             [1, 2, 1, 1, 3],
-            [3, 1, 4, 3, 2],
-            [2, 4, 1, 4, 2],
-            [3, 2, 3, 2, 1],
-            // [1, 2, 1, 1, 3],
+            [3, 1, 2, 3, 2],
+            [1, 2, 1, 2, 3],
+            [, "B", "B", "B"],
+            [, "B", "B", "B"],
         ],
         maxMoves: 10,
-        goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        blockedTiles: [
+            { row: 3, col: [1, 2, 3] },
+            { row: 4, col: [1, 2, 3] },
+        ],
         spawnableTiles: [1, 2, 3],
-        showGoalDialog: "created",
+        showGoalDialog: "blocked",
         tutorialSwaps: [
             {
                 from: { row: 1, col: 2 },
                 to: { row: 2, col: 2 },
-                text: "Swap these two tiles to create your first merge",
+                text: "Create a merge to clear the blocked tiles",
             },
         ],
     },
     {
         level: 2,
-        title: "4-Tile Merge",
-        boardWidth: 5,
-        boardHeight: 5,
-        boardPreset: [
-            [3, 1, 4, 3, 2],
-            [2, 4, 1, 4, 4],
-            [1, 2, 3, 1, 3],
-            [1, 2, 1, 5, 3],
-            [3, 1, 5, 5, 1],
-        ],
-        maxMoves: 10,
-        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
-        spawnableTiles: [1, 2, 3],
-        tutorialSwaps: [
-            {
-                from: { row: 0, col: 2 },
-                to: { row: 1, col: 2 },
-                text: "Create a 4-tile line merge",
-            },
-            {
-                from: { row: 1, col: 2 },
-                to: { row: 2, col: 2 },
-                text: "You can move this in the shown direction without a valid merge",
-            },
-            {
-                from: { row: 2, col: 2 },
-                to: { row: 3, col: 2 },
-                text: "You can also create a 2x2 block merge",
-            },
-        ],
-    },
-    {
-        level: 3,
-        title: "L and T Merge",
-        boardWidth: 5,
-        boardHeight: 5,
-        boardPreset: [
-            [1, 4, 3, 2, 3],
-            [4, 2, 4, 1, 2],
-            [3, 4, 6, 3, 1],
-            [2, 4, 6, 2, 1],
-            [1, 5, 5, 6, 6],
-        ],
-        maxMoves: 10,
-        goals: [{ tileValue: 8, target: 1, current: 0, goalType: "created" }],
-        tutorialSwaps: [
-            {
-                from: { row: 0, col: 1 },
-                to: { row: 1, col: 1 },
-                text: "A T-Merge creates an even higher tile",
-            },
-            {
-                from: { row: 3, col: 1 },
-                to: { row: 4, col: 1 },
-                text: "You can move this in ANY direction without a valid merge",
-            },
-            {
-                from: { row: 4, col: 1 },
-                to: { row: 4, col: 2 },
-                text: "You can also create a L-Merge",
-            },
-        ],
-    },
-    {
-        level: 4,
-        title: "5-Tile Line Merge",
-        boardWidth: 5,
-        boardHeight: 5,
-        boardPreset: [
-            [1, 3, 1, 3, 2],
-            [3, 5, 4, 5, 3],
-            [4, 4, 1, 4, 4],
-            [2, 1, 2, 3, 1],
-            [3, 1, 3, 2, 1],
-        ],
-        maxMoves: 10,
-        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
-        tutorialSwaps: [
-            {
-                from: { row: 1, col: 2 },
-                to: { row: 2, col: 2 },
-                text: "Finally the most valuable merge is a 5-Tile line",
-            },
-            {
-                tap: { row: 2, col: 2 },
-                text: "This is a wildcard, which can merge with anything or transform on tap",
-            },
-        ],
-    },
-    {
-        level: 5,
-        boardWidth: 6,
-        boardHeight: 6,
-        maxMoves: 35,
-        spawnableTiles: [1, 2, 3],
-        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
-    },
-    {
-        level: 6,
-        boardWidth: 6,
-        boardHeight: 6,
-        maxMoves: 40,
-        spawnableTiles: [1, 2, 3],
-        goals: [
-            { tileValue: 6, target: 3, current: 0, goalType: "created" },
-            { tileValue: 7, target: 1, current: 0, goalType: "created" },
-        ],
-    },
-    {
-        level: 7,
-        title: "Blocked Tile Goal",
         boardWidth: 6,
         boardHeight: 6,
         maxMoves: 30,
@@ -1438,7 +1331,7 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked",
     },
     {
-        level: 8,
+        level: 3,
         maxMoves: 40,
         blockedTiles: [
             { row: 4, col: [1, 2, 3, 4, 5, 6] },
@@ -1449,19 +1342,16 @@ export const NEW_LEVELS = [
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
-        level: 9,
+        level: 4,
         title: "🔨",
         maxMoves: 30,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
-        goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 6, target: 3, current: 0, goalType: "created" },
-        ],
+        goals: [{ current: 0, goalType: "blocked" }],
         unlockFeature: "power_hammer",
     },
     {
-        level: 10,
+        level: 5,
         boardWidth: 9,
         maxMoves: 32,
         blockedTiles: [
@@ -1472,113 +1362,109 @@ export const NEW_LEVELS = [
             { row: 7, col: [0, 1, 2, 3, 5, 6, 7, 8] },
             { row: 8 },
         ],
+        goals: [{ current: 0, goalType: "blocked" }],
+    },
+    {
+        level: 6,
+        title: "✂️",
+        maxMoves: 25,
+        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        unlockFeature: "power_halve",
+    },
+    {
+        level: 7,
+        maxMoves: 28,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+    },
+    {
+        level: 8,
+        title: "🔄",
+        maxMoves: 28,
+        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+        unlockFeature: "power_swap",
+    },
+    {
+        level: 9,
+        maxMoves: 32,
+        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+        goals: [{ current: 0, goalType: "blocked" }],
+    },
+    {
+        title: "Tile Goal",
+        level: 10,
+        boardWidth: 6,
+        boardHeight: 6,
+        maxMoves: 35,
+        spawnableTiles: [1, 2, 3],
+        goals: [{ tileValue: 6, target: 1, current: 0, goalType: "created" }],
+        blockedTiles: [{ row: 4 }, { row: 5 }],
+        showGoalDialog: "created",
+    },
+    {
+        level: 11,
+        boardWidth: 6,
+        boardHeight: 7,
+        maxMoves: 40,
+        spawnableTiles: [1, 2, 3],
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }],
         goals: [
-            { current: 0, goalType: "blocked" },
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
     },
     {
-        level: 11,
-        title: "✂️",
-        maxMoves: 25,
-        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
-        goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 5, target: 10, current: 0, goalType: "created" },
-        ],
-        unlockFeature: "power_halve",
-    },
-    {
         level: 12,
-        maxMoves: 28,
+        maxMoves: 15,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-        goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 6, target: 5, current: 0, goalType: "created" },
-        ],
+        goals: [{ tileValue: 6, target: 10, current: 0, goalType: "created" }],
     },
     {
         level: 13,
-        title: "🔄",
-        maxMoves: 28,
-        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
-        goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 6, target: 5, current: 0, goalType: "created" },
-        ],
-        unlockFeature: "power_swap",
-    },
-    {
-        level: 14,
-        maxMoves: 32,
-        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-        goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 6, target: 5, current: 0, goalType: "created" },
-            { tileValue: 7, target: 3, current: 0, goalType: "created" },
-        ],
-    },
-    {
-        level: 15,
-        title: "Score Goal",
-        boardWidth: 6,
-        boardHeight: 6,
-        maxMoves: 10,
-        blockedTiles: [{ row: 4 }, { row: 5 }],
-        goals: [{ goalType: "score", target: 128, current: 0 }],
-        showGoalDialog: "score",
-    },
-    {
-        level: 16,
-        maxMoves: 15,
-        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
-        goals: [{ goalType: "score", target: 512, current: 0 }],
-    },
-    {
-        level: 17,
         title: "🔥 Streak",
         maxMoves: 22,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
             { tileValue: 7, target: 1, current: 0, goalType: "current" },
+            { goalType: "blocked", current: 0 },
         ],
         unlockFeature: "streak",
     },
     {
-        level: 18,
+        level: 14,
         maxMoves: 30,
         boardWidth: 6,
         boardHeight: 10,
         blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 7, target: 2, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 19,
+        level: 15,
         maxMoves: 30,
         boardHeight: 9,
         blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }, { col: 0 }, { col: 7 }],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 7, target: 2, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 20,
+        level: 16,
         title: "💸 PoS",
         maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
             { tileValue: 8, target: 1, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 21,
+        level: 17,
         title: "Movable Blocked",
         maxMoves: 16,
         blockedTiles: [
@@ -1591,7 +1477,7 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked_movable",
     },
     {
-        level: 22,
+        level: 18,
         maxMoves: 20,
         blockedTiles: [
             { row: 1, col: [1, 2, 3, 4, 5, 6], movable: true },
@@ -1604,7 +1490,7 @@ export const NEW_LEVELS = [
         goals: [{ current: 0, goalType: "blocked" }],
     },
     {
-        level: 23,
+        level: 19,
         maxMoves: 22,
         blockedTiles: [
             { row: 3, movable: true },
@@ -1614,12 +1500,12 @@ export const NEW_LEVELS = [
             { row: 7, movable: true },
         ],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { tileValue: 7, target: 1, current: 0, goalType: "current" },
             { current: 0, goalType: "blocked" },
         ],
     },
     {
-        level: 24,
+        level: 20,
         boardHeight: 9,
         maxMoves: 24,
         blockedTiles: [
@@ -1631,14 +1517,14 @@ export const NEW_LEVELS = [
             { row: 8, movable: true },
         ],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { tileValue: 7, target: 1, current: 0, goalType: "current" },
             { current: 0, goalType: "blocked" },
         ],
         spawnableTiles: [1, 2, 3],
     },
 
     {
-        level: 25,
+        level: 21,
         title: "Lifebased Blocked",
         maxMoves: 38,
         blockedTiles: [
@@ -1650,7 +1536,7 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked_with_life",
     },
     {
-        level: 26,
+        level: 22,
         boardHeight: 6,
         maxMoves: 30,
         blockedTiles: [
@@ -1660,7 +1546,7 @@ export const NEW_LEVELS = [
         goals: [{ goalType: "blocked", current: 0 }],
     },
     {
-        level: 27,
+        level: 23,
         maxMoves: 32,
         blockedTiles: [
             { row: 3, col: [3, 4], lifeValue: 32 },
@@ -1671,12 +1557,12 @@ export const NEW_LEVELS = [
             { row: 5, col: [2, 3, 4, 5], lifeValue: 16 },
         ],
         goals: [
-            { goalType: "score", target: 1024, current: 0 },
+            { tileValue: 7, target: 2, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 28,
+        level: 24,
         maxMoves: 38,
         blockedTiles: [
             { row: 0, movable: true },
@@ -1686,13 +1572,12 @@ export const NEW_LEVELS = [
             { row: 7, lifeValue: 32 },
         ],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
             { tileValue: 6, target: 10, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
         ],
     },
     {
-        level: 29,
+        level: 25,
         title: "💸 PoS",
         maxMoves: 30,
         boardWidth: 9,
@@ -1716,12 +1601,12 @@ export const NEW_LEVELS = [
             { row: 7, col: [3, 5], movable: true },
         ],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 8, target: 1, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 30,
+        level: 26,
         title: "Board Upgrades",
         maxMoves: 32,
         boardWidth: 9,
@@ -1745,14 +1630,14 @@ export const NEW_LEVELS = [
             { row: 7, col: [3, 5], movable: true },
         ],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 8, target: 1, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [5],
         unlockFeature: "board_upgrades",
     },
     {
-        level: 31,
+        level: 27,
         maxMoves: 46,
         blockedTiles: [
             { row: 3, movable: true },
@@ -1769,7 +1654,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6, 8],
     },
     {
-        level: 32,
+        level: 28,
         title: "Super Streak",
         maxMoves: 28,
         blockedTiles: [
@@ -1783,15 +1668,15 @@ export const NEW_LEVELS = [
         unlockFeature: "super_streak",
     },
     {
-        level: 33,
+        level: 29,
         maxMoves: 20,
         boardHeight: 9,
         blockedTiles: [{ row: 3, movable: true }, { row: 4, movable: true }, { row: 7 }, { row: 8 }],
-        goals: [{ goalType: "score", target: 4096, current: 0 }],
+        goals: [{ tileValue: 9, target: 1, current: 0, goalType: "current" }],
         boardUpgrades: [5, 8],
     },
     {
-        level: 34,
+        level: 30,
         maxMoves: 25,
         boardHeight: 9,
         blockedTiles: [
@@ -1809,7 +1694,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [5, 6],
     },
     {
-        level: 35,
+        level: 31,
         maxMoves: 32,
         blockedTiles: [
             { row: 4, lifeValue: 8 },
@@ -1821,14 +1706,14 @@ export const NEW_LEVELS = [
         boardUpgrades: [6],
     },
     {
-        level: 36,
+        level: 32,
         title: "*Active Super Streak*",
         maxMoves: 32,
-        goals: [{ goalType: "score", target: 8192, current: 0 }],
+        goals: [{ tileValue: 8, target: 5, current: 0, goalType: "current" }],
         boardUpgrades: [7, 8],
     },
     {
-        level: 37,
+        level: 33,
         title: "Blocked Area",
         maxMoves: 22,
         blockedTiles: [
@@ -1840,7 +1725,7 @@ export const NEW_LEVELS = [
         showGoalDialog: "blocked_area",
     },
     {
-        level: 38,
+        level: 34,
         maxMoves: 29,
         blockedTiles: [
             { row: 4, col: 0, width: 2, height: 2 },
@@ -1859,7 +1744,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6],
     },
     {
-        level: 39,
+        level: 35,
         maxMoves: 25,
         blockedTiles: [
             { row: 3, movable: true },
@@ -1870,13 +1755,13 @@ export const NEW_LEVELS = [
             { row: 5, col: 6, width: 2, height: 3 },
         ],
         goals: [
-            { goalType: "score", target: 2048, current: 0 },
+            { tileValue: 7, target: 2, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [6],
     },
     {
-        level: 40,
+        level: 36,
         boardWidth: 9,
         maxMoves: 23,
         blockedTiles: [
@@ -1888,13 +1773,13 @@ export const NEW_LEVELS = [
             { row: 6, col: 7, width: 2, height: 2 },
         ],
         goals: [
-            { goalType: "score", target: 4096, current: 0 },
+            { tileValue: 6, target: 20, current: 0, goalType: "current" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [6, 7],
     },
     {
-        level: 41,
+        level: 37,
         title: "Lifebased Blocked Area",
         maxMoves: 24,
         blockedTiles: [
@@ -1907,7 +1792,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6],
     },
     {
-        level: 42,
+        level: 38,
         maxMoves: 34,
         blockedTiles: [
             { row: 4, movable: true },
@@ -1921,7 +1806,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6, 8],
     },
     {
-        level: 43,
+        level: 39,
         maxMoves: 32,
         blockedTiles: [{ row: 4, col: 2, width: 4, height: 4, lifeValue: 512 }],
         goals: [
@@ -1931,7 +1816,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6],
     },
     {
-        level: 44,
+        level: 40,
         maxMoves: 34,
         blockedTiles: [
             { row: 6, col: 0, width: 2, height: 2, lifeValue: 256 },
@@ -1942,7 +1827,7 @@ export const NEW_LEVELS = [
         boardUpgrades: [6, 8],
     },
     {
-        level: 45,
+        level: 41,
         maxMoves: 36,
         blockedTiles: [
             { row: 5, col: 0, width: 8, height: 1 },
@@ -1952,14 +1837,13 @@ export const NEW_LEVELS = [
             { row: 6, col: 6, width: 2, height: 2, lifeValue: 256 },
         ],
         goals: [
-            { goalType: "score", target: 4096, current: 0 },
             { goalType: "blocked", current: 0 },
             { goalType: "created", tileValue: 8, target: 1, current: 0 },
         ],
         boardUpgrades: [7],
     },
     {
-        level: 46,
+        level: 42,
         title: "💸 PoS - God Level",
         maxMoves: 36,
         boardHeight: 10,
