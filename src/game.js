@@ -1354,9 +1354,9 @@ export class Match3Game {
                 extraMovesDialog.classList.add("hidden");
                 this.hideControls();
 
-                // Show level failed state
+                // Show level failed state with the stored fail reason
                 setTimeout(() => {
-                    this.showLevelFailed("No moves left");
+                    this.showLevelFailed(this.failReason || "No moves left");
                 }, 300);
             });
         }
@@ -1694,7 +1694,7 @@ export class Match3Game {
             levelFailedSvg.classList.add("animate");
         }
         if (failReasonText) {
-            failReasonText.textContent = reason;
+            failReasonText.setAttribute("text", reason);
             failReasonText.style.visibility = "visible";
         }
 
@@ -1720,7 +1720,7 @@ export class Match3Game {
         }
         if (failReasonText) {
             failReasonText.style.visibility = "hidden";
-            failReasonText.textContent = "";
+            failReasonText.setAttribute("text", "");
         }
     }
 

@@ -114,11 +114,14 @@ export function checkLevelComplete(game) {
         // Hide power-ups
         game.hidePowerUps();
 
+        // Store fail reason for later use
+        game.failReason = "No moves left";
+
         // Show extra moves dialog after a delay to let final animations settle
         setTimeout(() => {
             if (game.extraMovesUsed) {
                 // Show level failed screen (heart decrease and streak reset happens in showLevelFailed)
-                game.showLevelFailed("No moves left");
+                game.showLevelFailed(game.failReason);
             } else {
                 // Show extra moves dialog (first time)
                 // Note: Streak is NOT reset here - only when level fully fails
@@ -130,17 +133,13 @@ export function checkLevelComplete(game) {
         // Check if no valid moves are possible even if moves remain
         const hasValidMoves = findBestSwap(game) !== null;
         if (!hasValidMoves && !game.hasMatches()) {
-            // Game over: no valid moves possible
+            // Game over: no valid moves possible - immediately show level failed (no extra moves option)
             game.gameActive = false;
             game.deactivatePowerUp();
             game.hidePowerUps();
 
             setTimeout(() => {
-                if (game.extraMovesUsed) {
-                    game.showLevelFailed("No moves possible");
-                } else {
-                    game.showExtraMovesDialog();
-                }
+                game.showLevelFailed("No moves possible");
             }, 800);
         } else {
             game.hideControls();

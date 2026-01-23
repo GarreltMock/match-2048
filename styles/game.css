@@ -89,18 +89,11 @@
     top: 0;
 }
 
-.fail-reason-text {
+#failReasonText {
     position: absolute;
     width: 100%;
     left: 0;
-    top: 60px;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.7);
-    font-family: Nunito;
-    font-size: 20px;
-    font-weight: 700;
-    z-index: 101;
-    pointer-events: none;
+    top: 50px;
 }
 
 #levelSolvedSvg.animate {
@@ -746,7 +739,8 @@
 }
 
 @keyframes pulse-selected {
-    0%, 100% {
+    0%,
+    100% {
         box-shadow: 0 0 10px 3px var(--tile-teleport-border);
     }
     50% {
