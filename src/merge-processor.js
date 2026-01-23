@@ -15,9 +15,14 @@ import {
     isRectangularBlocked,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
-import { showFormationTutorialDialog, getFormationTypeFromDirection } from "./formation-tutorial.js";
+import {
+    showFormationTutorialDialog,
+    getPendingFormationTutorials,
+    highlightMergeTiles,
+    clearMergeHighlight,
+} from "./formation-tutorial.js";
 
-export function processMatches(game) {
+export async function processMatches(game) {
     const matchGroups = game.findMatches();
 
     // Capture user swap flag before resetting (needed for processMerges callback)
@@ -51,6 +56,30 @@ export function processMatches(game) {
 
     // Check for blocked tiles adjacent to original match positions and unblock them
     unblockAdjacentTiles(game, matchGroups);
+
+    // Check for pending formation tutorials (only on user swaps)
+    if (wasUserSwap) {
+        const pendingTutorials = getPendingFormationTutorials(matchGroups);
+
+        if (pendingTutorials.length > 0) {
+            // Highlight all tiles that will be merged
+            highlightMergeTiles(matchGroups);
+
+            // Wait 500ms so user can see the highlighted tiles before dialog opens
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            // Show each tutorial dialog and wait for user to close it
+            for (const { formationType } of pendingTutorials) {
+                await showFormationTutorialDialog(formationType);
+            }
+
+            // Wait 300ms after dialog closes before continuing
+            await new Promise((resolve) => setTimeout(resolve, 300));
+
+            // Clear the highlight
+            clearMergeHighlight();
+        }
+    }
 
     // Start merge animations
     animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap));
@@ -108,21 +137,6 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
             }
         });
 
-        // Show formation tutorial dialogs for new formations (only on user swaps, not automerges)
-        // Dedupe formation types to avoid multiple dialogs for same formation in one merge
-        const formationTypesToShow = new Set();
-        matchGroups.forEach((group) => {
-            const formationType = getFormationTypeFromDirection(group.direction);
-            if (formationType) {
-                formationTypesToShow.add(formationType);
-            }
-        });
-        formationTypesToShow.forEach((formationType) => {
-            // Show tutorial async (doesn't block gameplay)
-            setTimeout(() => {
-                showFormationTutorialDialog(formationType);
-            }, 500);
-        });
     }
 
     // Clear all matched tiles first

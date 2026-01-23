@@ -7,6 +7,51 @@
 
 import { loadShownFormationTutorials, saveShownFormationTutorial } from "./storage.js";
 
+/**
+ * Get pending formation tutorials for match groups
+ * @param {Array} matchGroups - Array of match groups from findMatches()
+ * @returns {Array<{formationType: string, matchGroup: object}>} Array of pending tutorials with their match groups
+ */
+export function getPendingFormationTutorials(matchGroups) {
+    const pending = [];
+    const seenTypes = new Set();
+    const shownTutorials = loadShownFormationTutorials();
+
+    matchGroups.forEach((group) => {
+        const formationType = getFormationTypeFromDirection(group.direction);
+        if (formationType && !seenTypes.has(formationType) && !shownTutorials.has(formationType)) {
+            seenTypes.add(formationType);
+            pending.push({ formationType, matchGroup: group });
+        }
+    });
+
+    return pending;
+}
+
+/**
+ * Highlight tiles that will be merged using merge-preview class
+ * @param {Array} matchGroups - Array of match groups to highlight
+ */
+export function highlightMergeTiles(matchGroups) {
+    matchGroups.forEach((group) => {
+        group.tiles.forEach((tile) => {
+            const gem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
+            if (gem) {
+                gem.classList.add("merge-preview");
+            }
+        });
+    });
+}
+
+/**
+ * Remove merge-preview highlight from all tiles
+ */
+export function clearMergeHighlight() {
+    document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
+        gem.classList.remove("merge-preview");
+    });
+}
+
 // Dialog content for each formation type
 export const FORMATION_TUTORIAL_DIALOGS = {
     line_3: {
@@ -260,56 +305,62 @@ export function getFormationTypeFromDirection(direction) {
 /**
  * Show formation tutorial dialog
  * @param {string} formationType - The formation type to show
+ * @returns {Promise<boolean>} Resolves to true if dialog was shown, false if already shown or invalid
  */
 export function showFormationTutorialDialog(formationType) {
-    // Check if already shown
-    if (hasFormationTutorialBeenShown(formationType)) {
-        return;
-    }
+    return new Promise((resolve) => {
+        // Check if already shown
+        if (hasFormationTutorialBeenShown(formationType)) {
+            resolve(false);
+            return;
+        }
 
-    // Mark as shown immediately to prevent duplicate dialogs from concurrent triggers
-    saveShownFormationTutorial(formationType);
+        // Mark as shown immediately to prevent duplicate dialogs from concurrent triggers
+        saveShownFormationTutorial(formationType);
 
-    const dialog = FORMATION_TUTORIAL_DIALOGS[formationType];
-    if (!dialog) {
-        console.warn(`Unknown formation type: ${formationType}`);
-        return;
-    }
+        const dialog = FORMATION_TUTORIAL_DIALOGS[formationType];
+        if (!dialog) {
+            console.warn(`Unknown formation type: ${formationType}`);
+            resolve(false);
+            return;
+        }
 
-    // Create dialog overlay
-    const overlay = document.createElement("div");
-    overlay.className = "goal-dialog-overlay";
+        // Create dialog overlay
+        const overlay = document.createElement("div");
+        overlay.className = "goal-dialog-overlay";
 
-    // Create dialog content
-    const dialogElement = document.createElement("div");
-    dialogElement.className = "goal-dialog";
-    dialogElement.innerHTML = `
-        <div class="goal-dialog-header">
-            <h3>${dialog.subtitle}</h3>
-            <h2>${dialog.title}</h2>
-        </div>
-        <div class="goal-dialog-content">
-            ${dialog.content}
-        </div>
-        <div class="goal-dialog-footer">
-            <button class="goal-dialog-button">Got it!</button>
-        </div>
-    `;
+        // Create dialog content
+        const dialogElement = document.createElement("div");
+        dialogElement.className = "goal-dialog";
+        dialogElement.innerHTML = `
+            <div class="goal-dialog-header">
+                <h3>${dialog.subtitle}</h3>
+                <h2>${dialog.title}</h2>
+            </div>
+            <div class="goal-dialog-content">
+                ${dialog.content}
+            </div>
+            <div class="goal-dialog-footer">
+                <button class="goal-dialog-button">Got it!</button>
+            </div>
+        `;
 
-    overlay.appendChild(dialogElement);
-    document.body.appendChild(overlay);
+        overlay.appendChild(dialogElement);
+        document.body.appendChild(overlay);
 
-    // Add close handler using scoped querySelector
-    const closeButton = overlay.querySelector(".goal-dialog-button");
-    closeButton.addEventListener("click", () => {
-        overlay.classList.add("hidden");
-        setTimeout(() => {
-            overlay.remove();
-        }, 300);
-    });
+        // Add close handler using scoped querySelector
+        const closeButton = overlay.querySelector(".goal-dialog-button");
+        closeButton.addEventListener("click", () => {
+            overlay.classList.add("hidden");
+            setTimeout(() => {
+                overlay.remove();
+                resolve(true);
+            }, 300);
+        });
 
-    // Show dialog with animation
-    requestAnimationFrame(() => {
-        overlay.classList.add("visible");
+        // Show dialog with animation
+        requestAnimationFrame(() => {
+            overlay.classList.add("visible");
+        });
     });
 }
