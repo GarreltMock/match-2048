@@ -1280,6 +1280,15 @@ export const TEST_LEVELS = [
             },
         ],
     },
+    {
+        level: 34,
+        title: "Test No Moves Left State",
+        boardWidth: 5,
+        boardHeight: 5,
+        maxMoves: 40,
+        goals: [{ tileValue: 10, target: 1, current: 0, goalType: "created" }],
+        spawnableTiles: [1, 2, 3, 4, 5, 6, 7],
+    },
 ];
 
 export const NEW_LEVELS = [
