@@ -234,12 +234,22 @@ function animateRectangularBlockRemoval(game, tile) {
         blockedElement.classList.add("disappear");
     }
 
+    // Capture the rectId and dimensions before the timeout
+    // (in case the tile object reference changes due to hint system board restoration)
+    const rectId = tile.rectId;
+    const anchorRow = tile.rectAnchor.row;
+    const anchorCol = tile.rectAnchor.col;
+    const rectHeight = tile.rectHeight;
+    const rectWidth = tile.rectWidth;
+
     // Remove from ALL cells of the rectangle
     setTimeout(() => {
-        const { row: anchorRow, col: anchorCol } = tile.rectAnchor;
-        for (let r = anchorRow; r < anchorRow + tile.rectHeight; r++) {
-            for (let c = anchorCol; c < anchorCol + tile.rectWidth; c++) {
-                if (game.board[r] && game.board[r][c] === tile) {
+        for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
+            for (let c = anchorCol; c < anchorCol + rectWidth; c++) {
+                // Use rectId comparison instead of object identity
+                // (hint system may have replaced objects with shallow copies)
+                const boardTile = game.board[r]?.[c];
+                if (boardTile && boardTile.rectId === rectId) {
                     game.board[r][c] = null;
                 }
             }

@@ -17,23 +17,30 @@ export function findBestSwap(game) {
 
     const evaluatedSwaps = [];
 
-    // Save original board state and flags
-    const originalBoard = game.board.map(row => row.map(tile => ({...tile})));
+    // Save original board reference and flags (don't copy - keep the original intact)
+    const originalBoard = game.board;
     const originalIsUserSwap = game.isUserSwap;
+    const originalLastSwapPosition = game.lastSwapPosition;
+
+    // Create a working copy for hint evaluation
+    // This copy is what we'll modify during evaluation
+    const createWorkingCopy = () => originalBoard.map(row => row.map(tile => tile ? {...tile} : null));
 
     for (const swap of validSwaps) {
+        // Set up a fresh working copy for each evaluation
+        game.board = createWorkingCopy();
+
         const result = evaluateSwap(game, swap.row1, swap.col1, swap.row2, swap.col2);
 
         if (result !== null) {
             evaluatedSwaps.push(result);
         }
-
-        // Restore board state after each evaluation
-        game.board = originalBoard.map(row => row.map(tile => ({...tile})));
     }
 
-    // Restore original flag
+    // Restore original board reference (not a copy - the actual original)
+    game.board = originalBoard;
     game.isUserSwap = originalIsUserSwap;
+    game.lastSwapPosition = originalLastSwapPosition;
 
     if (evaluatedSwaps.length === 0) {
         return null;
@@ -398,11 +405,15 @@ function calculateSwapScore(game, matches) {
  * @returns {Array<{row: number, col: number}>} Array of tile positions in PRE-SWAP coordinates
  */
 export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
-    // Save original board state
-    const originalBoard = game.board.map(row => row.map(tile => tile ? {...tile} : null));
+    // Save original board reference and flags (don't modify the original)
+    const originalBoard = game.board;
     const originalIsUserSwap = game.isUserSwap;
+    const originalLastSwapPosition = game.lastSwapPosition;
 
-    // Temporarily swap tiles
+    // Create a working copy for the evaluation
+    game.board = originalBoard.map(row => row.map(tile => tile ? {...tile} : null));
+
+    // Swap tiles on the working copy
     const temp = game.board[row1][col1];
     game.board[row1][col1] = game.board[row2][col2];
     game.board[row2][col2] = temp;
@@ -454,9 +465,10 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
         }
     }
 
-    // Restore board state
+    // Restore original board reference (not a copy)
     game.board = originalBoard;
     game.isUserSwap = originalIsUserSwap;
+    game.lastSwapPosition = originalLastSwapPosition;
 
     return matchTiles;
 }
