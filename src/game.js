@@ -70,7 +70,14 @@ import {
 } from "./match-detector.js";
 import { processMatches } from "./merge-processor.js";
 import { animateSwap, animateRevert, dropGems } from "./animator.js";
-import { renderBoard, renderGoals, renderBoardUpgrades, updateGoalDisplay, updateMovesDisplay } from "./renderer.js";
+import {
+    renderBoard,
+    renderGoals,
+    renderBoardUpgrades,
+    renderPowerUpRewards,
+    updateGoalDisplay,
+    updateMovesDisplay,
+} from "./renderer.js";
 import { findBestSwap } from "./hint-system.js";
 import {
     checkLevelComplete,
@@ -132,6 +139,7 @@ export class Match3Game {
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.completedUpgrades = []; // Track completed board upgrades for per-level system
+        this.completedPowerUpRewards = []; // Track claimed power-up rewards for per-level system
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
@@ -349,6 +357,7 @@ export class Match3Game {
         // Reset tile level shift flag
         this.pendingTileLevelShift = false;
         this.completedUpgrades = []; // Reset board upgrade progress for new level
+        this.completedPowerUpRewards = []; // Reset power-up rewards progress for new level
 
         // Reset match statistics for new level
         this.matchStats = {
@@ -365,6 +374,7 @@ export class Match3Game {
         this.settingsChangedDuringLevel = false; // Reset flag for new level
 
         renderBoardUpgrades(this);
+        renderPowerUpRewards(this);
         renderGoals(this);
         updateMovesDisplay(this);
 
@@ -878,6 +888,7 @@ export class Match3Game {
                     strokedText.setAttribute("font-size", "26");
                     strokedText.setAttribute("width", "40");
                     strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("stroke-width", "4");
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("random-powerup-bonus");
                     indicator.appendChild(strokedText);
@@ -888,6 +899,7 @@ export class Match3Game {
                     strokedText.setAttribute("font-size", "26");
                     strokedText.setAttribute("width", "40");
                     strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("stroke-width", "4");
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("streak-bonus");
                     indicator.appendChild(strokedText);
@@ -1984,6 +1996,21 @@ export class Match3Game {
     }
 
     /**
+     * Check if creating a tile value should grant a free power-up reward
+     * This is called after tiles are merged
+     */
+    checkAndGrantPowerUpReward(newlyCreatedValue) {
+        const rewards = this.levelConfig.powerUpRewards;
+        if (!rewards) return;
+
+        if (rewards.includes(newlyCreatedValue) && !this.completedPowerUpRewards.includes(newlyCreatedValue)) {
+            this.completedPowerUpRewards.push(newlyCreatedValue);
+            this.grantRandomPowerUp();
+            renderPowerUpRewards(this);
+        }
+    }
+
+    /**
      * Execute tile level shift with animation
      * Returns a promise that resolves when animation completes
      */
@@ -2149,7 +2176,7 @@ export class Match3Game {
                         closeDialog();
                     }
                 },
-                { once: true }
+                { once: true },
             );
 
             // Close on Escape key
@@ -2160,7 +2187,7 @@ export class Match3Game {
                         closeDialog();
                     }
                 },
-                { once: true }
+                { once: true },
             );
         };
 
@@ -2250,7 +2277,7 @@ export class Match3Game {
             col2: bestSwap.col2,
             direction1: bestSwap.direction1,
             direction2: bestSwap.direction2,
-            matchTiles: bestSwap.matchTiles || []
+            matchTiles: bestSwap.matchTiles || [],
         };
 
         this.renderHintHighlight();
@@ -2264,17 +2291,17 @@ export class Match3Game {
 
         // Clear nudge classes from swap tiles
         const gem1 = document.querySelector(
-            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`
+            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`,
         );
         const gem2 = document.querySelector(
-            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`
+            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`,
         );
 
         gem1?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
         gem2?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
 
         // Clear merge preview from all tiles
-        document.querySelectorAll(".hint-merge-preview").forEach(el => {
+        document.querySelectorAll(".hint-merge-preview").forEach((el) => {
             el.classList.remove("hint-merge-preview");
         });
 
@@ -2297,10 +2324,10 @@ export class Match3Game {
         if (!this.currentHint) return;
 
         const gem1 = document.querySelector(
-            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`
+            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`,
         );
         const gem2 = document.querySelector(
-            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`
+            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`,
         );
 
         // Add directional nudge animation to swap tiles
@@ -2314,9 +2341,7 @@ export class Match3Game {
         // Highlight tiles that will merge
         if (this.currentHint.matchTiles) {
             for (const tile of this.currentHint.matchTiles) {
-                const matchGem = document.querySelector(
-                    `[data-row="${tile.row}"][data-col="${tile.col}"]`
-                );
+                const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
                 matchGem?.classList.add("hint-merge-preview");
             }
         }

@@ -352,6 +352,31 @@ function createScoreGoalCard(goal) {
     return goalCard;
 }
 
+export function renderPowerUpRewards(game) {
+    const container = document.getElementById("powerUpRewardsContainer");
+    const rewardsEl = document.getElementById("powerUpRewards");
+    if (!container || !rewardsEl) return;
+
+    const rewards = game.levelConfig.powerUpRewards;
+    if (!rewards || rewards.length === 0) {
+        container.style.display = "none";
+        return;
+    }
+
+    container.style.display = "flex";
+    rewardsEl.innerHTML = "";
+
+    rewards.sort((a, b) => a - b).forEach((tileValue) => {
+        const isCompleted = game.completedPowerUpRewards.includes(tileValue);
+        const displayValue = getDisplayValue(tileValue);
+
+        const tile = document.createElement("div");
+        tile.className = `gem tile-${tileValue} powerup-reward-tile ${isCompleted ? "completed" : ""}`;
+        tile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+        rewardsEl.appendChild(tile);
+    });
+}
+
 export function renderBoardUpgrades(game) {
     const upgradesContainer = document.getElementById("boardUpgradesContainer");
     const upgradesElement = document.getElementById("boardUpgrades");

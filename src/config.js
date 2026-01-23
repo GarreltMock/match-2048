@@ -1289,6 +1289,20 @@ export const TEST_LEVELS = [
         goals: [{ tileValue: 10, target: 1, current: 0, goalType: "created" }],
         spawnableTiles: [1, 2, 3, 4, 5, 6, 7],
     },
+    {
+        level: 11,
+        title: "Power Up Rewards",
+        boardWidth: 6,
+        boardHeight: 7,
+        maxMoves: 40,
+        spawnableTiles: [1, 2, 3],
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }],
+        goals: [
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+        ],
+        powerUpRewards: [5, 6], // Grant power-up when 32 or 64 is created
+    },
 ];
 
 export const NEW_LEVELS = [
