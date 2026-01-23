@@ -367,9 +367,19 @@ function calculateSwapScore(game, matches) {
     score += maxFormationScore;
     score += totalTilesCleared * 50;
     score += goalProgress * 100;
-    // Much higher bonus when blocked is the only remaining goal
-    const blockedBonus = blockedIsOnlyRemainingGoal ? 500 : 150;
-    score += hasBlockedGoals ? blockedCleared * blockedBonus : 0;
+
+    // Blocked tile scoring
+    if (hasBlockedGoals && blockedCleared > 0) {
+        if (blockedIsOnlyRemainingGoal) {
+            // When blocked is the ONLY remaining goal, always prefer clearing blocked tiles
+            // Use a massive bonus that dominates all other scoring factors
+            score += 10000 + blockedCleared * 500;
+        } else {
+            // When there are other goals too, still give significant bonus
+            score += blockedCleared * 200;
+        }
+    }
+
     score += hasSpecialTile ? 200 : 0;
     score += maxValue * 5;
     score += positionBonus;
