@@ -136,8 +136,10 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
                 game.matchStats.match3Count++;
             }
         });
-
     }
+
+    // Check formation-based power-up rewards
+    checkFormationPowerUpRewards(game, matchGroups, wasUserSwap);
 
     // Clear all matched tiles first
     matchGroups.forEach((group) => {
@@ -283,8 +285,7 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     // This just sets a flag and the highest value reached, doesn't execute the shift yet
     game.checkAndShiftTileLevels(newValue);
 
-    // Check if creating this value should grant a power-up reward
-    game.checkAndGrantPowerUpReward(newValue);
+    // Note: Power-up rewards are now checked per formation in processMerges(), not per tile value
 }
 
 export function determineSpecialTilePosition(game, group, formationType) {
@@ -719,4 +720,97 @@ export function checkAndCreateCursedTile(game, value, position) {
     }
 
     return false; // Not cursed
+}
+
+/**
+ * Check formation-based power-up rewards and grant when targets are met
+ * @param {Match3Game} game - Game instance
+ * @param {Array} matchGroups - Array of match groups with formation info
+ * @param {boolean} wasUserSwap - Whether this was a user-initiated swap
+ */
+export function checkFormationPowerUpRewards(game, matchGroups, wasUserSwap = false) {
+    const rewards = game.levelConfig.powerUpRewards;
+    if (!rewards || !Array.isArray(rewards) || rewards.length === 0) return;
+
+    // Check if rewards are in new format (array of objects with formation property)
+    const isNewFormat = rewards.every((r) => typeof r === "object" && r.formation);
+    if (!isNewFormat) {
+        // Old format (array of tile values) - no formation checking
+        return;
+    }
+
+    // Check cascade counts setting
+    const cascadeCounts = game.cascadeCounts !== undefined ? game.cascadeCounts : false;
+
+    // If cascade counting is disabled and this wasn't a user swap, skip checking
+    if (!cascadeCounts && !wasUserSwap) {
+        return;
+    }
+
+    // Direction to formation type mapping
+    const directionMap = {
+        "T-formation": "t",
+        "L-formation": "l",
+        block_4_formation: "block",
+        line_4_horizontal: "line4",
+        line_4_vertical: "line4",
+        line_5_horizontal: "line5",
+        line_5_vertical: "line5",
+    };
+
+    // Process each match group
+    matchGroups.forEach((group) => {
+        const formationType = directionMap[group.direction];
+        if (!formationType) return; // Unknown formation
+
+        // Check each reward to see if this match contributes
+        rewards.forEach((reward, rewardIndex) => {
+            // Skip if already completed
+            if (game.powerUpRewardProgress[rewardIndex] >= reward.target) {
+                return;
+            }
+
+            // Check if formation matches
+            let formationMatches = false;
+            if (reward.formation === "any5") {
+                // Any 5-tile merge (T, L, or line5)
+                formationMatches = formationType === "t" || formationType === "l" || formationType === "line5";
+            } else if (reward.formation === "any4") {
+                // Any 4-tile merge (block or line4)
+                formationMatches = formationType === "block" || formationType === "line4";
+            } else {
+                // Exact formation match
+                formationMatches = formationType === reward.formation;
+            }
+
+            if (!formationMatches) return;
+
+            // Check optional value filter
+            if (reward.value !== undefined && reward.value !== group.value) {
+                return; // Value doesn't match
+            }
+
+            // Increment progress
+            game.powerUpRewardProgress[rewardIndex]++;
+
+            // Check if target met
+            if (game.powerUpRewardProgress[rewardIndex] >= reward.target) {
+                // Determine which power-up to grant
+                let powerUpType = reward.powerUp || "cycle";
+                if (powerUpType === "cycle") {
+                    // Cycle through power-ups based on reward index
+                    const powerUpTypes = ["hammer", "halve", "swap"];
+                    powerUpType = powerUpTypes[rewardIndex % 3];
+                }
+
+                // Grant the power-up
+                game.grantPowerUp(powerUpType);
+
+                // Update UI
+                if (game.renderPowerUpRewards) {
+                    game.renderPowerUpRewards();
+                }
+            }
+        });
+    });
 }

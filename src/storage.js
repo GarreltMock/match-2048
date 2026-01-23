@@ -375,3 +375,24 @@ export function saveShownFormationTutorial(formationType) {
     shown.add(formationType);
     localStorage.setItem("match2048_shownFormationTutorials", JSON.stringify([...shown]));
 }
+
+/**
+ * Load the cascade counts setting for bonus goals
+ * @returns {boolean} True if cascade merges count toward bonus goals (default: false)
+ */
+export function loadCascadeCountsSetting() {
+    const saved = localStorage.getItem("match2048_cascadeCounts");
+    // Default to false if not set
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the cascade counts setting for bonus goals
+ * @param {boolean} enabled - Whether cascade merges should count
+ */
+export function saveCascadeCountsSetting(enabled) {
+    localStorage.setItem("match2048_cascadeCounts", enabled.toString());
+}

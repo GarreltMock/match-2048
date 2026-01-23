@@ -38,6 +38,16 @@ export const FORMATION_TYPES = {
     L_FORMATION: "l_formation",
 };
 
+export const FORMATION_REWARD_TYPES = {
+    T: "t",
+    L: "l",
+    BLOCK: "block",
+    LINE4: "line4",
+    LINE5: "line5",
+    ANY5: "any5",
+    ANY4: "any4",
+};
+
 export const DEFAULT_TILE_VALUES = [1, 2, 3, 4]; // Internal representation: 1=2, 2=4, 3=8, 4=16
 
 export const MAX_POWER_UP_USES = 2;
@@ -1301,7 +1311,12 @@ export const TEST_LEVELS = [
             { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
-        powerUpRewards: [5, 6, 7, 8], // Grant power-up when 32 or 64 is created
+        powerUpRewards: [
+            { formation: "t", target: 1 },              // 1x T-Formation
+            { formation: "block", target: 2 },          // 2x Block Formation
+            { formation: "line4", target: 1, value: 5 }, // 1x 4-line with 32s
+            { formation: "any5", target: 3 },           // 3x any 5-tile merge
+        ],
     },
 ];
 
@@ -1891,7 +1906,11 @@ export const NEW_LEVELS = [
             { tileValue: 8, target: 1, current: 0, goalType: "created" },
         ],
         boardUpgrades: [6, 8],
-        powerUpRewards: [5, 6, 7],
+        powerUpRewards: [
+            { formation: "l", target: 1 },              // 1x L-Formation
+            { formation: "line5", target: 1, value: 5 }, // 1x 5-line with 32s
+            { formation: "any4", target: 3 },           // 3x any 4-tile merge
+        ],
     },
 ];
 

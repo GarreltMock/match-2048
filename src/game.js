@@ -40,6 +40,8 @@ import {
     saveUnlockedFeature,
     loadHintsEnabled,
     saveHintsEnabled,
+    loadCascadeCountsSetting,
+    saveCascadeCountsSetting,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -118,6 +120,7 @@ export class Match3Game {
         this.score = loadScore();
         this.boardUpgradeAction = loadBoardUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
         this.superUpgradeAction = loadSuperUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
+        this.cascadeCounts = loadCascadeCountsSetting(); // Whether cascade merges count toward bonus goals
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
 
@@ -139,7 +142,8 @@ export class Match3Game {
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.completedUpgrades = []; // Track completed board upgrades for per-level system
-        this.completedPowerUpRewards = []; // Track claimed power-up rewards for per-level system
+        this.completedPowerUpRewards = []; // Track claimed power-up rewards for per-level system (old tile-value format)
+        this.powerUpRewardProgress = []; // Track current progress per reward index (formation-based format)
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
@@ -357,7 +361,14 @@ export class Match3Game {
         // Reset tile level shift flag
         this.pendingTileLevelShift = false;
         this.completedUpgrades = []; // Reset board upgrade progress for new level
-        this.completedPowerUpRewards = []; // Reset power-up rewards progress for new level
+        this.completedPowerUpRewards = []; // Reset power-up rewards progress for new level (old format)
+
+        // Reset formation-based power-up reward progress
+        this.powerUpRewardProgress = [];
+        if (level.powerUpRewards && Array.isArray(level.powerUpRewards)) {
+            // Initialize progress array based on reward count
+            this.powerUpRewardProgress = level.powerUpRewards.map(() => 0);
+        }
 
         // Reset match statistics for new level
         this.matchStats = {
@@ -1759,6 +1770,7 @@ export class Match3Game {
 
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
+        const cascadeCountsCheckbox = document.getElementById("cascadeCountsEnabled");
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1857,6 +1869,9 @@ export class Match3Game {
             if (hintsEnabledCheckbox) {
                 hintsEnabledCheckbox.checked = this.hintsEnabled;
             }
+            if (cascadeCountsCheckbox) {
+                cascadeCountsCheckbox.checked = this.cascadeCounts;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -1947,6 +1962,10 @@ export class Match3Game {
                         this.hintsEnabled = hintsEnabledCheckbox.checked;
                         saveHintsEnabled(this.hintsEnabled);
                     }
+                    if (cascadeCountsCheckbox) {
+                        this.cascadeCounts = cascadeCountsCheckbox.checked;
+                        saveCascadeCountsSetting(this.cascadeCounts);
+                    }
 
                     // Mark that settings were changed during this level (if game is active)
                     if (this.gameActive && !levelChanged) {
@@ -1999,29 +2018,7 @@ export class Match3Game {
         }
     }
 
-    /**
-     * Check if creating a tile value should grant a free power-up reward
-     * This is called after tiles are merged
-     */
-    checkAndGrantPowerUpReward(newlyCreatedValue) {
-        const rewards = this.levelConfig.powerUpRewards;
-        if (!rewards) return;
-
-        // Sort rewards to ensure consistent ordering
-        const sortedRewards = [...rewards].sort((a, b) => a - b);
-        const rewardIndex = sortedRewards.indexOf(newlyCreatedValue);
-
-        if (rewardIndex !== -1 && !this.completedPowerUpRewards.includes(newlyCreatedValue)) {
-            this.completedPowerUpRewards.push(newlyCreatedValue);
-
-            // Cycle through power-ups: hammer → halver → swap → hammer...
-            const powerUpTypes = ["hammer", "halve", "swap"];
-            const powerUpType = powerUpTypes[rewardIndex % 3];
-
-            this.grantPowerUp(powerUpType);
-            renderPowerUpRewards(this);
-        }
-    }
+    // checkAndGrantPowerUpReward method removed - now handled by formation-based system in merge-processor.js
 
     /**
      * Execute tile level shift with animation

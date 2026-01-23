@@ -373,21 +373,62 @@ export function renderPowerUpRewards(game) {
     halveTiles.innerHTML = "";
     swapTiles.innerHTML = "";
 
-    // Sort rewards and distribute to columns based on cycling order
-    const sortedRewards = [...rewards].sort((a, b) => a - b);
-    const columns = [hammerTiles, halveTiles, swapTiles];
+    // Check if rewards are in new format (array of objects) or old format (array of tile values)
+    const isNewFormat = Array.isArray(rewards) && rewards.length > 0 && typeof rewards[0] === "object" && rewards[0].formation;
 
-    sortedRewards.forEach((tileValue, index) => {
-        const isCompleted = game.completedPowerUpRewards.includes(tileValue);
-        const displayValue = getDisplayValue(tileValue);
-        const columnIndex = index % 3;
+    if (isNewFormat) {
+        // New formation-based format
+        const columns = [hammerTiles, halveTiles, swapTiles];
+        const formationIcons = {
+            t: "T",
+            l: "L",
+            block: "■",
+            line4: "━",
+            line5: "━━",
+            any5: "5+",
+            any4: "4+",
+        };
 
-        const tile = document.createElement("div");
-        tile.className = `gem tile-${tileValue} powerup-reward-tile ${isCompleted ? "completed" : ""}`;
-        tile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+        rewards.forEach((reward, index) => {
+            const columnIndex = reward.powerUp
+                ? (reward.powerUp === "hammer" ? 0 : reward.powerUp === "halve" ? 1 : 2)
+                : index % 3;
 
-        columns[columnIndex].appendChild(tile);
-    });
+            const isCompleted = game.powerUpRewardProgress[index] >= reward.target;
+            const progress = game.powerUpRewardProgress[index] || 0;
+            const icon = formationIcons[reward.formation] || "?";
+
+            const tile = document.createElement("div");
+            tile.className = `powerup-reward-formation ${isCompleted ? "completed" : ""}`;
+
+            // Add value indicator if specified
+            const valueText = reward.value !== undefined ? ` (${getDisplayValue(reward.value)})` : "";
+
+            tile.innerHTML = `
+                <div class="formation-icon">${icon}</div>
+                <div class="formation-progress">${progress}/${reward.target}</div>
+                ${valueText ? `<div class="formation-value">${valueText}</div>` : ""}
+            `;
+
+            columns[columnIndex].appendChild(tile);
+        });
+    } else {
+        // Old tile-value format (backward compatibility)
+        const sortedRewards = [...rewards].sort((a, b) => a - b);
+        const columns = [hammerTiles, halveTiles, swapTiles];
+
+        sortedRewards.forEach((tileValue, index) => {
+            const isCompleted = game.completedPowerUpRewards.includes(tileValue);
+            const displayValue = getDisplayValue(tileValue);
+            const columnIndex = index % 3;
+
+            const tile = document.createElement("div");
+            tile.className = `gem tile-${tileValue} powerup-reward-tile ${isCompleted ? "completed" : ""}`;
+            tile.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
+
+            columns[columnIndex].appendChild(tile);
+        });
+    }
 }
 
 export function renderBoardUpgrades(game) {
