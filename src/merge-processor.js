@@ -21,6 +21,7 @@ import {
     highlightMergeTiles,
     clearMergeHighlight,
 } from "./formation-tutorial.js";
+import { renderPowerUpRewards } from "./renderer.js";
 
 export async function processMatches(game) {
     const matchGroups = game.findMatches();
@@ -751,17 +752,18 @@ export function checkFormationPowerUpRewards(game, matchGroups, wasUserSwap = fa
     const directionMap = {
         "T-formation": "t",
         "L-formation": "l",
-        block_4_formation: "block",
-        line_4_horizontal: "line4",
-        line_4_vertical: "line4",
-        line_5_horizontal: "line5",
-        line_5_vertical: "line5",
+        "block_4_formation": "block",
+        "line_4_horizontal": "line4",
+        "line_4_vertical": "line4",
+        "line_5_horizontal": "line5",
+        "line_5_vertical": "line5",
     };
 
     // Process each match group
     matchGroups.forEach((group) => {
         const formationType = directionMap[group.direction];
-        if (!formationType) return; // Unknown formation
+        console.log("Formation check:", group.direction, "->", formationType, "wasUserSwap:", wasUserSwap);
+        if (!formationType) return; // Unknown formation (3-tile matches, etc.)
 
         // Check each reward to see if this match contributes
         rewards.forEach((reward, rewardIndex) => {
@@ -805,12 +807,10 @@ export function checkFormationPowerUpRewards(game, matchGroups, wasUserSwap = fa
 
                 // Grant the power-up
                 game.grantPowerUp(powerUpType);
-
-                // Update UI
-                if (game.renderPowerUpRewards) {
-                    game.renderPowerUpRewards();
-                }
             }
         });
     });
+
+    // Update UI after processing all rewards
+    renderPowerUpRewards(game);
 }

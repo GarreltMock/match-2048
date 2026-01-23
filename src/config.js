@@ -1312,10 +1312,10 @@ export const TEST_LEVELS = [
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
         powerUpRewards: [
-            { formation: "t", target: 1 },              // 1x T-Formation
-            { formation: "block", target: 2 },          // 2x Block Formation
+            { formation: "t", target: 1 }, // 1x T-Formation
+            { formation: "block", target: 2 }, // 2x Block Formation
             { formation: "line4", target: 1, value: 5 }, // 1x 4-line with 32s
-            { formation: "any5", target: 3 },           // 3x any 5-tile merge
+            // { formation: "any5", target: 3 },           // 3x any 5-tile merge
         ],
     },
 ];
@@ -1907,9 +1907,9 @@ export const NEW_LEVELS = [
         ],
         boardUpgrades: [6, 8],
         powerUpRewards: [
-            { formation: "l", target: 1 },              // 1x L-Formation
+            { formation: "l", target: 1 }, // 1x L-Formation
             { formation: "line5", target: 1, value: 5 }, // 1x 5-line with 32s
-            { formation: "any4", target: 3 },           // 3x any 4-tile merge
+            { formation: "any4", target: 3 }, // 3x any 4-tile merge
         ],
     },
 ];
