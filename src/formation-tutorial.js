@@ -10,8 +10,8 @@ import { loadShownFormationTutorials, saveShownFormationTutorial } from "./stora
 // Dialog content for each formation type
 export const FORMATION_TUTORIAL_DIALOGS = {
     line_3: {
-        title: "3-Tile Match",
-        subtitle: "Your first basic merge!",
+        subtitle: "3-Tile Match",
+        title: "Line",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row">
@@ -32,17 +32,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>When you match 3 identical tiles in a row, they merge into 1 tile with double the value!</p>
-            <ul>
-                <li><strong>3 tiles</strong> become <strong>1 tile</strong></li>
-                <li>Value is <strong>doubled</strong> (e.g., 4+4+4 → 8)</li>
-                <li>Works horizontally or vertically</li>
-            </ul>
         `,
     },
     line_4: {
-        title: "4-Tile Line Match",
-        subtitle: "A more powerful merge!",
+        subtitle: "4-Tile Match",
+        title: "Line",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row">
@@ -71,17 +65,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>When you match 4 tiles in a line, they merge into 2 tiles with double the value, and one becomes a special tile!</p>
-            <ul>
-                <li><strong>4 tiles</strong> become <strong>2 tiles</strong></li>
-                <li>Both tiles have <strong>double value</strong></li>
-                <li>One tile may get a <strong>special ability</strong></li>
-            </ul>
         `,
     },
     block_4: {
-        title: "4-Tile Block Match (2x2)",
-        subtitle: "Square formations are powerful!",
+        subtitle: "4-Tile Match",
+        title: "Block",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row">
@@ -114,17 +102,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>Match 4 tiles in a 2x2 square formation!</p>
-            <ul>
-                <li><strong>4 tiles</strong> in a square become <strong>2 tiles</strong></li>
-                <li>Both tiles have <strong>double value</strong></li>
-                <li>One tile may get a <strong>special ability</strong></li>
-            </ul>
         `,
     },
     line_5: {
-        title: "5-Tile Line Match",
-        subtitle: "Maximum power merge!",
+        subtitle: "5-Tile Match",
+        title: "Line",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row" style="margin-top: 24px">
@@ -154,17 +136,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>Match 5 tiles in a straight line for the ultimate reward!</p>
-            <ul>
-                <li><strong>5 tiles</strong> become <strong>1 special tile</strong></li>
-                <li>Value is <strong>quadrupled</strong> (e.g., 4×5 → 16)</li>
-                <li>Creates a powerful <strong>special tile</strong></li>
-            </ul>
         `,
     },
     t_formation: {
-        title: "T-Formation Match",
-        subtitle: "Advanced formation unlocked!",
+        subtitle: "5-Tile Match",
+        title: "T-Formation",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row">
@@ -203,17 +179,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>Create a T-shape with 5 tiles - 3 in a line plus 2 perpendicular from the center!</p>
-            <ul>
-                <li><strong>5 tiles</strong> in T-shape become <strong>1 tile</strong></li>
-                <li>Value is <strong>quadrupled</strong> (e.g., 4×5 → 16)</li>
-                <li>Creates a powerful <strong>special tile</strong></li>
-            </ul>
         `,
     },
     l_formation: {
-        title: "L-Formation Match",
-        subtitle: "Advanced formation unlocked!",
+        subtitle: "5-Tile Match",
+        title: "L-Formation",
         content: `
             <div class="formation-example">
                 <div class="example-formations-row">
@@ -252,12 +222,6 @@ export const FORMATION_TUTORIAL_DIALOGS = {
                     </div>
                 </div>
             </div>
-            <p>Create an L-shape with 5 tiles - 3 in one direction plus 2 more from the corner!</p>
-            <ul>
-                <li><strong>5 tiles</strong> in L-shape become <strong>1 tile</strong></li>
-                <li>Value is <strong>quadrupled</strong> (e.g., 4×5 → 16)</li>
-                <li>Creates a powerful <strong>special tile</strong></li>
-            </ul>
         `,
     },
 };
@@ -279,13 +243,13 @@ export function hasFormationTutorialBeenShown(formationType) {
 export function getFormationTypeFromDirection(direction) {
     // Map direction strings to formation type keys
     const formationMap = {
-        "horizontal": "line_3",
-        "vertical": "line_3",
-        "line_4_horizontal": "line_4",
-        "line_4_vertical": "line_4",
-        "block_4_formation": "block_4",
-        "line_5_horizontal": "line_5",
-        "line_5_vertical": "line_5",
+        horizontal: "line_3",
+        vertical: "line_3",
+        line_4_horizontal: "line_4",
+        line_4_vertical: "line_4",
+        block_4_formation: "block_4",
+        line_5_horizontal: "line_5",
+        line_5_vertical: "line_5",
         "T-formation": "t_formation",
         "L-formation": "l_formation",
     };
@@ -320,8 +284,8 @@ export function showFormationTutorialDialog(formationType, game) {
     dialogElement.className = "goal-dialog";
     dialogElement.innerHTML = `
         <div class="goal-dialog-header">
-            <h2>${dialog.title}</h2>
             <h3>${dialog.subtitle}</h3>
+            <h2>${dialog.title}</h2>
         </div>
         <div class="goal-dialog-content">
             ${dialog.content}

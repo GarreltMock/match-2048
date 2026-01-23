@@ -20,7 +20,8 @@ import { showFormationTutorialDialog, getFormationTypeFromDirection } from "./fo
 export function processMatches(game) {
     const matchGroups = game.findMatches();
 
-    // Reset user swap flag after finding matches
+    // Capture user swap flag before resetting (needed for processMerges callback)
+    const wasUserSwap = game.isUserSwap;
     game.isUserSwap = false;
 
     if (matchGroups.length === 0) {
@@ -52,10 +53,10 @@ export function processMatches(game) {
     unblockAdjacentTiles(game, matchGroups);
 
     // Start merge animations
-    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups));
+    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap));
 }
 
-export function processMerges(game, matchGroups) {
+export function processMerges(game, matchGroups, wasUserSwap = false) {
     // Check for sticky free swap tiles BEFORE clearing the board
     matchGroups.forEach((group) => {
         group.hasStickyFreeSwap = group.tiles.some((tile) => {
@@ -87,7 +88,7 @@ export function processMerges(game, matchGroups) {
     });
 
     // Track match statistics (only for user-initiated matches)
-    if (game.isUserSwap) {
+    if (wasUserSwap) {
         matchGroups.forEach((group) => {
             const tileCount = group.tiles.length;
             const direction = group.direction;
@@ -128,7 +129,7 @@ export function processMerges(game, matchGroups) {
 
     // Create new merged tiles
     matchGroups.forEach((group) => {
-        createMergedTiles(game, group);
+        createMergedTiles(game, group, wasUserSwap);
     });
 
     // Clear swap position after processing
@@ -165,7 +166,7 @@ export function processMerges(game, matchGroups) {
     }
 }
 
-export function createMergedTiles(game, group) {
+export function createMergedTiles(game, group, wasUserSwap = false) {
     const formationType = getFormationConfig(group.direction);
     const specialTileType = formationType ? game.specialTileConfig[formationType] : null;
 
@@ -180,7 +181,7 @@ export function createMergedTiles(game, group) {
     // Check if sticky free swap should transfer (detected before tiles were cleared)
     // If so, and this was NOT a user swap, transfer the sticky free swap to the merged tile
     const hasStickyFreeSwap = group.hasStickyFreeSwap || false;
-    const transferStickyFreeSwap = hasStickyFreeSwap && !game.isUserSwap;
+    const transferStickyFreeSwap = hasStickyFreeSwap && !wasUserSwap;
 
     // Track intermediate values for formations that skip a level (T, L, 5-line)
     // When tiles of value N merge into 1 tile of value N+2, conceptually there's an intermediate step:
