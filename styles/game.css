@@ -89,6 +89,13 @@
     top: 0;
 }
 
+#failReasonText {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    top: 50px;
+}
+
 #levelSolvedSvg.animate {
     animation: levelSolvedBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
@@ -732,7 +739,8 @@
 }
 
 @keyframes pulse-selected {
-    0%, 100% {
+    0%,
+    100% {
         box-shadow: 0 0 10px 3px var(--tile-teleport-border);
     }
     50% {
