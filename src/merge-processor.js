@@ -497,11 +497,14 @@ function unblockAdjacentTiles(game, matchGroups) {
                         hitInThisGroup.add(tile.rectId);
 
                         // Find any cell in this rectangle that still needs clearing
+                        // Also check cellsToDecrement to avoid picking a cell already claimed by another match group
                         let cellToClear = null;
                         for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
                             for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
                                 const cellKey = `${r}_${c}`;
-                                if (tile.cellMergeCounts[cellKey] > 0) {
+                                const rectCellKey = `${tile.rectId}_${cellKey}`;
+                                // Only consider cells that have count > 0 AND haven't been claimed by another match
+                                if (tile.cellMergeCounts[cellKey] > 0 && !cellsToDecrement.has(rectCellKey)) {
                                     cellToClear = { row: r, col: c, cellKey: cellKey };
                                     break;
                                 }
