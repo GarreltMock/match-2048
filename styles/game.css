@@ -1396,6 +1396,9 @@
 }
 
 .formation-powerup-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
     animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
     filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8));
 }

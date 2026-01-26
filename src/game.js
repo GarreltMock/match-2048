@@ -847,17 +847,29 @@ export class Match3Game {
         headline.setAttribute("fill", "#FFD700");
         headline.setAttribute("stroke", "#333");
 
-        // Create subtitle using stroked-text
-        const subtitle = document.createElement("stroked-text");
-        subtitle.className = "formation-powerup-subtitle";
-        subtitle.setAttribute("text", `+1 ${icon}`);
-        subtitle.setAttribute("font-size", "36");
-        subtitle.setAttribute("stroke-width", "10");
-        subtitle.setAttribute("fill", "#FFFFFF");
-        subtitle.setAttribute("stroke", "#333");
+        // Create subtitle container for inline elements
+        const subtitleContainer = document.createElement("div");
+        subtitleContainer.className = "formation-powerup-subtitle";
+
+        // Create "+1" text using stroked-text
+        const plusOneText = document.createElement("stroked-text");
+        plusOneText.setAttribute("text", "+1");
+        plusOneText.setAttribute("font-size", "36");
+        plusOneText.setAttribute("stroke-width", "10");
+        plusOneText.setAttribute("fill", "#FFFFFF");
+        plusOneText.setAttribute("stroke", "#333");
+
+        // Create icon using stroked-text
+        const iconText = document.createElement("stroked-text");
+        iconText.setAttribute("text", icon);
+        iconText.setAttribute("font-size", "36");
+        iconText.setAttribute("stroke-width", "6");
+
+        subtitleContainer.appendChild(plusOneText);
+        subtitleContainer.appendChild(iconText);
 
         container.appendChild(headline);
-        container.appendChild(subtitle);
+        container.appendChild(subtitleContainer);
 
         // Add to game container
         const gameContainer = document.getElementById("game-container");
