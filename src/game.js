@@ -838,15 +838,23 @@ export class Match3Game {
         const container = document.createElement("div");
         container.className = "formation-powerup-animation";
 
-        // Create headline
-        const headline = document.createElement("div");
+        // Create headline using stroked-text
+        const headline = document.createElement("stroked-text");
         headline.className = "formation-powerup-headline";
-        headline.textContent = randomWord;
+        headline.setAttribute("text", randomWord);
+        headline.setAttribute("font-size", "48");
+        headline.setAttribute("stroke-width", "12");
+        headline.setAttribute("fill", "#FFD700");
+        headline.setAttribute("stroke", "#333");
 
-        // Create subtitle
-        const subtitle = document.createElement("div");
+        // Create subtitle using stroked-text
+        const subtitle = document.createElement("stroked-text");
         subtitle.className = "formation-powerup-subtitle";
-        subtitle.textContent = `+1 ${icon}`;
+        subtitle.setAttribute("text", `+1 ${icon}`);
+        subtitle.setAttribute("font-size", "36");
+        subtitle.setAttribute("stroke-width", "10");
+        subtitle.setAttribute("fill", "#FFFFFF");
+        subtitle.setAttribute("stroke", "#333");
 
         container.appendChild(headline);
         container.appendChild(subtitle);
@@ -920,12 +928,14 @@ export class Match3Game {
             const extraMovesUses = this.extraMovesPowerUpCounts[powerUpType];
             const randomPowerUpUses = this.randomPowerUpBonusCounts[powerUpType];
 
+            // Calculate streak bonus (uses beyond persistent + extra moves + random)
+            const streakBonus = Math.max(0, usesLeft - persistentUses - extraMovesUses - randomPowerUpUses);
+
+            // Total free power-ups = streak + extra moves + random power-up bonuses
+            const totalFreePowerUps = streakBonus + extraMovesUses + randomPowerUpUses;
+
             // Check if this power-up has extra moves bonus
             const hasExtraMovesBonus = extraMovesUses > 0;
-            // Check if this power-up has random power-up bonus (from random power-up tiles)
-            const hasRandomPowerUpBonus = randomPowerUpUses > 0;
-            // Check if this power-up has a streak bonus (more uses than persistent + extra moves + random)
-            const hasStreakBonus = usesLeft > persistentUses + extraMovesUses + randomPowerUpUses;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -957,19 +967,8 @@ export class Match3Game {
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("extra-moves-bonus");
                     indicator.appendChild(strokedText);
-                } else if (hasRandomPowerUpBonus) {
-                    // Show gift icon for random power-up bonus
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", "🎁");
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("stroke-width", "4");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.classList.add("random-powerup-bonus");
-                    indicator.appendChild(strokedText);
-                } else if (hasStreakBonus) {
-                    // Show streak icon instead of number
+                } else if (totalFreePowerUps === 1 && streakBonus === 1) {
+                    // Exactly 1 free power-up and it's from streak only: show streak icon
                     const strokedText = document.createElement("stroked-text");
                     strokedText.setAttribute("text", "🔥");
                     strokedText.setAttribute("font-size", "26");
@@ -979,8 +978,18 @@ export class Match3Game {
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("streak-bonus");
                     indicator.appendChild(strokedText);
+                } else if (totalFreePowerUps > 0) {
+                    // Multiple free power-ups or from non-streak sources: show count with blue background
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", totalFreePowerUps);
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.classList.add("bonus-count");
+                    indicator.appendChild(strokedText);
                 } else {
-                    // Show regular use count
+                    // Show regular use count (persistent uses only)
                     const strokedText = document.createElement("stroked-text");
                     strokedText.setAttribute("text", usesLeft);
                     strokedText.setAttribute("font-size", "26");
@@ -1002,10 +1011,8 @@ export class Match3Game {
                     const baseTitle = button.title.split(" - ")[0];
                     if (hasExtraMovesBonus) {
                         button.title = `${baseTitle} - Extra moves bonus available!`;
-                    } else if (hasRandomPowerUpBonus) {
-                        button.title = `${baseTitle} - Random power-up bonus!`;
-                    } else if (hasStreakBonus) {
-                        button.title = `${baseTitle} - Streak bonus available!`;
+                    } else if (totalFreePowerUps > 0) {
+                        button.title = `${baseTitle} - ${totalFreePowerUps} bonus uses available!`;
                     } else {
                         button.title = `${baseTitle} - ${usesLeft} uses left`;
                     }

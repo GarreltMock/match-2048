@@ -1188,7 +1188,7 @@
 
     &.streak-bonus,
     &.extra-moves-bonus,
-    &.random-powerup-bonus {
+    &.bonus-count {
         background: var(--tile-freeswap-badge-bg);
 
         stroked-text {
@@ -1391,29 +1391,13 @@
 }
 
 .formation-powerup-headline {
-    font-size: clamp(32px, 8vw, 48px);
-    font-weight: 900;
-    color: #fff;
-    text-shadow:
-        -3px -3px 0 #333,
-        3px -3px 0 #333,
-        -3px 3px 0 #333,
-        3px 3px 0 #333,
-        0 0 20px rgba(255, 215, 0, 0.8);
     animation: formationPowerUpPop 0.3s ease-out;
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
 }
 
 .formation-powerup-subtitle {
-    font-size: clamp(24px, 6vw, 36px);
-    font-weight: 700;
-    color: #fff;
-    text-shadow:
-        -2px -2px 0 #333,
-        2px -2px 0 #333,
-        -2px 2px 0 #333,
-        2px 2px 0 #333,
-        0 0 15px rgba(100, 200, 255, 0.8);
     animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
+    filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8));
 }
 
 @keyframes formationPowerUpFloat {
@@ -1442,14 +1426,5 @@
     100% {
         transform: scale(1);
         opacity: 1;
-    }
-}
-
-/* Formation power-up bonus indicator on power-up buttons */
-.use-indicator.formation-powerup-bonus {
-    background: var(--tile-freeswap-badge-bg);
-
-    stroked-text {
-        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
     }
 }
