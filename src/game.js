@@ -805,8 +805,8 @@ export class Match3Game {
         const formationToPowerUp = {
             "L-formation": "hammer",
             "T-formation": "halve",
-            "line_5_horizontal": "swap",
-            "line_5_vertical": "swap",
+            line_5_horizontal: "swap",
+            line_5_vertical: "swap",
         };
 
         const powerUpType = formationToPowerUp[formationType];

@@ -1392,7 +1392,7 @@
 
 .formation-powerup-headline {
     animation: formationPowerUpPop 0.3s ease-out;
-    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+    /* filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); */
 }
 
 .formation-powerup-subtitle {
@@ -1400,7 +1400,7 @@
     align-items: center;
     gap: 4px;
     animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
-    filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8));
+    /* filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8)); */
 }
 
 @keyframes formationPowerUpFloat {
