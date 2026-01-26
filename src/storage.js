@@ -375,3 +375,24 @@ export function saveShownFormationTutorial(formationType) {
     shown.add(formationType);
     localStorage.setItem("match2048_shownFormationTutorials", JSON.stringify([...shown]));
 }
+
+/**
+ * Load the formation power-up rewards setting
+ * @returns {boolean} True if formation power-up rewards are enabled (default: true)
+ */
+export function loadFormationPowerUpRewards() {
+    const saved = localStorage.getItem("match2048_formationPowerUpRewards");
+    // Default to true if not set
+    if (saved === null) {
+        return true;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the formation power-up rewards setting
+ * @param {boolean} enabled - Whether formation power-up rewards should be enabled
+ */
+export function saveFormationPowerUpRewards(enabled) {
+    localStorage.setItem("match2048_formationPowerUpRewards", enabled.toString());
+}

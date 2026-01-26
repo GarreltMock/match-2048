@@ -40,6 +40,8 @@ import {
     saveUnlockedFeature,
     loadHintsEnabled,
     saveHintsEnabled,
+    loadFormationPowerUpRewards,
+    saveFormationPowerUpRewards,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -154,6 +156,7 @@ export class Match3Game {
         this.hintTimer = null; // setTimeout reference
         this.hintTimeout = 4000; // 4 seconds
         this.hintsEnabled = loadHintsEnabled();
+        this.formationPowerUpRewards = loadFormationPowerUpRewards();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -789,6 +792,75 @@ export class Match3Game {
 
         // Update the power-up buttons to show the new count with gift icon
         this.updatePowerUpButtons();
+    }
+
+    /**
+     * Grant a power-up for creating a 5-tile formation and show celebration animation
+     * @param {string} formationType - "L-formation", "T-formation", or "line_5"
+     */
+    grantFormationPowerUp(formationType) {
+        if (!this.formationPowerUpRewards) return;
+
+        // Map formation type to power-up
+        const formationToPowerUp = {
+            "L-formation": "hammer",
+            "T-formation": "halve",
+            "line_5_horizontal": "swap",
+            "line_5_vertical": "swap",
+        };
+
+        const powerUpType = formationToPowerUp[formationType];
+        if (!powerUpType) return;
+
+        // Grant the power-up
+        this.grantPowerUp(powerUpType);
+
+        // Show celebration animation
+        this.showFormationPowerUpAnimation(powerUpType);
+    }
+
+    /**
+     * Show floating celebration animation for formation power-up reward
+     * @param {string} powerUpType - "hammer", "halve", or "swap"
+     */
+    showFormationPowerUpAnimation(powerUpType) {
+        const motivationalWords = ["Great!", "Awesome!", "Wow!", "Amazing!", "Nice!", "Super!"];
+        const randomWord = motivationalWords[Math.floor(Math.random() * motivationalWords.length)];
+
+        const powerUpIcons = {
+            hammer: "🔨",
+            halve: "✂️",
+            swap: "🔄",
+        };
+        const icon = powerUpIcons[powerUpType];
+
+        // Create the animation container
+        const container = document.createElement("div");
+        container.className = "formation-powerup-animation";
+
+        // Create headline
+        const headline = document.createElement("div");
+        headline.className = "formation-powerup-headline";
+        headline.textContent = randomWord;
+
+        // Create subtitle
+        const subtitle = document.createElement("div");
+        subtitle.className = "formation-powerup-subtitle";
+        subtitle.textContent = `+1 ${icon}`;
+
+        container.appendChild(headline);
+        container.appendChild(subtitle);
+
+        // Add to game container
+        const gameContainer = document.getElementById("game-container");
+        if (gameContainer) {
+            gameContainer.appendChild(container);
+
+            // Remove after animation completes
+            setTimeout(() => {
+                container.remove();
+            }, 2000);
+        }
     }
 
     showPowerUps() {
@@ -1759,6 +1831,7 @@ export class Match3Game {
 
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
+        const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1857,6 +1930,9 @@ export class Match3Game {
             if (hintsEnabledCheckbox) {
                 hintsEnabledCheckbox.checked = this.hintsEnabled;
             }
+            if (formationPowerUpRewardsCheckbox) {
+                formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -1946,6 +2022,10 @@ export class Match3Game {
                     if (hintsEnabledCheckbox) {
                         this.hintsEnabled = hintsEnabledCheckbox.checked;
                         saveHintsEnabled(this.hintsEnabled);
+                    }
+                    if (formationPowerUpRewardsCheckbox) {
+                        this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
+                        saveFormationPowerUpRewards(this.formationPowerUpRewards);
                     }
 
                     // Mark that settings were changed during this level (if game is active)

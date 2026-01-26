@@ -1374,3 +1374,82 @@
     outline-offset: -4px;
     z-index: 100;
 }
+
+/* Formation Power-Up Reward Animation */
+.formation-powerup-animation {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: formationPowerUpFloat 2s ease-out forwards;
+    pointer-events: none;
+}
+
+.formation-powerup-headline {
+    font-size: clamp(32px, 8vw, 48px);
+    font-weight: 900;
+    color: #fff;
+    text-shadow:
+        -3px -3px 0 #333,
+        3px -3px 0 #333,
+        -3px 3px 0 #333,
+        3px 3px 0 #333,
+        0 0 20px rgba(255, 215, 0, 0.8);
+    animation: formationPowerUpPop 0.3s ease-out;
+}
+
+.formation-powerup-subtitle {
+    font-size: clamp(24px, 6vw, 36px);
+    font-weight: 700;
+    color: #fff;
+    text-shadow:
+        -2px -2px 0 #333,
+        2px -2px 0 #333,
+        -2px 2px 0 #333,
+        2px 2px 0 #333,
+        0 0 15px rgba(100, 200, 255, 0.8);
+    animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
+}
+
+@keyframes formationPowerUpFloat {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    70% {
+        opacity: 1;
+        transform: translate(-50%, -60%) scale(1.05);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -80%) scale(0.9);
+    }
+}
+
+@keyframes formationPowerUpPop {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    70% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Formation power-up bonus indicator on power-up buttons */
+.use-indicator.formation-powerup-bonus {
+    background: var(--tile-freeswap-badge-bg);
+
+    stroked-text {
+        filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.5));
+    }
+}
