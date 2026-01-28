@@ -1,6 +1,6 @@
 // Match finding logic for detecting tile matches and special formations
 
-import { getTileValue, isNormal, isCursed, isJoker, createTile } from "./tile-helpers.js";
+import { getTileValue, isNormal, isCursed, isJoker, createTile, isTilePlusTile } from "./tile-helpers.js";
 import { canMatch } from "./board.js";
 import { findBestJokerValue } from "./input-handler.js";
 
@@ -78,7 +78,7 @@ function scanLine(game, index, isHorizontal, targetLength) {
     const length = isHorizontal ? game.boardWidth : game.boardHeight;
 
     let matchGroup = [];
-    let baseValue = null;
+    let maxValue = null; // Track max value for Plus tile matches
 
     for (let i = 0; i < length; i++) {
         const [row, col] = isHorizontal ? [index, i] : [i, index];
@@ -90,7 +90,7 @@ function scanLine(game, index, isHorizontal, targetLength) {
             if (matchGroup.length === 0) {
                 // Start new match
                 matchGroup.push({ row, col });
-                baseValue = value;
+                maxValue = value;
             } else {
                 // Try to extend match
                 const prevPos = matchGroup[matchGroup.length - 1];
@@ -98,15 +98,19 @@ function scanLine(game, index, isHorizontal, targetLength) {
 
                 if (canMatch(tile, prevTile, game)) {
                     matchGroup.push({ row, col });
+                    // Track max value when Plus tiles are involved
+                    if (value > maxValue) {
+                        maxValue = value;
+                    }
                 } else {
                     // End current match and start new one
                     if (matchGroup.length >= targetLength) {
                         // Take exactly targetLength tiles from the group
                         const matchTiles = matchGroup.slice(0, targetLength);
-                        matches.push(createLineMatch(matchTiles, baseValue, isHorizontal));
+                        matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
                     }
                     matchGroup = [{ row, col }];
-                    baseValue = value;
+                    maxValue = value;
                 }
             }
         } else {
@@ -114,10 +118,10 @@ function scanLine(game, index, isHorizontal, targetLength) {
             if (matchGroup.length >= targetLength) {
                 // Take exactly targetLength tiles from the group
                 const matchTiles = matchGroup.slice(0, targetLength);
-                matches.push(createLineMatch(matchTiles, baseValue, isHorizontal));
+                matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
             }
             matchGroup = [];
-            baseValue = null;
+            maxValue = null;
         }
     }
 
@@ -125,7 +129,7 @@ function scanLine(game, index, isHorizontal, targetLength) {
     if (matchGroup.length >= targetLength) {
         // Take exactly targetLength tiles from the group
         const matchTiles = matchGroup.slice(0, targetLength);
-        matches.push(createLineMatch(matchTiles, baseValue, isHorizontal));
+        matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
     }
 
     return matches;
@@ -164,12 +168,30 @@ function findSpecialFormations(game, type) {
             }
 
             if (formation) {
+                // Calculate max value from all tiles in the formation (for Plus tile support)
+                const maxValue = getMaxValueFromPositions(game, formation.tiles);
+                formation.value = maxValue;
                 formations.push(formation);
             }
         }
     }
 
     return formations;
+}
+
+// Get maximum value from a list of tile positions (for Plus tile matching)
+function getMaxValueFromPositions(game, positions) {
+    let maxValue = 0;
+    for (const pos of positions) {
+        const tile = game.board[pos.row]?.[pos.col];
+        if (tile) {
+            const value = getTileValue(tile);
+            if (value > maxValue) {
+                maxValue = value;
+            }
+        }
+    }
+    return maxValue;
 }
 
 export function checkTFormation(game, row, col, value) {
@@ -212,6 +234,8 @@ export function checkLFormation(game, row, col, value) {
         { horizontal: [0, -1, -2], vertical: [0, -1, -2] }, // L left-up
     ];
 
+    const cornerTile = game.board[row]?.[col];
+
     for (const pattern of patterns) {
         // For L, vertical should skip first offset (corner already counted)
         const positions = [];
@@ -220,7 +244,7 @@ export function checkLFormation(game, row, col, value) {
         // Check horizontal
         for (const offset of pattern.horizontal) {
             const result = getTileAt(game, row, col + offset);
-            if (!result || getTileValue(result.tile) !== value) {
+            if (!result || !canMatch(result.tile, cornerTile, game)) {
                 valid = false;
                 break;
             }
@@ -232,7 +256,7 @@ export function checkLFormation(game, row, col, value) {
         // Check vertical (skip first - it's the corner)
         for (let i = 1; i < pattern.vertical.length; i++) {
             const result = getTileAt(game, row + pattern.vertical[i], col);
-            if (!result || getTileValue(result.tile) !== value) {
+            if (!result || !canMatch(result.tile, cornerTile, game)) {
                 valid = false;
                 break;
             }
@@ -272,9 +296,10 @@ export function checkBlockFormation(game, row, col, value) {
         { row: row + 1, col: col + 1 },
     ];
 
+    const referenceTile = game.board[row]?.[col];
     for (const pos of positions) {
         const tile = game.board[pos.row]?.[pos.col];
-        if (!tile || getTileValue(tile) !== value) {
+        if (!tile || !canMatch(tile, referenceTile, game)) {
             return null;
         }
     }
@@ -299,11 +324,12 @@ export function checkBlockFormation(game, row, col, value) {
 
 function checkPattern(game, centerRow, centerCol, value, pattern) {
     const positions = [];
+    const centerTile = game.board[centerRow]?.[centerCol];
 
     // Check horizontal offsets
     for (const offset of pattern.horizontal) {
         const result = getTileAt(game, centerRow, centerCol + offset);
-        if (!result || getTileValue(result.tile) !== value) {
+        if (!result || !canMatchValue(result.tile, centerTile, game)) {
             return null;
         }
         positions.push(result.pos);
@@ -312,13 +338,18 @@ function checkPattern(game, centerRow, centerCol, value, pattern) {
     // Check vertical offsets
     for (const offset of pattern.vertical) {
         const result = getTileAt(game, centerRow + offset, centerCol);
-        if (!result || getTileValue(result.tile) !== value) {
+        if (!result || !canMatchValue(result.tile, centerTile, game)) {
             return null;
         }
         positions.push(result.pos);
     }
 
     return { positions };
+}
+
+// Helper to check if two tiles can match (supports Plus tiles)
+function canMatchValue(tile1, tile2, game) {
+    return canMatch(tile1, tile2, game);
 }
 
 function getTileAt(game, row, col) {
@@ -342,8 +373,14 @@ function findOverlappingLineMatches(game, formationTiles, value) {
     const additionalTiles = new Set();
     const processedLines = new Set();
 
+    // Get reference tile for Plus tile matching
+    const firstPos = formationTiles[0];
+    const referenceTile = game.board[firstPos.row]?.[firstPos.col];
+
     // Check each formation tile for overlapping line matches
     for (const formationTile of formationTiles) {
+        const currentTile = game.board[formationTile.row]?.[formationTile.col];
+
         // Check horizontal line
         const horizontalKey = `h-${formationTile.row}`;
         if (!processedLines.has(horizontalKey)) {
@@ -358,7 +395,7 @@ function findOverlappingLineMatches(game, formationTiles, value) {
                 const row = game.board[formationTile.row];
                 if (!row) break;
                 const tile = row[leftCol - 1];
-                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                if (!tile || (!isNormal(tile) && !isCursed(tile)) || !canMatch(tile, currentTile, game)) {
                     break;
                 }
                 leftCol--;
@@ -369,7 +406,7 @@ function findOverlappingLineMatches(game, formationTiles, value) {
                 const row = game.board[formationTile.row];
                 if (!row) break;
                 const tile = row[rightCol + 1];
-                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                if (!tile || (!isNormal(tile) && !isCursed(tile)) || !canMatch(tile, currentTile, game)) {
                     break;
                 }
                 rightCol++;
@@ -401,7 +438,7 @@ function findOverlappingLineMatches(game, formationTiles, value) {
                 const row = game.board[topRow - 1];
                 if (!row) break;
                 const tile = row[formationTile.col];
-                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                if (!tile || (!isNormal(tile) && !isCursed(tile)) || !canMatch(tile, currentTile, game)) {
                     break;
                 }
                 topRow--;
@@ -412,7 +449,7 @@ function findOverlappingLineMatches(game, formationTiles, value) {
                 const row = game.board[bottomRow + 1];
                 if (!row) break;
                 const tile = row[formationTile.col];
-                if (!tile || getTileValue(tile) !== value || (!isNormal(tile) && !isCursed(tile))) {
+                if (!tile || (!isNormal(tile) && !isCursed(tile)) || !canMatch(tile, currentTile, game)) {
                     break;
                 }
                 bottomRow++;

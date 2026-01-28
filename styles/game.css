@@ -809,6 +809,28 @@
     display: none;
 }
 
+.gem.plus-tile {
+    border: 3px solid var(--tile-plus-border);
+    position: relative;
+}
+
+.gem.plus-tile::after {
+    content: "+";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 35%;
+    height: 35%;
+    border-radius: 35%;
+    background: var(--tile-plus-badge-bg);
+    color: var(--tile-plus-badge-color);
+    font-size: clamp(8px, 3vw, 16px);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .gem.selected {
     box-shadow: 0 0 15px 5px var(--tile-teleport-border);
     animation: pulse-selected 1s infinite;

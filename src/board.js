@@ -8,6 +8,7 @@ import {
     getTileValue,
     createRectangularBlockedTile,
     createRectangularBlockedWithMergeCount,
+    isTilePlusTile,
 } from "./tile-helpers.js";
 import { parsePresetTile } from "./serializer.js";
 
@@ -135,7 +136,14 @@ export function canMatch(tile1, tile2, game) {
     const val1 = getTileValue(tile1);
     const val2 = getTileValue(tile2);
 
-    return val1 === val2;
+    // Normal match: same value
+    if (val1 === val2) return true;
+
+    // Plus tile can match with equal or higher value
+    if (isTilePlusTile(tile1) && val2 >= val1) return true;
+    if (isTilePlusTile(tile2) && val1 >= val2) return true;
+
+    return false;
 }
 
 function hasInitialMatch(game, row, col) {

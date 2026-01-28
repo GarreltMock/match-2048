@@ -15,6 +15,7 @@ import {
     isTileHammerTile,
     isTileHalverTile,
     isTileTeleportTile,
+    isTilePlusTile,
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
@@ -218,6 +219,11 @@ export function renderBoard(game) {
                     if (tile.hasBeenSwapped) {
                         gem.classList.add("teleport-used");
                     }
+                }
+
+                // Add plus-tile class if this is a plus tile
+                if (isTilePlusTile(tile)) {
+                    gem.classList.add("plus-tile");
                 }
             }
 

@@ -208,6 +208,10 @@ export function isTileTeleportTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "teleport";
 }
 
+export function isTilePlusTile(tile) {
+    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "plus";
+}
+
 export function isCursed(tile) {
     return tile && tile.type === TILE_TYPE.CURSED;
 }

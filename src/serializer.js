@@ -4,14 +4,16 @@
 // It supports both string-based serialization for logging/storage and
 // array-based presets for level configuration in config.js.
 //
+// Notation: nS=freeswap, nK=sticky_freeswap, nP=plus, nCm=cursed, B=blocked, BM=blocked_movable, Bn=blocked_with_life, J=joker
+//
 // Example string serialization:
-//   "2,4,B,2G,J|0,2P,BM,B64,2C5|1,1,1,1,1"
+//   "2,4,B,2S,J|0,2P,BM,B64,2C5|1,1,1,1,1"
 //   This represents a 3-row board (separated by |) with 5 tiles per row (separated by ,).
 //
 // Example array preset (as used in config.js):
-//   [[2, 4, "B", "2G", "J"], [0, "2P", "BM", "B64", "2C5"], [1, 1, 1, 1, 1]]
+//   [[2, 4, "B", "2S", "J"], [0, "2P", "BM", "B64", "2C5"], [1, 1, 1, 1, 1]]
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTileFreeSwapTile, isTileStickyFreeSwapTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTileFreeSwapTile, isTileStickyFreeSwapTile, isTilePlusTile } from "./tile-helpers.js";
 import { TILE_TYPE } from "./config.js";
 
 /**
@@ -24,6 +26,7 @@ import { TILE_TYPE } from "./config.js";
  *   - "J": joker tile
  *   - "2S": free swap tile with value 2
  *   - "2K": sticky free swap tile with value 2
+ *   - "2P": plus tile with value 2 (can match with higher values)
  *   - "2C5": cursed tile with value 2 and 5 moves remaining
  * @returns {object} A tile object
  */
@@ -65,8 +68,8 @@ export function parsePresetTile(notation) {
         return createCursedTile(value, movesRemaining);
     }
 
-    // Parse special tiles with value prefix (e.g., "2S", "2K")
-    const match = str.match(/^(\d+)([SK])$/);
+    // Parse special tiles with value prefix (e.g., "2S", "2K", "2P")
+    const match = str.match(/^(\d+)([SKP])$/);
     if (match) {
         const value = parseInt(match[1], 10);
         const type = match[2];
@@ -76,6 +79,8 @@ export function parsePresetTile(notation) {
                 return createTile(value, "freeswap");
             case "K": // sticKy free swap
                 return createTile(value, "sticky_freeswap");
+            case "P": // Plus tile
+                return createTile(value, "plus");
             default:
                 return createTile(value);
         }
@@ -130,6 +135,9 @@ export function tileToNotation(tile) {
         }
         if (isTileFreeSwapTile(tile)) {
             return `${value}S`;
+        }
+        if (isTilePlusTile(tile)) {
+            return `${value}P`;
         }
         // Regular normal tile
         return String(value);

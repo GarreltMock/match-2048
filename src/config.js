@@ -28,6 +28,7 @@ export const SPECIAL_TILE_TYPES = {
     HALVER: "halver",
     RANDOM_POWERUP: "random_powerup",
     TELEPORT: "teleport",
+    PLUS: "plus",
 };
 
 export const FORMATION_TYPES = {
