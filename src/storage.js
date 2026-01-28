@@ -74,7 +74,7 @@ export function saveUseTestLevels(useTestLevels) {
 export function generateUUID() {
     if (crypto.randomUUID) return crypto.randomUUID();
     return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
-        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16)
+        (c ^ (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))).toString(16),
     );
 }
 
@@ -374,4 +374,25 @@ export function saveShownFormationTutorial(formationType) {
     const shown = loadShownFormationTutorials();
     shown.add(formationType);
     localStorage.setItem("match2048_shownFormationTutorials", JSON.stringify([...shown]));
+}
+
+/**
+ * Load the formation power-up rewards setting
+ * @returns {boolean} True if formation power-up rewards are enabled (default: true)
+ */
+export function loadFormationPowerUpRewards() {
+    const saved = localStorage.getItem("match2048_formationPowerUpRewards");
+    // Default to true if not set
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the formation power-up rewards setting
+ * @param {boolean} enabled - Whether formation power-up rewards should be enabled
+ */
+export function saveFormationPowerUpRewards(enabled) {
+    localStorage.setItem("match2048_formationPowerUpRewards", enabled.toString());
 }

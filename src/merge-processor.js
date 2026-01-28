@@ -135,6 +135,16 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
             } else if (tileCount === 3) {
                 game.matchStats.match3Count++;
             }
+
+            // Grant power-up for 5-tile formations (L, T, 5-line)
+            if (
+                direction === "L-formation" ||
+                direction === "T-formation" ||
+                direction === "line_5_horizontal" ||
+                direction === "line_5_vertical"
+            ) {
+                game.grantFormationPowerUp(direction);
+            }
         });
 
     }

@@ -40,6 +40,8 @@ import {
     saveUnlockedFeature,
     loadHintsEnabled,
     saveHintsEnabled,
+    loadFormationPowerUpRewards,
+    saveFormationPowerUpRewards,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -154,6 +156,7 @@ export class Match3Game {
         this.hintTimer = null; // setTimeout reference
         this.hintTimeout = 4000; // 4 seconds
         this.hintsEnabled = loadHintsEnabled();
+        this.formationPowerUpRewards = loadFormationPowerUpRewards();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -791,6 +794,95 @@ export class Match3Game {
         this.updatePowerUpButtons();
     }
 
+    /**
+     * Grant a power-up for creating a 5-tile formation and show celebration animation
+     * @param {string} formationType - "L-formation", "T-formation", or "line_5"
+     */
+    grantFormationPowerUp(formationType) {
+        if (!this.formationPowerUpRewards) return;
+
+        // Map formation type to power-up
+        const formationToPowerUp = {
+            "L-formation": "hammer",
+            "T-formation": "halve",
+            line_5_horizontal: "swap",
+            line_5_vertical: "swap",
+        };
+
+        const powerUpType = formationToPowerUp[formationType];
+        if (!powerUpType) return;
+
+        // Grant the power-up
+        this.grantPowerUp(powerUpType);
+
+        // Show celebration animation
+        this.showFormationPowerUpAnimation(powerUpType);
+    }
+
+    /**
+     * Show floating celebration animation for formation power-up reward
+     * @param {string} powerUpType - "hammer", "halve", or "swap"
+     */
+    showFormationPowerUpAnimation(powerUpType) {
+        const motivationalWords = ["Great!", "Awesome!", "Wow!", "Amazing!", "Nice!", "Super!"];
+        const randomWord = motivationalWords[Math.floor(Math.random() * motivationalWords.length)];
+
+        const powerUpIcons = {
+            hammer: "🔨",
+            halve: "✂️",
+            swap: "🔄",
+        };
+        const icon = powerUpIcons[powerUpType];
+
+        // Create the animation container
+        const container = document.createElement("div");
+        container.className = "formation-powerup-animation";
+
+        // Create headline using stroked-text
+        const headline = document.createElement("stroked-text");
+        headline.className = "formation-powerup-headline";
+        headline.setAttribute("text", randomWord);
+        headline.setAttribute("font-size", "48");
+        headline.setAttribute("stroke-width", "12");
+        headline.setAttribute("fill", "#FFD700");
+        headline.setAttribute("stroke", "#333");
+
+        // Create subtitle container for inline elements
+        const subtitleContainer = document.createElement("div");
+        subtitleContainer.className = "formation-powerup-subtitle";
+
+        // Create "+1" text using stroked-text
+        const plusOneText = document.createElement("stroked-text");
+        plusOneText.setAttribute("text", "+1");
+        plusOneText.setAttribute("font-size", "36");
+        plusOneText.setAttribute("stroke-width", "10");
+        plusOneText.setAttribute("fill", "#FFFFFF");
+        plusOneText.setAttribute("stroke", "#333");
+
+        // Create icon using stroked-text
+        const iconText = document.createElement("stroked-text");
+        iconText.setAttribute("text", icon);
+        iconText.setAttribute("font-size", "36");
+        iconText.setAttribute("stroke-width", "6");
+
+        subtitleContainer.appendChild(plusOneText);
+        subtitleContainer.appendChild(iconText);
+
+        container.appendChild(headline);
+        container.appendChild(subtitleContainer);
+
+        // Add to game container
+        const gameContainer = document.getElementById("game-container");
+        if (gameContainer) {
+            gameContainer.appendChild(container);
+
+            // Remove after animation completes
+            setTimeout(() => {
+                container.remove();
+            }, 2000);
+        }
+    }
+
     showPowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {
@@ -848,12 +940,14 @@ export class Match3Game {
             const extraMovesUses = this.extraMovesPowerUpCounts[powerUpType];
             const randomPowerUpUses = this.randomPowerUpBonusCounts[powerUpType];
 
+            // Calculate streak bonus (uses beyond persistent + extra moves + random)
+            const streakBonus = Math.max(0, usesLeft - persistentUses - extraMovesUses - randomPowerUpUses);
+
+            // Total free power-ups = streak + extra moves + random power-up bonuses
+            const totalFreePowerUps = streakBonus + extraMovesUses + randomPowerUpUses;
+
             // Check if this power-up has extra moves bonus
             const hasExtraMovesBonus = extraMovesUses > 0;
-            // Check if this power-up has random power-up bonus (from random power-up tiles)
-            const hasRandomPowerUpBonus = randomPowerUpUses > 0;
-            // Check if this power-up has a streak bonus (more uses than persistent + extra moves + random)
-            const hasStreakBonus = usesLeft > persistentUses + extraMovesUses + randomPowerUpUses;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -885,19 +979,8 @@ export class Match3Game {
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("extra-moves-bonus");
                     indicator.appendChild(strokedText);
-                } else if (hasRandomPowerUpBonus) {
-                    // Show gift icon for random power-up bonus
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", "🎁");
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("stroke-width", "4");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.classList.add("random-powerup-bonus");
-                    indicator.appendChild(strokedText);
-                } else if (hasStreakBonus) {
-                    // Show streak icon instead of number
+                } else if (totalFreePowerUps === 1 && streakBonus === 1) {
+                    // Exactly 1 free power-up and it's from streak only: show streak icon
                     const strokedText = document.createElement("stroked-text");
                     strokedText.setAttribute("text", "🔥");
                     strokedText.setAttribute("font-size", "26");
@@ -907,8 +990,18 @@ export class Match3Game {
                     strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
                     indicator.classList.add("streak-bonus");
                     indicator.appendChild(strokedText);
+                } else if (totalFreePowerUps > 0) {
+                    // Multiple free power-ups or from non-streak sources: show count with blue background
+                    const strokedText = document.createElement("stroked-text");
+                    strokedText.setAttribute("text", totalFreePowerUps);
+                    strokedText.setAttribute("font-size", "26");
+                    strokedText.setAttribute("width", "40");
+                    strokedText.setAttribute("height", "40");
+                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
+                    indicator.classList.add("bonus-count");
+                    indicator.appendChild(strokedText);
                 } else {
-                    // Show regular use count
+                    // Show regular use count (persistent uses only)
                     const strokedText = document.createElement("stroked-text");
                     strokedText.setAttribute("text", usesLeft);
                     strokedText.setAttribute("font-size", "26");
@@ -930,10 +1023,8 @@ export class Match3Game {
                     const baseTitle = button.title.split(" - ")[0];
                     if (hasExtraMovesBonus) {
                         button.title = `${baseTitle} - Extra moves bonus available!`;
-                    } else if (hasRandomPowerUpBonus) {
-                        button.title = `${baseTitle} - Random power-up bonus!`;
-                    } else if (hasStreakBonus) {
-                        button.title = `${baseTitle} - Streak bonus available!`;
+                    } else if (totalFreePowerUps > 0) {
+                        button.title = `${baseTitle} - ${totalFreePowerUps} bonus uses available!`;
                     } else {
                         button.title = `${baseTitle} - ${usesLeft} uses left`;
                     }
@@ -1759,6 +1850,7 @@ export class Match3Game {
 
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
+        const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1857,6 +1949,9 @@ export class Match3Game {
             if (hintsEnabledCheckbox) {
                 hintsEnabledCheckbox.checked = this.hintsEnabled;
             }
+            if (formationPowerUpRewardsCheckbox) {
+                formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -1946,6 +2041,10 @@ export class Match3Game {
                     if (hintsEnabledCheckbox) {
                         this.hintsEnabled = hintsEnabledCheckbox.checked;
                         saveHintsEnabled(this.hintsEnabled);
+                    }
+                    if (formationPowerUpRewardsCheckbox) {
+                        this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
+                        saveFormationPowerUpRewards(this.formationPowerUpRewards);
                     }
 
                     // Mark that settings were changed during this level (if game is active)
