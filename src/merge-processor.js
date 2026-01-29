@@ -13,6 +13,8 @@ import {
     isTileStickyFreeSwapTile,
     getDisplayValue,
     isRectangularBlocked,
+    hasPowerUpBubble,
+    getPowerUpBubble,
 } from "./tile-helpers.js";
 import { animateMerges, animateUnblocking } from "./animator.js";
 import {
@@ -94,6 +96,18 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
         });
     });
 
+    // Check for power-up bubbles in matched tiles and collect them
+    matchGroups.forEach((group) => {
+        group.tiles.forEach((tile) => {
+            const boardTile = game.board[tile.row][tile.col];
+            if (hasPowerUpBubble(boardTile)) {
+                const bubbleType = getPowerUpBubble(boardTile);
+                game.grantPowerUp(bubbleType);
+                game.showBubblePowerUpAnimation(bubbleType);
+            }
+        });
+    });
+
     // Track cursed tiles that were successfully merged
     const mergedCursedTiles = [];
     matchGroups.forEach((group) => {
@@ -164,6 +178,10 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
     // Clear swap position after processing
     game.lastSwapPosition = null;
 
+    // Clear all unused power-up bubbles from the board
+    // Bubbles only survive for one merge opportunity
+    clearUnusedPowerUpBubbles(game);
+
     // Update goal display after creating new tiles (without checking completion)
     // Let the natural cascade completion in dropGems handle checkLevelComplete
     game.updateGoalDisplay(false);
@@ -212,6 +230,10 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     const hasStickyFreeSwap = group.hasStickyFreeSwap || false;
     const transferStickyFreeSwap = hasStickyFreeSwap && !wasUserSwap;
 
+    // Determine if this 5-tile formation should get a power-up bubble
+    const is5TileFormation = isTLFormation || is5LineFormation;
+    const powerUpBubble = is5TileFormation ? getPowerUpBubbleForFormation(group.direction) : null;
+
     // Track intermediate values for formations that skip a level (T, L, 5-line)
     // When tiles of value N merge into 1 tile of value N+2, conceptually there's an intermediate step:
     // - T/L formation (5 tiles): 5 tiles → 3 tiles of N+1 → 1 tile of N+2
@@ -238,15 +260,16 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
         }
     } else if (specialTileType === "random_powerup") {
         // Random power-up grants a power-up immediately and creates normal tiles
+        // Also add power-up bubble for 5-tile formations
         game.grantRandomPowerUp();
         positions.forEach((pos) => {
-            game.board[pos.row][pos.col] = createTile(newValue, null, { transferStickyFreeSwap });
+            game.board[pos.row][pos.col] = createTile(newValue, null, { transferStickyFreeSwap, powerUpBubble });
         });
         trackGoalProgress(game, newValue, positions.length);
     } else if (specialTileType && specialTileType !== "none") {
         // All other special tile types use the same pattern
         // For directional free swaps, determine the direction
-        let options = { transferStickyFreeSwap };
+        let options = { transferStickyFreeSwap, powerUpBubble };
 
         if (specialTileType === "freeswap_horizontal" || specialTileType === "freeswap_vertical") {
             // Determine swap direction from lastSwapPosition
@@ -271,15 +294,16 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
             game.board[normalPos.row][normalPos.col] = createTile(newValue, null, { transferStickyFreeSwap });
             trackGoalProgress(game, newValue, 2);
         } else {
-            // For 1-position formations (T, L, 5-line), create one special tile
+            // For 1-position formations (T, L, 5-line), create one special tile with bubble
             game.board[positions[0].row][positions[0].col] = createTile(newValue, specialTileType, options);
             trackGoalProgress(game, newValue, 1);
         }
     } else {
         // No special tile - create normal tiles at all positions
         // However, if transferStickyFreeSwap is true, the merged tiles should inherit the sticky free swap ability
+        // Add power-up bubble for 5-tile formations
         positions.forEach((pos) => {
-            game.board[pos.row][pos.col] = createTile(newValue, null, { transferStickyFreeSwap });
+            game.board[pos.row][pos.col] = createTile(newValue, null, { transferStickyFreeSwap, powerUpBubble });
         });
         trackGoalProgress(game, newValue, positions.length);
     }
@@ -729,4 +753,34 @@ export function checkAndCreateCursedTile(game, value, position) {
     }
 
     return false; // Not cursed
+}
+
+/**
+ * Clear all power-up bubbles from tiles on the board
+ * Called after each merge to ensure bubbles only last one merge opportunity
+ */
+function clearUnusedPowerUpBubbles(game) {
+    for (let row = 0; row < game.boardHeight; row++) {
+        for (let col = 0; col < game.boardWidth; col++) {
+            const tile = game.board[row][col];
+            if (tile && hasPowerUpBubble(tile)) {
+                tile.powerUpBubble = null;
+            }
+        }
+    }
+}
+
+/**
+ * Determine the power-up bubble type based on the formation
+ * @param {string} direction - The formation direction/type
+ * @returns {string|null} The power-up type or null if not a 5-tile formation
+ */
+function getPowerUpBubbleForFormation(direction) {
+    const formationToBubble = {
+        "L-formation": "hammer",
+        "T-formation": "halve",
+        line_5_horizontal: "swap",
+        line_5_vertical: "swap",
+    };
+    return formationToBubble[direction] || null;
 }

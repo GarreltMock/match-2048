@@ -883,6 +883,44 @@ export class Match3Game {
         }
     }
 
+    /**
+     * Show floating animation when a power-up bubble is collected
+     * @param {string} powerUpType - "hammer", "halve", or "swap"
+     */
+    showBubblePowerUpAnimation(powerUpType) {
+        const powerUpIcons = {
+            hammer: "🔨",
+            halve: "✂️",
+            swap: "🔄",
+        };
+        const icon = powerUpIcons[powerUpType];
+
+        // Create the animation container
+        const container = document.createElement("div");
+        container.className = "bubble-powerup-animation";
+
+        // Create "+1" text with icon using stroked-text
+        const plusOneText = document.createElement("stroked-text");
+        plusOneText.setAttribute("text", `+1 ${icon}`);
+        plusOneText.setAttribute("font-size", "32");
+        plusOneText.setAttribute("stroke-width", "8");
+        plusOneText.setAttribute("fill", "#FFFFFF");
+        plusOneText.setAttribute("stroke", "#333");
+
+        container.appendChild(plusOneText);
+
+        // Add to game container
+        const gameContainer = document.getElementById("game-container");
+        if (gameContainer) {
+            gameContainer.appendChild(container);
+
+            // Remove after animation completes
+            setTimeout(() => {
+                container.remove();
+            }, 1500);
+        }
+    }
+
     showPowerUps() {
         const powerUpsContainer = document.querySelector(".power-ups");
         if (powerUpsContainer) {

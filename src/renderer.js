@@ -16,6 +16,8 @@ import {
     isTileHalverTile,
     isTileTeleportTile,
     isTilePlusTile,
+    hasPowerUpBubble,
+    getPowerUpBubble,
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
@@ -224,6 +226,13 @@ export function renderBoard(game) {
                 // Add plus-tile class if this is a plus tile
                 if (isTilePlusTile(tile)) {
                     gem.classList.add("plus-tile");
+                }
+
+                // Add power-up bubble indicator if tile has a bubble
+                if (hasPowerUpBubble(tile)) {
+                    const bubbleType = getPowerUpBubble(tile);
+                    gem.classList.add("has-powerup-bubble");
+                    gem.dataset.bubbleType = bubbleType;
                 }
             }
 

@@ -10,10 +10,11 @@ import { TILE_TYPE } from "./config.js";
  * @param {Object} options - Additional options
  * @param {boolean} options.transferStickyFreeSwap - Whether to transfer sticky free swap ability
  * @param {boolean|null} options.isHorizontal - For directional free swaps: true=horizontal, false=vertical, null=use config
+ * @param {string|null} options.powerUpBubble - Power-up bubble type: "hammer", "halve", "swap", or null
  * @returns {Object} The created tile
  */
 export function createTile(value, specialType = null, options = {}) {
-    const { transferStickyFreeSwap = false, isHorizontal = null } = options;
+    const { transferStickyFreeSwap = false, isHorizontal = null, powerUpBubble = null } = options;
 
     // Base tile
     const tile = {
@@ -21,6 +22,7 @@ export function createTile(value, specialType = null, options = {}) {
         value: value,
         specialType: null,
         hasBeenSwapped: false,
+        powerUpBubble: powerUpBubble, // Power-up bubble that can be collected in next merge
     };
 
     // Apply special type
@@ -210,6 +212,14 @@ export function isTileTeleportTile(tile) {
 
 export function isTilePlusTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "plus";
+}
+
+export function hasPowerUpBubble(tile) {
+    return tile && tile.powerUpBubble !== null && tile.powerUpBubble !== undefined;
+}
+
+export function getPowerUpBubble(tile) {
+    return tile ? tile.powerUpBubble : null;
 }
 
 export function isCursed(tile) {
