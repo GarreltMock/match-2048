@@ -396,3 +396,24 @@ export function loadFormationPowerUpRewards() {
 export function saveFormationPowerUpRewards(enabled) {
     localStorage.setItem("match2048_formationPowerUpRewards", enabled.toString());
 }
+
+/**
+ * Load the persistent power-ups enabled setting
+ * @returns {boolean} True if persistent power-ups are enabled (default: true)
+ */
+export function loadPersistentPowerUpsEnabled() {
+    const saved = localStorage.getItem("match2048_persistentPowerUpsEnabled");
+    // Default to true if not set
+    if (saved === null) {
+        return true;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the persistent power-ups enabled setting
+ * @param {boolean} enabled - Whether persistent power-ups should be enabled
+ */
+export function savePersistentPowerUpsEnabled(enabled) {
+    localStorage.setItem("match2048_persistentPowerUpsEnabled", enabled.toString());
+}

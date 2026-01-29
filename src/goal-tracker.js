@@ -64,30 +64,32 @@ export function checkLevelComplete(game) {
         saveCoins(newCoins);
         game.coins = newCoins;
 
-        // Award one random unlocked power-up
-        const unlockedPowerUps = [];
-        if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
-        if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
-        if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
+        // Award one random unlocked power-up (only if persistent power-ups are enabled)
+        if (game.persistentPowerUpsEnabled) {
+            const unlockedPowerUps = [];
+            if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
+            if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
+            if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
 
-        if (unlockedPowerUps.length > 0) {
-            const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
-            game.persistentPowerUpCounts[randomPowerUp]++;
-            savePowerUpCounts(game.persistentPowerUpCounts);
+            if (unlockedPowerUps.length > 0) {
+                const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
+                game.persistentPowerUpCounts[randomPowerUp]++;
+                savePowerUpCounts(game.persistentPowerUpCounts);
 
-            // Show the power-up reward in the UI
-            const powerUpReward = document.getElementById("powerUpReward");
-            const powerUpRewardIcon = document.getElementById("powerUpRewardIcon");
+                // Show the power-up reward in the UI
+                const powerUpReward = document.getElementById("powerUpReward");
+                const powerUpRewardIcon = document.getElementById("powerUpRewardIcon");
 
-            if (powerUpReward && powerUpRewardIcon) {
-                const powerUpIcons = {
-                    hammer: "🔨",
-                    halve: "✂️",
-                    swap: "🔄",
-                };
+                if (powerUpReward && powerUpRewardIcon) {
+                    const powerUpIcons = {
+                        hammer: "🔨",
+                        halve: "✂️",
+                        swap: "🔄",
+                    };
 
-                powerUpRewardIcon.textContent = powerUpIcons[randomPowerUp];
-                powerUpReward.style.display = "flex";
+                    powerUpRewardIcon.textContent = powerUpIcons[randomPowerUp];
+                    powerUpReward.style.display = "flex";
+                }
             }
         }
 
