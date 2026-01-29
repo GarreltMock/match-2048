@@ -170,9 +170,11 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
         });
     });
 
-    // Clear all unused power-up bubbles from tiles NOT in the match
-    // This must happen BEFORE creating new tiles so new bubbles are preserved
-    clearUnusedPowerUpBubbles(game);
+    // Clear unused power-up bubbles only on user swaps
+    // Bubbles persist through automatic cascade merges until the next user action
+    if (wasUserSwap) {
+        clearUnusedPowerUpBubbles(game);
+    }
 
     // Create new merged tiles (may include new power-up bubbles for 5-tile formations)
     matchGroups.forEach((group) => {
