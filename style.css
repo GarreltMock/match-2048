@@ -1594,6 +1594,10 @@ div#featureUnlockDialog {
 }
 
 /* Depleted powerup indicator */
+.power-up-btn.can-purchase {
+    opacity: 0.5;
+}
+
 .power-up-btn.can-purchase::after {
     content: "";
     position: absolute;
