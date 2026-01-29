@@ -73,17 +73,18 @@ export function createBlockedMovableTile() {
     };
 }
 
-export function createJokerTile(targetValue = null) {
+export function createJokerTile(targetValue = null, powerUpBubble = null) {
     return {
         type: TILE_TYPE.JOKER,
         value: null,
         targetValue: targetValue, // The value this joker will become when activated
         specialType: null,
         hasBeenSwapped: false,
+        powerUpBubble: powerUpBubble,
     };
 }
 
-export function createCursedTile(value, movesRemaining) {
+export function createCursedTile(value, movesRemaining, powerUpBubble = null) {
     return {
         type: TILE_TYPE.CURSED,
         value: value,
@@ -91,6 +92,7 @@ export function createCursedTile(value, movesRemaining) {
         createdThisTurn: true, // Skip decrement on the turn this tile was created
         specialType: null,
         hasBeenSwapped: false,
+        powerUpBubble: powerUpBubble,
     };
 }
 

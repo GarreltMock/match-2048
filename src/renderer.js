@@ -170,6 +170,13 @@ export function renderBoard(game) {
                     ${targetValueDisplay}
                 `;
                 gem.classList.add("joker-tile");
+
+                // Add power-up bubble indicator if joker tile has a bubble
+                if (hasPowerUpBubble(tile)) {
+                    const bubbleType = getPowerUpBubble(tile);
+                    gem.classList.add("has-powerup-bubble");
+                    gem.dataset.bubbleType = bubbleType;
+                }
             } else if (isCursed(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value} cursed-tile`;
@@ -178,6 +185,13 @@ export function renderBoard(game) {
                 gem.innerHTML = `<span style="font-size: ${getFontSize(displayValue)}cqw">${displayValue}</span>`;
 
                 gem.dataset.cursedMoves = tile.cursedMovesRemaining;
+
+                // Add power-up bubble indicator if cursed tile has a bubble
+                if (hasPowerUpBubble(tile)) {
+                    const bubbleType = getPowerUpBubble(tile);
+                    gem.classList.add("has-powerup-bubble");
+                    gem.dataset.bubbleType = bubbleType;
+                }
             } else if (isNormal(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value}`;

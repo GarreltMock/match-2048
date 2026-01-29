@@ -254,11 +254,11 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createJokerTile();
+            game.board[specialPos.row][specialPos.col] = createJokerTile(null, powerUpBubble);
             game.board[normalPos.row][normalPos.col] = createTile(newValue, null, { transferStickyFreeSwap });
             trackGoalProgress(game, newValue, 1);
         } else {
-            game.board[positions[0].row][positions[0].col] = createJokerTile();
+            game.board[positions[0].row][positions[0].col] = createJokerTile(null, powerUpBubble);
         }
     } else if (specialTileType === "random_powerup") {
         // Random power-up grants a power-up immediately and creates normal tiles
@@ -725,7 +725,9 @@ export function checkAndCreateCursedTile(game, value, position) {
         if (cursedCount === 0) {
             const currentTile = game.board[position.row][position.col];
             if (currentTile && getTileValue(currentTile) === value) {
-                const cursedTile = createCursedTile(value, cursedGoal.strength);
+                // Preserve powerUpBubble from the original tile
+                const bubble = currentTile.powerUpBubble || null;
+                const cursedTile = createCursedTile(value, cursedGoal.strength, bubble);
                 game.board[position.row][position.col] = cursedTile;
                 game.cursedTileCreatedThisTurn[value] = true; // Mark as created this turn
                 return true;
@@ -746,8 +748,9 @@ export function checkAndCreateCursedTile(game, value, position) {
         // Convert the tile at this position to a cursed tile
         const currentTile = game.board[position.row][position.col];
         if (currentTile && getTileValue(currentTile) === value) {
-            // Create cursed tile with full strength - decrement will happen at end of turn
-            const cursedTile = createCursedTile(value, cursedGoal.strength);
+            // Preserve powerUpBubble from the original tile
+            const bubble = currentTile.powerUpBubble || null;
+            const cursedTile = createCursedTile(value, cursedGoal.strength, bubble);
             game.board[position.row][position.col] = cursedTile;
 
             return true; // Cursed tile created
