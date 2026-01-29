@@ -170,17 +170,17 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
         });
     });
 
-    // Create new merged tiles
+    // Clear all unused power-up bubbles from tiles NOT in the match
+    // This must happen BEFORE creating new tiles so new bubbles are preserved
+    clearUnusedPowerUpBubbles(game);
+
+    // Create new merged tiles (may include new power-up bubbles for 5-tile formations)
     matchGroups.forEach((group) => {
         createMergedTiles(game, group, wasUserSwap);
     });
 
     // Clear swap position after processing
     game.lastSwapPosition = null;
-
-    // Clear all unused power-up bubbles from the board
-    // Bubbles only survive for one merge opportunity
-    clearUnusedPowerUpBubbles(game);
 
     // Update goal display after creating new tiles (without checking completion)
     // Let the natural cascade completion in dropGems handle checkLevelComplete
