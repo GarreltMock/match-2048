@@ -312,7 +312,6 @@ function calculateSwapScore(game, matches) {
     }
 
     // Check adjacent tiles for blocked tiles
-    const foundBlockedPositions = [];
     for (const match of matches) {
         for (const tile of match.tiles) {
             const adjacentPositions = [
@@ -333,33 +332,14 @@ function calculateSwapScore(game, matches) {
                             isBlockedWithMergeCount(adjTile))
                     ) {
                         blockedCleared += 1;
-                        foundBlockedPositions.push(`[${adjRow},${adjCol}]`);
                     }
                 }
             }
         }
     }
 
-    // Check if level has blocked goals and if they're the only remaining goals
-    let hasBlockedGoals = false;
-    let blockedIsOnlyRemainingGoal = false;
-    if (game.levelGoals && game.levelGoals.length > 0) {
-        const blockedGoals = game.levelGoals.filter((goal) => goal.goalType === "blocked");
-        hasBlockedGoals = blockedGoals.length > 0;
-
-        if (hasBlockedGoals) {
-            // Check if all non-blocked goals are complete
-            const nonBlockedGoals = game.levelGoals.filter((goal) => goal.goalType !== "blocked");
-            const allNonBlockedComplete = nonBlockedGoals.every((goal) => {
-                return goal.current >= goal.target;
-            });
-            // Check if blocked goals are still incomplete
-            const blockedGoalsIncomplete = blockedGoals.some((goal) => {
-                return goal.current < goal.target;
-            });
-            blockedIsOnlyRemainingGoal = allNonBlockedComplete && blockedGoalsIncomplete;
-        }
-    }
+    // NOTE: If there are blocked tiles on the board, there is always a corresponding
+    // blocked-tiles goal. So we don't need to check whether that goal is currently "open".
 
     // Calculate position bonus (matches closer to bottom trigger more cascades)
     let totalRow = 0;
@@ -381,17 +361,10 @@ function calculateSwapScore(game, matches) {
     score += goalProgress * 100;
 
     // Blocked tile scoring
-    let blockedBonus = 0;
-    if (hasBlockedGoals && blockedCleared > 0) {
-        if (blockedIsOnlyRemainingGoal) {
-            // When blocked is the ONLY remaining goal, always prefer clearing blocked tiles
-            // Use a massive bonus that dominates all other scoring factors
-            blockedBonus = 10000 + blockedCleared * 500;
-        } else {
-            // When there are other goals too, still give significant bonus
-            blockedBonus = blockedCleared * 200;
-        }
-        score += blockedBonus;
+    // If a swap clears blocked tiles, heavily prefer it.
+    if (blockedCleared > 0) {
+        // Massive bonus that dominates most other factors, scaled by cleared blocked tiles.
+        score += 10000 + blockedCleared * 500;
     }
 
     score += hasSpecialTile ? 200 : 0;
