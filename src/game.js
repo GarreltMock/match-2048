@@ -40,6 +40,8 @@ import {
     saveUnlockedFeature,
     loadHintsEnabled,
     saveHintsEnabled,
+    loadHintTimeoutMs,
+    saveHintTimeoutMs,
     loadFormationPowerUpRewards,
     saveFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
@@ -156,7 +158,7 @@ export class Match3Game {
         // Hint system
         this.currentHint = null; // {row1, col1, row2, col2}
         this.hintTimer = null; // setTimeout reference
-        this.hintTimeout = 4000; // 4 seconds
+        this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
@@ -1784,6 +1786,7 @@ export class Match3Game {
 
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
+        const hintTimeoutInput = document.getElementById("hintTimeoutMs");
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
         const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
 
@@ -1884,6 +1887,9 @@ export class Match3Game {
             if (hintsEnabledCheckbox) {
                 hintsEnabledCheckbox.checked = this.hintsEnabled;
             }
+            if (hintTimeoutInput) {
+                hintTimeoutInput.value = String(this.hintTimeout);
+            }
             if (formationPowerUpRewardsCheckbox) {
                 formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
             }
@@ -1979,6 +1985,11 @@ export class Match3Game {
                     if (hintsEnabledCheckbox) {
                         this.hintsEnabled = hintsEnabledCheckbox.checked;
                         saveHintsEnabled(this.hintsEnabled);
+                    }
+                    if (hintTimeoutInput) {
+                        const n = parseInt(hintTimeoutInput.value, 10);
+                        this.hintTimeout = Number.isFinite(n) && n >= 0 ? n : 4000;
+                        saveHintTimeoutMs(this.hintTimeout);
                     }
                     if (formationPowerUpRewardsCheckbox) {
                         this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
