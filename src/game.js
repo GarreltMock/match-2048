@@ -42,6 +42,8 @@ import {
     saveHintsEnabled,
     loadFormationPowerUpRewards,
     saveFormationPowerUpRewards,
+    loadPersistentPowerUpsEnabled,
+    savePersistentPowerUpsEnabled,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -157,6 +159,7 @@ export class Match3Game {
         this.hintTimeout = 4000; // 4 seconds
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
+        this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -385,12 +388,12 @@ export class Match3Game {
         this.hideControls();
         this.showPowerUps();
 
-        // Set power-up remaining for level: persistent counts + streak bonuses
+        // Set power-up remaining for level: persistent counts (if enabled) + streak bonuses
         // (Streak bonuses are temporary and not saved to storage)
         this.powerUpRemaining = {
-            hammer: this.persistentPowerUpCounts.hammer,
-            halve: this.persistentPowerUpCounts.halve,
-            swap: this.persistentPowerUpCounts.swap,
+            hammer: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.hammer : 0,
+            halve: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.halve : 0,
+            swap: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.swap : 0,
         };
 
         // Apply streak bonus power-ups (temporary for this level only) - only if streak feature is unlocked
@@ -1851,6 +1854,7 @@ export class Match3Game {
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
+        const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1952,6 +1956,9 @@ export class Match3Game {
             if (formationPowerUpRewardsCheckbox) {
                 formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
             }
+            if (persistentPowerUpsEnabledCheckbox) {
+                persistentPowerUpsEnabledCheckbox.checked = this.persistentPowerUpsEnabled;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -2045,6 +2052,10 @@ export class Match3Game {
                     if (formationPowerUpRewardsCheckbox) {
                         this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
                         saveFormationPowerUpRewards(this.formationPowerUpRewards);
+                    }
+                    if (persistentPowerUpsEnabledCheckbox) {
+                        this.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
+                        savePersistentPowerUpsEnabled(this.persistentPowerUpsEnabled);
                     }
 
                     // Mark that settings were changed during this level (if game is active)
