@@ -18,7 +18,6 @@ import {
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
-import { savePowerUpCounts } from "./storage.js";
 import { getMatchTilesForSwap } from "./hint-system.js";
 import {
     isTutorialActive,
@@ -565,24 +564,8 @@ export function trySwap(game, row1, col1, row2, col2) {
             }
 
             if (isSwapPowerUp) {
-                // Decrement remaining count and deactivate power-up after successful swap
-                game.powerUpRemaining.swap--;
-
-                // Consumption priority: extra moves bonus > random power-up bonus > streak bonus > persistent count
-                // Only decrement persistent count if we're consuming from it
-                if (game.extraMovesPowerUpCounts.swap > 0) {
-                    // Consume extra moves bonus first
-                    game.extraMovesPowerUpCounts.swap--;
-                } else if (game.randomPowerUpBonusCounts.swap > 0) {
-                    // Consume random power-up bonus second
-                    game.randomPowerUpBonusCounts.swap--;
-                } else if (game.powerUpRemaining.swap < game.persistentPowerUpCounts.swap) {
-                    // We're consuming from persistent count (streak is gone)
-                    game.persistentPowerUpCounts.swap = Math.max(0, game.persistentPowerUpCounts.swap - 1);
-                    savePowerUpCounts(game.persistentPowerUpCounts);
-                }
-                // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
-
+                // Consume power-up
+                game.consumePowerUp("swap");
                 game.updatePowerUpButtons();
 
                 // Track power-up usage
@@ -590,7 +573,7 @@ export function trySwap(game, row1, col1, row2, col2) {
                     level: game.currentLevel,
                     power_up_type: "swap",
                     remaining_moves: game.maxMoves - game.movesUsed,
-                    uses_remaining: game.powerUpRemaining.swap,
+                    uses_remaining: game.getTotalPowerUpCount("swap"),
                 });
 
                 game.deactivatePowerUp();

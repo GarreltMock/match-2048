@@ -1,6 +1,5 @@
 import { APP_VERSION } from "./version.js";
 import { loadUserId, generateUUID } from "./storage.js";
-import { MAX_POWER_UP_USES } from "./config.js";
 import { serializeBoard } from "./serializer.js";
 
 function getDefaultOptions() {
@@ -155,9 +154,9 @@ export function trackLevelSolved(game) {
         remaining_moves: game.maxMoves - game.movesUsed,
         moves_used: game.movesUsed,
         duration: duration,
-        hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
-        halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
-        swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
+        hammer_used: game.powerUpUsedCounts.hammer,
+        halve_used: game.powerUpUsedCounts.halve,
+        swap_used: game.powerUpUsedCounts.swap,
         match_3_count: game.matchStats.match3Count,
         match_4_count: game.matchStats.match4Count,
         match_5_count: game.matchStats.match5Count,
@@ -197,9 +196,9 @@ export function trackLevelLost(game) {
         moves_used: game.movesUsed,
         duration: duration,
         goals_remaining: goalsRemaining,
-        hammer_used: MAX_POWER_UP_USES - game.powerUpRemaining.hammer,
-        halve_used: MAX_POWER_UP_USES - game.powerUpRemaining.halve,
-        swap_used: MAX_POWER_UP_USES - game.powerUpRemaining.swap,
+        hammer_used: game.powerUpUsedCounts.hammer,
+        halve_used: game.powerUpUsedCounts.halve,
+        swap_used: game.powerUpUsedCounts.swap,
         match_3_count: game.matchStats.match3Count,
         match_4_count: game.matchStats.match4Count,
         match_5_count: game.matchStats.match5Count,

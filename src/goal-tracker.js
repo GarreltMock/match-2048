@@ -73,8 +73,12 @@ export function checkLevelComplete(game) {
 
             if (unlockedPowerUps.length > 0) {
                 const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
-                game.persistentPowerUpCounts[randomPowerUp]++;
-                savePowerUpCounts(game.persistentPowerUpCounts);
+                game.powerUpCounts[randomPowerUp].persistent++;
+                savePowerUpCounts({
+                    hammer: game.powerUpCounts.hammer.persistent,
+                    halve: game.powerUpCounts.halve.persistent,
+                    swap: game.powerUpCounts.swap.persistent,
+                });
 
                 // Show the power-up reward in the UI
                 const powerUpReward = document.getElementById("powerUpReward");

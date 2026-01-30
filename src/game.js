@@ -156,7 +156,7 @@ export class Match3Game {
         // Hint system
         this.currentHint = null; // {row1, col1, row2, col2}
         this.hintTimer = null; // setTimeout reference
-        this.hintTimeout = 4000; // 4 seconds
+        this.hintTimeout = 500; // 4 seconds
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
@@ -177,25 +177,13 @@ export class Match3Game {
         // Power-up system
         this.activePowerUp = null;
         this.powerUpSwapTiles = [];
-        // Load persistent power-up counts from storage (defaults to 2 each on first start)
-        this.persistentPowerUpCounts = loadPowerUpCounts();
-        // powerUpRemaining will be set per level: persistent + streak bonuses
-        this.powerUpRemaining = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
-        };
-        // Track extra moves power-ups (separate from persistent and streak bonuses)
-        this.extraMovesPowerUpCounts = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
-        };
-        // Track random power-up bonuses (from random power-up tiles)
-        this.randomPowerUpBonusCounts = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
+        // Power-up counts: persistent (saved) and transient (temporary for level)
+        const savedPowerUps = loadPowerUpCounts();
+        const startTransient = this.persistentPowerUpsEnabled ? 0 : 1;
+        this.powerUpCounts = {
+            hammer: { persistent: savedPowerUps.hammer, transient: startTransient },
+            halve: { persistent: savedPowerUps.halve, transient: startTransient },
+            swap: { persistent: savedPowerUps.swap, transient: startTransient },
         };
 
         // Special tiles configuration
@@ -211,6 +199,13 @@ export class Match3Game {
             tFormationCount: 0,
             lFormationCount: 0,
             blockFormationCount: 0,
+        };
+
+        // Power-up usage tracking (per level)
+        this.powerUpUsedCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
         };
 
         // Level timing
@@ -325,19 +320,11 @@ export class Match3Game {
         this.extraMovesUsed = false; // Reset extra moves flag for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
-        // Reset extra moves power-up counts for new level
-        this.extraMovesPowerUpCounts = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
-        };
-
-        // Reset random power-up bonus counts for new level
-        this.randomPowerUpBonusCounts = {
-            hammer: 0,
-            halve: 0,
-            swap: 0,
-        };
+        // Reset transient power-up counts for new level (start with 1 if persistent disabled)
+        const baseTransient = this.persistentPowerUpsEnabled ? 0 : 1;
+        this.powerUpCounts.hammer.transient = baseTransient;
+        this.powerUpCounts.halve.transient = baseTransient;
+        this.powerUpCounts.swap.transient = baseTransient;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -375,6 +362,13 @@ export class Match3Game {
             blockFormationCount: 0,
         };
 
+        // Reset power-up usage tracking for new level
+        this.powerUpUsedCounts = {
+            hammer: 0,
+            halve: 0,
+            swap: 0,
+        };
+
         // Set level start time
         this.levelStartTime = Date.now();
         this.settingsChangedDuringLevel = false; // Reset flag for new level
@@ -388,24 +382,16 @@ export class Match3Game {
         this.hideControls();
         this.showPowerUps();
 
-        // Set power-up remaining for level: persistent counts (if enabled) + streak bonuses
-        // (Streak bonuses are temporary and not saved to storage)
-        this.powerUpRemaining = {
-            hammer: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.hammer : 1,
-            halve: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.halve : 1,
-            swap: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.swap : 1,
-        };
-
-        // Apply streak bonus power-ups (temporary for this level only) - only if streak feature is unlocked
+        // Apply streak bonus power-ups (transient for this level only) - only if streak feature is unlocked
         if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
             if (this.currentStreak >= 1) {
-                this.powerUpRemaining.halve += 1;
+                this.powerUpCounts.halve.transient++;
             }
             if (this.currentStreak >= 2) {
-                this.powerUpRemaining.hammer += 1;
+                this.powerUpCounts.hammer.transient++;
             }
             if (this.currentStreak >= 3) {
-                this.powerUpRemaining.swap += 1;
+                this.powerUpCounts.swap.transient++;
             }
         }
 
@@ -722,7 +708,7 @@ export class Match3Game {
                 }
 
                 // Check if power-up has uses remaining
-                if (this.powerUpRemaining[powerUpType] <= 0) {
+                if (this.getTotalPowerUpCount(powerUpType) <= 0) {
                     // Open powerup shop instead
                     this.openPowerupShop();
                     return;
@@ -789,12 +775,35 @@ export class Match3Game {
     }
 
     grantPowerUp(powerUpType) {
-        // Increment the power-up count
-        this.powerUpRemaining[powerUpType]++;
-        this.randomPowerUpBonusCounts[powerUpType]++;
+        // Increment the transient power-up count
+        this.powerUpCounts[powerUpType].transient++;
 
-        // Update the power-up buttons to show the new count with gift icon
+        // Update the power-up buttons to show the new count
         this.updatePowerUpButtons();
+    }
+
+    getTotalPowerUpCount(type) {
+        const counts = this.powerUpCounts[type];
+        const persistent = this.persistentPowerUpsEnabled ? counts.persistent : 0;
+        return persistent + counts.transient;
+    }
+
+    consumePowerUp(type) {
+        // Track usage
+        this.powerUpUsedCounts[type]++;
+
+        const counts = this.powerUpCounts[type];
+        // Priority: transient first, then persistent
+        if (counts.transient > 0) {
+            counts.transient--;
+        } else if (this.persistentPowerUpsEnabled && counts.persistent > 0) {
+            counts.persistent--;
+            savePowerUpCounts({
+                hammer: this.powerUpCounts.hammer.persistent,
+                halve: this.powerUpCounts.halve.persistent,
+                swap: this.powerUpCounts.swap.persistent,
+            });
+        }
     }
 
     /**
@@ -938,19 +947,10 @@ export class Match3Game {
             button.classList.remove("locked");
             button.disabled = false;
 
-            const usesLeft = this.powerUpRemaining[powerUpType];
-            const persistentUses = this.persistentPowerUpCounts[powerUpType];
-            const extraMovesUses = this.extraMovesPowerUpCounts[powerUpType];
-            const randomPowerUpUses = this.randomPowerUpBonusCounts[powerUpType];
-
-            // Calculate streak bonus (uses beyond persistent + extra moves + random)
-            const streakBonus = Math.max(0, usesLeft - persistentUses - extraMovesUses - randomPowerUpUses);
-
-            // Total free power-ups = streak + extra moves + random power-up bonuses
-            const totalFreePowerUps = streakBonus + extraMovesUses + randomPowerUpUses;
-
-            // Check if this power-up has extra moves bonus
-            const hasExtraMovesBonus = extraMovesUses > 0;
+            const counts = this.powerUpCounts[powerUpType];
+            const persistent = this.persistentPowerUpsEnabled ? counts.persistent : 0;
+            const transient = counts.transient;
+            const total = persistent + transient;
 
             // Remove existing use indicators
             const existingIndicator = button.querySelector(".use-indicator");
@@ -958,10 +958,7 @@ export class Match3Game {
                 existingIndicator.remove();
             }
 
-            // Check if button should be disabled
-            const shouldDisable = usesLeft <= 0;
-
-            if (usesLeft <= 0) {
+            if (total <= 0) {
                 // Power-up is used up - add can-purchase indicator
                 button.classList.add("can-purchase");
                 button.title = `${button.title.split(" - ")[0]} - Click to buy more`;
@@ -972,66 +969,25 @@ export class Match3Game {
                 const indicator = document.createElement("div");
                 indicator.className = "use-indicator";
 
-                if (hasExtraMovesBonus) {
-                    // Show extra moves icon instead of number
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", "⏩");
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.classList.add("extra-moves-bonus");
-                    indicator.appendChild(strokedText);
-                } else if (totalFreePowerUps === 1 && streakBonus === 1) {
-                    // Exactly 1 free power-up and it's from streak only: show streak icon
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", "🔥");
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("stroke-width", "4");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.classList.add("streak-bonus");
-                    indicator.appendChild(strokedText);
-                } else if (totalFreePowerUps > 0) {
-                    // Multiple free power-ups or from non-streak sources: show count with blue background
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", totalFreePowerUps);
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.classList.add("bonus-count");
-                    indicator.appendChild(strokedText);
-                } else {
-                    // Show regular use count (persistent uses only)
-                    const strokedText = document.createElement("stroked-text");
-                    strokedText.setAttribute("text", usesLeft);
-                    strokedText.setAttribute("font-size", "26");
-                    strokedText.setAttribute("width", "40");
-                    strokedText.setAttribute("height", "40");
-                    strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-                    indicator.appendChild(strokedText);
-                }
+                const strokedText = document.createElement("stroked-text");
+                strokedText.setAttribute("text", total);
+                strokedText.setAttribute("font-size", "26");
+                strokedText.setAttribute("width", "40");
+                strokedText.setAttribute("height", "40");
+                strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
 
+                if (transient > 0) {
+                    // Blue background for transient power-ups
+                    indicator.classList.add("bonus-count");
+                }
+                // else: default red background for persistent only
+
+                indicator.appendChild(strokedText);
                 button.appendChild(indicator);
 
-                // Check if temporarily disabled due to one-per-swap rule
-                if (shouldDisable) {
-                    button.classList.add("disabled");
-                    button.title = `${button.title.split(" - ")[0]} - Make a swap to use power-ups again`;
-                } else {
-                    button.classList.remove("disabled");
-                    // Update title
-                    const baseTitle = button.title.split(" - ")[0];
-                    if (hasExtraMovesBonus) {
-                        button.title = `${baseTitle} - Extra moves bonus available!`;
-                    } else if (totalFreePowerUps > 0) {
-                        button.title = `${baseTitle} - ${totalFreePowerUps} bonus uses available!`;
-                    } else {
-                        button.title = `${baseTitle} - ${usesLeft} uses left`;
-                    }
-                }
+                button.classList.remove("disabled");
+                const baseTitle = button.title.split(" - ")[0];
+                button.title = `${baseTitle} - ${total} uses left`;
             }
         });
     }
@@ -1069,24 +1025,8 @@ export class Match3Game {
         // Reset hint timer on power-up usage
         this.resetHintTimer();
 
-        // Decrement remaining count
-        this.powerUpRemaining.hammer--;
-
-        // Consumption priority: extra moves bonus > random power-up bonus > streak bonus > persistent count
-        // Only decrement persistent count if we're consuming from it
-        if (this.extraMovesPowerUpCounts.hammer > 0) {
-            // Consume extra moves bonus first
-            this.extraMovesPowerUpCounts.hammer--;
-        } else if (this.randomPowerUpBonusCounts.hammer > 0) {
-            // Consume random power-up bonus second
-            this.randomPowerUpBonusCounts.hammer--;
-        } else if (this.powerUpRemaining.hammer < this.persistentPowerUpCounts.hammer) {
-            // We're consuming from persistent count (streak is gone)
-            this.persistentPowerUpCounts.hammer = Math.max(0, this.persistentPowerUpCounts.hammer - 1);
-            savePowerUpCounts(this.persistentPowerUpCounts);
-        }
-        // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
-
+        // Consume power-up
+        this.consumePowerUp("hammer");
         this.updatePowerUpButtons();
 
         // Track power-up usage
@@ -1094,7 +1034,7 @@ export class Match3Game {
             level: this.currentLevel,
             power_up_type: "hammer",
             remaining_moves: this.maxMoves - this.movesUsed,
-            uses_remaining: this.powerUpRemaining.hammer,
+            uses_remaining: this.getTotalPowerUpCount("hammer"),
         });
 
         // Block interactions during animation
@@ -1250,24 +1190,8 @@ export class Match3Game {
             // Reset hint timer on power-up usage
             this.resetHintTimer();
 
-            // Decrement remaining count
-            this.powerUpRemaining.halve--;
-
-            // Consumption priority: extra moves bonus > random power-up bonus > streak bonus > persistent count
-            // Only decrement persistent count if we're consuming from it
-            if (this.extraMovesPowerUpCounts.halve > 0) {
-                // Consume extra moves bonus first
-                this.extraMovesPowerUpCounts.halve--;
-            } else if (this.randomPowerUpBonusCounts.halve > 0) {
-                // Consume random power-up bonus second
-                this.randomPowerUpBonusCounts.halve--;
-            } else if (this.powerUpRemaining.halve < this.persistentPowerUpCounts.halve) {
-                // We're consuming from persistent count (streak is gone)
-                this.persistentPowerUpCounts.halve = Math.max(0, this.persistentPowerUpCounts.halve - 1);
-                savePowerUpCounts(this.persistentPowerUpCounts);
-            }
-            // Otherwise we're consuming a streak bonus (which is temporary and not persisted)
-
+            // Consume power-up
+            this.consumePowerUp("halve");
             this.updatePowerUpButtons();
 
             // Track power-up usage
@@ -1275,7 +1199,7 @@ export class Match3Game {
                 level: this.currentLevel,
                 power_up_type: "halve",
                 remaining_moves: this.maxMoves - this.movesUsed,
-                uses_remaining: this.powerUpRemaining.halve,
+                uses_remaining: this.getTotalPowerUpCount("halve"),
             });
 
             // Block interactions during animation
@@ -1361,15 +1285,10 @@ export class Match3Game {
 
                     this.maxMoves += 5;
 
-                    // Add one of each power-up (temporary for this level only, like streak bonuses)
-                    this.powerUpRemaining.hammer++;
-                    this.powerUpRemaining.halve++;
-                    this.powerUpRemaining.swap++;
-
-                    // Track that these came from extra moves (not persisted)
-                    this.extraMovesPowerUpCounts.hammer++;
-                    this.extraMovesPowerUpCounts.halve++;
-                    this.extraMovesPowerUpCounts.swap++;
+                    // Add one of each power-up (transient for this level only)
+                    this.powerUpCounts.hammer.transient++;
+                    this.powerUpCounts.halve.transient++;
+                    this.powerUpCounts.swap.transient++;
 
                     this.updatePowerUpButtons();
 
@@ -1414,9 +1333,13 @@ export class Match3Game {
                 this.extraMovesUsed = true;
 
                 this.maxMoves += 5;
-                this.powerUpRemaining.swap++; // Add one use back
-                this.persistentPowerUpCounts.swap++; // Also increment persistent count
-                savePowerUpCounts(this.persistentPowerUpCounts);
+                // Add one swap power-up (persistent)
+                this.powerUpCounts.swap.persistent++;
+                savePowerUpCounts({
+                    hammer: this.powerUpCounts.hammer.persistent,
+                    halve: this.powerUpCounts.halve.persistent,
+                    swap: this.powerUpCounts.swap.persistent,
+                });
                 this.updatePowerUpButtons();
                 this.updateMovesDisplay();
                 extraMovesDialog.classList.add("hidden");
@@ -1682,9 +1605,16 @@ export class Match3Game {
                     this.saveCoins();
 
                     // Add one use to the powerup
-                    this.powerUpRemaining[powerupType]++;
-                    this.persistentPowerUpCounts[powerupType]++;
-                    savePowerUpCounts(this.persistentPowerUpCounts);
+                    if (this.persistentPowerUpsEnabled) {
+                        this.powerUpCounts[powerupType].persistent++;
+                        savePowerUpCounts({
+                            hammer: this.powerUpCounts.hammer.persistent,
+                            halve: this.powerUpCounts.halve.persistent,
+                            swap: this.powerUpCounts.swap.persistent,
+                        });
+                    } else {
+                        this.powerUpCounts[powerupType].transient++;
+                    }
 
                     // Update powerup buttons to show new count
                     this.updatePowerUpButtons();
