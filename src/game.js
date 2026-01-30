@@ -767,33 +767,18 @@ export class Match3Game {
     }
 
     isPowerUpButtonVisible(powerUpType) {
-        // Only grant/animate power-ups if the corresponding UI button is actually visible.
-        // This prevents "hidden" power-ups being awarded before the feature is introduced.
-        const featureKey = `power_${powerUpType}`;
-        if (!isFeatureUnlocked(featureKey)) return false;
+        // "Button visible" in this game is driven by the feature-unlock state.
+        // Don't grant power-ups before the feature is unlocked.
+        const typeToFeatureKey = {
+            hammer: FEATURE_KEYS.HAMMER,
+            halve: FEATURE_KEYS.HALVE,
+            swap: FEATURE_KEYS.SWAP,
+        };
 
-        const button = document.querySelector(`.power-up-btn.game[data-powerup="${powerUpType}"]`);
-        if (!button) return false;
-        if (button.disabled) return false;
-        if (button.classList.contains("locked")) return false;
+        const featureKey = typeToFeatureKey[powerUpType];
+        if (!featureKey) return false;
 
-        // If the whole container is hidden, treat as not visible.
-        const container = document.querySelector(".power-ups");
-        if (container) {
-            const containerStyle = window.getComputedStyle ? window.getComputedStyle(container) : null;
-            if (containerStyle && (containerStyle.display === "none" || containerStyle.visibility === "hidden")) {
-                return false;
-            }
-        }
-
-        const style = window.getComputedStyle ? window.getComputedStyle(button) : null;
-        if (style && (style.display === "none" || style.visibility === "hidden")) return false;
-
-        // offsetParent is null when display:none (and for some fixed-position cases). We already checked styles,
-        // but keep this as an additional cheap guard.
-        if (button.offsetParent === null && style && style.display === "none") return false;
-
-        return true;
+        return isFeatureUnlocked(featureKey);
     }
 
     getVisiblePowerUpTypes() {
