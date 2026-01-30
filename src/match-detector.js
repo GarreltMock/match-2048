@@ -78,7 +78,8 @@ function scanLine(game, index, isHorizontal, targetLength) {
     const length = isHorizontal ? game.boardWidth : game.boardHeight;
 
     let matchGroup = [];
-    let maxValue = null; // Track max value for Plus tile matches
+    let referenceTile = null; // First tile in group - all tiles must match this
+    let maxValue = null;
 
     for (let i = 0; i < length; i++) {
         const [row, col] = isHorizontal ? [index, i] : [i, index];
@@ -90,44 +91,41 @@ function scanLine(game, index, isHorizontal, targetLength) {
             if (matchGroup.length === 0) {
                 // Start new match
                 matchGroup.push({ row, col });
+                referenceTile = tile;
                 maxValue = value;
             } else {
-                // Try to extend match
-                const prevPos = matchGroup[matchGroup.length - 1];
-                const prevTile = game.board[prevPos.row][prevPos.col];
-
-                if (canMatch(tile, prevTile, game)) {
+                // Try to extend match - must match REFERENCE tile, not just previous
+                // This prevents plus-tiles from bridging different values
+                if (canMatch(tile, referenceTile, game)) {
                     matchGroup.push({ row, col });
-                    // Track max value when Plus tiles are involved
                     if (value > maxValue) {
                         maxValue = value;
                     }
                 } else {
                     // End current match and start new one
                     if (matchGroup.length >= targetLength) {
-                        // Take exactly targetLength tiles from the group
                         const matchTiles = matchGroup.slice(0, targetLength);
                         matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
                     }
                     matchGroup = [{ row, col }];
+                    referenceTile = tile;
                     maxValue = value;
                 }
             }
         } else {
             // End current match
             if (matchGroup.length >= targetLength) {
-                // Take exactly targetLength tiles from the group
                 const matchTiles = matchGroup.slice(0, targetLength);
                 matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
             }
             matchGroup = [];
+            referenceTile = null;
             maxValue = null;
         }
     }
 
     // Check remaining match at end
     if (matchGroup.length >= targetLength) {
-        // Take exactly targetLength tiles from the group
         const matchTiles = matchGroup.slice(0, targetLength);
         matches.push(createLineMatch(matchTiles, maxValue, isHorizontal));
     }
