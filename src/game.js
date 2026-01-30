@@ -156,7 +156,7 @@ export class Match3Game {
         // Hint system
         this.currentHint = null; // {row1, col1, row2, col2}
         this.hintTimer = null; // setTimeout reference
-        this.hintTimeout = 500; // 4 seconds
+        this.hintTimeout = 4000; // 4 seconds
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
