@@ -1668,6 +1668,16 @@ export class Match3Game {
         const powerupShopDialog = document.getElementById("powerupShopDialog");
         if (powerupShopDialog) {
             this.updateCoinsDisplays();
+
+            // Hide locked power-up shop items (visibility is driven by unlock state)
+            const shopItems = powerupShopDialog.querySelectorAll(".powerup-shop-item");
+            shopItems.forEach((item) => {
+                const powerupType = item.dataset.powerup;
+                const featureKey = FEATURE_KEYS[powerupType.toUpperCase()];
+                const unlocked = !featureKey || isFeatureUnlocked(featureKey);
+                item.style.display = unlocked ? "" : "none";
+            });
+
             powerupShopDialog.classList.remove("hidden");
         }
     }
