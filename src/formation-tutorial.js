@@ -10,14 +10,28 @@ import { loadShownFormationTutorials, saveShownFormationTutorial } from "./stora
 /**
  * Get pending formation tutorials for match groups
  * @param {Array} matchGroups - Array of match groups from findMatches()
+ * @param {object|null} swapPosition - Last swap position {row, col, movedFrom: {row, col}}
  * @returns {Array<{formationType: string, matchGroup: object}>} Array of pending tutorials with their match groups
  */
-export function getPendingFormationTutorials(matchGroups) {
+export function getPendingFormationTutorials(matchGroups, swapPosition = null) {
     const pending = [];
     const seenTypes = new Set();
     const shownTutorials = loadShownFormationTutorials();
 
-    matchGroups.forEach((group) => {
+    // Filter to only active merges (containing swapped tiles) if swapPosition provided
+    const filteredGroups = swapPosition
+        ? matchGroups.filter((group) => {
+              return group.tiles.some(
+                  (tile) =>
+                      (tile.row === swapPosition.row && tile.col === swapPosition.col) ||
+                      (swapPosition.movedFrom &&
+                          tile.row === swapPosition.movedFrom.row &&
+                          tile.col === swapPosition.movedFrom.col)
+              );
+          })
+        : matchGroups;
+
+    filteredGroups.forEach((group) => {
         const formationType = getFormationTypeFromDirection(group.direction);
         if (formationType && !seenTypes.has(formationType) && !shownTutorials.has(formationType)) {
             seenTypes.add(formationType);

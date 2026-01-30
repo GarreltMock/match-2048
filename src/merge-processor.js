@@ -59,7 +59,7 @@ export async function processMatches(game) {
 
     // Check for pending formation tutorials (only on user swaps)
     if (wasUserSwap) {
-        const pendingTutorials = getPendingFormationTutorials(matchGroups);
+        const pendingTutorials = getPendingFormationTutorials(matchGroups, game.lastSwapPosition);
 
         if (pendingTutorials.length > 0) {
             // Highlight all tiles that will be merged
