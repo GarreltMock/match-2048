@@ -371,9 +371,9 @@ function calculateSwapScore(game, matches) {
         }
     }
     // Average row position (0 = top, boardHeight-1 = bottom)
-    // Bonus scales from 0 to ~50 based on position
+    // Bonus scales from 0 to ~150 based on position
     const avgRow = tileCount > 0 ? totalRow / tileCount : 0;
-    const positionBonus = Math.round((avgRow / (game.boardHeight - 1)) * 50);
+    const positionBonus = Math.round((avgRow / (game.boardHeight - 1)) * 150);
 
     // Compute composite score
     score += maxFormationScore;
