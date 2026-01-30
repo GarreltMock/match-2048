@@ -979,7 +979,7 @@ export class Match3Game {
 
                 if (transient > 0) {
                     // Blue background for transient power-ups
-                    indicator.classList.add("bonus-count");
+                    indicator.classList.add("transient-count");
                 }
                 // else: default red background for persistent only
 

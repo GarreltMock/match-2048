@@ -1208,15 +1208,8 @@
     font-size: 16px;
     font-weight: 900;
 
-    &.streak-bonus,
-    &.extra-moves-bonus,
-    &.bonus-count {
+    &.transient-count {
         background: var(--tile-freeswap-badge-bg);
-
-        stroked-text {
-            width: 80%;
-            height: 80%;
-        }
     }
 }
 
