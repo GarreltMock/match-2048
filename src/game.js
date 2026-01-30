@@ -772,6 +772,7 @@ export class Match3Game {
         const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
 
         this.grantPowerUp(randomType);
+        this.showPowerUpRewardAnimation(randomType);
     }
 
     grantPowerUp(powerUpType) {
@@ -828,14 +829,14 @@ export class Match3Game {
         this.grantPowerUp(powerUpType);
 
         // Show celebration animation
-        this.showFormationPowerUpAnimation(powerUpType);
+        this.showPowerUpRewardAnimation(powerUpType);
     }
 
     /**
      * Show floating celebration animation for formation power-up reward
      * @param {string} powerUpType - "hammer", "halve", or "swap"
      */
-    showFormationPowerUpAnimation(powerUpType) {
+    showPowerUpRewardAnimation(powerUpType) {
         const motivationalWords = ["Great!", "Awesome!", "Wow!", "Amazing!", "Nice!", "Super!"];
         const randomWord = motivationalWords[Math.floor(Math.random() * motivationalWords.length)];
 
