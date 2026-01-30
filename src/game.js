@@ -391,9 +391,9 @@ export class Match3Game {
         // Set power-up remaining for level: persistent counts (if enabled) + streak bonuses
         // (Streak bonuses are temporary and not saved to storage)
         this.powerUpRemaining = {
-            hammer: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.hammer : 0,
-            halve: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.halve : 0,
-            swap: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.swap : 0,
+            hammer: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.hammer : 1,
+            halve: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.halve : 1,
+            swap: this.persistentPowerUpsEnabled ? this.persistentPowerUpCounts.swap : 1,
         };
 
         // Apply streak bonus power-ups (temporary for this level only) - only if streak feature is unlocked

@@ -1,6 +1,6 @@
 // Hint system for finding and scoring the best possible swap
 
-import { isBlocked, isBlockedWithLife } from "./tile-helpers.js";
+import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount } from "./tile-helpers.js";
 import { hasMatchesForSwap, findMatches } from "./match-detector.js";
 
 /**
@@ -24,7 +24,7 @@ export function findBestSwap(game) {
 
     // Create a working copy for hint evaluation
     // This copy is what we'll modify during evaluation
-    const createWorkingCopy = () => originalBoard.map(row => row.map(tile => tile ? {...tile} : null));
+    const createWorkingCopy = () => originalBoard.map((row) => row.map((tile) => (tile ? { ...tile } : null)));
 
     for (const swap of validSwaps) {
         // Set up a fresh working copy for each evaluation
@@ -77,7 +77,7 @@ function findAllValidSwaps(game) {
                         row1: row,
                         col1: col,
                         row2: row,
-                        col2: col + 1
+                        col2: col + 1,
                     });
                 }
             }
@@ -89,7 +89,7 @@ function findAllValidSwaps(game) {
                         row1: row,
                         col1: col,
                         row2: row + 1,
-                        col2: col
+                        col2: col,
                     });
                 }
             }
@@ -149,7 +149,7 @@ function evaluateSwap(game, row1, col1, row2, col2) {
     game.lastSwapPosition = {
         row: row2,
         col: col2,
-        movedFrom: { row: row1, col: col1 }
+        movedFrom: { row: row1, col: col1 },
     };
 
     // Check if this swap creates matches
@@ -189,11 +189,11 @@ function evaluateSwap(game, row1, col1, row2, col2) {
     }
 
     // Separate matches by which swap tile they involve
-    const matchesForTile1 = matches.filter(match =>
-        match.tiles.some(tile => tile.row === row1 && tile.col === col1)
+    const matchesForTile1 = matches.filter((match) =>
+        match.tiles.some((tile) => tile.row === row1 && tile.col === col1),
     );
-    const matchesForTile2 = matches.filter(match =>
-        match.tiles.some(tile => tile.row === row2 && tile.col === col2)
+    const matchesForTile2 = matches.filter((match) =>
+        match.tiles.some((tile) => tile.row === row2 && tile.col === col2),
     );
 
     // Calculate score for each group to find the best one
@@ -235,7 +235,7 @@ function evaluateSwap(game, row1, col1, row2, col2) {
         direction2,
         score,
         matches,
-        matchTiles
+        matchTiles,
     };
 }
 
@@ -287,9 +287,9 @@ function calculateSwapScore(game, matches) {
     }
 
     // Calculate goal progress
-    if (game.currentLevel && game.currentLevel.goals) {
+    if (game.levelGoals && game.levelGoals.length > 0) {
         for (const match of matches) {
-            for (const goal of game.currentLevel.goals) {
+            for (const goal of game.levelGoals) {
                 // Check if this match contributes to any goals
                 if (goal.tileValue === match.value) {
                     if (goal.goalType === "created") {
@@ -312,21 +312,28 @@ function calculateSwapScore(game, matches) {
     }
 
     // Check adjacent tiles for blocked tiles
+    const foundBlockedPositions = [];
     for (const match of matches) {
         for (const tile of match.tiles) {
             const adjacentPositions = [
                 [tile.row - 1, tile.col],
                 [tile.row + 1, tile.col],
                 [tile.row, tile.col - 1],
-                [tile.row, tile.col + 1]
+                [tile.row, tile.col + 1],
             ];
 
             for (const [adjRow, adjCol] of adjacentPositions) {
-                if (adjRow >= 0 && adjRow < game.boardHeight &&
-                    adjCol >= 0 && adjCol < game.boardWidth) {
+                if (adjRow >= 0 && adjRow < game.boardHeight && adjCol >= 0 && adjCol < game.boardWidth) {
                     const adjTile = game.board[adjRow]?.[adjCol];
-                    if (adjTile && isBlockedWithLife(adjTile)) {
+                    if (
+                        adjTile &&
+                        (isBlocked(adjTile) ||
+                            isBlockedWithLife(adjTile) ||
+                            isBlockedMovable(adjTile) ||
+                            isBlockedWithMergeCount(adjTile))
+                    ) {
                         blockedCleared += 1;
+                        foundBlockedPositions.push(`[${adjRow},${adjCol}]`);
                     }
                 }
             }
@@ -336,21 +343,19 @@ function calculateSwapScore(game, matches) {
     // Check if level has blocked goals and if they're the only remaining goals
     let hasBlockedGoals = false;
     let blockedIsOnlyRemainingGoal = false;
-    if (game.currentLevel && game.currentLevel.goals) {
-        const blockedGoals = game.currentLevel.goals.filter(goal => goal.goalType === "blocked");
+    if (game.levelGoals && game.levelGoals.length > 0) {
+        const blockedGoals = game.levelGoals.filter((goal) => goal.goalType === "blocked");
         hasBlockedGoals = blockedGoals.length > 0;
 
         if (hasBlockedGoals) {
             // Check if all non-blocked goals are complete
-            const nonBlockedGoals = game.currentLevel.goals.filter(goal => goal.goalType !== "blocked");
-            const allNonBlockedComplete = nonBlockedGoals.every(goal => {
-                const progress = game.goalProgress?.[goal.id] || 0;
-                return progress >= goal.count;
+            const nonBlockedGoals = game.levelGoals.filter((goal) => goal.goalType !== "blocked");
+            const allNonBlockedComplete = nonBlockedGoals.every((goal) => {
+                return goal.current >= goal.target;
             });
             // Check if blocked goals are still incomplete
-            const blockedGoalsIncomplete = blockedGoals.some(goal => {
-                const progress = game.goalProgress?.[goal.id] || 0;
-                return progress < goal.count;
+            const blockedGoalsIncomplete = blockedGoals.some((goal) => {
+                return goal.current < goal.target;
             });
             blockedIsOnlyRemainingGoal = allNonBlockedComplete && blockedGoalsIncomplete;
         }
@@ -376,15 +381,17 @@ function calculateSwapScore(game, matches) {
     score += goalProgress * 100;
 
     // Blocked tile scoring
+    let blockedBonus = 0;
     if (hasBlockedGoals && blockedCleared > 0) {
         if (blockedIsOnlyRemainingGoal) {
             // When blocked is the ONLY remaining goal, always prefer clearing blocked tiles
             // Use a massive bonus that dominates all other scoring factors
-            score += 10000 + blockedCleared * 500;
+            blockedBonus = 10000 + blockedCleared * 500;
         } else {
             // When there are other goals too, still give significant bonus
-            score += blockedCleared * 200;
+            blockedBonus = blockedCleared * 200;
         }
+        score += blockedBonus;
     }
 
     score += hasSpecialTile ? 200 : 0;
@@ -411,7 +418,7 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
     const originalLastSwapPosition = game.lastSwapPosition;
 
     // Create a working copy for the evaluation
-    game.board = originalBoard.map(row => row.map(tile => tile ? {...tile} : null));
+    game.board = originalBoard.map((row) => row.map((tile) => (tile ? { ...tile } : null)));
 
     // Swap tiles on the working copy
     const temp = game.board[row1][col1];
@@ -423,7 +430,7 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
     game.lastSwapPosition = {
         row: row2,
         col: col2,
-        movedFrom: { row: row1, col: col1 }
+        movedFrom: { row: row1, col: col1 },
     };
 
     // Check if this swap creates matches
@@ -436,10 +443,8 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
 
         // Only include matches that involve the actively dragged tile
         // The dragged tile starts at (row1, col1) and after swap is at (row2, col2)
-        const relevantMatches = matches.filter(match =>
-            match.tiles.some(tile =>
-                tile.row === row2 && tile.col === col2
-            )
+        const relevantMatches = matches.filter((match) =>
+            match.tiles.some((tile) => tile.row === row2 && tile.col === col2),
         );
 
         // Collect tiles from relevant matches only
