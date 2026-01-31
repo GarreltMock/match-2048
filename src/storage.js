@@ -440,3 +440,24 @@ export function loadPersistentPowerUpsEnabled() {
 export function savePersistentPowerUpsEnabled(enabled) {
     localStorage.setItem("match2048_persistentPowerUpsEnabled", enabled.toString());
 }
+
+/**
+ * Load the "power-up on special tile use" setting.
+ * When enabled, consuming a Wildcard/Joker tile (*) or Plus Wildcard (+) in a merge grants a random power-up.
+ * @returns {boolean} True if enabled (default: false)
+ */
+export function loadPowerUpOnSpecialTileUseEnabled() {
+    const saved = localStorage.getItem("match2048_powerUpOnSpecialTileUseEnabled");
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the "power-up on special tile use" setting
+ * @param {boolean} enabled
+ */
+export function savePowerUpOnSpecialTileUseEnabled(enabled) {
+    localStorage.setItem("match2048_powerUpOnSpecialTileUseEnabled", enabled.toString());
+}

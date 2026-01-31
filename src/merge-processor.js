@@ -11,6 +11,8 @@ import {
     isCursed,
     getTileValue,
     isTileStickyFreeSwapTile,
+    isJoker,
+    isTilePlusTile,
     getDisplayValue,
     isRectangularBlocked,
 } from "./tile-helpers.js";
@@ -104,6 +106,20 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
             }
         });
     });
+
+    // OPTIONAL: Grant a power-up when consuming Wildcard/Joker (*) or Plus Wildcard (+) tiles in a merge
+    // (on use, not on creation)
+    if (game.powerUpOnSpecialTileUseEnabled) {
+        matchGroups.forEach((group) => {
+            const usedWildcard = group.tiles.some((pos) => {
+                const t = game.board[pos.row][pos.col];
+                return isJoker(t) || isTilePlusTile(t);
+            });
+            if (usedWildcard) {
+                game.grantRandomPowerUp();
+            }
+        });
+    }
 
     // Update cursed goal progress for successfully merged cursed tiles
     mergedCursedTiles.forEach((pos) => {

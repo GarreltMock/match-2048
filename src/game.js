@@ -46,6 +46,8 @@ import {
     saveFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
     savePersistentPowerUpsEnabled,
+    loadPowerUpOnSpecialTileUseEnabled,
+    savePowerUpOnSpecialTileUseEnabled,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -162,6 +164,7 @@ export class Match3Game {
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
+        this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -1789,6 +1792,7 @@ export class Match3Game {
         const hintTimeoutInput = document.getElementById("hintTimeoutMs");
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
         const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
+        const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1896,6 +1900,9 @@ export class Match3Game {
             if (persistentPowerUpsEnabledCheckbox) {
                 persistentPowerUpsEnabledCheckbox.checked = this.persistentPowerUpsEnabled;
             }
+            if (powerUpOnSpecialTileUseEnabledCheckbox) {
+                powerUpOnSpecialTileUseEnabledCheckbox.checked = this.powerUpOnSpecialTileUseEnabled;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -1998,6 +2005,10 @@ export class Match3Game {
                     if (persistentPowerUpsEnabledCheckbox) {
                         this.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
                         savePersistentPowerUpsEnabled(this.persistentPowerUpsEnabled);
+                    }
+                    if (powerUpOnSpecialTileUseEnabledCheckbox) {
+                        this.powerUpOnSpecialTileUseEnabled = powerUpOnSpecialTileUseEnabledCheckbox.checked;
+                        savePowerUpOnSpecialTileUseEnabled(this.powerUpOnSpecialTileUseEnabled);
                     }
 
                     // Mark that settings were changed during this level (if game is active)
