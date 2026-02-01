@@ -1151,6 +1151,17 @@
     z-index: 10;
 }
 
+.power-up-cycle-indicator {
+    margin-top: 6px;
+    text-align: center;
+    font-size: clamp(10px, 2.5vw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: rgba(20, 20, 20, 0.6);
+    opacity: 0.8;
+    display: none;
+}
+
 .power-up-btn {
     width: clamp(60px, 20vw, 120px);
     height: clamp(60px, 20vw, 120px);

@@ -1011,6 +1011,28 @@ export class Match3Game {
                 button.title = `${baseTitle} - ${total} uses left`;
             }
         });
+
+        this.updatePowerUpCycleIndicator();
+    }
+
+    updatePowerUpCycleIndicator() {
+        const indicator = document.getElementById("powerUpCycleIndicator");
+        if (!indicator) return;
+
+        if (!this.deterministicPowerUpCycleEnabled) {
+            indicator.style.display = "none";
+            return;
+        }
+
+        const powerUpTypes = ["hammer", "halve", "swap"];
+        const powerUpIcons = {
+            hammer: "🔨",
+            halve: "✂️",
+            swap: "🔄",
+        };
+        const nextType = powerUpTypes[this.powerUpCycleIndex % powerUpTypes.length];
+        indicator.textContent = `Next: ${powerUpIcons[nextType]}`;
+        indicator.style.display = "";
     }
 
     handlePowerUpAction(row, col, element) {
@@ -2045,6 +2067,7 @@ export class Match3Game {
                     if (levelChanged) {
                         location.reload();
                     } else {
+                        this.updatePowerUpCycleIndicator();
                         // Just close the dialog - no need to re-render since settings
                         // are only accessible from homescreen (no active game board)
                         settingsDialog.classList.add("hidden");
