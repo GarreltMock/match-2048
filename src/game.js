@@ -50,8 +50,6 @@ import {
     savePowerUpOnSpecialTileUseEnabled,
     loadDeterministicPowerUpCycleEnabled,
     saveDeterministicPowerUpCycleEnabled,
-    loadPowerUpCycleIndex,
-    savePowerUpCycleIndex,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -170,7 +168,8 @@ export class Match3Game {
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
         this.deterministicPowerUpCycleEnabled = loadDeterministicPowerUpCycleEnabled();
-        this.powerUpCycleIndex = loadPowerUpCycleIndex();
+        // Deterministic cycle state resets every level (starts at hammer)
+        this.powerUpCycleIndex = 0;
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -336,6 +335,9 @@ export class Match3Game {
         this.powerUpCounts.hammer.transient = baseTransient;
         this.powerUpCounts.halve.transient = baseTransient;
         this.powerUpCounts.swap.transient = baseTransient;
+
+        // Reset deterministic power-up cycle state per-level
+        this.powerUpCycleIndex = 0;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -785,7 +787,6 @@ export class Match3Game {
             const index = this.powerUpCycleIndex % powerUpTypes.length;
             powerUpType = powerUpTypes[index];
             this.powerUpCycleIndex = (index + 1) % powerUpTypes.length;
-            savePowerUpCycleIndex(this.powerUpCycleIndex);
         } else {
             // Pick a random power-up type
             powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
