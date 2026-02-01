@@ -461,3 +461,46 @@ export function loadPowerUpOnSpecialTileUseEnabled() {
 export function savePowerUpOnSpecialTileUseEnabled(enabled) {
     localStorage.setItem("match2048_powerUpOnSpecialTileUseEnabled", enabled.toString());
 }
+
+/**
+ * Load the deterministic power-up cycle setting.
+ * When enabled, random power-up grants follow a fixed sequence.
+ * @returns {boolean} True if enabled (default: false)
+ */
+export function loadDeterministicPowerUpCycleEnabled() {
+    const saved = localStorage.getItem("match2048_deterministicPowerUpCycleEnabled");
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the deterministic power-up cycle setting.
+ * @param {boolean} enabled
+ */
+export function saveDeterministicPowerUpCycleEnabled(enabled) {
+    localStorage.setItem("match2048_deterministicPowerUpCycleEnabled", enabled.toString());
+}
+
+/**
+ * Load the next index for the deterministic power-up cycle.
+ * @returns {number} Next index (default: 0)
+ */
+export function loadPowerUpCycleIndex() {
+    const saved = localStorage.getItem("match2048_powerUpCycleIndex");
+    if (saved === null) {
+        return 0;
+    }
+    const parsed = parseInt(saved, 10);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
+/**
+ * Save the next index for the deterministic power-up cycle.
+ * @param {number} index
+ */
+export function savePowerUpCycleIndex(index) {
+    const safe = Number.isFinite(index) && index >= 0 ? Math.floor(index) : 0;
+    localStorage.setItem("match2048_powerUpCycleIndex", safe.toString());
+}

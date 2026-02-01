@@ -48,6 +48,10 @@ import {
     savePersistentPowerUpsEnabled,
     loadPowerUpOnSpecialTileUseEnabled,
     savePowerUpOnSpecialTileUseEnabled,
+    loadDeterministicPowerUpCycleEnabled,
+    saveDeterministicPowerUpCycleEnabled,
+    loadPowerUpCycleIndex,
+    savePowerUpCycleIndex,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -165,6 +169,8 @@ export class Match3Game {
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
+        this.deterministicPowerUpCycleEnabled = loadDeterministicPowerUpCycleEnabled();
+        this.powerUpCycleIndex = loadPowerUpCycleIndex();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -772,12 +778,21 @@ export class Match3Game {
     }
 
     grantRandomPowerUp() {
-        // Pick a random power-up type
         const powerUpTypes = ["hammer", "halve", "swap"];
-        const randomType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        let powerUpType = null;
 
-        this.grantPowerUp(randomType);
-        this.showPowerUpRewardAnimation(randomType);
+        if (this.deterministicPowerUpCycleEnabled) {
+            const index = this.powerUpCycleIndex % powerUpTypes.length;
+            powerUpType = powerUpTypes[index];
+            this.powerUpCycleIndex = (index + 1) % powerUpTypes.length;
+            savePowerUpCycleIndex(this.powerUpCycleIndex);
+        } else {
+            // Pick a random power-up type
+            powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        }
+
+        this.grantPowerUp(powerUpType);
+        this.showPowerUpRewardAnimation(powerUpType);
     }
 
     grantPowerUp(powerUpType) {
@@ -1793,6 +1808,9 @@ export class Match3Game {
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
         const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
         const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
+        const deterministicPowerUpCycleEnabledCheckbox = document.getElementById(
+            "deterministicPowerUpCycleEnabled"
+        );
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1903,6 +1921,9 @@ export class Match3Game {
             if (powerUpOnSpecialTileUseEnabledCheckbox) {
                 powerUpOnSpecialTileUseEnabledCheckbox.checked = this.powerUpOnSpecialTileUseEnabled;
             }
+            if (deterministicPowerUpCycleEnabledCheckbox) {
+                deterministicPowerUpCycleEnabledCheckbox.checked = this.deterministicPowerUpCycleEnabled;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -2009,6 +2030,10 @@ export class Match3Game {
                     if (powerUpOnSpecialTileUseEnabledCheckbox) {
                         this.powerUpOnSpecialTileUseEnabled = powerUpOnSpecialTileUseEnabledCheckbox.checked;
                         savePowerUpOnSpecialTileUseEnabled(this.powerUpOnSpecialTileUseEnabled);
+                    }
+                    if (deterministicPowerUpCycleEnabledCheckbox) {
+                        this.deterministicPowerUpCycleEnabled = deterministicPowerUpCycleEnabledCheckbox.checked;
+                        saveDeterministicPowerUpCycleEnabled(this.deterministicPowerUpCycleEnabled);
                     }
 
                     // Mark that settings were changed during this level (if game is active)
