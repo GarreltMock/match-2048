@@ -41,6 +41,15 @@ export function findMatches(game) {
 }
 
 function activateJokers(game) {
+    // Track jokers that got activated (converted) during this user swap.
+    // We need this because once converted, the tile is no longer `isJoker(...)`,
+    // but downstream merge processing may want to treat it as a wildcard-use.
+    //
+    // Note: findMatches() can be called for "is this swap valid" checks as well;
+    // we only *record* activations here. The actual reward should be granted
+    // during merge processing for the successful swap.
+    game.activatedJokerPositions = new Set();
+
     // Activate jokers that can form valid matches involving the swapped tiles
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
@@ -51,6 +60,9 @@ function activateJokers(game) {
                 if (bestValue !== null) {
                     // Convert joker to the best matching value
                     game.board[row][col] = createTile(bestValue);
+
+                    // Remember that this position consumed a wildcard for this swap
+                    game.activatedJokerPositions.add(`${row}_${col}`);
                 }
             }
         }

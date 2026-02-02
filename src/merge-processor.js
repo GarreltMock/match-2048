@@ -109,16 +109,30 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
 
     // OPTIONAL: Grant a power-up when consuming Wildcard/Joker (*) or Plus Wildcard (+) tiles in a merge
     // (on use, not on creation)
+    //
+    // Important: Jokers can be "activated" (converted into a normal tile value) during match detection.
+    // In that case, `isJoker(t)` will be false here. We therefore also look at
+    // `game.activatedJokerPositions` (filled in match-detector.js during the user swap).
     if (game.powerUpOnSpecialTileUseEnabled) {
         matchGroups.forEach((group) => {
             const usedWildcard = group.tiles.some((pos) => {
                 const t = game.board[pos.row][pos.col];
-                return isJoker(t) || isTilePlusTile(t);
+                if (isJoker(t) || isTilePlusTile(t)) return true;
+
+                const key = `${pos.row}_${pos.col}`;
+                return game.activatedJokerPositions?.has?.(key) === true;
             });
+
             if (usedWildcard) {
                 game.grantRandomPowerUp();
             }
         });
+
+        // Clear after processing the first merge step so we don't accidentally
+        // reward later cascades for an earlier joker activation.
+        if (game.activatedJokerPositions) {
+            game.activatedJokerPositions = new Set();
+        }
     }
 
     // Update cursed goal progress for successfully merged cursed tiles
