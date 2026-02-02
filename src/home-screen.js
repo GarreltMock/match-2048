@@ -140,7 +140,7 @@ function checkAndShowFeatureUnlockDialogs(game) {
 
     // Filter to only home screen features and check if they're not already unlocked
     const featuresToUnlock = features.filter(
-        (key) => featuresToShowOnHome.includes(key) && !hasFeatureBeenUnlocked(key)
+        (key) => featuresToShowOnHome.includes(key) && !hasFeatureBeenUnlocked(key),
     );
 
     if (featuresToUnlock.length === 0) return;
@@ -201,11 +201,11 @@ function updateStreakDisplay(game, streakDisplay) {
         content += `
         <div class="streak-progress-container">
             <div class="streak-section ${streak >= 1 ? "active" : ""}">
-                <div class="streak-powerup">${streak >= 1 ? "✂️" : ""}</div>
+                <div class="streak-powerup">${streak >= 1 ? "🔨" : ""}</div>
                 <div class="streak-bar first"></div>
             </div>
             <div class="streak-section ${streak >= 2 ? "active" : ""}">
-                <div class="streak-powerup">${streak >= 2 ? "🔨" : ""}</div>
+                <div class="streak-powerup">${streak >= 2 ? "✂️" : ""}</div>
                 <div class="streak-bar"></div>
             </div>
             <div class="streak-section ${streak >= 3 ? "active" : ""}">

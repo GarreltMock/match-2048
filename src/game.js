@@ -181,11 +181,10 @@ export class Match3Game {
         this.powerUpSwapTiles = [];
         // Power-up counts: persistent (saved) and transient (temporary for level)
         const savedPowerUps = loadPowerUpCounts();
-        const startTransient = this.persistentPowerUpsEnabled ? 0 : 1;
         this.powerUpCounts = {
-            hammer: { persistent: savedPowerUps.hammer, transient: startTransient },
-            halve: { persistent: savedPowerUps.halve, transient: startTransient },
-            swap: { persistent: savedPowerUps.swap, transient: startTransient },
+            hammer: { persistent: savedPowerUps.hammer, transient: 0 },
+            halve: { persistent: savedPowerUps.halve, transient: 0 },
+            swap: { persistent: savedPowerUps.swap, transient: 0 },
         };
 
         // Special tiles configuration
@@ -323,10 +322,9 @@ export class Match3Game {
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
         // Reset transient power-up counts for new level (start with 1 if persistent disabled)
-        const baseTransient = this.persistentPowerUpsEnabled ? 0 : 1;
-        this.powerUpCounts.hammer.transient = baseTransient;
-        this.powerUpCounts.halve.transient = baseTransient;
-        this.powerUpCounts.swap.transient = baseTransient;
+        this.powerUpCounts.hammer.transient = 0;
+        this.powerUpCounts.halve.transient = 0;
+        this.powerUpCounts.swap.transient = 0;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -387,10 +385,10 @@ export class Match3Game {
         // Apply streak bonus power-ups (transient for this level only) - only if streak feature is unlocked
         if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
             if (this.currentStreak >= 1) {
-                this.powerUpCounts.halve.transient++;
+                this.powerUpCounts.hammer.transient++;
             }
             if (this.currentStreak >= 2) {
-                this.powerUpCounts.hammer.transient++;
+                this.powerUpCounts.halve.transient++;
             }
             if (this.currentStreak >= 3) {
                 this.powerUpCounts.swap.transient++;
@@ -457,6 +455,7 @@ export class Match3Game {
                 setTimeout(() => {
                     showFeatureUnlockDialog(featureKey, this, () => {
                         saveUnlockedFeature(featureKey);
+                        this.grantTransientPowerUpOnUnlock(featureKey);
 
                         // Refresh power-up buttons if a power-up was unlocked
                         if (featureKey.startsWith("power_")) {
@@ -467,6 +466,20 @@ export class Match3Game {
                 delay += 500; // Stagger dialogs by 500ms
             });
         }, 500);
+    }
+
+    grantTransientPowerUpOnUnlock(featureKey) {
+        const featureToPowerUp = {
+            [FEATURE_KEYS.HAMMER]: "hammer",
+            [FEATURE_KEYS.HALVE]: "halve",
+            [FEATURE_KEYS.SWAP]: "swap",
+        };
+
+        const powerUpType = featureToPowerUp[featureKey];
+        if (!powerUpType) return;
+
+        // Grant one transient use on first unlock so it can be tried immediately.
+        this.grantPowerUp(powerUpType);
     }
 
     setupControlButtons() {
