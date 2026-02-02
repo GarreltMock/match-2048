@@ -457,6 +457,7 @@ export class Match3Game {
                 setTimeout(() => {
                     showFeatureUnlockDialog(featureKey, this, () => {
                         saveUnlockedFeature(featureKey);
+                        this.grantTransientPowerUpOnUnlock(featureKey);
 
                         // Refresh power-up buttons if a power-up was unlocked
                         if (featureKey.startsWith("power_")) {
@@ -467,6 +468,20 @@ export class Match3Game {
                 delay += 500; // Stagger dialogs by 500ms
             });
         }, 500);
+    }
+
+    grantTransientPowerUpOnUnlock(featureKey) {
+        const featureToPowerUp = {
+            [FEATURE_KEYS.HAMMER]: "hammer",
+            [FEATURE_KEYS.HALVE]: "halve",
+            [FEATURE_KEYS.SWAP]: "swap",
+        };
+
+        const powerUpType = featureToPowerUp[featureKey];
+        if (!powerUpType) return;
+
+        // Grant one transient use on first unlock so it can be tried immediately.
+        this.grantPowerUp(powerUpType);
     }
 
     setupControlButtons() {
