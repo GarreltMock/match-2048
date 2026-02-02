@@ -1037,7 +1037,7 @@ export const NEW_LEVELS = [
         level: 32,
         title: "*Active Super Streak*",
         maxMoves: 32,
-        goals: [{ tileValue: 8, target: 5, current: 0, goalType: "current" }],
+        goals: [{ tileValue: 8, target: 5, current: 0, goalType: "created" }],
         boardUpgrades: [7, 8],
     },
     {
