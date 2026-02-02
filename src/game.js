@@ -1026,14 +1026,12 @@ export class Match3Game {
         }
 
         const powerUpTypes = ["hammer", "halve", "swap"];
-        const powerUpIcons = {
-            hammer: "🔨",
-            halve: "✂️",
-            swap: "🔄",
-        };
         const nextType = powerUpTypes[this.powerUpCycleIndex % powerUpTypes.length];
-        indicator.textContent = `Next: ${powerUpIcons[nextType]}`;
-        indicator.style.display = "";
+
+        indicator.innerHTML = powerUpTypes
+            .map((type) => `<span class="cycle-dot${type === nextType ? " active" : ""}"></span>`)
+            .join("");
+        indicator.style.display = "flex";
     }
 
     handlePowerUpAction(row, col, element) {

@@ -1152,14 +1152,24 @@
 }
 
 .power-up-cycle-indicator {
-    margin-top: 6px;
-    text-align: center;
-    font-size: clamp(10px, 2.5vw, 14px);
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: rgba(20, 20, 20, 0.6);
-    opacity: 0.8;
+    margin-top: 8px;
     display: none;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 16px);
+}
+
+.cycle-dot {
+    width: clamp(60px, 20vw, 120px);
+    display: flex;
+    justify-content: center;
+}
+
+.cycle-dot.active::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--tile-freeswap-badge-bg);
+    border-radius: 50%;
 }
 
 .power-up-btn {
