@@ -385,10 +385,10 @@ export class Match3Game {
         // Apply streak bonus power-ups (transient for this level only) - only if streak feature is unlocked
         if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
             if (this.currentStreak >= 1) {
-                this.powerUpCounts.halve.transient++;
+                this.powerUpCounts.hammer.transient++;
             }
             if (this.currentStreak >= 2) {
-                this.powerUpCounts.hammer.transient++;
+                this.powerUpCounts.halve.transient++;
             }
             if (this.currentStreak >= 3) {
                 this.powerUpCounts.swap.transient++;
