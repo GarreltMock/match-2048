@@ -779,6 +779,27 @@ export class Match3Game {
         this.powerUpSwapTiles = [];
     }
 
+    
+    isPowerUpButtonVisible(powerUpType) {
+        // "Button visible" in this game is driven by the feature-unlock state.
+        // Don't grant power-ups before the feature is unlocked.
+        const typeToFeatureKey = {
+            hammer: FEATURE_KEYS.HAMMER,
+            halve: FEATURE_KEYS.HALVE,
+            swap: FEATURE_KEYS.SWAP,
+        };
+
+        const featureKey = typeToFeatureKey[powerUpType];
+        if (!featureKey) return false;
+
+        return isFeatureUnlocked(featureKey);
+    }
+
+    getVisiblePowerUpTypes() {
+        const powerUpTypes = ["hammer", "halve", "swap"];
+        return powerUpTypes.filter((t) => this.isPowerUpButtonVisible(t));
+    }
+
     grantRandomPowerUp() {
         const powerUpTypes = ["hammer", "halve", "swap"];
         let powerUpType = null;
@@ -846,10 +867,10 @@ export class Match3Game {
         const powerUpType = formationToPowerUp[formationType];
         if (!powerUpType) return;
 
-        // Grant the power-up
-        this.grantPowerUp(powerUpType);
+        // Only grant if the power-up button is actually visible (i.e. feature introduced).
+        if (!this.isPowerUpButtonVisible(powerUpType)) return;
 
-        // Show celebration animation
+        this.grantPowerUp(powerUpType);
         this.showPowerUpRewardAnimation(powerUpType);
     }
 
@@ -1689,6 +1710,16 @@ export class Match3Game {
         const powerupShopDialog = document.getElementById("powerupShopDialog");
         if (powerupShopDialog) {
             this.updateCoinsDisplays();
+
+            // Hide locked power-up shop items (visibility is driven by unlock state)
+            const shopItems = powerupShopDialog.querySelectorAll(".powerup-shop-item");
+            shopItems.forEach((item) => {
+                const powerupType = item.dataset.powerup;
+                const featureKey = FEATURE_KEYS[powerupType.toUpperCase()];
+                const unlocked = !featureKey || isFeatureUnlocked(featureKey);
+                item.style.display = unlocked ? "" : "none";
+            });
+
             powerupShopDialog.classList.remove("hidden");
         }
     }
