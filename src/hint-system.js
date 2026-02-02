@@ -1,6 +1,13 @@
 // Hint system for finding and scoring the best possible swap
 
-import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount } from "./tile-helpers.js";
+import {
+    isBlocked,
+    isBlockedWithLife,
+    isBlockedMovable,
+    isBlockedWithMergeCount,
+    isRectangularBlocked,
+    getDisplayValue,
+} from "./tile-helpers.js";
 import { hasMatchesForSwap, findMatches } from "./match-detector.js";
 
 /**
@@ -422,7 +429,15 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
 
         // Collect tiles from relevant matches only
         // Translate post-swap positions back to pre-swap positions for display
+        // Also include any adjacent blocked tiles that would be removed by the match (so the preview shows what gets cleared).
+        const matchTileKeys = new Set();
+
         for (const match of relevantMatches) {
+            const damageValue = getDisplayValue(match.value);
+
+            // Track which blocked targets were already accounted for in this match group
+            const hitInThisGroup = new Set();
+
             for (const tile of match.tiles) {
                 let displayRow = tile.row;
                 let displayCol = tile.col;
@@ -438,7 +453,99 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
                     displayCol = col1;
                 }
 
-                matchTiles.push({ row: displayRow, col: displayCol });
+                const k = `${displayRow}_${displayCol}`;
+                if (!matchTileKeys.has(k)) {
+                    matchTileKeys.add(k);
+                    matchTiles.push({ row: displayRow, col: displayCol });
+                }
+
+                // Preview blocked tiles that would be cleared by this match
+                const adjacentPositions = [
+                    { row: displayRow - 1, col: displayCol },
+                    { row: displayRow + 1, col: displayCol },
+                    { row: displayRow, col: displayCol - 1 },
+                    { row: displayRow, col: displayCol + 1 },
+                ];
+
+                adjacentPositions.forEach((pos) => {
+                    if (pos.row < 0 || pos.row >= game.boardHeight || pos.col < 0 || pos.col >= game.boardWidth) {
+                        return;
+                    }
+
+                    const adjTile = originalBoard[pos.row]?.[pos.col];
+                    if (!adjTile) return;
+
+                    // Dedup key: use rectId for rectangles, row_col for single tiles
+                    const key = isRectangularBlocked(adjTile) ? adjTile.rectId : `${pos.row}_${pos.col}`;
+                    if (hitInThisGroup.has(key)) return;
+
+                    // Blocked & blocked-movable are removed immediately when adjacent to a match.
+                    if (isBlocked(adjTile) || isBlockedMovable(adjTile)) {
+                        hitInThisGroup.add(key);
+                        const kk = `${pos.row}_${pos.col}`;
+                        if (!matchTileKeys.has(kk)) {
+                            matchTileKeys.add(kk);
+                            matchTiles.push({ row: pos.row, col: pos.col });
+                        }
+                        return;
+                    }
+
+                    // Blocked with life: only preview as "removed" if this match would finish it.
+                    if (isBlockedWithLife(adjTile)) {
+                        hitInThisGroup.add(key);
+                        if (typeof adjTile.lifeValue === "number" && adjTile.lifeValue - damageValue <= 0) {
+                            const kk = `${pos.row}_${pos.col}`;
+                            if (!matchTileKeys.has(kk)) {
+                                matchTileKeys.add(kk);
+                                matchTiles.push({ row: pos.row, col: pos.col });
+                            }
+                        }
+                        return;
+                    }
+
+                    // Merge-count blocks: one cell is decremented per match group. Preview the cell that would be cleared.
+                    if (isBlockedWithMergeCount(adjTile)) {
+                        hitInThisGroup.add(key);
+
+                        let cellToClear = null;
+                        for (let r = adjTile.rectAnchor.row; r < adjTile.rectAnchor.row + adjTile.rectHeight; r++) {
+                            for (let c = adjTile.rectAnchor.col; c < adjTile.rectAnchor.col + adjTile.rectWidth; c++) {
+                                const cellKey = `${r}_${c}`;
+                                if (adjTile.cellMergeCounts?.[cellKey] > 0) {
+                                    cellToClear = { row: r, col: c, cellKey };
+                                    break;
+                                }
+                            }
+                            if (cellToClear) break;
+                        }
+
+                        if (cellToClear) {
+                            // If this decrement would clear the whole rectangle, preview the full rectangle removal.
+                            const wouldClearAll = Object.entries(adjTile.cellMergeCounts || {}).every(([k2, v]) => {
+                                if (k2 === cellToClear.cellKey) return v - 1 <= 0;
+                                return v <= 0;
+                            });
+
+                            if (wouldClearAll) {
+                                for (let r = adjTile.rectAnchor.row; r < adjTile.rectAnchor.row + adjTile.rectHeight; r++) {
+                                    for (let c = adjTile.rectAnchor.col; c < adjTile.rectAnchor.col + adjTile.rectWidth; c++) {
+                                        const kk = `${r}_${c}`;
+                                        if (!matchTileKeys.has(kk)) {
+                                            matchTileKeys.add(kk);
+                                            matchTiles.push({ row: r, col: c });
+                                        }
+                                    }
+                                }
+                            } else {
+                                const kk = `${cellToClear.row}_${cellToClear.col}`;
+                                if (!matchTileKeys.has(kk)) {
+                                    matchTileKeys.add(kk);
+                                    matchTiles.push({ row: cellToClear.row, col: cellToClear.col });
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
     }
