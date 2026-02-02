@@ -181,11 +181,10 @@ export class Match3Game {
         this.powerUpSwapTiles = [];
         // Power-up counts: persistent (saved) and transient (temporary for level)
         const savedPowerUps = loadPowerUpCounts();
-        const startTransient = this.persistentPowerUpsEnabled ? 0 : 1;
         this.powerUpCounts = {
-            hammer: { persistent: savedPowerUps.hammer, transient: startTransient },
-            halve: { persistent: savedPowerUps.halve, transient: startTransient },
-            swap: { persistent: savedPowerUps.swap, transient: startTransient },
+            hammer: { persistent: savedPowerUps.hammer, transient: 0 },
+            halve: { persistent: savedPowerUps.halve, transient: 0 },
+            swap: { persistent: savedPowerUps.swap, transient: 0 },
         };
 
         // Special tiles configuration
@@ -323,10 +322,9 @@ export class Match3Game {
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
         // Reset transient power-up counts for new level (start with 1 if persistent disabled)
-        const baseTransient = this.persistentPowerUpsEnabled ? 0 : 1;
-        this.powerUpCounts.hammer.transient = baseTransient;
-        this.powerUpCounts.halve.transient = baseTransient;
-        this.powerUpCounts.swap.transient = baseTransient;
+        this.powerUpCounts.hammer.transient = 0;
+        this.powerUpCounts.halve.transient = 0;
+        this.powerUpCounts.swap.transient = 0;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
