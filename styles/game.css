@@ -1390,6 +1390,13 @@
     z-index: 100;
 }
 
+/* Unblock Preview - blocked tiles that will be removed */
+.unblock-preview {
+    outline: 2px dashed rgba(255, 100, 100, 0.8);
+    outline-offset: -4px;
+    z-index: 100;
+}
+
 /* Formation Power-Up Reward Animation */
 .formation-powerup-animation {
     position: absolute;

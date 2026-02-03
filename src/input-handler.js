@@ -254,6 +254,9 @@ function updateDrag(game, x, y) {
             document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
                 gem.classList.remove("merge-preview");
             });
+            document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
+                gem.classList.remove("unblock-preview");
+            });
             return;
         }
 
@@ -309,7 +312,7 @@ function endDrag(game) {
 
     // Clean up
     document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("dragging", "preview", "merge-preview");
+        gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview");
     });
 
     // Reset hint timer after user interaction completes
@@ -429,6 +432,9 @@ function previewSwap(game, row1, col1, row2, col2) {
     document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
         gem.classList.remove("merge-preview");
     });
+    document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
+        gem.classList.remove("unblock-preview");
+    });
 
     // Add preview to both gems
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
@@ -448,7 +454,57 @@ function previewSwap(game, row1, col1, row2, col2) {
             );
             matchGem?.classList.add("merge-preview");
         }
+
+        // Highlight blocked tiles that would be unblocked
+        // matchTiles are in PRE-SWAP coords, convert to POST-SWAP for adjacency check
+        const blockedToUnblock = getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2);
+        for (const pos of blockedToUnblock) {
+            const blockedGem = document.querySelector(
+                `[data-row="${pos.row}"][data-col="${pos.col}"]`
+            );
+            blockedGem?.classList.add("unblock-preview");
+        }
     }
+}
+
+function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
+    const blockedSet = new Set();
+    const result = [];
+
+    for (const tile of matchTiles) {
+        // Convert pre-swap to post-swap coordinates
+        let checkRow = tile.row;
+        let checkCol = tile.col;
+        if (tile.row === row1 && tile.col === col1) {
+            checkRow = row2;
+            checkCol = col2;
+        } else if (tile.row === row2 && tile.col === col2) {
+            checkRow = row1;
+            checkCol = col1;
+        }
+
+        const adjacentPositions = [
+            { row: checkRow - 1, col: checkCol },
+            { row: checkRow + 1, col: checkCol },
+            { row: checkRow, col: checkCol - 1 },
+            { row: checkRow, col: checkCol + 1 },
+        ];
+
+        for (const pos of adjacentPositions) {
+            if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {
+                const key = `${pos.row}_${pos.col}`;
+                if (!blockedSet.has(key)) {
+                    const adjacentTile = game.board[pos.row][pos.col];
+                    if (isBlocked(adjacentTile)) {
+                        blockedSet.add(key);
+                        result.push(pos);
+                    }
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 export function trySwap(game, row1, col1, row2, col2) {
