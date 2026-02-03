@@ -19,6 +19,7 @@ import {
     showFormationTutorialDialog,
     getPendingFormationTutorials,
     highlightMergeTiles,
+    highlightBlockedTiles,
     clearMergeHighlight,
 } from "./formation-tutorial.js";
 
@@ -62,8 +63,9 @@ export async function processMatches(game) {
         if (pendingTutorials.length > 0) {
             showedTutorial = true;
 
-            // Highlight all tiles that will be merged
+            // Highlight all tiles that will be merged and blocked tiles that will be removed
             highlightMergeTiles(matchGroups);
+            highlightBlockedTiles(game, matchGroups);
 
             // Wait 500ms so user can see the highlighted tiles before dialog opens
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -73,8 +75,8 @@ export async function processMatches(game) {
                 await showFormationTutorialDialog(formationType);
             }
 
-            // Wait 300ms after dialog closes before continuing
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            // Wait 800ms after dialog closes before continuing
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
             // Clear the highlight
             clearMergeHighlight();
