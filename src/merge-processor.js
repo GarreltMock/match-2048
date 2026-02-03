@@ -54,9 +54,6 @@ export async function processMatches(game) {
         }
     });
 
-    // Check for blocked tiles adjacent to original match positions and unblock them
-    unblockAdjacentTiles(game, matchGroups);
-
     // Check for pending formation tutorials (only on user swaps)
     if (wasUserSwap) {
         const pendingTutorials = getPendingFormationTutorials(matchGroups, game.lastSwapPosition);
@@ -80,6 +77,10 @@ export async function processMatches(game) {
             clearMergeHighlight();
         }
     }
+
+    // Check for blocked tiles adjacent to original match positions and unblock them
+    // Done after tutorial dialogs so blocked tiles are still visible during tutorial
+    unblockAdjacentTiles(game, matchGroups);
 
     // Start merge animations
     animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap));
