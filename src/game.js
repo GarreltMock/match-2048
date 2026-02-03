@@ -46,6 +46,10 @@ import {
     saveFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
     savePersistentPowerUpsEnabled,
+    loadPowerUpOnSpecialTileUseEnabled,
+    savePowerUpOnSpecialTileUseEnabled,
+    loadDeterministicPowerUpCycleEnabled,
+    saveDeterministicPowerUpCycleEnabled,
 } from "./storage.js";
 import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { APP_VERSION } from "./version.js";
@@ -162,6 +166,10 @@ export class Match3Game {
         this.hintsEnabled = loadHintsEnabled();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
+        this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
+        this.deterministicPowerUpCycleEnabled = loadDeterministicPowerUpCycleEnabled();
+        // Deterministic cycle state resets every level (starts at hammer)
+        this.powerUpCycleIndex = 0;
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -325,6 +333,9 @@ export class Match3Game {
         this.powerUpCounts.hammer.transient = 0;
         this.powerUpCounts.halve.transient = 0;
         this.powerUpCounts.swap.transient = 0;
+
+        // Reset deterministic power-up cycle state per-level
+        this.powerUpCycleIndex = 0;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -781,6 +792,7 @@ export class Match3Game {
         this.powerUpSwapTiles = [];
     }
 
+    
     isPowerUpButtonVisible(powerUpType) {
         // "Button visible" in this game is driven by the feature-unlock state.
         // Don't grant power-ups before the feature is unlocked.
@@ -802,12 +814,20 @@ export class Match3Game {
     }
 
     grantRandomPowerUp() {
-        const visible = this.getVisiblePowerUpTypes();
-        if (visible.length === 0) return;
+        const powerUpTypes = ["hammer", "halve", "swap"];
+        let powerUpType = null;
 
-        const randomType = visible[Math.floor(Math.random() * visible.length)];
-        this.grantPowerUp(randomType);
-        this.showPowerUpRewardAnimation(randomType);
+        if (this.deterministicPowerUpCycleEnabled) {
+            const index = this.powerUpCycleIndex % powerUpTypes.length;
+            powerUpType = powerUpTypes[index];
+            this.powerUpCycleIndex = (index + 1) % powerUpTypes.length;
+        } else {
+            // Pick a random power-up type
+            powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        }
+
+        this.grantPowerUp(powerUpType);
+        this.showPowerUpRewardAnimation(powerUpType);
     }
 
     grantPowerUp(powerUpType) {
@@ -1026,6 +1046,26 @@ export class Match3Game {
                 button.title = `${baseTitle} - ${total} uses left`;
             }
         });
+
+        this.updatePowerUpCycleIndicator();
+    }
+
+    updatePowerUpCycleIndicator() {
+        const indicator = document.getElementById("powerUpCycleIndicator");
+        if (!indicator) return;
+
+        if (!this.deterministicPowerUpCycleEnabled) {
+            indicator.style.display = "none";
+            return;
+        }
+
+        const powerUpTypes = ["hammer", "halve", "swap"];
+        const nextType = powerUpTypes[this.powerUpCycleIndex % powerUpTypes.length];
+
+        indicator.innerHTML = powerUpTypes
+            .map((type) => `<span class="cycle-dot${type === nextType ? " active" : ""}"></span>`)
+            .join("");
+        indicator.style.display = "flex";
     }
 
     handlePowerUpAction(row, col, element) {
@@ -1832,6 +1872,10 @@ export class Match3Game {
         const hintTimeoutInput = document.getElementById("hintTimeoutMs");
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
         const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
+        const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
+        const deterministicPowerUpCycleEnabledCheckbox = document.getElementById(
+            "deterministicPowerUpCycleEnabled"
+        );
 
         // Function to toggle power-up options visibility
         const togglePowerUpOptions = (show) => {
@@ -1939,6 +1983,12 @@ export class Match3Game {
             if (persistentPowerUpsEnabledCheckbox) {
                 persistentPowerUpsEnabledCheckbox.checked = this.persistentPowerUpsEnabled;
             }
+            if (powerUpOnSpecialTileUseEnabledCheckbox) {
+                powerUpOnSpecialTileUseEnabledCheckbox.checked = this.powerUpOnSpecialTileUseEnabled;
+            }
+            if (deterministicPowerUpCycleEnabledCheckbox) {
+                deterministicPowerUpCycleEnabledCheckbox.checked = this.deterministicPowerUpCycleEnabled;
+            }
 
             // Display user ID
             const userIdDisplay = document.getElementById("userIdDisplay");
@@ -2042,6 +2092,14 @@ export class Match3Game {
                         this.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
                         savePersistentPowerUpsEnabled(this.persistentPowerUpsEnabled);
                     }
+                    if (powerUpOnSpecialTileUseEnabledCheckbox) {
+                        this.powerUpOnSpecialTileUseEnabled = powerUpOnSpecialTileUseEnabledCheckbox.checked;
+                        savePowerUpOnSpecialTileUseEnabled(this.powerUpOnSpecialTileUseEnabled);
+                    }
+                    if (deterministicPowerUpCycleEnabledCheckbox) {
+                        this.deterministicPowerUpCycleEnabled = deterministicPowerUpCycleEnabledCheckbox.checked;
+                        saveDeterministicPowerUpCycleEnabled(this.deterministicPowerUpCycleEnabled);
+                    }
 
                     // Mark that settings were changed during this level (if game is active)
                     if (this.gameActive && !levelChanged) {
@@ -2052,6 +2110,7 @@ export class Match3Game {
                     if (levelChanged) {
                         location.reload();
                     } else {
+                        this.updatePowerUpCycleIndicator();
                         // Just close the dialog - no need to re-render since settings
                         // are only accessible from homescreen (no active game board)
                         settingsDialog.classList.add("hidden");

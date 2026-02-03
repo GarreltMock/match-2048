@@ -1151,6 +1151,27 @@
     z-index: 10;
 }
 
+.power-up-cycle-indicator {
+    margin-top: 8px;
+    display: none;
+    justify-content: center;
+    gap: clamp(8px, 2vw, 16px);
+}
+
+.cycle-dot {
+    width: clamp(60px, 20vw, 120px);
+    display: flex;
+    justify-content: center;
+}
+
+.cycle-dot.active::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: var(--tile-freeswap-badge-bg);
+    border-radius: 50%;
+}
+
 .power-up-btn {
     width: clamp(60px, 20vw, 120px);
     height: clamp(60px, 20vw, 120px);

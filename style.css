@@ -924,6 +924,7 @@ button {
     flex-direction: row;
     align-items: center;
     gap: 10px;
+    position: relative;
 }
 
 .setting-item label {
@@ -1054,6 +1055,36 @@ button {
 .special-tile-help strong {
     color: #333;
     font-weight: 600;
+}
+
+/* Setting help toggle */
+.setting-help {
+    margin-top: 4px;
+}
+
+.setting-help.inline {
+    margin-top: 0;
+    margin-left: auto;
+}
+
+.setting-help summary {
+    cursor: pointer;
+    color: #667eea;
+    font-size: 1rem;
+    list-style: none;
+}
+
+.setting-help summary::-webkit-details-marker {
+    display: none;
+}
+
+.setting-help.inline .special-tile-help {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 /* User ID display in settings */

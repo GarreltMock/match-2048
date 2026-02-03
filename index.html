@@ -144,6 +144,7 @@
                         🔄
                     </button>
                 </div>
+                <div id="powerUpCycleIndicator" class="power-up-cycle-indicator"></div>
 
                 <div id="powerUpRewardsContainer" class="powerup-rewards-container" style="display: none">
                     <div class="label">
@@ -529,45 +530,74 @@
                         </select>
                     </div>
 
-                    <div class="special-tile-help">
-                        <strong>* Wildcard:</strong> Merges with any tile. Tap to trigger a merge or use it in a
-                        merge.<br />
-                        <strong>+ Wildcard:</strong> Can match with tiles of equal or higher value. Merges use the
-                        higher value.<br />
-                        <strong>↔ Free Swap:</strong> Allows one free invalid swap.<br />
-                        <strong>✥ Sticky Free Swap:</strong> Like Free Swap, but transfers ability to merged tile in
-                        cascades.<br />
-                        <strong>⇄ Directional Free Swap:</strong> Allows one free invalid swap, but only in the
-                        direction (horizontal or vertical) of the swap that created it.<br />
-                        <strong>🔨 Hammer Tile:</strong> Tap to remove the tile from the board (costs 1 move).<br />
-                        <strong>✂️ Halver Tile:</strong> Tap to halve the tile's value (costs 1 move).<br />
-                        <strong>🎁 Random Joker:</strong> When matched, grants a random Joker (hammer, halver, or
-                        swap).<br />
-                        <strong>🔀 Teleport:</strong> Tap to select, then tap another tile to swap positions (costs 1
-                        move).
-                    </div>
+                    <details class="setting-help">
+                        <summary>ⓘ What do these do?</summary>
+                        <div class="special-tile-help" style="margin-top: 10px">
+                            <strong>* Wildcard:</strong> Merges with any tile. Tap to trigger a merge or use it in a
+                            merge.<br />
+                            <strong>+ Wildcard:</strong> Can match with tiles of equal or higher value. Merges use the
+                            higher value.<br />
+                            <strong>↔ Free Swap:</strong> Allows one free invalid swap.<br />
+                            <strong>✥ Sticky Free Swap:</strong> Like Free Swap, but transfers ability to merged tile in
+                            cascades.<br />
+                            <strong>⇄ Directional Free Swap:</strong> Allows one free invalid swap, but only in the
+                            direction (horizontal or vertical) of the swap that created it.<br />
+                            <strong>🔨 Hammer Tile:</strong> Tap to remove the tile from the board (costs 1 move).<br />
+                            <strong>✂️ Halver Tile:</strong> Tap to halve the tile's value (costs 1 move).<br />
+                            <strong>🎁 Random Joker:</strong> When matched, grants a random Joker (hammer, halver, or
+                            swap).<br />
+                            <strong>🔀 Teleport:</strong> Tap to select, then tap another tile to swap positions (costs
+                            1 move).
+                        </div>
+                    </details>
 
                     <div class="settings-section-title">Gameplay</div>
 
                     <div class="setting-item setting-item-checkbox">
-                        <label for="hintsEnabled">Show Hints</label>
-                        <input type="checkbox" id="hintsEnabled" />
-                    </div>
-
-                    <div class="setting-item setting-item-checkbox">
+                        <details class="setting-help inline">
+                            <summary>ⓘ</summary>
+                            <div class="special-tile-help">
+                                Grants a Joker when you manually create a 5-tile formation:<br />
+                                <strong>L-Formation:</strong> +1 Hammer<br />
+                                <strong>T-Formation:</strong> +1 Halver<br />
+                                <strong>5-Tile Line:</strong> +1 Swap
+                            </div>
+                        </details>
                         <label for="formationPowerUpRewards">5-Tile Formation Joker Rewards</label>
                         <input type="checkbox" id="formationPowerUpRewards" />
                     </div>
-                    <div class="special-tile-help" style="margin-top: 0">
-                        Grants a Joker when you manually create a 5-tile formation:<br />
-                        <strong>L-Formation:</strong> +1 Hammer<br />
-                        <strong>T-Formation:</strong> +1 Halver<br />
-                        <strong>5-Tile Line:</strong> +1 Swap
+
+                    <div class="setting-item setting-item-checkbox">
+                        <details class="setting-help inline">
+                            <summary>ⓘ</summary>
+                            <div class="special-tile-help">
+                                When enabled, consuming a <strong>* Wildcard</strong> or <strong>+ Wildcard</strong> in
+                                a merge grants a random Joker (hammer, halver, or swap).
+                            </div>
+                        </details>
+                        <label for="powerUpOnSpecialTileUseEnabled">Power-Up on Wildcard Use</label>
+                        <input type="checkbox" id="powerUpOnSpecialTileUseEnabled" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <details class="setting-help inline">
+                            <summary>ⓘ</summary>
+                            <div class="special-tile-help">
+                                When enabled, random Joker rewards cycle in order: <strong>🔨 → ✂️ → 🔄</strong>.
+                            </div>
+                        </details>
+                        <label for="deterministicPowerUpCycleEnabled">Deterministic Random Joker Cycle</label>
+                        <input type="checkbox" id="deterministicPowerUpCycleEnabled" />
                     </div>
 
                     <div class="setting-item setting-item-checkbox">
                         <label for="persistentPowerUpsEnabled">Persistent Jokers</label>
                         <input type="checkbox" id="persistentPowerUpsEnabled" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="hintsEnabled">Show Hints</label>
+                        <input type="checkbox" id="hintsEnabled" />
                     </div>
 
                     <div class="setting-item">
