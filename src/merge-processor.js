@@ -130,9 +130,8 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
 
         // Clear after processing the first merge step so we don't accidentally
         // reward later cascades for an earlier joker activation.
-        if (game.activatedJokerPositions) {
-            game.activatedJokerPositions = new Set();
-        }
+        // Set to null so it gets properly re-initialized on the next swap.
+        game.activatedJokerPositions = null;
     }
 
     // Update cursed goal progress for successfully merged cursed tiles

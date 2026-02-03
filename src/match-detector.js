@@ -45,10 +45,12 @@ function activateJokers(game) {
     // We need this because once converted, the tile is no longer `isJoker(...)`,
     // but downstream merge processing may want to treat it as a wildcard-use.
     //
-    // Note: findMatches() can be called for "is this swap valid" checks as well;
-    // we only *record* activations here. The actual reward should be granted
-    // during merge processing for the successful swap.
-    game.activatedJokerPositions = new Set();
+    // Note: findMatches() can be called multiple times per swap (once for validation,
+    // once for processing). Only initialize the set if it doesn't exist yet.
+    // The set will be cleared in processMerges after the reward is granted.
+    if (!game.activatedJokerPositions) {
+        game.activatedJokerPositions = new Set();
+    }
 
     // Activate jokers that can form valid matches involving the swapped tiles
     for (let row = 0; row < game.boardHeight; row++) {
