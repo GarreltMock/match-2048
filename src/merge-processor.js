@@ -55,10 +55,13 @@ export async function processMatches(game) {
     });
 
     // Check for pending formation tutorials (only on user swaps)
+    let showedTutorial = false;
     if (wasUserSwap) {
         const pendingTutorials = getPendingFormationTutorials(matchGroups, game.lastSwapPosition);
 
         if (pendingTutorials.length > 0) {
+            showedTutorial = true;
+
             // Highlight all tiles that will be merged
             highlightMergeTiles(matchGroups);
 
@@ -78,12 +81,15 @@ export async function processMatches(game) {
         }
     }
 
+    // Slow down animations after tutorial so user can see what happens
+    const speedMultiplier = showedTutorial ? 2 : 1;
+
     // Check for blocked tiles adjacent to original match positions and unblock them
     // Done after tutorial dialogs so blocked tiles are still visible during tutorial
-    unblockAdjacentTiles(game, matchGroups);
+    unblockAdjacentTiles(game, matchGroups, speedMultiplier);
 
     // Start merge animations
-    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap));
+    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
 }
 
 export function processMerges(game, matchGroups, wasUserSwap = false) {
@@ -422,7 +428,7 @@ function calculateMiddlePositions(game, tiles, group = null) {
     return positions;
 }
 
-function unblockAdjacentTiles(game, matchGroups) {
+function unblockAdjacentTiles(game, matchGroups, speedMultiplier = 1) {
     const blockedTilesToRemove = [];
     const goalTilesToDamage = [];
     const cellsToDecrement = new Set(); // Track individual cells to decrement for merge-count blocks
@@ -651,7 +657,8 @@ function unblockAdjacentTiles(game, matchGroups) {
         game,
         blockedTilesToRemove,
         () => game.updateBlockedTileGoals(),
-        (check) => game.updateGoalDisplay(check)
+        (check) => game.updateGoalDisplay(check),
+        speedMultiplier
     );
 }
 

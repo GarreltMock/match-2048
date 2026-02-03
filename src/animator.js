@@ -88,7 +88,7 @@ export function animateRevert(game, row1, col1, row2, col2) {
     }
 }
 
-export function animateMerges(game, matchGroups, processMergesCallback) {
+export function animateMerges(game, matchGroups, processMergesCallback, speedMultiplier = 1) {
     matchGroups.forEach((group) => {
         const middlePositions = calculateMiddlePositions(game, group.tiles, group);
         const outerTiles = getOuterTiles(group.tiles, middlePositions);
@@ -98,7 +98,7 @@ export function animateMerges(game, matchGroups, processMergesCallback) {
 
         // Animate outer tiles sliding to their assigned middle positions
         assignments.forEach(({ tile, target }) => {
-            slideGemTo(tile, target);
+            slideGemTo(tile, target, speedMultiplier);
         });
 
         // Mark middle tiles for transformation
@@ -113,10 +113,10 @@ export function animateMerges(game, matchGroups, processMergesCallback) {
     // Process merges after animation
     setTimeout(() => {
         processMergesCallback(matchGroups);
-    }, 400);
+    }, 400 * speedMultiplier);
 }
 
-function slideGemTo(fromTile, toTile) {
+function slideGemTo(fromTile, toTile, speedMultiplier = 1) {
     const fromElement = document.querySelector(`[data-row="${fromTile.row}"][data-col="${fromTile.col}"]`);
     const toElement = document.querySelector(`[data-row="${toTile.row}"][data-col="${toTile.col}"]`);
 
@@ -128,13 +128,13 @@ function slideGemTo(fromTile, toTile) {
         const deltaY = toRect.top - fromRect.top;
 
         fromElement.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-        fromElement.style.transition = "transform 0.4s ease-out";
+        fromElement.style.transition = `transform ${0.4 * speedMultiplier}s ease-out`;
         fromElement.classList.add("sliding");
 
         // Fade out the sliding tile
         setTimeout(() => {
             fromElement.style.opacity = "0";
-        }, 300);
+        }, 300 * speedMultiplier);
     }
 }
 
@@ -226,7 +226,7 @@ function calculateMiddlePositions(_game, tiles, group = null) {
     return positions;
 }
 
-function animateRectangularBlockRemoval(game, tile) {
+function animateRectangularBlockRemoval(game, tile, speedMultiplier = 1) {
     // Find the DOM element by rectId
     const blockedElement = document.querySelector(`[data-rect-id="${tile.rectId}"]`);
 
@@ -254,10 +254,10 @@ function animateRectangularBlockRemoval(game, tile) {
                 }
             }
         }
-    }, 400);
+    }, 400 * speedMultiplier);
 }
 
-export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCallback, updateGoalDisplayCallback) {
+export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCallback, updateGoalDisplayCallback, speedMultiplier = 1) {
     if (blockedTiles.length === 0) return;
 
     // Process each blocked tile for animation
@@ -274,7 +274,7 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
                 const xMarker = blockedElement.querySelector(`[data-cell-key="${blockedEntry.cellKey}"]`);
                 if (xMarker) {
                     xMarker.classList.add("cell-x-removing");
-                    setTimeout(() => xMarker.remove(), 300);
+                    setTimeout(() => xMarker.remove(), 300 * speedMultiplier);
                 }
             }
             // Don't remove tile from board - just cleared one cell
@@ -283,13 +283,13 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
 
         // NEW: Full rectangular block removal (all cells cleared)
         if (blockedEntry.isFullRemoval && isRectangularBlocked(tile)) {
-            animateRectangularBlockRemoval(game, tile);
+            animateRectangularBlockRemoval(game, tile, speedMultiplier);
             return;
         }
 
         // NEW: Handle rectangular blocks (existing types)
         if (isRectangularBlocked(tile)) {
-            animateRectangularBlockRemoval(game, tile);
+            animateRectangularBlockRemoval(game, tile, speedMultiplier);
             return;
         }
 
@@ -306,7 +306,7 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
         // Remove from board data after animation completes (350ms)
         setTimeout(() => {
             game.board[blockedEntry.row][blockedEntry.col] = null;
-        }, 400);
+        }, 400 * speedMultiplier);
     });
 
     // Update blocked tile clearing goals if any blocked tiles were cleared
@@ -316,7 +316,7 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
             updateBlockedTileGoalsCallback();
             updateGoalDisplayCallback(false); // Update display without checking completion
             // Let the natural cascade completion in dropGems handle checkLevelComplete
-        }, 400);
+        }, 400 * speedMultiplier);
     }
 }
 
