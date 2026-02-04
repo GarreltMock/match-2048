@@ -42,6 +42,8 @@ import {
     saveHintsEnabled,
     loadHintTimeoutMs,
     saveHintTimeoutMs,
+    loadAllowNonMatchingSwaps,
+    saveAllowNonMatchingSwaps,
     loadFormationPowerUpRewards,
     saveFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
@@ -164,6 +166,7 @@ export class Match3Game {
         this.hintTimer = null; // setTimeout reference
         this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
+        this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
@@ -1870,6 +1873,7 @@ export class Match3Game {
         // Gameplay settings
         const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
         const hintTimeoutInput = document.getElementById("hintTimeoutMs");
+        const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
         const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
         const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
         const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
@@ -1977,6 +1981,9 @@ export class Match3Game {
             if (hintTimeoutInput) {
                 hintTimeoutInput.value = String(this.hintTimeout);
             }
+            if (allowNonMatchingSwapsCheckbox) {
+                allowNonMatchingSwapsCheckbox.checked = this.allowNonMatchingSwaps;
+            }
             if (formationPowerUpRewardsCheckbox) {
                 formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
             }
@@ -2083,6 +2090,10 @@ export class Match3Game {
                         const n = parseInt(hintTimeoutInput.value, 10);
                         this.hintTimeout = Number.isFinite(n) && n >= 0 ? n : 4000;
                         saveHintTimeoutMs(this.hintTimeout);
+                    }
+                    if (allowNonMatchingSwapsCheckbox) {
+                        this.allowNonMatchingSwaps = allowNonMatchingSwapsCheckbox.checked;
+                        saveAllowNonMatchingSwaps(this.allowNonMatchingSwaps);
                     }
                     if (formationPowerUpRewardsCheckbox) {
                         this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;

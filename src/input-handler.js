@@ -589,8 +589,10 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     // Check if this creates any matches (or if using swap power-up or free swap tile)
     const isSwapPowerUp = game.activePowerUp === "swap";
+    const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
+    const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
 
-    if (game.hasMatchesForSwap(row1, col1, row2, col2) || isSwapPowerUp || hasFreeSwap) {
+    if (hasMatch || isSwapPowerUp || hasFreeSwap || allowNonMatchingSwap) {
         if (!isSwapPowerUp && !hasFreeSwap) {
             game.movesUsed++;
             game.updateMovesDisplay();
@@ -635,6 +637,18 @@ export function trySwap(game, row1, col1, row2, col2) {
 
                 game.deactivatePowerUp();
             }
+
+            if (!hasMatch && allowNonMatchingSwap && !isSwapPowerUp && !hasFreeSwap) {
+                game.lastSwapPosition = null;
+            }
+
+            // Ensure any drag/preview state is cleared so the board can accept new input
+            document.querySelectorAll(".gem").forEach((gem) => {
+                gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview");
+            });
+            game.selectedGem = null;
+            game.isDragging = false;
+            game.dragStartPos = null;
 
             game.processMatches();
         });

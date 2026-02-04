@@ -366,6 +366,26 @@ export function saveHintTimeoutMs(ms) {
 }
 
 /**
+ * Load the allow non-matching swaps setting
+ * @returns {boolean} True if non-matching swaps are allowed (default: false)
+ */
+export function loadAllowNonMatchingSwaps() {
+    const saved = localStorage.getItem("match2048_allowNonMatchingSwaps");
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the allow non-matching swaps setting
+ * @param {boolean} enabled - Whether non-matching swaps should be allowed
+ */
+export function saveAllowNonMatchingSwaps(enabled) {
+    localStorage.setItem("match2048_allowNonMatchingSwaps", enabled.toString());
+}
+
+/**
  * Load set of already-shown formation tutorials from localStorage
  * @returns {Set<string>} Set of formation types that have been shown
  */
