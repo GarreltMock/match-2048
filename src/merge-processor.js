@@ -21,6 +21,7 @@ import {
     showFormationTutorialDialog,
     getPendingFormationTutorials,
     highlightMergeTiles,
+    highlightBlockedTiles,
     clearMergeHighlight,
 } from "./formation-tutorial.js";
 
@@ -56,16 +57,17 @@ export async function processMatches(game) {
         }
     });
 
-    // Check for blocked tiles adjacent to original match positions and unblock them
-    unblockAdjacentTiles(game, matchGroups);
-
     // Check for pending formation tutorials (only on user swaps)
+    let showedTutorial = false;
     if (wasUserSwap) {
         const pendingTutorials = getPendingFormationTutorials(matchGroups, game.lastSwapPosition);
 
         if (pendingTutorials.length > 0) {
-            // Highlight all tiles that will be merged
+            showedTutorial = true;
+
+            // Highlight all tiles that will be merged and blocked tiles that will be removed
             highlightMergeTiles(matchGroups);
+            highlightBlockedTiles(game, matchGroups);
 
             // Wait 500ms so user can see the highlighted tiles before dialog opens
             await new Promise((resolve) => setTimeout(resolve, 500));
@@ -75,16 +77,23 @@ export async function processMatches(game) {
                 await showFormationTutorialDialog(formationType);
             }
 
-            // Wait 300ms after dialog closes before continuing
-            await new Promise((resolve) => setTimeout(resolve, 300));
+            // Wait 800ms after dialog closes before continuing
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
             // Clear the highlight
             clearMergeHighlight();
         }
     }
 
+    // Slow down animations after tutorial so user can see what happens
+    const speedMultiplier = showedTutorial ? 2 : 1;
+
+    // Check for blocked tiles adjacent to original match positions and unblock them
+    // Done after tutorial dialogs so blocked tiles are still visible during tutorial
+    unblockAdjacentTiles(game, matchGroups, speedMultiplier);
+
     // Start merge animations
-    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap));
+    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
 }
 
 export function processMerges(game, matchGroups, wasUserSwap = false) {
@@ -450,7 +459,7 @@ function calculateMiddlePositions(game, tiles, group = null) {
     return positions;
 }
 
-function unblockAdjacentTiles(game, matchGroups) {
+function unblockAdjacentTiles(game, matchGroups, speedMultiplier = 1) {
     const blockedTilesToRemove = [];
     const goalTilesToDamage = [];
     const cellsToDecrement = new Set(); // Track individual cells to decrement for merge-count blocks
@@ -679,7 +688,8 @@ function unblockAdjacentTiles(game, matchGroups) {
         game,
         blockedTilesToRemove,
         () => game.updateBlockedTileGoals(),
-        (check) => game.updateGoalDisplay(check)
+        (check) => game.updateGoalDisplay(check),
+        speedMultiplier
     );
 }
 

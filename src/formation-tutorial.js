@@ -6,6 +6,7 @@
  */
 
 import { loadShownFormationTutorials, saveShownFormationTutorial } from "./storage.js";
+import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount } from "./tile-helpers.js";
 
 /**
  * Get pending formation tutorials for match groups
@@ -58,11 +59,50 @@ export function highlightMergeTiles(matchGroups) {
 }
 
 /**
- * Remove merge-preview highlight from all tiles
+ * Highlight blocked tiles adjacent to match tiles using unblock-preview class
+ * @param {Match3Game} game - The game instance
+ * @param {Array} matchGroups - Array of match groups
+ */
+export function highlightBlockedTiles(game, matchGroups) {
+    const highlighted = new Set();
+
+    matchGroups.forEach((group) => {
+        group.tiles.forEach((tile) => {
+            const adjacentPositions = [
+                { row: tile.row - 1, col: tile.col },
+                { row: tile.row + 1, col: tile.col },
+                { row: tile.row, col: tile.col - 1 },
+                { row: tile.row, col: tile.col + 1 },
+            ];
+
+            adjacentPositions.forEach((pos) => {
+                if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {
+                    const key = `${pos.row}_${pos.col}`;
+                    if (highlighted.has(key)) return;
+
+                    const adjacentTile = game.board[pos.row]?.[pos.col];
+                    if (adjacentTile && (isBlocked(adjacentTile) || isBlockedWithLife(adjacentTile) || isBlockedMovable(adjacentTile) || isBlockedWithMergeCount(adjacentTile))) {
+                        highlighted.add(key);
+                        const gem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                        if (gem) {
+                            gem.classList.add("unblock-preview");
+                        }
+                    }
+                }
+            });
+        });
+    });
+}
+
+/**
+ * Remove merge-preview and unblock-preview highlight from all tiles
  */
 export function clearMergeHighlight() {
     document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
         gem.classList.remove("merge-preview");
+    });
+    document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
+        gem.classList.remove("unblock-preview");
     });
 }
 
