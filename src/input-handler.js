@@ -7,6 +7,7 @@ import {
     isBlocked,
     isBlockedWithLife,
     isBlockedMovable,
+    isBlockedWithMergeCount,
     isJoker,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
@@ -495,7 +496,7 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
                 const key = `${pos.row}_${pos.col}`;
                 if (!blockedSet.has(key)) {
                     const adjacentTile = game.board[pos.row][pos.col];
-                    if (isBlocked(adjacentTile)) {
+                    if (isBlocked(adjacentTile) || isBlockedWithLife(adjacentTile) || isBlockedMovable(adjacentTile) || isBlockedWithMergeCount(adjacentTile)) {
                         blockedSet.add(key);
                         result.push(pos);
                     }
