@@ -249,25 +249,21 @@ function updateDrag(game, x, y) {
     if (element && element.classList.contains("gem")) {
         // If user drags back to the original tile, cancel the preview
         if (element === game.selectedGem.element) {
-            document.querySelectorAll(".gem.preview").forEach((gem) => {
-                gem.classList.remove("preview");
-            });
-            document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
-                gem.classList.remove("merge-preview");
-            });
-            document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
-                gem.classList.remove("unblock-preview");
-            });
+            clearDragPreviews();
             return;
         }
 
         const targetRow = parseInt(element.dataset.row);
         const targetCol = parseInt(element.dataset.col);
 
-        // Check if gems are adjacent
-        if (areAdjacent(game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
+        // Check if gems are adjacent or allowed by extended free swap rules
+        if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
             previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
+        } else {
+            clearDragPreviews();
         }
+    } else {
+        clearDragPreviews();
     }
 }
 
@@ -425,8 +421,7 @@ function areAdjacent(row1, col1, row2, col2) {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
 }
 
-function previewSwap(game, row1, col1, row2, col2) {
-    // Clear previous previews
+function clearDragPreviews() {
     document.querySelectorAll(".gem.preview").forEach((gem) => {
         gem.classList.remove("preview");
     });
@@ -436,6 +431,49 @@ function previewSwap(game, row1, col1, row2, col2) {
     document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
         gem.classList.remove("unblock-preview");
     });
+}
+
+function canPreviewSwap(game, row1, col1, row2, col2) {
+    if (areAdjacent(row1, col1, row2, col2)) {
+        return true;
+    }
+
+    return isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+}
+
+function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
+    if (game.allowNonMatchingSwaps !== true) {
+        return false;
+    }
+
+    const isHorizontalSwap = row1 === row2;
+    const isVerticalSwap = col1 === col2;
+
+    if (!isHorizontalSwap && !isVerticalSwap) {
+        return false;
+    }
+
+    const tile1 = game.board[row1][col1];
+    const tile2 = game.board[row2][col2];
+
+    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
+    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
+
+    const isDirectionalFreeSwap1 =
+        !tile1.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
+    const isDirectionalFreeSwap2 =
+        !tile2.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
+
+    return isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
+}
+
+function previewSwap(game, row1, col1, row2, col2) {
+    // Clear previous previews
+    clearDragPreviews();
 
     // Add preview to both gems
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
@@ -528,6 +566,13 @@ export function trySwap(game, row1, col1, row2, col2) {
         isBlockedWithLife(game.board[row2][col2])
     ) {
         return;
+    }
+
+    const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
+    const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+
+    if (!isAdjacentSwap && !allowExtendedFreeSwap) {
+        return false;
     }
 
     // If animating, queue the swap to execute after animation completes
