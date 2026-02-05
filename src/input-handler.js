@@ -246,6 +246,7 @@ function updateDrag(game, x, y) {
     if (!game.isDragging || !game.selectedGem) return;
 
     const element = document.elementFromPoint(x, y);
+    const allowNonMatchingSwaps = game.allowNonMatchingSwaps === true;
     if (element && element.classList.contains("gem")) {
         // If user drags back to the original tile, cancel the preview
         if (element === game.selectedGem.element) {
@@ -259,10 +260,10 @@ function updateDrag(game, x, y) {
         // Check if gems are adjacent or allowed by extended free swap rules
         if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
             previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
-        } else {
+        } else if (allowNonMatchingSwaps) {
             clearDragPreviews();
         }
-    } else {
+    } else if (allowNonMatchingSwaps) {
         clearDragPreviews();
     }
 }
