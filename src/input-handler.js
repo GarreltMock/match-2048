@@ -130,7 +130,7 @@ export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnecti
             // Optional: check if match includes the actively dragged tile (source, not target)
             if (requireSwapConnection && game.lastSwapPosition) {
                 const includesSourceTile = match.tiles.some(
-                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col
+                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col,
                 );
 
                 if (!includesSourceTile) return false;
@@ -246,7 +246,6 @@ function updateDrag(game, x, y) {
     if (!game.isDragging || !game.selectedGem) return;
 
     const element = document.elementFromPoint(x, y);
-    const allowNonMatchingSwaps = game.allowNonMatchingSwaps === true;
     if (element && element.classList.contains("gem")) {
         // If user drags back to the original tile, cancel the preview
         if (element === game.selectedGem.element) {
@@ -260,11 +259,7 @@ function updateDrag(game, x, y) {
         // Check if gems are adjacent or allowed by extended free swap rules
         if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
             previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
-        } else if (allowNonMatchingSwaps) {
-            clearDragPreviews();
         }
-    } else if (allowNonMatchingSwaps) {
-        clearDragPreviews();
     }
 }
 
@@ -302,7 +297,11 @@ function endDrag(game) {
         // User tapped on halver tile without dragging - activate it
         // Only activate if not in power-up mode
         activateHalverTileByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
-    } else if (isTileTeleportTile(game.selectedGem.tile) && !game.activePowerUp && !game.selectedGem.tile.hasBeenSwapped) {
+    } else if (
+        isTileTeleportTile(game.selectedGem.tile) &&
+        !game.activePowerUp &&
+        !game.selectedGem.tile.hasBeenSwapped
+    ) {
         // User tapped on teleport tile without dragging - select it for teleport
         // Only select if not in power-up mode and tile hasn't been used
         selectTeleportTile(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
@@ -489,9 +488,7 @@ function previewSwap(game, row1, col1, row2, col2) {
 
         // Highlight merge tiles
         for (const tile of matchTiles) {
-            const matchGem = document.querySelector(
-                `[data-row="${tile.row}"][data-col="${tile.col}"]`
-            );
+            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
             matchGem?.classList.add("merge-preview");
         }
 
@@ -499,9 +496,7 @@ function previewSwap(game, row1, col1, row2, col2) {
         // matchTiles are in PRE-SWAP coords, convert to POST-SWAP for adjacency check
         const blockedToUnblock = getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2);
         for (const pos of blockedToUnblock) {
-            const blockedGem = document.querySelector(
-                `[data-row="${pos.row}"][data-col="${pos.col}"]`
-            );
+            const blockedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
             blockedGem?.classList.add("unblock-preview");
         }
     }
@@ -535,7 +530,12 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
                 const key = `${pos.row}_${pos.col}`;
                 if (!blockedSet.has(key)) {
                     const adjacentTile = game.board[pos.row][pos.col];
-                    if (isBlocked(adjacentTile) || isBlockedWithLife(adjacentTile) || isBlockedMovable(adjacentTile) || isBlockedWithMergeCount(adjacentTile)) {
+                    if (
+                        isBlocked(adjacentTile) ||
+                        isBlockedWithLife(adjacentTile) ||
+                        isBlockedMovable(adjacentTile) ||
+                        isBlockedWithMergeCount(adjacentTile)
+                    ) {
                         blockedSet.add(key);
                         result.push(pos);
                     }
@@ -726,7 +726,7 @@ function clearTeleportSelection(game) {
     if (game.selectedTeleportTile) {
         // Remove visual selection
         const prevElement = document.querySelector(
-            `[data-row="${game.selectedTeleportTile.row}"][data-col="${game.selectedTeleportTile.col}"]`
+            `[data-row="${game.selectedTeleportTile.row}"][data-col="${game.selectedTeleportTile.col}"]`,
         );
         if (prevElement) {
             prevElement.classList.remove("selected");
