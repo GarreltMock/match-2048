@@ -130,7 +130,7 @@ export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnecti
             // Optional: check if match includes the actively dragged tile (source, not target)
             if (requireSwapConnection && game.lastSwapPosition) {
                 const includesSourceTile = match.tiles.some(
-                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col
+                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col,
                 );
 
                 if (!includesSourceTile) return false;
@@ -249,23 +249,15 @@ function updateDrag(game, x, y) {
     if (element && element.classList.contains("gem")) {
         // If user drags back to the original tile, cancel the preview
         if (element === game.selectedGem.element) {
-            document.querySelectorAll(".gem.preview").forEach((gem) => {
-                gem.classList.remove("preview");
-            });
-            document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
-                gem.classList.remove("merge-preview");
-            });
-            document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
-                gem.classList.remove("unblock-preview");
-            });
+            clearDragPreviews();
             return;
         }
 
         const targetRow = parseInt(element.dataset.row);
         const targetCol = parseInt(element.dataset.col);
 
-        // Check if gems are adjacent
-        if (areAdjacent(game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
+        // Check if gems are adjacent or allowed by extended free swap rules
+        if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
             previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
         }
     }
@@ -305,7 +297,11 @@ function endDrag(game) {
         // User tapped on halver tile without dragging - activate it
         // Only activate if not in power-up mode
         activateHalverTileByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
-    } else if (isTileTeleportTile(game.selectedGem.tile) && !game.activePowerUp && !game.selectedGem.tile.hasBeenSwapped) {
+    } else if (
+        isTileTeleportTile(game.selectedGem.tile) &&
+        !game.activePowerUp &&
+        !game.selectedGem.tile.hasBeenSwapped
+    ) {
         // User tapped on teleport tile without dragging - select it for teleport
         // Only select if not in power-up mode and tile hasn't been used
         selectTeleportTile(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
@@ -425,8 +421,7 @@ function areAdjacent(row1, col1, row2, col2) {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
 }
 
-function previewSwap(game, row1, col1, row2, col2) {
-    // Clear previous previews
+function clearDragPreviews() {
     document.querySelectorAll(".gem.preview").forEach((gem) => {
         gem.classList.remove("preview");
     });
@@ -436,6 +431,49 @@ function previewSwap(game, row1, col1, row2, col2) {
     document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
         gem.classList.remove("unblock-preview");
     });
+}
+
+function canPreviewSwap(game, row1, col1, row2, col2) {
+    if (areAdjacent(row1, col1, row2, col2)) {
+        return true;
+    }
+
+    return isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+}
+
+function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
+    if (game.allowNonMatchingSwaps !== true) {
+        return false;
+    }
+
+    const isHorizontalSwap = row1 === row2;
+    const isVerticalSwap = col1 === col2;
+
+    if (!isHorizontalSwap && !isVerticalSwap) {
+        return false;
+    }
+
+    const tile1 = game.board[row1][col1];
+    const tile2 = game.board[row2][col2];
+
+    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
+    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
+
+    const isDirectionalFreeSwap1 =
+        !tile1.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
+    const isDirectionalFreeSwap2 =
+        !tile2.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
+
+    return isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
+}
+
+function previewSwap(game, row1, col1, row2, col2) {
+    // Clear previous previews
+    clearDragPreviews();
 
     // Add preview to both gems
     const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
@@ -450,9 +488,7 @@ function previewSwap(game, row1, col1, row2, col2) {
 
         // Highlight merge tiles
         for (const tile of matchTiles) {
-            const matchGem = document.querySelector(
-                `[data-row="${tile.row}"][data-col="${tile.col}"]`
-            );
+            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
             matchGem?.classList.add("merge-preview");
         }
 
@@ -460,9 +496,7 @@ function previewSwap(game, row1, col1, row2, col2) {
         // matchTiles are in PRE-SWAP coords, convert to POST-SWAP for adjacency check
         const blockedToUnblock = getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2);
         for (const pos of blockedToUnblock) {
-            const blockedGem = document.querySelector(
-                `[data-row="${pos.row}"][data-col="${pos.col}"]`
-            );
+            const blockedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
             blockedGem?.classList.add("unblock-preview");
         }
     }
@@ -496,7 +530,12 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
                 const key = `${pos.row}_${pos.col}`;
                 if (!blockedSet.has(key)) {
                     const adjacentTile = game.board[pos.row][pos.col];
-                    if (isBlocked(adjacentTile) || isBlockedWithLife(adjacentTile) || isBlockedMovable(adjacentTile) || isBlockedWithMergeCount(adjacentTile)) {
+                    if (
+                        isBlocked(adjacentTile) ||
+                        isBlockedWithLife(adjacentTile) ||
+                        isBlockedMovable(adjacentTile) ||
+                        isBlockedWithMergeCount(adjacentTile)
+                    ) {
                         blockedSet.add(key);
                         result.push(pos);
                     }
@@ -528,6 +567,13 @@ export function trySwap(game, row1, col1, row2, col2) {
         isBlockedWithLife(game.board[row2][col2])
     ) {
         return;
+    }
+
+    const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
+    const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+
+    if (!isAdjacentSwap && !allowExtendedFreeSwap) {
+        return false;
     }
 
     // If animating, queue the swap to execute after animation completes
@@ -589,8 +635,10 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     // Check if this creates any matches (or if using swap power-up or free swap tile)
     const isSwapPowerUp = game.activePowerUp === "swap";
+    const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
+    const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
 
-    if (game.hasMatchesForSwap(row1, col1, row2, col2) || isSwapPowerUp || hasFreeSwap) {
+    if (hasMatch || isSwapPowerUp || hasFreeSwap || allowNonMatchingSwap) {
         if (!isSwapPowerUp && !hasFreeSwap) {
             game.movesUsed++;
             game.updateMovesDisplay();
@@ -636,6 +684,18 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.deactivatePowerUp();
             }
 
+            if (!hasMatch && allowNonMatchingSwap && !isSwapPowerUp && !hasFreeSwap) {
+                game.lastSwapPosition = null;
+            }
+
+            // Ensure any drag/preview state is cleared so the board can accept new input
+            document.querySelectorAll(".gem").forEach((gem) => {
+                gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview");
+            });
+            game.selectedGem = null;
+            game.isDragging = false;
+            game.dragStartPos = null;
+
             game.processMatches();
         });
 
@@ -666,7 +726,7 @@ function clearTeleportSelection(game) {
     if (game.selectedTeleportTile) {
         // Remove visual selection
         const prevElement = document.querySelector(
-            `[data-row="${game.selectedTeleportTile.row}"][data-col="${game.selectedTeleportTile.col}"]`
+            `[data-row="${game.selectedTeleportTile.row}"][data-col="${game.selectedTeleportTile.col}"]`,
         );
         if (prevElement) {
             prevElement.classList.remove("selected");
