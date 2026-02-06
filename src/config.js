@@ -745,14 +745,14 @@ export const NEW_LEVELS = [
     },
     {
         level: 12,
-        maxMoves: 15,
+        maxMoves: 22,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [{ tileValue: 6, target: 10, current: 0, goalType: "created" }],
     },
     {
         level: 13,
         title: "🔥 Streak",
-        maxMoves: 22,
+        maxMoves: 25,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { tileValue: 7, target: 1, current: 0, goalType: "current" },
@@ -794,7 +794,7 @@ export const NEW_LEVELS = [
     {
         level: 17,
         title: "Movable Blocked",
-        maxMoves: 16,
+        maxMoves: 20,
         blockedTiles: [
             { row: 0, movable: true },
             { row: 1, movable: true },
@@ -806,7 +806,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 18,
-        maxMoves: 20,
+        maxMoves: 24,
         blockedTiles: [
             { row: 1, col: [1, 2, 3, 4, 5, 6], movable: true },
             { row: 2, col: [1, 6], movable: true },
@@ -819,7 +819,7 @@ export const NEW_LEVELS = [
     },
     {
         level: 19,
-        maxMoves: 22,
+        maxMoves: 24,
         blockedTiles: [
             { row: 3, movable: true },
             { row: 4, movable: true },
@@ -835,7 +835,7 @@ export const NEW_LEVELS = [
     {
         level: 20,
         boardHeight: 9,
-        maxMoves: 24,
+        maxMoves: 26,
         blockedTiles: [
             { row: 0, movable: true },
             { row: 1, movable: true },
