@@ -52,6 +52,11 @@ function activateJokers(game) {
         game.activatedJokerPositions = new Set();
     }
 
+    // When allowNonMatchingSwaps is enabled, jokers only activate by tap
+    if (game.allowNonMatchingSwaps) {
+        return;
+    }
+
     // Activate jokers that can form valid matches involving the swapped tiles
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
