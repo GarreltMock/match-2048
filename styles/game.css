@@ -784,7 +784,7 @@
 }
 
 .gem.teleport-tile::after {
-    content: "🔀";
+    content: "🚀";
     position: absolute;
     top: -3px;
     right: -3px;
