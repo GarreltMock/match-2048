@@ -177,35 +177,6 @@ function startDrag(game, x, y) {
             return;
         }
 
-        // Handle teleport tile selection
-        if (game.selectedTeleportTile && !game.animating) {
-            // A teleport tile is already selected - handle target selection
-            const teleportRow = game.selectedTeleportTile.row;
-            const teleportCol = game.selectedTeleportTile.col;
-
-            // If clicking the same tile, deselect
-            if (row === teleportRow && col === teleportCol) {
-                clearTeleportSelection(game);
-                return;
-            }
-
-            // If clicking another teleport tile, switch selection to that one
-            if (isTileTeleportTile(tile) && !tile.hasBeenSwapped) {
-                clearTeleportSelection(game);
-                selectTeleportTile(game, row, col, element);
-                return;
-            }
-
-            // Can't teleport to blocked tiles
-            if (isBlocked(tile) || isBlockedWithLife(tile)) {
-                return;
-            }
-
-            // Perform the teleport swap
-            performTeleportSwap(game, teleportRow, teleportCol, row, col);
-            return;
-        }
-
         // Handle power-ups (but not during animations)
         if (game.activePowerUp) {
             // Prevent power-up usage during animations
@@ -297,14 +268,6 @@ function endDrag(game) {
         // User tapped on halver tile without dragging - activate it
         // Only activate if not in power-up mode
         activateHalverTileByTap(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
-    } else if (
-        isTileTeleportTile(game.selectedGem.tile) &&
-        !game.activePowerUp &&
-        !game.selectedGem.tile.hasBeenSwapped
-    ) {
-        // User tapped on teleport tile without dragging - select it for teleport
-        // Only select if not in power-up mode and tile hasn't been used
-        selectTeleportTile(game, game.selectedGem.row, game.selectedGem.col, game.selectedGem.element);
     }
 
     // Clean up
@@ -438,7 +401,26 @@ function canPreviewSwap(game, row1, col1, row2, col2) {
         return true;
     }
 
+    if (isTeleportSwapAllowed(game, row1, col1, row2, col2)) {
+        return true;
+    }
+
     return isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+}
+
+function isTeleportSwapAllowed(game, row1, col1, row2, col2) {
+    const tile1 = game.board[row1][col1];
+    const tile2 = game.board[row2][col2];
+
+    // Can't teleport to/from blocked tiles
+    if (isBlocked(tile1) || isBlocked(tile2) || isBlockedWithLife(tile1) || isBlockedWithLife(tile2)) {
+        return false;
+    }
+
+    const isTeleport1 = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
+    const isTeleport2 = isTileTeleportTile(tile2) && !tile2.hasBeenSwapped;
+
+    return isTeleport1 || isTeleport2;
 }
 
 function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
@@ -571,8 +553,9 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
     const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
+    const allowTeleportSwap = !isAdjacentSwap && isTeleportSwapAllowed(game, row1, col1, row2, col2);
 
-    if (!isAdjacentSwap && !allowExtendedFreeSwap) {
+    if (!isAdjacentSwap && !allowExtendedFreeSwap && !allowTeleportSwap) {
         return false;
     }
 
@@ -622,6 +605,11 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
 
+    // Check for teleport tiles
+    const isTeleport1 = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
+    const isTeleport2 = isTileTeleportTile(tile2) && !tile2.hasBeenSwapped;
+    const hasTeleport = isTeleport1 || isTeleport2;
+
     // Temporarily swap gems
     const temp = game.board[row1][col1];
     game.board[row1][col1] = game.board[row2][col2];
@@ -638,8 +626,8 @@ export function trySwap(game, row1, col1, row2, col2) {
     const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
     const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
 
-    if (hasMatch || isSwapPowerUp || hasFreeSwap || allowNonMatchingSwap) {
-        if (!isSwapPowerUp && !hasFreeSwap) {
+    if (hasMatch || isSwapPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
+        if (!isSwapPowerUp && !hasFreeSwap && !hasTeleport) {
             game.movesUsed++;
             game.updateMovesDisplay();
         }
@@ -656,6 +644,16 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.board[row2][col2].hasBeenSwapped = true;
             }
             if (isFreeSwap2 || isDirectionalFreeSwap2) {
+                game.board[row1][col1].hasBeenSwapped = true;
+            }
+        }
+
+        // Mark teleport tile as used
+        if (hasTeleport) {
+            if (isTeleport1) {
+                game.board[row2][col2].hasBeenSwapped = true;
+            }
+            if (isTeleport2) {
                 game.board[row1][col1].hasBeenSwapped = true;
             }
         }
@@ -684,7 +682,7 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.deactivatePowerUp();
             }
 
-            if (!hasMatch && allowNonMatchingSwap && !isSwapPowerUp && !hasFreeSwap) {
+            if (!hasMatch && (allowNonMatchingSwap || hasTeleport) && !isSwapPowerUp && !hasFreeSwap) {
                 game.lastSwapPosition = null;
             }
 
@@ -710,58 +708,3 @@ export function trySwap(game, row1, col1, row2, col2) {
     }
 }
 
-// Teleport tile helper functions
-function selectTeleportTile(game, row, col, element) {
-    // Clear any existing selection first
-    clearTeleportSelection(game);
-
-    // Store the selected teleport tile
-    game.selectedTeleportTile = { row, col, element };
-
-    // Add visual selection indicator
-    element.classList.add("selected");
-}
-
-function clearTeleportSelection(game) {
-    if (game.selectedTeleportTile) {
-        // Remove visual selection
-        const prevElement = document.querySelector(
-            `[data-row="${game.selectedTeleportTile.row}"][data-col="${game.selectedTeleportTile.col}"]`,
-        );
-        if (prevElement) {
-            prevElement.classList.remove("selected");
-        }
-        game.selectedTeleportTile = null;
-    }
-}
-
-function performTeleportSwap(game, teleportRow, teleportCol, targetRow, targetCol) {
-    // Mark the teleport tile as used (before swap, so reference is correct)
-    const teleportTile = game.board[teleportRow][teleportCol];
-    teleportTile.hasBeenSwapped = true;
-
-    // Clear the visual selection
-    clearTeleportSelection(game);
-
-    // Block interactions during animation
-    game.animating = true;
-
-    // Swap the tiles in the board
-    const temp = game.board[teleportRow][teleportCol];
-    game.board[teleportRow][teleportCol] = game.board[targetRow][targetCol];
-    game.board[targetRow][targetCol] = temp;
-
-    // Flag for cursed tile decrement
-    game.shouldDecrementCursedTimers = true;
-    game.cursedTileCreatedThisTurn = {};
-
-    // Track the swap position for match detection
-    game.lastSwapPosition = { row: targetRow, col: targetCol, movedFrom: { row: teleportRow, col: teleportCol } };
-    game.isUserSwap = true;
-
-    // Animate the swap
-    game.animateSwap(teleportRow, teleportCol, targetRow, targetCol, () => {
-        game.renderBoard();
-        game.processMatches();
-    });
-}
