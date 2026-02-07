@@ -418,9 +418,8 @@ function isTeleportSwapAllowed(game, row1, col1, row2, col2) {
     }
 
     const isTeleport1 = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
-    const isTeleport2 = isTileTeleportTile(tile2) && !tile2.hasBeenSwapped;
 
-    return isTeleport1 || isTeleport2;
+    return isTeleport1;
 }
 
 function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
@@ -605,10 +604,8 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
 
-    // Check for teleport tiles
-    const isTeleport1 = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
-    const isTeleport2 = isTileTeleportTile(tile2) && !tile2.hasBeenSwapped;
-    const hasTeleport = isTeleport1 || isTeleport2;
+    // Check for teleport tile (only the dragged tile, not the target)
+    const hasTeleport = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
 
     // Temporarily swap gems
     const temp = game.board[row1][col1];
@@ -648,14 +645,9 @@ export function trySwap(game, row1, col1, row2, col2) {
             }
         }
 
-        // Mark teleport tile as used
+        // Mark teleport tile as used (tile1 has been swapped to row2/col2)
         if (hasTeleport) {
-            if (isTeleport1) {
-                game.board[row2][col2].hasBeenSwapped = true;
-            }
-            if (isTeleport2) {
-                game.board[row1][col1].hasBeenSwapped = true;
-            }
+            game.board[row2][col2].hasBeenSwapped = true;
         }
 
         game.animateSwap(row1, col1, row2, col2, () => {
