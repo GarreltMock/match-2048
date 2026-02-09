@@ -137,7 +137,8 @@ export function checkLevelComplete(game) {
         }, 800);
     } else if (game.gameActive) {
         // Check if no valid moves are possible even if moves remain
-        const hasValidMoves = findBestSwap(game) !== null;
+        // Skip check if allowNonMatchingSwaps - always have moves available
+        const hasValidMoves = game.allowNonMatchingSwaps || findBestSwap(game) !== null;
         if (!hasValidMoves && !game.hasMatches()) {
             // Game over: no valid moves possible - immediately show level failed (no extra moves option)
             game.gameActive = false;
