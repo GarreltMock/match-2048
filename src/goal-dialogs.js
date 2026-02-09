@@ -245,6 +245,42 @@ export const FEATURE_UNLOCK_DIALOGS = {
             </button>
         `,
     },
+    power_teleport: {
+        title: `Teleport Joker <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: "Teleport any tile to any position",
+        content: `
+            <button class="power-up-btn" title="Teleport: swap any two tiles">
+                <span>🚀</span>
+                <div class="use-indicator">
+                    <stroked-text
+                        text="2"
+                        font-size="26"
+                        width="40"
+                        height="40"
+                        svg-style="width: 100%; height: 100%;"
+                    ></stroked-text>
+                </div>
+            </button>
+        `,
+    },
+    power_wildcard: {
+        title: `Wildcard Joker <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: "Turn any tile into a wildcard",
+        content: `
+            <button class="power-up-btn" title="Turn a tile into a wildcard">
+                <span>✨</span>
+                <div class="use-indicator">
+                    <stroked-text
+                        text="2"
+                        font-size="26"
+                        width="40"
+                        height="40"
+                        svg-style="width: 100%; height: 100%;"
+                    ></stroked-text>
+                </div>
+            </button>
+        `,
+    },
     board_upgrades: {
         title: `Board Upgrades <span style="color: #aee96b">Unlocked</span>`,
         subtitle: "Remove the lowest tile value on the board and get higher value tiles",

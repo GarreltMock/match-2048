@@ -3,6 +3,8 @@ export const FEATURE_KEYS = {
     HAMMER: "power_hammer",
     HALVE: "power_halve",
     SWAP: "power_swap",
+    TELEPORT: "power_teleport",
+    WILDCARD: "power_wildcard",
     STREAK: "streak",
     BOARD_UPGRADES: "board_upgrades",
     SUPER_STREAK: "super_streak",

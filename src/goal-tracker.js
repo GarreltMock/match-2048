@@ -70,6 +70,8 @@ export function checkLevelComplete(game) {
             if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
             if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
             if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
+            if (isFeatureUnlocked(FEATURE_KEYS.TELEPORT)) unlockedPowerUps.push("teleport");
+            if (isFeatureUnlocked(FEATURE_KEYS.WILDCARD)) unlockedPowerUps.push("wildcard");
 
             if (unlockedPowerUps.length > 0) {
                 const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
@@ -78,6 +80,8 @@ export function checkLevelComplete(game) {
                     hammer: game.powerUpCounts.hammer.persistent,
                     halve: game.powerUpCounts.halve.persistent,
                     swap: game.powerUpCounts.swap.persistent,
+                    teleport: game.powerUpCounts.teleport.persistent,
+                    wildcard: game.powerUpCounts.wildcard.persistent,
                 });
 
                 // Show the power-up reward in the UI
