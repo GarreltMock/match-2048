@@ -676,6 +676,7 @@ export function trySwap(game, row1, col1, row2, col2) {
 
             if (!hasMatch && (allowNonMatchingSwap || hasTeleport) && !isSwapPowerUp && !hasFreeSwap) {
                 game.lastSwapPosition = null;
+                game.isUserSwap = false;
             }
 
             // Ensure any drag/preview state is cleared so the board can accept new input
