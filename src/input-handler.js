@@ -16,6 +16,7 @@ import {
     isTileHammerTile,
     isTileHalverTile,
     isTileTeleportTile,
+    isWildTeleportTile,
     getDisplayValue,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
@@ -421,7 +422,7 @@ function isTeleportSwapAllowed(game, row1, col1, row2, col2) {
         return false;
     }
 
-    const isTeleport1 = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
+    const isTeleport1 = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
 
     return isTeleport1;
 }
@@ -610,7 +611,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
 
     // Check for teleport tile (only the dragged tile, not the target)
-    const hasTeleport = isTileTeleportTile(tile1) && !tile1.hasBeenSwapped;
+    const hasTeleport = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
 
     // Temporarily swap gems
     const temp = game.board[row1][col1];

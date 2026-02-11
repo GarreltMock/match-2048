@@ -809,6 +809,29 @@
     display: none;
 }
 
+/* Wild Teleport tile - Joker with teleport ability */
+.gem.wild-teleport-tile {
+    border: 3px solid var(--tile-wild-teleport-border);
+    position: relative;
+}
+
+.gem.wild-teleport-tile::after {
+    content: "🚀";
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    font-size: clamp(8px, 2vw, 16px);
+    width: 40%;
+    height: 40%;
+    border-radius: 35%;
+    background-color: var(--tile-wild-teleport-badge-bg);
+    color: white;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .gem.plus-tile {
     border: 3px solid var(--tile-plus-border);
     position: relative;

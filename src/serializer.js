@@ -4,7 +4,7 @@
 // It supports both string-based serialization for logging/storage and
 // array-based presets for level configuration in config.js.
 //
-// Notation: nS=freeswap, nK=sticky_freeswap, nP=plus, nCm=cursed, B=blocked, BM=blocked_movable, Bn=blocked_with_life, J=joker
+// Notation: nS=freeswap, nK=sticky_freeswap, nP=plus, nCm=cursed, B=blocked, BM=blocked_movable, Bn=blocked_with_life, J=joker, JT=wild_teleport
 //
 // Example string serialization:
 //   "2,4,B,2S,J|0,2P,BM,B64,2C5|1,1,1,1,1"
@@ -13,7 +13,7 @@
 // Example array preset (as used in config.js):
 //   [[2, 4, "B", "2S", "J"], [0, "2P", "BM", "B64", "2C5"], [1, 1, 1, 1, 1]]
 
-import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createCursedTile, getTileValue, getTileType, isTileFreeSwapTile, isTileStickyFreeSwapTile, isTilePlusTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedWithLifeTile, createBlockedMovableTile, createJokerTile, createWildTeleportTile, createCursedTile, getTileValue, getTileType, isTileFreeSwapTile, isTileStickyFreeSwapTile, isTilePlusTile, isWildTeleportTile } from "./tile-helpers.js";
 import { TILE_TYPE } from "./config.js";
 
 /**
@@ -46,6 +46,11 @@ export function parsePresetTile(notation) {
     // Check for blocked movable tile (just "BM")
     if (str === "BM") {
         return createBlockedMovableTile();
+    }
+
+    // Check for wild teleport tile ("JT" - joker + teleport)
+    if (str === "JT") {
+        return createWildTeleportTile();
     }
 
     // Check for joker tile (just "J")
@@ -117,6 +122,9 @@ export function tileToNotation(tile) {
     }
 
     if (tileType === TILE_TYPE.JOKER) {
+        if (isWildTeleportTile(tile)) {
+            return "JT";
+        }
         return "J";
     }
 

@@ -81,6 +81,16 @@ export function createJokerTile(targetValue = null) {
     };
 }
 
+export function createWildTeleportTile(targetValue = null) {
+    return {
+        type: TILE_TYPE.JOKER,
+        value: null,
+        targetValue: targetValue,
+        specialType: "wild_teleport",
+        hasBeenSwapped: false,
+    };
+}
+
 export function createCursedTile(value, movesRemaining) {
     return {
         type: TILE_TYPE.CURSED,
@@ -206,6 +216,10 @@ export function isTileRandomPowerupTile(tile) {
 
 export function isTileTeleportTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "teleport";
+}
+
+export function isWildTeleportTile(tile) {
+    return tile && tile.type === TILE_TYPE.JOKER && tile.specialType === "wild_teleport";
 }
 
 export function isTilePlusTile(tile) {

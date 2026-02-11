@@ -66,6 +66,9 @@ html {
     --tile-teleport-badge-bg: #00bcd4;
     --tile-teleport-badge-color: white;
 
+    --tile-wild-teleport-border: #e040fb;
+    --tile-wild-teleport-badge-bg: #e040fb;
+
     --tile-plus-border: #9c27b0;
     --tile-plus-badge-bg: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
     --tile-plus-badge-color: white;

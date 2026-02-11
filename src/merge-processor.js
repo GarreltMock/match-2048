@@ -3,6 +3,7 @@
 import {
     createTile,
     createJokerTile,
+    createWildTeleportTile,
     createCursedTile,
     isBlocked,
     isBlockedWithLife,
@@ -261,18 +262,20 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     }
 
     // Handle special tile types
-    if (specialTileType === "joker") {
-        // Joker is special - it creates a joker tile (different tile type), not a normal tile with properties
+    if (specialTileType === "joker" || specialTileType === "wild_teleport") {
+        // Joker and wild_teleport are special - they create JOKER type tiles, not normal tiles with properties
+        const createSpecialTile = specialTileType === "wild_teleport" ? createWildTeleportTile : createJokerTile;
+
         if (positions.length > 1) {
             const formationKey = group.direction.includes("block") ? "block_4" : "line_4";
             const specialPos = determineSpecialTilePosition(game, group, formationKey);
             const normalPos = positions.find((p) => p.row !== specialPos.row || p.col !== specialPos.col);
 
-            game.board[specialPos.row][specialPos.col] = createJokerTile();
+            game.board[specialPos.row][specialPos.col] = createSpecialTile();
             game.board[normalPos.row][normalPos.col] = createTile(newValue, null, { transferStickyFreeSwap });
             trackGoalProgress(game, newValue, 1);
         } else {
-            game.board[positions[0].row][positions[0].col] = createJokerTile();
+            game.board[positions[0].row][positions[0].col] = createSpecialTile();
         }
     } else if (specialTileType === "random_powerup") {
         // Random power-up grants a power-up immediately and creates normal tiles
