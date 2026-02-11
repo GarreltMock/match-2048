@@ -1,10 +1,8 @@
 // Constants and configuration for Match 2048 game
 export const FEATURE_KEYS = {
-    HAMMER: "power_hammer",
-    HALVE: "power_halve",
-    SWAP: "power_swap",
-    TELEPORT: "power_teleport",
-    WILDCARD: "power_wildcard",
+    POWER_UP_1: "power_up_1",
+    POWER_UP_2: "power_up_2",
+    POWER_UP_3: "power_up_3",
     STREAK: "streak",
     BOARD_UPGRADES: "board_upgrades",
     SUPER_STREAK: "super_streak",
@@ -678,7 +676,7 @@ export const NEW_LEVELS = [
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [{ current: 0, goalType: "blocked" }],
-        unlockFeature: "power_hammer",
+        unlockFeature: "power_up_1",
     },
     {
         level: 5,
@@ -700,7 +698,7 @@ export const NEW_LEVELS = [
         maxMoves: 25,
         blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
         goals: [{ current: 0, goalType: "blocked" }],
-        unlockFeature: "power_halve",
+        unlockFeature: "power_up_2",
     },
     {
         level: 7,
@@ -714,7 +712,7 @@ export const NEW_LEVELS = [
         maxMoves: 28,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [{ current: 0, goalType: "blocked" }],
-        unlockFeature: "power_swap",
+        unlockFeature: "power_up_3",
     },
     {
         level: 9,

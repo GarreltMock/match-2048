@@ -66,12 +66,7 @@ export function checkLevelComplete(game) {
 
         // Award one random unlocked power-up (only if persistent power-ups are enabled)
         if (game.persistentPowerUpsEnabled) {
-            const unlockedPowerUps = [];
-            if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
-            if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
-            if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
-            if (isFeatureUnlocked(FEATURE_KEYS.TELEPORT)) unlockedPowerUps.push("teleport");
-            if (isFeatureUnlocked(FEATURE_KEYS.WILDCARD)) unlockedPowerUps.push("wildcard");
+            const unlockedPowerUps = game.getVisiblePowerUpTypes();
 
             if (unlockedPowerUps.length > 0) {
                 const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];

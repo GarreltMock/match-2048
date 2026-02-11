@@ -411,21 +411,11 @@ export class Match3Game {
 
         // Apply streak bonus power-ups (transient for this level only) - only if streak feature is unlocked
         if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
-            if (this.currentStreak >= 1) {
-                this.powerUpCounts.hammer.transient++;
-            }
-            if (this.currentStreak >= 2) {
-                this.powerUpCounts.halve.transient++;
-            }
-            if (this.currentStreak >= 3) {
-                this.powerUpCounts.swap.transient++;
-            }
-            if (this.currentStreak >= 4) {
-                this.powerUpCounts.teleport.transient++;
-            }
-            if (this.currentStreak >= 5) {
-                this.powerUpCounts.wildcard.transient++;
-            }
+            this.selectedPowerUps.forEach((type, i) => {
+                if (this.currentStreak >= i + 1) {
+                    this.powerUpCounts[type].transient++;
+                }
+            });
         }
 
         // Deactivate any power-ups when loading a level
@@ -502,15 +492,13 @@ export class Match3Game {
     }
 
     grantTransientPowerUpOnUnlock(featureKey) {
-        const featureToPowerUp = {
-            [FEATURE_KEYS.HAMMER]: "hammer",
-            [FEATURE_KEYS.HALVE]: "halve",
-            [FEATURE_KEYS.SWAP]: "swap",
-            [FEATURE_KEYS.TELEPORT]: "teleport",
-            [FEATURE_KEYS.WILDCARD]: "wildcard",
-        };
+        // Map unlock feature key to slot index
+        const unlockKeys = [FEATURE_KEYS.POWER_UP_1, FEATURE_KEYS.POWER_UP_2, FEATURE_KEYS.POWER_UP_3];
+        const slotIndex = unlockKeys.indexOf(featureKey);
+        if (slotIndex === -1) return;
 
-        const powerUpType = featureToPowerUp[featureKey];
+        // Grant the power-up in that slot position from selectedPowerUps
+        const powerUpType = this.selectedPowerUps[slotIndex];
         if (!powerUpType) return;
 
         // Grant one transient use on first unlock so it can be tried immediately.
@@ -817,22 +805,19 @@ export class Match3Game {
 
     
     isPowerUpButtonVisible(powerUpType) {
-        // Must be in the selected power-ups and feature-unlocked
-        if (!this.selectedPowerUps.includes(powerUpType)) return false;
+        const idx = this.selectedPowerUps.indexOf(powerUpType);
+        if (idx === -1) return false;
 
-        const typeToFeatureKey = {
-            hammer: FEATURE_KEYS.HAMMER,
-            halve: FEATURE_KEYS.HALVE,
-            swap: FEATURE_KEYS.SWAP,
-            // Teleport and wildcard unlock with swap
-            teleport: FEATURE_KEYS.SWAP,
-            wildcard: FEATURE_KEYS.SWAP,
-        };
+        // Count how many power-up slots are unlocked (in progression order)
+        const unlockKeys = [FEATURE_KEYS.POWER_UP_1, FEATURE_KEYS.POWER_UP_2, FEATURE_KEYS.POWER_UP_3];
+        let unlockedSlots = 0;
+        for (const key of unlockKeys) {
+            if (isFeatureUnlocked(key)) unlockedSlots++;
+            else break; // stop at first locked feature
+        }
 
-        const featureKey = typeToFeatureKey[powerUpType];
-        if (!featureKey) return false;
-
-        return isFeatureUnlocked(featureKey);
+        // Show the first N selected power-ups based on unlocked slots
+        return idx < unlockedSlots;
     }
 
     getVisiblePowerUpTypes() {
@@ -1444,10 +1429,10 @@ export class Match3Game {
 
                     this.maxMoves += 5;
 
-                    // Add one of each power-up (transient for this level only)
-                    this.powerUpCounts.hammer.transient++;
-                    this.powerUpCounts.halve.transient++;
-                    this.powerUpCounts.swap.transient++;
+                    // Add one of each visible power-up (transient for this level only)
+                    this.getVisiblePowerUpTypes().forEach((type) => {
+                        this.powerUpCounts[type].transient++;
+                    });
 
                     this.updatePowerUpButtons();
 
@@ -1600,26 +1585,15 @@ export class Match3Game {
             showBoardBtn.classList.remove("hidden");
         }
 
-        // Check which power-ups are unlocked
-        const hammerUnlocked = isFeatureUnlocked(FEATURE_KEYS.HAMMER);
-        const halveUnlocked = isFeatureUnlocked(FEATURE_KEYS.HALVE);
-        const swapUnlocked = isFeatureUnlocked(FEATURE_KEYS.SWAP);
-        const anyPowerUpUnlocked = hammerUnlocked || halveUnlocked || swapUnlocked;
+        // Check how many power-up slots are unlocked
+        const anyPowerUpUnlocked = isFeatureUnlocked(FEATURE_KEYS.POWER_UP_1);
 
-        // Show/hide power-up buttons based on unlock status
-        const hammerBtn = document.getElementById("powerUpHammer");
-        const halveBtn = document.getElementById("powerUpHalve");
-        const swapBtn = document.getElementById("powerUpSwap");
-
-        if (hammerBtn) {
-            hammerBtn.style.display = hammerUnlocked ? "" : "none";
-        }
-        if (halveBtn) {
-            halveBtn.style.display = halveUnlocked ? "" : "none";
-        }
-        if (swapBtn) {
-            swapBtn.style.display = swapUnlocked ? "" : "none";
-        }
+        // Show/hide extra-moves power-up buttons based on unlock status
+        const extraMovesPowerUps = document.querySelectorAll("#extraMovesDialog .power-up-btn");
+        extraMovesPowerUps.forEach((btn) => {
+            const powerUpType = btn.dataset.powerup;
+            btn.style.display = this.isPowerUpButtonVisible(powerUpType) ? "" : "none";
+        });
 
         // Update the text based on whether any power-ups are unlocked
         if (fiveExtraMovesText) {
@@ -1815,9 +1789,7 @@ export class Match3Game {
             const shopItems = powerupShopDialog.querySelectorAll(".powerup-shop-item");
             shopItems.forEach((item) => {
                 const powerupType = item.dataset.powerup;
-                const featureKey = FEATURE_KEYS[powerupType.toUpperCase()];
-                const unlocked = !featureKey || isFeatureUnlocked(featureKey);
-                item.style.display = unlocked ? "" : "none";
+                item.style.display = this.isPowerUpButtonVisible(powerupType) ? "" : "none";
             });
 
             powerupShopDialog.classList.remove("hidden");
@@ -2443,7 +2415,7 @@ export class Match3Game {
         const openIntroDialog = (e) => {
             e.stopPropagation();
             // Update the power-ups list based on unlocked features
-            updateIntroDialogPowerupsList();
+            updateIntroDialogPowerupsList(this);
 
             // Force show the dialog, ignoring localStorage preference
             const introDialog = document.getElementById("introDialog");
