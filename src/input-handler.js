@@ -401,6 +401,10 @@ function canPreviewSwap(game, row1, col1, row2, col2) {
         return true;
     }
 
+    if (game.activePowerUp === "swap" || game.activePowerUp === "teleport") {
+        return true;
+    }
+
     if (isTeleportSwapAllowed(game, row1, col1, row2, col2)) {
         return true;
     }
@@ -553,8 +557,9 @@ export function trySwap(game, row1, col1, row2, col2) {
     const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
     const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
     const allowTeleportSwap = !isAdjacentSwap && isTeleportSwapAllowed(game, row1, col1, row2, col2);
+    const isPowerUpSwap = !isAdjacentSwap && (game.activePowerUp === "swap" || game.activePowerUp === "teleport");
 
-    if (!isAdjacentSwap && !allowExtendedFreeSwap && !allowTeleportSwap) {
+    if (!isAdjacentSwap && !allowExtendedFreeSwap && !allowTeleportSwap && !isPowerUpSwap) {
         return false;
     }
 
@@ -620,11 +625,12 @@ export function trySwap(game, row1, col1, row2, col2) {
 
     // Check if this creates any matches (or if using swap power-up or free swap tile)
     const isSwapPowerUp = game.activePowerUp === "swap";
+    const isTeleportPowerUp = game.activePowerUp === "teleport";
     const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
     const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
 
-    if (hasMatch || isSwapPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
-        if (!isSwapPowerUp && !hasFreeSwap && !hasTeleport) {
+    if (hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
+        if (!isSwapPowerUp && !isTeleportPowerUp && !hasFreeSwap && !hasTeleport) {
             game.movesUsed++;
             game.updateMovesDisplay();
         }
@@ -674,7 +680,21 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.deactivatePowerUp();
             }
 
-            if (!hasMatch && (allowNonMatchingSwap || hasTeleport) && !isSwapPowerUp && !hasFreeSwap) {
+            if (isTeleportPowerUp) {
+                game.consumePowerUp("teleport");
+                game.updatePowerUpButtons();
+
+                track("power_up_used", {
+                    level: game.currentLevel,
+                    power_up_type: "teleport",
+                    remaining_moves: game.maxMoves - game.movesUsed,
+                    uses_remaining: game.getTotalPowerUpCount("teleport"),
+                });
+
+                game.deactivatePowerUp();
+            }
+
+            if (!hasMatch && (allowNonMatchingSwap || hasTeleport || isTeleportPowerUp) && !isSwapPowerUp && !hasFreeSwap) {
                 game.lastSwapPosition = null;
                 game.isUserSwap = false;
             }

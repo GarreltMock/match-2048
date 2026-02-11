@@ -964,6 +964,42 @@ button {
     accent-color: #667eea;
 }
 
+.setting-item-checkbox-group {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.setting-item-checkbox-group .group-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.powerup-selection-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+}
+
+.powerup-selection-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.powerup-selection-options input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #667eea;
+    cursor: pointer;
+}
+
+.powerup-selection-options input[type="checkbox"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
 .settings-footer {
     background: #f8f9fa;
     padding: 20px;

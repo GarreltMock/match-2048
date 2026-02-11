@@ -190,61 +190,30 @@ export const GOAL_DIALOGS = {
 };
 
 // Feature unlock dialogs for game mechanics
+// Power-up info keyed by type name, used to build unlock dialogs dynamically
+const POWER_UP_INFO = {
+    hammer: { name: "Hammer", icon: "🔨", description: "Remove any tile from the board" },
+    halve: { name: "Halver", icon: "✂️", description: "Halve the value of any tile instantly" },
+    swap: { name: "Swap", icon: "🔄", description: "Swap any two tiles" },
+    teleport: { name: "Teleport", icon: "🚀", description: "Teleport any tile to any position" },
+    wildcard: { name: "Wildcard", icon: "✨", description: "Turn any tile into a wildcard" },
+};
+
+function buildPowerUpDialog(powerUpType) {
+    const info = POWER_UP_INFO[powerUpType];
+    if (!info) return null;
+    return {
+        title: `${info.name} Joker <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: info.description,
+        content: `
+            <button class="power-up-btn" title="${info.description}">
+                <span>${info.icon}</span>
+            </button>
+        `,
+    };
+}
+
 export const FEATURE_UNLOCK_DIALOGS = {
-    power_hammer: {
-        title: `Hammer Joker <span style="color: #aee96b">Unlocked</span>`,
-        subtitle: "Remove any tile from the board",
-        content: `
-            <button class="power-up-btn" title="Remove a tile">
-                <span>🔨</span>
-                <div class="use-indicator">
-                    <stroked-text
-                        text="2"
-                        font-size="26"
-                        width="40"
-                        height="40"
-                        svg-style="width: 100%; height: 100%;"
-                    ></stroked-text>
-                </div>
-            </button>
-        `,
-    },
-    power_halve: {
-        title: `Halver Joker <span style="color: #aee96b">Unlocked</span>`,
-        subtitle: "Halve a tile's value",
-        content: `
-            <button class="power-up-btn" title="Halve a tile's value">
-                <span>✂️</span>
-                <div class="use-indicator">
-                    <stroked-text
-                        text="2"
-                        font-size="26"
-                        width="40"
-                        height="40"
-                        svg-style="width: 100%; height: 100%;"
-                    ></stroked-text>
-                </div>
-            </button>
-        `,
-    },
-    power_swap: {
-        title: `Swap Joker <span style="color: #aee96b">Unlocked</span>`,
-        subtitle: "Swap any two tiles",
-        content: `
-            <button class="power-up-btn" title="Swap any two tiles">
-                <span>🔄</span>
-                <div class="use-indicator">
-                    <stroked-text
-                        text="2"
-                        font-size="26"
-                        width="40"
-                        height="40"
-                        svg-style="width: 100%; height: 100%;"
-                    ></stroked-text>
-                </div>
-            </button>
-        `,
-    },
     board_upgrades: {
         title: `Board Upgrades <span style="color: #aee96b">Unlocked</span>`,
         subtitle: "Remove the lowest tile value on the board and get higher value tiles",
@@ -460,7 +429,15 @@ export function hasFeatureBeenUnlocked(featureKey) {
  * @param {Function} onClose - Callback when dialog is closed
  */
 export function showFeatureUnlockDialog(featureKey, game, onClose) {
-    const dialog = FEATURE_UNLOCK_DIALOGS[featureKey];
+    // Resolve power_up_N keys to actual power-up type from game's selected power-ups
+    let dialog = FEATURE_UNLOCK_DIALOGS[featureKey];
+    if (!dialog && featureKey.startsWith("power_up_")) {
+        const slotIndex = parseInt(featureKey.split("_")[2]) - 1;
+        const powerUpType = game.selectedPowerUps[slotIndex];
+        if (powerUpType) {
+            dialog = buildPowerUpDialog(powerUpType);
+        }
+    }
     if (!dialog) {
         console.warn(`Unknown feature: ${featureKey}`);
         if (onClose) onClose();
@@ -508,42 +485,34 @@ export function showFeatureUnlockDialog(featureKey, game, onClose) {
 /**
  * Populate the intro dialog power-ups list based on which power-ups have been unlocked
  */
-export function updateIntroDialogPowerupsList() {
+export function updateIntroDialogPowerupsList(game) {
     const powerupList = document.getElementById("powerupList");
     const powerupsSection = document.getElementById("powerupsSection");
     if (!powerupList || !powerupsSection) return;
 
-    // Define power-up information
-    const powerups = [
-        { key: "power_hammer", icon: "🔨", name: "Hammer", description: "Remove any tile from the board" },
-        { key: "power_halve", icon: "✂️", name: "Halve", description: "Halve the value of any tile instantly" },
-        { key: "power_swap", icon: "🔄", name: "Swap", description: "Swap adjacent tiles even without matches" },
-    ];
-
     // Clear existing list
     powerupList.innerHTML = "";
 
-    // Filter and add only unlocked power-ups
-    const unlockedPowerups = powerups.filter((powerup) => isFeatureUnlocked(powerup.key));
+    // Get visible (selected + unlocked) power-up types from game
+    const visibleTypes = game.getVisiblePowerUpTypes();
 
-    if (unlockedPowerups.length === 0) {
-        // Hide the entire power-ups section if no power-ups are unlocked
+    if (visibleTypes.length === 0) {
         powerupsSection.style.display = "none";
         return;
     }
 
-    // Show the section
     powerupsSection.style.display = "block";
 
-    // Add unlocked power-ups to the list
-    unlockedPowerups.forEach((powerup) => {
+    visibleTypes.forEach((type) => {
+        const info = POWER_UP_INFO[type];
+        if (!info) return;
         const powerupItem = document.createElement("div");
         powerupItem.className = "powerup-item";
         powerupItem.innerHTML = `
-            <span class="powerup-icon">${powerup.icon}</span>
+            <span class="powerup-icon">${info.icon}</span>
             <div class="powerup-info">
-                <strong>${powerup.name}</strong><br />
-                ${powerup.description}
+                <strong>${info.name}</strong><br />
+                ${info.description}
             </div>
         `;
         powerupList.appendChild(powerupItem);

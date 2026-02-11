@@ -66,10 +66,7 @@ export function checkLevelComplete(game) {
 
         // Award one random unlocked power-up (only if persistent power-ups are enabled)
         if (game.persistentPowerUpsEnabled) {
-            const unlockedPowerUps = [];
-            if (isFeatureUnlocked(FEATURE_KEYS.HAMMER)) unlockedPowerUps.push("hammer");
-            if (isFeatureUnlocked(FEATURE_KEYS.HALVE)) unlockedPowerUps.push("halve");
-            if (isFeatureUnlocked(FEATURE_KEYS.SWAP)) unlockedPowerUps.push("swap");
+            const unlockedPowerUps = game.getVisiblePowerUpTypes();
 
             if (unlockedPowerUps.length > 0) {
                 const randomPowerUp = unlockedPowerUps[Math.floor(Math.random() * unlockedPowerUps.length)];
@@ -78,6 +75,8 @@ export function checkLevelComplete(game) {
                     hammer: game.powerUpCounts.hammer.persistent,
                     halve: game.powerUpCounts.halve.persistent,
                     swap: game.powerUpCounts.swap.persistent,
+                    teleport: game.powerUpCounts.teleport.persistent,
+                    wildcard: game.powerUpCounts.wildcard.persistent,
                 });
 
                 // Show the power-up reward in the UI

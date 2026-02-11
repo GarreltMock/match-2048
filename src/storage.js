@@ -228,12 +228,16 @@ export function loadPowerUpCounts() {
     const hammer = localStorage.getItem("match2048_powerUpHammer");
     const halve = localStorage.getItem("match2048_powerUpHalve");
     const swap = localStorage.getItem("match2048_powerUpSwap");
+    const teleport = localStorage.getItem("match2048_powerUpTeleport");
+    const wildcard = localStorage.getItem("match2048_powerUpWildcard");
 
     // Default to 2 of each if no stored values
     return {
         hammer: hammer !== null ? parseInt(hammer, 10) : 2,
         halve: halve !== null ? parseInt(halve, 10) : 2,
         swap: swap !== null ? parseInt(swap, 10) : 2,
+        teleport: teleport !== null ? parseInt(teleport, 10) : 2,
+        wildcard: wildcard !== null ? parseInt(wildcard, 10) : 2,
     };
 }
 
@@ -245,6 +249,8 @@ export function savePowerUpCounts(powerUpCounts) {
     localStorage.setItem("match2048_powerUpHammer", powerUpCounts.hammer.toString());
     localStorage.setItem("match2048_powerUpHalve", powerUpCounts.halve.toString());
     localStorage.setItem("match2048_powerUpSwap", powerUpCounts.swap.toString());
+    localStorage.setItem("match2048_powerUpTeleport", powerUpCounts.teleport.toString());
+    localStorage.setItem("match2048_powerUpWildcard", powerUpCounts.wildcard.toString());
 }
 
 /**
@@ -501,4 +507,21 @@ export function loadDeterministicPowerUpCycleEnabled() {
  */
 export function saveDeterministicPowerUpCycleEnabled(enabled) {
     localStorage.setItem("match2048_deterministicPowerUpCycleEnabled", enabled.toString());
+}
+
+export function loadSelectedPowerUps() {
+    const saved = localStorage.getItem("match2048_selectedPowerUps");
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length === 3) return parsed;
+        } catch (e) {
+            // fall through to default
+        }
+    }
+    return ["hammer", "halve", "swap"];
+}
+
+export function saveSelectedPowerUps(selected) {
+    localStorage.setItem("match2048_selectedPowerUps", JSON.stringify(selected));
 }

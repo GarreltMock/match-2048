@@ -143,6 +143,12 @@
                     <button id="swapPowerUp" class="power-up-btn game" data-powerup="swap" title="Swap any two tiles">
                         🔄
                     </button>
+                    <button id="teleportPowerUp" class="power-up-btn game" data-powerup="teleport" title="Teleport: swap any two tiles" style="display:none">
+                        🚀
+                    </button>
+                    <button id="wildcardPowerUp" class="power-up-btn game" data-powerup="wildcard" title="Turn a tile into a wildcard" style="display:none">
+                        ✨
+                    </button>
                 </div>
                 <div id="powerUpCycleIndicator" class="power-up-cycle-indicator"></div>
 
@@ -329,6 +335,22 @@
                         <button class="shop-buy-btn powerup-buy-btn">
                             <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
                             <span class="shop-price">300</span>
+                        </button>
+                    </div>
+                    <div class="shop-item powerup-shop-item" data-powerup="teleport" data-cost="300">
+                        <div class="powerup-shop-icon">🚀</div>
+                        <div class="powerup-shop-name">Teleport</div>
+                        <button class="shop-buy-btn powerup-buy-btn">
+                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
+                            <span class="shop-price">300</span>
+                        </button>
+                    </div>
+                    <div class="shop-item powerup-shop-item" data-powerup="wildcard" data-cost="400">
+                        <div class="powerup-shop-icon">✨</div>
+                        <div class="powerup-shop-name">Wildcard</div>
+                        <button class="shop-buy-btn powerup-buy-btn">
+                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
+                            <span class="shop-price">400</span>
                         </button>
                     </div>
                 </div>
@@ -550,6 +572,19 @@
                             1 move).
                         </div>
                     </details>
+
+                    <div class="settings-section-title">Power-Up Selection</div>
+
+                    <div class="setting-item setting-item-checkbox-group" id="powerUpSelectionGroup">
+                        <label class="group-label">Choose 3 Power-Ups:</label>
+                        <div class="powerup-selection-options">
+                            <label><input type="checkbox" value="hammer" class="powerup-select-cb" /> 🔨 Hammer</label>
+                            <label><input type="checkbox" value="halve" class="powerup-select-cb" /> ✂️ Halver</label>
+                            <label><input type="checkbox" value="swap" class="powerup-select-cb" /> 🔄 Swap</label>
+                            <label><input type="checkbox" value="teleport" class="powerup-select-cb" /> 🚀 Teleport</label>
+                            <label><input type="checkbox" value="wildcard" class="powerup-select-cb" /> ✨ Wildcard</label>
+                        </div>
+                    </div>
 
                     <div class="settings-section-title">Joker</div>
 
