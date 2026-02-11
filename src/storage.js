@@ -294,6 +294,13 @@ export function saveUnlockedFeature(featureKey) {
  * @param {string} featureKey - The feature key to check
  * @returns {boolean} True if feature is unlocked
  */
+// Legacy keys stored before power-up slots were made generic
+const LEGACY_POWER_UP_KEYS = {
+    power_up_1: "power_hammer",
+    power_up_2: "power_halve",
+    power_up_3: "power_swap",
+};
+
 export function isFeatureUnlocked(featureKey) {
     // Check if feature locks should be respected
     const respectsLocks = loadRespectsLocks();
@@ -301,7 +308,12 @@ export function isFeatureUnlocked(featureKey) {
         return true; // All features unlocked
     }
 
-    return loadUnlockedFeatures().has(featureKey);
+    const unlocked = loadUnlockedFeatures();
+    if (unlocked.has(featureKey)) return true;
+
+    // Check legacy key for backward compatibility
+    const legacyKey = LEGACY_POWER_UP_KEYS[featureKey];
+    return legacyKey ? unlocked.has(legacyKey) : false;
 }
 
 /**
