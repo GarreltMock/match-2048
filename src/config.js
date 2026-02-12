@@ -28,6 +28,7 @@ export const SPECIAL_TILE_TYPES = {
     HALVER: "halver",
     RANDOM_POWERUP: "random_powerup",
     TELEPORT: "teleport",
+    WILD_TELEPORT: "wild_teleport",
     PLUS: "plus",
 };
 

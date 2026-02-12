@@ -16,6 +16,7 @@ import {
     isTileHalverTile,
     isTileTeleportTile,
     isTilePlusTile,
+    isWildTeleportTile,
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
@@ -168,6 +169,11 @@ export function renderBoard(game) {
                     ${targetValueDisplay}
                 `;
                 gem.classList.add("joker-tile");
+
+                // Add wild-teleport class for joker+teleport hybrid tiles
+                if (isWildTeleportTile(tile) && !tile.hasBeenSwapped) {
+                    gem.classList.add("wild-teleport-tile");
+                }
             } else if (isCursed(tile)) {
                 const value = getTileValue(tile);
                 gem.className = `gem tile-${value} cursed-tile`;
