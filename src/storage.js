@@ -537,3 +537,24 @@ export function loadSelectedPowerUps() {
 export function saveSelectedPowerUps(selected) {
     localStorage.setItem("match2048_selectedPowerUps", JSON.stringify(selected));
 }
+
+/**
+ * Load the "Super Strike Wildcard Teleport" setting.
+ * When enabled and super streak is active, Wildcard rewards are replaced by Wildcard Teleport.
+ * @returns {boolean} True if enabled (default: false)
+ */
+export function loadSuperStrikeWildcardTeleport() {
+    const saved = localStorage.getItem("match2048_superStrikeWildcardTeleport");
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the "Super Strike Wildcard Teleport" setting.
+ * @param {boolean} enabled
+ */
+export function saveSuperStrikeWildcardTeleport(enabled) {
+    localStorage.setItem("match2048_superStrikeWildcardTeleport", enabled.toString());
+}

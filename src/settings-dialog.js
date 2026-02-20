@@ -17,6 +17,7 @@ import {
     savePowerUpOnSpecialTileUseEnabled,
     saveDeterministicPowerUpCycleEnabled,
     saveSelectedPowerUps,
+    saveSuperStrikeWildcardTeleport,
 } from "./storage.js";
 import { APP_VERSION } from "./version.js";
 import { cyrb53 } from "./tracker.js";
@@ -45,6 +46,7 @@ export function setupSettingsButton(game) {
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
     const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
     const deterministicPowerUpCycleEnabledCheckbox = document.getElementById("deterministicPowerUpCycleEnabled");
+    const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
 
     const togglePowerUpOptions = (show) => {
         const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -159,6 +161,9 @@ export function setupSettingsButton(game) {
         if (deterministicPowerUpCycleEnabledCheckbox) {
             deterministicPowerUpCycleEnabledCheckbox.checked = game.deterministicPowerUpCycleEnabled;
         }
+        if (superStrikeWildcardTeleportCheckbox) {
+            superStrikeWildcardTeleportCheckbox.checked = game.superStrikeWildcardTeleport;
+        }
 
         const powerUpCheckboxes = document.querySelectorAll(".powerup-select-cb");
         powerUpCheckboxes.forEach((cb) => {
@@ -268,6 +273,10 @@ export function setupSettingsButton(game) {
                 if (deterministicPowerUpCycleEnabledCheckbox) {
                     game.deterministicPowerUpCycleEnabled = deterministicPowerUpCycleEnabledCheckbox.checked;
                     saveDeterministicPowerUpCycleEnabled(game.deterministicPowerUpCycleEnabled);
+                }
+                if (superStrikeWildcardTeleportCheckbox) {
+                    game.superStrikeWildcardTeleport = superStrikeWildcardTeleportCheckbox.checked;
+                    saveSuperStrikeWildcardTeleport(game.superStrikeWildcardTeleport);
                 }
 
                 const selectedCbs = document.querySelectorAll(".powerup-select-cb:checked");

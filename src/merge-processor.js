@@ -1,5 +1,6 @@
 // Match processing and tile merging logic
 
+import { SUPER_STREAK_THRESHOLD } from "./config.js";
 import {
     createTile,
     createJokerTile,
@@ -240,7 +241,17 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
 
 export function createMergedTiles(game, group, wasUserSwap = false) {
     const formationType = getFormationConfig(group.direction);
-    const specialTileType = formationType ? game.specialTileConfig[formationType] : null;
+    let specialTileType = formationType ? game.specialTileConfig[formationType] : null;
+
+    // When Super Strike (super streak) is active and the setting is enabled,
+    // replace Wildcard (joker) rewards with Wildcard Teleport
+    if (
+        specialTileType === "joker" &&
+        game.superStrikeWildcardTeleport &&
+        game.superStreak >= SUPER_STREAK_THRESHOLD
+    ) {
+        specialTileType = "wild_teleport";
+    }
 
     // Calculate positions and value based on formation type
     const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
