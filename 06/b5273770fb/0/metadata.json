@@ -1,0 +1,41 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "06b5273770fb",
+  "session_id": "d6025749-7beb-451f-a143-57e4c33d5eab",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-23T11:00:36.242327Z",
+  "branch": "claude/goofy-kilby",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/animator.js",
+    "src/game.js",
+    "src/gravity.js",
+    "src/input-handler.js",
+    "src/match-detector.js",
+    "src/merge-processor.js",
+    "src/renderer.js",
+    "src/simulation.js",
+    "src/tile-helpers.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "023c3cc1-4786-4439-b8ad-6a8fe5a47aa7",
+  "checkpoint_transcript_start": 265,
+  "transcript_lines_at_start": 265,
+  "token_usage": {
+    "input_tokens": 18,
+    "cache_creation_tokens": 38993,
+    "cache_read_tokens": 624918,
+    "output_tokens": 90,
+    "api_call_count": 14
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-23T11:00:35.615171Z",
+    "agent_lines": 39,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 39,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock--claude-worktrees-match-2048-goofy-kilby/d6025749-7beb-451f-a143-57e4c33d5eab.jsonl"
+}
