@@ -99,13 +99,18 @@ export async function processMatches(game, { animateMerges, animateUnblocking } 
             blockedTilesToRemove,
             () => game.updateBlockedTileGoals(),
             (check) => game.updateGoalDisplay(check),
-            speedMultiplier
+            speedMultiplier,
         );
     }
 
     // Start merge animations, or process merges directly if no animation callback
     if (animateMerges) {
-        animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
+        animateMerges(
+            game,
+            matchGroups,
+            (matchGroups) => processMerges(game, matchGroups, wasUserSwap),
+            speedMultiplier,
+        );
     } else {
         processMerges(game, matchGroups, wasUserSwap);
     }
@@ -199,7 +204,6 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
                 game.grantFormationPowerUp(direction);
             }
         });
-
     }
 
     // Clear all matched tiles first
@@ -361,7 +365,7 @@ export function determineSpecialTilePosition(game, group, formationType) {
         // For block formation, choose the intersection closest to swap position
         // First check if the swapped tile is one of the intersections
         const matchingIntersection = group.intersections.find(
-            (pos) => pos.row === swapPos.row && pos.col === swapPos.col
+            (pos) => pos.row === swapPos.row && pos.col === swapPos.col,
         );
         if (matchingIntersection) {
             return matchingIntersection;
@@ -643,6 +647,7 @@ export function unblockAdjacentTiles(game, matchGroups) {
     goalTilesToDamage.forEach((entry) => {
         const tile = game.board[entry.row][entry.col];
         if (isBlockedWithLife(tile)) {
+            const oldLife = tile.lifeValue;
             tile.lifeValue -= entry.damage;
             // If life goes below or equal to 0, mark for removal
             if (tile.lifeValue <= 0) {
@@ -651,6 +656,28 @@ export function unblockAdjacentTiles(game, matchGroups) {
                     col: entry.col,
                     targetPos: entry.targetPos,
                 });
+            } else {
+                // Visual feedback: shake + floating damage text
+                const el = isRectangularBlocked(tile)
+                    ? document.querySelector(`[data-rect-id="${tile.rectId}"]`)
+                    : document.querySelector(`[data-row="${entry.row}"][data-col="${entry.col}"]`);
+                if (el) {
+                    const ratio = entry.damage / oldLife;
+                    const intensity = Math.min(1 + ratio * 9, 10);
+                    el.style.setProperty("--shake-intensity", `${intensity}px`);
+                    el.classList.add("blocked-damaged");
+                    el.dataset.life = tile.lifeValue;
+
+                    const dmgText = document.createElement("span");
+                    dmgText.className = "damage-text";
+                    dmgText.textContent = `-${entry.damage}`;
+                    el.appendChild(dmgText);
+
+                    setTimeout(() => {
+                        el.classList.remove("blocked-damaged");
+                        dmgText.remove();
+                    }, 800);
+                }
             }
         }
     });

@@ -917,7 +917,7 @@
     align-items: center;
     justify-content: center;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .gem.tile-BLOCKED_WITH_LIFE::before {
@@ -953,6 +953,65 @@
     color: var(--tile-blocked-life-color);
     font-size: clamp(1rem, 40cqw, 1.2rem);
     font-weight: bold;
+}
+
+/* Blocked tile damage shake */
+@keyframes blockedShake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    15% {
+        transform: translateX(calc(-1 * var(--shake-intensity)));
+    }
+    30% {
+        transform: translateX(var(--shake-intensity));
+    }
+    45% {
+        transform: translateX(calc(-0.7 * var(--shake-intensity)));
+    }
+    60% {
+        transform: translateX(calc(0.5 * var(--shake-intensity)));
+    }
+    75% {
+        transform: translateX(calc(-0.3 * var(--shake-intensity)));
+    }
+}
+
+.gem.blocked-damaged {
+    animation: blockedShake 0.35s ease-out;
+}
+
+/* Floating damage text */
+@keyframes damageFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(-20%) scale(1.1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-80%) scale(0.8);
+    }
+}
+
+.damage-text {
+    position: absolute;
+    bottom: 60%;
+    left: 60%;
+    z-index: 300;
+    pointer-events: none;
+    font-weight: bolder;
+    font-style: italic;
+    font-size: clamp(1.5rem, 45cqw, 2rem);
+    color: #ff4444;
+    text-shadow:
+        0 0 3px rgba(0, 0, 0, 0.8),
+        0 1px 2px rgba(0, 0, 0, 0.6);
+    animation: damageFloat 0.8s ease-out forwards;
 }
 
 .gem.tile-BLOCKED_WITH_LIFE.unblocking {
