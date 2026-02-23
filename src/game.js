@@ -12,19 +12,14 @@ import {
 } from "./config.js";
 import {
     loadSpecialTileConfig,
-    saveSpecialTileConfig,
     loadCurrentLevel,
     saveCurrentLevel,
     loadScore,
     saveScore,
     loadLevelConfigKey,
-    saveLevelConfigKey,
     saveRespectsLocks,
-    loadUserId,
     loadBoardUpgradeAction,
-    saveBoardUpgradeAction,
     loadSuperUpgradeAction,
-    saveSuperUpgradeAction,
     loadStreak,
     saveStreak,
     loadHearts,
@@ -39,40 +34,19 @@ import {
     isFeatureUnlocked,
     saveUnlockedFeature,
     loadHintsEnabled,
-    saveHintsEnabled,
     loadHintTimeoutMs,
-    saveHintTimeoutMs,
     loadAllowNonMatchingSwaps,
-    saveAllowNonMatchingSwaps,
     loadFormationPowerUpRewards,
-    saveFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
-    savePersistentPowerUpsEnabled,
     loadPowerUpOnSpecialTileUseEnabled,
-    savePowerUpOnSpecialTileUseEnabled,
     loadDeterministicPowerUpCycleEnabled,
-    saveDeterministicPowerUpCycleEnabled,
     loadSelectedPowerUps,
-    saveSelectedPowerUps,
 } from "./storage.js";
-import { track, cyrb53, trackLevelSolved, trackLevelLost } from "./tracker.js";
-import { APP_VERSION } from "./version.js";
+import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import {
     createTile,
-    createCursedTile,
     createBlockedTile,
     createBlockedMovableTile,
-    createBlockedWithLifeTile,
-    isCursed,
-    isBlocked,
-    isBlockedWithLife,
-    isBlockedMovable,
-    isRectangularBlocked,
-    isBlockedWithMergeCount,
-    isNormal,
-    isJoker,
-    getFontSize,
-    getDisplayValue,
 } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
@@ -93,6 +67,7 @@ import {
     renderPowerUpRewards,
     updateGoalDisplay,
     updateMovesDisplay,
+    renderHintHighlight,
 } from "./renderer.js";
 import { findBestSwap } from "./hint-system.js";
 import {
@@ -107,7 +82,6 @@ import {
 import {
     showGoalDialog,
     hasDialogBeenShown,
-    updateIntroDialogPowerupsList,
     showFeatureUnlockDialog,
     hasFeatureBeenUnlocked,
 } from "./goal-dialogs.js";
@@ -116,10 +90,31 @@ import {
     initTutorial,
     isTutorialActive,
     showTutorialUI,
-    isTutorialPowerUpStep,
-    isValidTutorialPowerUp,
-    updateTutorialUI,
 } from "./tutorial.js";
+import { setupSettingsButton, setupInfoButton } from "./settings-dialog.js";
+import {
+    setupPowerUps,
+    activatePowerUp,
+    deactivatePowerUp,
+    isPowerUpButtonVisible,
+    getVisiblePowerUpTypes,
+    grantRandomPowerUp,
+    grantPowerUp,
+    getTotalPowerUpCount,
+    consumePowerUp,
+    grantFormationPowerUp,
+    showPowerUpRewardAnimation,
+    showPowerUps,
+    hidePowerUps,
+    updatePowerUpButtons,
+    updatePowerUpCycleIndicator,
+    handlePowerUpAction,
+    usePowerUpHammer,
+    usePowerUpHalve,
+    usePowerUpWildcard,
+    setupPowerupShop,
+    openPowerupShop,
+} from "./power-ups.js";
 
 export class Match3Game {
     constructor() {
@@ -244,10 +239,10 @@ export class Match3Game {
         });
 
         this.initializeLevels();
-        this.setupInfoButton();
-        this.setupSettingsButton();
+        setupInfoButton(this);
+        setupSettingsButton(this);
         this.setupExtraMovesDialog();
-        this.setupPowerupShop();
+        setupPowerupShop(this);
         this.setupControlButtons();
         // Setup event listeners once during initialization
         setupEventListeners(this);
@@ -555,7 +550,7 @@ export class Match3Game {
         this.setupGiveUpDialog();
 
         // Setup power-ups
-        this.setupPowerUps();
+        setupPowerUps(this);
     }
 
     // Wrapper methods that delegate to imported modules
@@ -729,261 +724,22 @@ export class Match3Game {
         });
     }
 
-    // Power-up methods
-    setupPowerUps() {
-        const powerUpButtons = document.querySelectorAll(".power-up-btn.game");
-
-        powerUpButtons.forEach((button) => {
-            button.addEventListener("click", () => {
-                if (!this.gameActive) return;
-
-                const powerUpType = button.dataset.powerup;
-
-                // Check if power-up is unlocked (visibility already handles selection + unlock)
-                if (!this.isPowerUpButtonVisible(powerUpType)) {
-                    return; // Ignore clicks on locked/hidden power-ups
-                }
-
-                // Check if power-up has uses remaining
-                if (this.getTotalPowerUpCount(powerUpType) <= 0) {
-                    // Open powerup shop instead
-                    this.openPowerupShop();
-                    return;
-                }
-
-                // Tutorial validation - only allow the specified power-up
-                if (isTutorialActive(this) && isTutorialPowerUpStep(this)) {
-                    if (!isValidTutorialPowerUp(this, powerUpType)) {
-                        return; // Block clicking non-tutorial power-ups
-                    }
-                }
-
-                if (this.activePowerUp === powerUpType) {
-                    // Deselect power-up
-                    this.deactivatePowerUp();
-                } else {
-                    // Select power-up
-                    this.activatePowerUp(powerUpType);
-                }
-            });
-        });
-    }
-
-    activatePowerUp(type) {
-        // Block power-ups during tutorial (except during power-up tutorial steps)
-        if (isTutorialActive(this) && !isTutorialPowerUpStep(this)) {
-            return;
-        }
-
-        this.deactivatePowerUp(); // Clear any active power-up first
-        this.activePowerUp = type;
-        this.powerUpSwapTiles = [];
-
-        // Add visual feedback
-        const button = document.querySelector(`[data-powerup="${type}"]`);
-        if (button) {
-            button.classList.add("active");
-        }
-
-        // Update tutorial UI to show next step (tap on target tile)
-        if (isTutorialActive(this) && isTutorialPowerUpStep(this)) {
-            updateTutorialUI(this);
-        }
-    }
-
-    deactivatePowerUp() {
-        if (this.activePowerUp) {
-            const button = document.querySelector(`[data-powerup="${this.activePowerUp}"]`);
-            if (button) {
-                button.classList.remove("active");
-            }
-        }
-
-        this.activePowerUp = null;
-        this.powerUpSwapTiles = [];
-    }
-
-    
-    isPowerUpButtonVisible(powerUpType) {
-        const idx = this.selectedPowerUps.indexOf(powerUpType);
-        if (idx === -1) return false;
-
-        // Count how many power-up slots are unlocked (in progression order)
-        const unlockKeys = [FEATURE_KEYS.POWER_UP_1, FEATURE_KEYS.POWER_UP_2, FEATURE_KEYS.POWER_UP_3];
-        let unlockedSlots = 0;
-        for (const key of unlockKeys) {
-            if (isFeatureUnlocked(key)) unlockedSlots++;
-            else break; // stop at first locked feature
-        }
-
-        // Show the first N selected power-ups based on unlocked slots
-        return idx < unlockedSlots;
-    }
-
-    getVisiblePowerUpTypes() {
-        return this.selectedPowerUps.filter((t) => this.isPowerUpButtonVisible(t));
-    }
-
-    grantRandomPowerUp() {
-        const powerUpTypes = this.selectedPowerUps;
-        let powerUpType = null;
-
-        if (this.deterministicPowerUpCycleEnabled) {
-            const index = this.powerUpCycleIndex % powerUpTypes.length;
-            powerUpType = powerUpTypes[index];
-            this.powerUpCycleIndex = (index + 1) % powerUpTypes.length;
-        } else {
-            // Pick a random power-up type
-            powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
-        }
-
-        this.grantPowerUp(powerUpType);
-        this.showPowerUpRewardAnimation(powerUpType);
-    }
-
-    grantPowerUp(powerUpType) {
-        // Increment the transient power-up count
-        this.powerUpCounts[powerUpType].transient++;
-
-        // Update the power-up buttons to show the new count
-        this.updatePowerUpButtons();
-    }
-
-    getTotalPowerUpCount(type) {
-        const counts = this.powerUpCounts[type];
-        const persistent = this.persistentPowerUpsEnabled ? counts.persistent : 0;
-        return persistent + counts.transient;
-    }
-
-    consumePowerUp(type) {
-        // Track usage
-        this.powerUpUsedCounts[type]++;
-
-        const counts = this.powerUpCounts[type];
-        // Priority: transient first, then persistent
-        if (counts.transient > 0) {
-            counts.transient--;
-        } else if (this.persistentPowerUpsEnabled && counts.persistent > 0) {
-            counts.persistent--;
-            savePowerUpCounts({
-                hammer: this.powerUpCounts.hammer.persistent,
-                halve: this.powerUpCounts.halve.persistent,
-                swap: this.powerUpCounts.swap.persistent,
-                teleport: this.powerUpCounts.teleport.persistent,
-                wildcard: this.powerUpCounts.wildcard.persistent,
-            });
-        }
-    }
-
-    /**
-     * Grant a power-up for creating a 5-tile formation and show celebration animation
-     * @param {string} formationType - "L-formation", "T-formation", or "line_5"
-     */
-    grantFormationPowerUp(formationType) {
-        if (!this.formationPowerUpRewards) return;
-
-        // Map formation type to power-up
-        const formationToPowerUp = {
-            "L-formation": "hammer",
-            "T-formation": "halve",
-            line_5_horizontal: "swap",
-            line_5_vertical: "swap",
-        };
-
-        const powerUpType = formationToPowerUp[formationType];
-        if (!powerUpType) return;
-
-        // Only grant if the power-up button is actually visible (i.e. feature introduced).
-        if (!this.isPowerUpButtonVisible(powerUpType)) return;
-
-        this.grantPowerUp(powerUpType);
-        this.showPowerUpRewardAnimation(powerUpType);
-    }
-
-    /**
-     * Show floating celebration animation for formation power-up reward
-     * @param {string} powerUpType - "hammer", "halve", or "swap"
-     */
-    showPowerUpRewardAnimation(powerUpType) {
-        const motivationalWords = ["Great!", "Awesome!", "Wow!", "Amazing!", "Nice!", "Super!"];
-        const randomWord = motivationalWords[Math.floor(Math.random() * motivationalWords.length)];
-
-        const powerUpIcons = {
-            hammer: "🔨",
-            halve: "✂️",
-            swap: "🔄",
-            teleport: "🚀",
-            wildcard: "✨",
-        };
-        const icon = powerUpIcons[powerUpType];
-
-        // Create the animation container
-        const container = document.createElement("div");
-        container.className = "formation-powerup-animation";
-
-        // Create headline using stroked-text
-        const headline = document.createElement("stroked-text");
-        headline.className = "formation-powerup-headline";
-        headline.setAttribute("text", randomWord);
-        headline.setAttribute("font-size", "48");
-        headline.setAttribute("stroke-width", "12");
-        headline.setAttribute("fill", "#FFD700");
-        headline.setAttribute("stroke", "#333");
-
-        // Create subtitle container for inline elements
-        const subtitleContainer = document.createElement("div");
-        subtitleContainer.className = "formation-powerup-subtitle";
-
-        // Create "+1" text using stroked-text
-        const plusOneText = document.createElement("stroked-text");
-        plusOneText.setAttribute("text", "+1");
-        plusOneText.setAttribute("font-size", "36");
-        plusOneText.setAttribute("stroke-width", "10");
-        plusOneText.setAttribute("fill", "#FFFFFF");
-        plusOneText.setAttribute("stroke", "#333");
-
-        // Create icon using stroked-text
-        const iconText = document.createElement("stroked-text");
-        iconText.setAttribute("text", icon);
-        iconText.setAttribute("font-size", "36");
-        iconText.setAttribute("stroke-width", "6");
-
-        subtitleContainer.appendChild(plusOneText);
-        subtitleContainer.appendChild(iconText);
-
-        container.appendChild(headline);
-        container.appendChild(subtitleContainer);
-
-        // Add to game container
-        const gameContainer = document.getElementById("game-container");
-        if (gameContainer) {
-            gameContainer.appendChild(container);
-
-            // Remove after animation completes
-            setTimeout(() => {
-                container.remove();
-            }, 2000);
-        }
-    }
-
-    showPowerUps() {
-        const powerUpsContainer = document.querySelector(".power-ups");
-        if (powerUpsContainer) {
-            powerUpsContainer.style.visibility = "";
-        }
-        // Show only selected power-up buttons, hide the rest
-        const allButtons = document.querySelectorAll(".power-up-btn.game");
-        allButtons.forEach((btn) => {
-            btn.style.display = this.selectedPowerUps.includes(btn.dataset.powerup) ? "" : "none";
-        });
-    }
-
-    hidePowerUps() {
-        const powerUpsContainer = document.querySelector(".power-ups");
-        if (powerUpsContainer) {
-            powerUpsContainer.style.visibility = "hidden";
-        }
-    }
+    // Power-up methods (delegated to power-ups.js)
+    activatePowerUp(type)           { activatePowerUp(this, type); }
+    deactivatePowerUp()             { deactivatePowerUp(this); }
+    isPowerUpButtonVisible(type)    { return isPowerUpButtonVisible(this, type); }
+    getVisiblePowerUpTypes()        { return getVisiblePowerUpTypes(this); }
+    grantRandomPowerUp()            { grantRandomPowerUp(this); }
+    grantPowerUp(type)              { grantPowerUp(this, type); }
+    getTotalPowerUpCount(type)      { return getTotalPowerUpCount(this, type); }
+    consumePowerUp(type)            { consumePowerUp(this, type); }
+    grantFormationPowerUp(ft)       { grantFormationPowerUp(this, ft); }
+    handlePowerUpAction(r, c, el)   { return handlePowerUpAction(this, r, c, el); }
+    updatePowerUpButtons()          { updatePowerUpButtons(this); }
+    updatePowerUpCycleIndicator()   { updatePowerUpCycleIndicator(this); }
+    showPowerUps()                  { showPowerUps(this); }
+    hidePowerUps()                  { hidePowerUps(this); }
+    openPowerupShop()               { openPowerupShop(this); }
 
     showControls() {
         const controlsContainer = document.querySelector(".controls");
@@ -999,404 +755,6 @@ export class Match3Game {
         }
     }
 
-    updatePowerUpButtons() {
-        const powerUpButtons = document.querySelectorAll(".power-up-btn.game");
-
-        powerUpButtons.forEach((button) => {
-            const powerUpType = button.dataset.powerup;
-
-            // Check if power-up is visible (selected + unlocked)
-            if (!this.isPowerUpButtonVisible(powerUpType)) {
-                button.classList.add("locked");
-                button.disabled = true;
-                button.title = "Unlock by progressing through levels";
-                // Remove any existing indicators
-                const existingIndicator = button.querySelector(".use-indicator");
-                if (existingIndicator) {
-                    existingIndicator.remove();
-                }
-                return;
-            }
-
-            // Power-up is unlocked - show normal state
-            button.classList.remove("locked");
-            button.disabled = false;
-
-            const counts = this.powerUpCounts[powerUpType];
-            const persistent = this.persistentPowerUpsEnabled ? counts.persistent : 0;
-            const transient = counts.transient;
-            const total = persistent + transient;
-
-            // Remove existing use indicators
-            const existingIndicator = button.querySelector(".use-indicator");
-            if (existingIndicator) {
-                existingIndicator.remove();
-            }
-
-            if (total <= 0) {
-                // Power-up is used up - add can-purchase indicator
-                button.classList.add("can-purchase");
-                button.title = `${button.title.split(" - ")[0]} - Click to buy more`;
-            } else {
-                // Power-up has uses left - remove can-purchase indicator and show the use count
-                button.classList.remove("can-purchase");
-                // Add use indicator
-                const indicator = document.createElement("div");
-                indicator.className = "use-indicator";
-
-                const strokedText = document.createElement("stroked-text");
-                strokedText.setAttribute("text", total);
-                strokedText.setAttribute("font-size", "26");
-                strokedText.setAttribute("width", "40");
-                strokedText.setAttribute("height", "40");
-                strokedText.setAttribute("svg-style", "width: 100%; height: 100%;");
-
-                if (transient > 0) {
-                    // Blue background for transient power-ups
-                    indicator.classList.add("transient-count");
-                }
-                // else: default red background for persistent only
-
-                indicator.appendChild(strokedText);
-                button.appendChild(indicator);
-
-                button.classList.remove("disabled");
-                const baseTitle = button.title.split(" - ")[0];
-                button.title = `${baseTitle} - ${total} uses left`;
-            }
-        });
-
-        this.updatePowerUpCycleIndicator();
-    }
-
-    updatePowerUpCycleIndicator() {
-        const indicator = document.getElementById("powerUpCycleIndicator");
-        if (!indicator) return;
-
-        if (!this.deterministicPowerUpCycleEnabled) {
-            indicator.style.display = "none";
-            return;
-        }
-
-        const powerUpTypes = this.selectedPowerUps;
-        const nextType = powerUpTypes[this.powerUpCycleIndex % powerUpTypes.length];
-
-        indicator.innerHTML = powerUpTypes
-            .map((type) => `<span class="cycle-dot${type === nextType ? " active" : ""}"></span>`)
-            .join("");
-        indicator.style.display = "flex";
-    }
-
-    handlePowerUpAction(row, col, element) {
-        const tile = this.board[row][col];
-
-        switch (this.activePowerUp) {
-            case "hammer":
-                // Hammer works on normal tiles, blocked movable tiles, and blocked tiles
-                if (!tile) return;
-                // Allow hammer on NORMAL, BLOCKED_MOVABLE, BLOCKED, and BLOCKED_WITH_LIFE tiles
-                const allowedTypes = [
-                    TILE_TYPE.NORMAL,
-                    TILE_TYPE.BLOCKED_MOVABLE,
-                    TILE_TYPE.BLOCKED,
-                    TILE_TYPE.BLOCKED_WITH_LIFE,
-                ];
-                if (!allowedTypes.includes(tile.type)) return;
-                this.usePowerUpHammer(row, col, element);
-                break;
-            case "halve":
-                this.usePowerUpHalve(row, col, element);
-                break;
-            case "swap":
-            case "teleport":
-                // For swap/teleport, we want to use normal drag behavior
-                // So we don't handle it here, just return to allow normal drag
-                return false;
-            case "wildcard":
-                this.usePowerUpWildcard(row, col, element);
-                break;
-        }
-    }
-
-    usePowerUpHammer(row, col, element) {
-        const tile = this.board[row][col];
-
-        // Reset hint timer on power-up usage
-        this.resetHintTimer();
-
-        // Consume power-up
-        this.consumePowerUp("hammer");
-        this.updatePowerUpButtons();
-
-        // Track power-up usage
-        track("power_up_used", {
-            level: this.currentLevel,
-            power_up_type: "hammer",
-            remaining_moves: this.maxMoves - this.movesUsed,
-            uses_remaining: this.getTotalPowerUpCount("hammer"),
-        });
-
-        // Block interactions during animation
-        this.animating = true;
-
-        // Handle different tile types
-        if (isBlockedWithLife(tile)) {
-            // For blocked tiles with life, remove the entire tile regardless of life value
-            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-            element.style.opacity = "0";
-            element.style.transform = "scale(0)";
-
-            setTimeout(() => {
-                // Handle rectangular blocked tiles
-                if (isRectangularBlocked(tile)) {
-                    // Remove all cells in the rectangle
-                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                            if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
-                                this.board[r][c] = null;
-                            }
-                        }
-                    }
-                } else {
-                    // Single cell blocked tile
-                    this.board[row][col] = null;
-                }
-
-                // Update blocked tile goals
-                this.updateBlockedTileGoals();
-
-                // Let dropGems handle the DOM updates via renderBoard
-                this.dropGems();
-                this.deactivatePowerUp();
-            }, 300);
-        } else if (isBlockedWithMergeCount(tile)) {
-            // For blocked tiles with merge count, decrement one random cell
-            // Find a cell that still needs clearing
-            let cellToClear = null;
-            for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                    const cellKey = `${r}_${c}`;
-                    if (tile.cellMergeCounts[cellKey] > 0) {
-                        cellToClear = { row: r, col: c, cellKey: cellKey };
-                        break;
-                    }
-                }
-                if (cellToClear) break;
-            }
-
-            if (cellToClear) {
-                // Decrement the cell count
-                tile.cellMergeCounts[cellToClear.cellKey]--;
-
-                // Check if all cells are cleared
-                const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
-
-                if (allCleared) {
-                    // All cells cleared, remove the entire block
-                    element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-                    element.style.opacity = "0";
-                    element.style.transform = "scale(0)";
-
-                    setTimeout(() => {
-                        // Remove all cells in the rectangle
-                        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                                if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
-                                    this.board[r][c] = null;
-                                }
-                            }
-                        }
-
-                        // Update blocked tile goals
-                        this.updateBlockedTileGoals();
-
-                        // Let dropGems handle the DOM updates via renderBoard
-                        this.dropGems();
-                        this.deactivatePowerUp();
-                    }, 300);
-                } else {
-                    // Still has cells to clear, just show animation
-                    element.style.transition = "transform 0.2s ease";
-                    element.style.transform = "scale(1.1)";
-
-                    setTimeout(() => {
-                        element.style.transform = "scale(1)";
-
-                        // Re-render to show updated state
-                        this.renderBoard();
-
-                        this.animating = false;
-                        this.deactivatePowerUp();
-                    }, 200);
-                }
-            } else {
-                // No cells to clear? This shouldn't happen, but handle gracefully
-                this.animating = false;
-                this.deactivatePowerUp();
-            }
-        } else if (isBlocked(tile) || isBlockedMovable(tile)) {
-            // Regular blocked tiles - remove immediately
-            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-            element.style.opacity = "0";
-            element.style.transform = "scale(0)";
-
-            setTimeout(() => {
-                // Handle rectangular blocked tiles
-                if (isRectangularBlocked(tile)) {
-                    // Remove all cells in the rectangle
-                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                            if (r >= 0 && r < this.boardHeight && c >= 0 && c < this.boardWidth) {
-                                this.board[r][c] = null;
-                            }
-                        }
-                    }
-                } else {
-                    // Single cell blocked tile
-                    this.board[row][col] = null;
-                }
-
-                // Update blocked tile goals
-                this.updateBlockedTileGoals();
-
-                // Let dropGems handle the DOM updates via renderBoard
-                this.dropGems();
-                this.deactivatePowerUp();
-            }, 300);
-        } else {
-            // Normal tiles or blocked movable - remove as before
-            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-            element.style.opacity = "0";
-            element.style.transform = "scale(0)";
-
-            setTimeout(() => {
-                // Remove the tile from the board state
-                this.board[row][col] = null;
-
-                // Let dropGems handle the DOM updates via renderBoard
-                this.dropGems();
-                this.deactivatePowerUp();
-            }, 300);
-        }
-    }
-
-    usePowerUpHalve(row, col, element) {
-        const tile = this.board[row][col];
-        const isCursedTile = isCursed(tile);
-        const currentValue = tile && (tile.type === TILE_TYPE.NORMAL || isCursedTile) ? tile.value : null;
-
-        if (currentValue && currentValue > 1) {
-            // Reset hint timer on power-up usage
-            this.resetHintTimer();
-
-            // Consume power-up
-            this.consumePowerUp("halve");
-            this.updatePowerUpButtons();
-
-            // Track power-up usage
-            track("power_up_used", {
-                level: this.currentLevel,
-                power_up_type: "halve",
-                remaining_moves: this.maxMoves - this.movesUsed,
-                uses_remaining: this.getTotalPowerUpCount("halve"),
-            });
-
-            // Block interactions during animation
-            this.animating = true;
-
-            // Decrement by 1 to go to previous level (halving in display terms)
-            const halvedValue = currentValue - 1;
-
-            // If tile is cursed, keep it cursed but halve the value
-            if (isCursedTile) {
-                this.board[row][col] = createCursedTile(halvedValue, tile.cursedMovesRemaining);
-            } else {
-                this.board[row][col] = createTile(halvedValue);
-            }
-
-            // Track goal progress for the newly created tile (via merge-processor)
-            this.levelGoals.forEach((goal) => {
-                if (goal.tileValue === halvedValue) {
-                    goal.created += 1;
-                }
-            });
-
-            // Update the visual element with proper rendering
-            const displayValue = getDisplayValue(halvedValue);
-            const fontSize = getFontSize(displayValue);
-            element.innerHTML = `<span style="font-size: ${fontSize}cqw">${displayValue}</span>`;
-            element.className = `gem tile-${halvedValue}`;
-            if (isCursedTile) {
-                element.classList.add("cursed-tile");
-                element.dataset.cursedMoves = tile.cursedMovesRemaining;
-            }
-            element.dataset.row = row;
-            element.dataset.col = col;
-
-            // Add animation effect
-            element.style.transform = "scale(1.2)";
-            setTimeout(() => {
-                element.style.transform = "scale(1)";
-
-                // Update goal display without checking completion
-                // Let the natural cascade completion handle checkLevelComplete
-                this.updateGoalDisplay(false);
-
-                // Process any matches after halving
-                setTimeout(() => {
-                    this.animating = false; // Allow interactions again
-                    this.processMatches();
-                }, 100);
-            }, 200);
-
-            this.deactivatePowerUp();
-        }
-    }
-
-    usePowerUpWildcard(row, col, element) {
-        const tile = this.board[row][col];
-
-        // Only works on normal tiles (not blocked, joker, cursed, etc.)
-        if (!tile || !isNormal(tile)) return;
-
-        // Reset hint timer on power-up usage
-        this.resetHintTimer();
-
-        // Consume power-up
-        this.consumePowerUp("wildcard");
-        this.updatePowerUpButtons();
-
-        // Track power-up usage
-        track("power_up_used", {
-            level: this.currentLevel,
-            power_up_type: "wildcard",
-            remaining_moves: this.maxMoves - this.movesUsed,
-            uses_remaining: this.getTotalPowerUpCount("wildcard"),
-        });
-
-        // Block interactions during animation
-        this.animating = true;
-
-        // Convert tile to joker
-        this.board[row][col] = {
-            type: TILE_TYPE.JOKER,
-            value: null,
-            targetValue: null,
-            specialType: null,
-            hasBeenSwapped: false,
-        };
-
-        // Add animation effect
-        element.style.transition = "transform 0.3s ease";
-        element.style.transform = "scale(1.3)";
-        setTimeout(() => {
-            element.style.transform = "scale(1)";
-            this.renderBoard();
-            this.animating = false;
-        }, 300);
-
-        this.deactivatePowerUp();
-    }
 
     setupExtraMovesDialog() {
         const extraMovesDialog = document.getElementById("extraMovesDialog");
@@ -1689,112 +1047,6 @@ export class Match3Game {
         }
     }
 
-    setupPowerupShop() {
-        const powerupShopDialog = document.getElementById("powerupShopDialog");
-        const closePowerupShopBtn = document.getElementById("closePowerupShopBtn");
-        const powerupBuyButtons = document.querySelectorAll(".powerup-buy-btn");
-
-        // Close button handler
-        if (closePowerupShopBtn) {
-            closePowerupShopBtn.addEventListener("click", () => {
-                powerupShopDialog.classList.add("hidden");
-            });
-        }
-
-        // Click outside to close
-        if (powerupShopDialog) {
-            powerupShopDialog.addEventListener("click", (e) => {
-                if (e.target === powerupShopDialog) {
-                    powerupShopDialog.classList.add("hidden");
-                }
-            });
-        }
-
-        // Purchase button handlers
-        powerupBuyButtons.forEach((button) => {
-            // Store original button HTML for restoration
-            const originalHTML = button.innerHTML;
-            let isPurchasing = false;
-
-            button.addEventListener("click", (e) => {
-                e.stopPropagation();
-
-                // Prevent double-clicking during animation
-                if (isPurchasing) return;
-
-                const shopItem = button.closest(".powerup-shop-item");
-                const powerupType = shopItem.getAttribute("data-powerup");
-                const cost = parseInt(shopItem.getAttribute("data-cost"));
-
-                // Validate cost and coins
-                if (isNaN(cost) || isNaN(this.coins)) {
-                    return;
-                }
-
-                // Check if player has enough coins
-                if (this.coins >= cost) {
-                    isPurchasing = true;
-
-                    // Deduct coins
-                    this.coins = Number(this.coins) - Number(cost);
-                    this.saveCoins();
-
-                    // Add one use to the powerup
-                    if (this.persistentPowerUpsEnabled) {
-                        this.powerUpCounts[powerupType].persistent++;
-                        savePowerUpCounts({
-                            hammer: this.powerUpCounts.hammer.persistent,
-                            halve: this.powerUpCounts.halve.persistent,
-                            swap: this.powerUpCounts.swap.persistent,
-                            teleport: this.powerUpCounts.teleport.persistent,
-                            wildcard: this.powerUpCounts.wildcard.persistent,
-                        });
-                    } else {
-                        this.powerUpCounts[powerupType].transient++;
-                    }
-
-                    // Update powerup buttons to show new count
-                    this.updatePowerUpButtons();
-
-                    // Update coins display
-                    this.updateCoinsDisplays();
-
-                    // Show purchase feedback
-                    const originalBg = button.style.background;
-                    button.textContent = "✓";
-                    button.style.background = "#8bc34a";
-                    setTimeout(() => {
-                        button.innerHTML = originalHTML;
-                        button.style.background = originalBg;
-                        isPurchasing = false;
-                    }, 1500);
-                } else {
-                    // Not enough coins - close powerup shop and open coin shop
-                    const shopDialog = document.getElementById("shopDialog");
-                    if (shopDialog) {
-                        shopDialog.classList.remove("hidden");
-                        this.updateCoinsDisplays();
-                    }
-                }
-            });
-        });
-    }
-
-    openPowerupShop() {
-        const powerupShopDialog = document.getElementById("powerupShopDialog");
-        if (powerupShopDialog) {
-            this.updateCoinsDisplays();
-
-            // Hide locked power-up shop items (visibility is driven by unlock state)
-            const shopItems = powerupShopDialog.querySelectorAll(".powerup-shop-item");
-            shopItems.forEach((item) => {
-                const powerupType = item.dataset.powerup;
-                item.style.display = this.isPowerUpButtonVisible(powerupType) ? "" : "none";
-            });
-
-            powerupShopDialog.classList.remove("hidden");
-        }
-    }
 
     showLevelSolved() {
         // Track level_solved when level solved screen is shown
@@ -1906,330 +1158,6 @@ export class Match3Game {
         if (failReasonText) {
             failReasonText.style.visibility = "hidden";
             failReasonText.setAttribute("text", "");
-        }
-    }
-
-    setupSettingsButton() {
-        const homeTitle = document.getElementById("homeTitle");
-        const settingsDialog = document.getElementById("settingsDialog");
-        const saveSettingsBtn = document.getElementById("saveSettings");
-        const levelSelect = document.getElementById("levelSelect");
-        const levelConfigSelect = document.getElementById("levelConfigSelect");
-        const boardUpgradeActionSelect = document.getElementById("boardUpgradeAction");
-        const superUpgradeActionSelect = document.getElementById("superUpgradeAction");
-        let selectedLevelConfigKey = this.levelConfigKey;
-
-        // Special tile reward selects
-        const line4Select = document.getElementById("line4Reward");
-        const block4Select = document.getElementById("block4Reward");
-        const line5Select = document.getElementById("line5Reward");
-        const tFormationSelect = document.getElementById("tFormationReward");
-        const lFormationSelect = document.getElementById("lFormationReward");
-
-        // Gameplay settings
-        const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
-        const hintTimeoutInput = document.getElementById("hintTimeoutMs");
-        const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
-        const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
-        const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
-        const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
-        const deterministicPowerUpCycleEnabledCheckbox = document.getElementById(
-            "deterministicPowerUpCycleEnabled"
-        );
-
-        // Function to toggle power-up options visibility
-        const togglePowerUpOptions = (show) => {
-            const powerupOptions = document.querySelectorAll(".powerup-option");
-            const regularOptions = document.querySelectorAll(".regular-option");
-            const regularHelp = document.querySelector(".special-tile-help:not(.powerup-help)");
-            const powerupHelp = document.querySelector(".special-tile-help.powerup-help");
-
-            // Show/hide power-up options
-            powerupOptions.forEach((option) => {
-                option.style.display = show ? "block" : "none";
-            });
-
-            // Show/hide regular special tile options
-            regularOptions.forEach((option) => {
-                option.style.display = show ? "none" : "block";
-            });
-
-            // Show/hide help text
-            if (regularHelp) regularHelp.style.display = show ? "none" : "block";
-            if (powerupHelp) powerupHelp.style.display = show ? "block" : "none";
-        };
-
-        // Function to populate level selector based on current levels
-        const populateLevelSelect = () => {
-            if (levelSelect) {
-                levelSelect.innerHTML = "";
-                for (let i = 1; i <= this.levels.length; i++) {
-                    const option = document.createElement("option");
-                    option.value = i;
-                    const levelConfig = this.levels[i - 1];
-                    option.textContent = levelConfig.title ? `Level ${i} - ${levelConfig.title}` : `Level ${i}`;
-                    levelSelect.appendChild(option);
-                }
-            }
-        };
-
-        // Function to populate level config selector
-        const populateLevelConfigSelect = () => {
-            if (levelConfigSelect) {
-                levelConfigSelect.innerHTML = "";
-                LEVEL_CONFIGS.forEach((config) => {
-                    const option = document.createElement("option");
-                    option.value = config.key;
-                    option.textContent = config.name;
-                    levelConfigSelect.appendChild(option);
-                });
-            }
-        };
-
-        // Populate selectors initially
-        populateLevelConfigSelect();
-        populateLevelSelect();
-
-        // Handle level config dropdown change
-        if (levelConfigSelect) {
-            levelConfigSelect.addEventListener("change", () => {
-                selectedLevelConfigKey = levelConfigSelect.value;
-                const config = LEVEL_CONFIGS.find((c) => c.key === selectedLevelConfigKey);
-                this.levels = config ? config.levels : DEFAULT_LEVEL;
-                populateLevelSelect();
-                if (levelSelect) {
-                    levelSelect.value = "1"; // Reset to level 1 when switching
-                }
-            });
-        }
-
-        // Power-up selection: enforce max 3 checked
-        const updatePowerUpSelectionState = () => {
-            const cbs = document.querySelectorAll(".powerup-select-cb");
-            const checkedCount = Array.from(cbs).filter((cb) => cb.checked).length;
-            cbs.forEach((cb) => {
-                if (!cb.checked) {
-                    cb.disabled = checkedCount >= 3;
-                }
-            });
-        };
-
-        document.querySelectorAll(".powerup-select-cb").forEach((cb) => {
-            cb.addEventListener("change", updatePowerUpSelectionState);
-        });
-
-        const openSettings = () => {
-            // Repopulate level selector in case levels changed
-            populateLevelSelect();
-
-            // Set current values
-            if (levelSelect) {
-                // Ensure current level is valid for current level set
-                const maxLevel = this.levels.length;
-                if (this.currentLevel > maxLevel) {
-                    this.currentLevel = 1;
-                }
-                levelSelect.value = this.currentLevel.toString();
-            }
-            levelConfigSelect.value = selectedLevelConfigKey;
-            boardUpgradeActionSelect.value = this.boardUpgradeAction;
-            superUpgradeActionSelect.value = this.superUpgradeAction;
-
-            // Always show regular options (power-up rewards mode is removed)
-            togglePowerUpOptions(false);
-
-            // Set special tile configuration values
-            line4Select.value = this.specialTileConfig.line_4;
-            block4Select.value = this.specialTileConfig.block_4;
-            line5Select.value = this.specialTileConfig.line_5;
-            tFormationSelect.value = this.specialTileConfig.t_formation;
-            lFormationSelect.value = this.specialTileConfig.l_formation;
-
-            // Set gameplay settings
-            if (hintsEnabledCheckbox) {
-                hintsEnabledCheckbox.checked = this.hintsEnabled;
-            }
-            if (hintTimeoutInput) {
-                hintTimeoutInput.value = String(this.hintTimeout);
-            }
-            if (allowNonMatchingSwapsCheckbox) {
-                allowNonMatchingSwapsCheckbox.checked = this.allowNonMatchingSwaps;
-            }
-            if (formationPowerUpRewardsCheckbox) {
-                formationPowerUpRewardsCheckbox.checked = this.formationPowerUpRewards;
-            }
-            if (persistentPowerUpsEnabledCheckbox) {
-                persistentPowerUpsEnabledCheckbox.checked = this.persistentPowerUpsEnabled;
-            }
-            if (powerUpOnSpecialTileUseEnabledCheckbox) {
-                powerUpOnSpecialTileUseEnabledCheckbox.checked = this.powerUpOnSpecialTileUseEnabled;
-            }
-            if (deterministicPowerUpCycleEnabledCheckbox) {
-                deterministicPowerUpCycleEnabledCheckbox.checked = this.deterministicPowerUpCycleEnabled;
-            }
-
-            // Set power-up selection checkboxes
-            const powerUpCheckboxes = document.querySelectorAll(".powerup-select-cb");
-            powerUpCheckboxes.forEach((cb) => {
-                cb.checked = this.selectedPowerUps.includes(cb.value);
-            });
-            updatePowerUpSelectionState();
-
-            // Display user ID
-            const userIdDisplay = document.getElementById("userIdDisplay");
-            if (userIdDisplay) {
-                userIdDisplay.textContent = cyrb53(loadUserId());
-            }
-
-            // Display version
-            const versionDisplay = document.getElementById("versionDisplay");
-            if (versionDisplay) {
-                versionDisplay.textContent = APP_VERSION;
-            }
-
-            // Setup copy button
-            const copyUserIdBtn = document.getElementById("copyUserIdBtn");
-            if (copyUserIdBtn && userIdDisplay) {
-                // Remove any existing event listeners by cloning
-                const newCopyBtn = copyUserIdBtn.cloneNode(true);
-                copyUserIdBtn.parentNode.replaceChild(newCopyBtn, copyUserIdBtn);
-
-                newCopyBtn.addEventListener("click", async () => {
-                    try {
-                        await navigator.clipboard.writeText(userIdDisplay.textContent);
-                        newCopyBtn.textContent = "Copied!";
-                        setTimeout(() => {
-                            newCopyBtn.textContent = "Copy";
-                        }, 2000);
-                    } catch (err) {
-                        console.error("Failed to copy:", err);
-                        newCopyBtn.textContent = "Failed";
-                        setTimeout(() => {
-                            newCopyBtn.textContent = "Copy";
-                        }, 2000);
-                    }
-                });
-            }
-
-            settingsDialog.classList.remove("hidden");
-        };
-
-        if (homeTitle && settingsDialog) {
-            homeTitle.addEventListener("click", openSettings);
-
-            // Save settings
-            if (saveSettingsBtn) {
-                saveSettingsBtn.addEventListener("click", () => {
-                    // Check if level changed
-                    let levelChanged = false;
-                    let levelSetChanged = false;
-
-                    // Save level config preference first
-                    if (selectedLevelConfigKey !== this.levelConfigKey) {
-                        this.levelConfigKey = selectedLevelConfigKey;
-                        const config = LEVEL_CONFIGS.find((c) => c.key === this.levelConfigKey);
-                        const respectsLocks = config ? config.respectsFeatureLocks : true;
-                        saveLevelConfigKey(this.levelConfigKey);
-                        saveRespectsLocks(respectsLocks);
-                        levelSetChanged = true;
-                        levelChanged = true; // Force reload when switching level sets
-                    }
-
-                    // Get selected level and save it
-                    if (levelSelect) {
-                        const newLevel = parseInt(levelSelect.value, 10);
-                        if (newLevel !== this.currentLevel || levelSetChanged) {
-                            levelChanged = true;
-                            this.currentLevel = newLevel;
-                            saveCurrentLevel(this.currentLevel);
-                        }
-                    }
-
-                    // Save board upgrade actions
-                    this.boardUpgradeAction = boardUpgradeActionSelect.value;
-                    saveBoardUpgradeAction(this.boardUpgradeAction);
-                    this.superUpgradeAction = superUpgradeActionSelect.value;
-                    saveSuperUpgradeAction(this.superUpgradeAction);
-
-                    // Save special tile configuration
-                    this.specialTileConfig.line_4 = line4Select.value;
-                    this.specialTileConfig.block_4 = block4Select.value;
-                    this.specialTileConfig.line_5 = line5Select.value;
-                    this.specialTileConfig.t_formation = tFormationSelect.value;
-                    this.specialTileConfig.l_formation = lFormationSelect.value;
-                    saveSpecialTileConfig(this.specialTileConfig);
-
-                    // Save gameplay settings
-                    if (hintsEnabledCheckbox) {
-                        this.hintsEnabled = hintsEnabledCheckbox.checked;
-                        saveHintsEnabled(this.hintsEnabled);
-                    }
-                    if (hintTimeoutInput) {
-                        const n = parseInt(hintTimeoutInput.value, 10);
-                        this.hintTimeout = Number.isFinite(n) && n >= 0 ? n : 4000;
-                        saveHintTimeoutMs(this.hintTimeout);
-                    }
-                    if (allowNonMatchingSwapsCheckbox) {
-                        this.allowNonMatchingSwaps = allowNonMatchingSwapsCheckbox.checked;
-                        saveAllowNonMatchingSwaps(this.allowNonMatchingSwaps);
-                    }
-                    if (formationPowerUpRewardsCheckbox) {
-                        this.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
-                        saveFormationPowerUpRewards(this.formationPowerUpRewards);
-                    }
-                    if (persistentPowerUpsEnabledCheckbox) {
-                        this.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
-                        savePersistentPowerUpsEnabled(this.persistentPowerUpsEnabled);
-                    }
-                    if (powerUpOnSpecialTileUseEnabledCheckbox) {
-                        this.powerUpOnSpecialTileUseEnabled = powerUpOnSpecialTileUseEnabledCheckbox.checked;
-                        savePowerUpOnSpecialTileUseEnabled(this.powerUpOnSpecialTileUseEnabled);
-                    }
-                    if (deterministicPowerUpCycleEnabledCheckbox) {
-                        this.deterministicPowerUpCycleEnabled = deterministicPowerUpCycleEnabledCheckbox.checked;
-                        saveDeterministicPowerUpCycleEnabled(this.deterministicPowerUpCycleEnabled);
-                    }
-
-                    // Save selected power-ups
-                    const selectedCbs = document.querySelectorAll(".powerup-select-cb:checked");
-                    const selected = Array.from(selectedCbs).map((cb) => cb.value);
-                    if (selected.length === 3) {
-                        this.selectedPowerUps = selected;
-                        saveSelectedPowerUps(this.selectedPowerUps);
-                        this.showPowerUps();
-                        this.updatePowerUpButtons();
-                    }
-
-                    // Mark that settings were changed during this level (if game is active)
-                    if (this.gameActive && !levelChanged) {
-                        this.settingsChangedDuringLevel = true;
-                    }
-
-                    // Reload page if level changed, otherwise just close dialog
-                    if (levelChanged) {
-                        location.reload();
-                    } else {
-                        this.updatePowerUpCycleIndicator();
-                        // Just close the dialog - no need to re-render since settings
-                        // are only accessible from homescreen (no active game board)
-                        settingsDialog.classList.add("hidden");
-                    }
-                });
-            }
-
-            // Close on overlay click
-            settingsDialog.addEventListener("click", (e) => {
-                if (e.target === settingsDialog) {
-                    settingsDialog.classList.add("hidden");
-                }
-            });
-
-            // Close on Escape key
-            document.addEventListener("keydown", (e) => {
-                if (e.key === "Escape" && !settingsDialog.classList.contains("hidden")) {
-                    settingsDialog.classList.add("hidden");
-                }
-            });
         }
     }
 
@@ -2411,80 +1339,6 @@ export class Match3Game {
         });
     }
 
-    setupInfoButton() {
-        const openIntroDialog = (e) => {
-            e.stopPropagation();
-            // Update the power-ups list based on unlocked features
-            updateIntroDialogPowerupsList(this);
-
-            // Force show the dialog, ignoring localStorage preference
-            const introDialog = document.getElementById("introDialog");
-            introDialog.classList.remove("hidden");
-
-            // Set up event listeners (reuse the same logic as showIntroDialog)
-            const startBtn = document.getElementById("startGame");
-
-            const closeDialog = () => {
-                introDialog.classList.add("hidden");
-            };
-
-            // Remove any existing listeners and add new ones
-            const newStartBtn = startBtn.cloneNode(true);
-            startBtn.parentNode.replaceChild(newStartBtn, startBtn);
-
-            newStartBtn.addEventListener("click", closeDialog);
-
-            // Close on overlay click
-            introDialog.addEventListener(
-                "click",
-                (e) => {
-                    if (e.target === introDialog) {
-                        closeDialog();
-                    }
-                },
-                { once: true },
-            );
-
-            // Close on Escape key
-            document.addEventListener(
-                "keydown",
-                (e) => {
-                    if (e.key === "Escape" && !introDialog.classList.contains("hidden")) {
-                        closeDialog();
-                    }
-                },
-                { once: true },
-            );
-        };
-
-        // Setup home screen info button
-        const infoBtn = document.getElementById("infoBtn");
-        if (infoBtn) {
-            infoBtn.addEventListener("click", openIntroDialog);
-        }
-
-        // Setup game screen info button
-        const infoBtnGame = document.getElementById("infoBtnGame");
-        if (infoBtnGame) {
-            infoBtnGame.addEventListener("click", openIntroDialog);
-        }
-
-        const resetBtn = document.getElementById("resetBtn");
-        if (resetBtn) {
-            resetBtn.addEventListener("click", () => {
-                if (
-                    confirm("Are you sure you want to reset all progress? This will delete your saved level and score.")
-                ) {
-                    // Clear all localStorage
-                    localStorage.clear();
-
-                    // Refresh the page
-                    location.reload();
-                }
-            });
-        }
-    }
-
     // ===== Hint System Methods =====
 
     /**
@@ -2546,7 +1400,7 @@ export class Match3Game {
             matchTiles: bestSwap.matchTiles || [],
         };
 
-        this.renderHintHighlight();
+        renderHintHighlight(this);
     }
 
     /**
@@ -2583,33 +1437,4 @@ export class Match3Game {
         this.startHintTimer();
     }
 
-    /**
-     * Apply hint highlight CSS to hinted tiles
-     */
-    renderHintHighlight() {
-        if (!this.currentHint) return;
-
-        const gem1 = document.querySelector(
-            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`,
-        );
-        const gem2 = document.querySelector(
-            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`,
-        );
-
-        // Add directional nudge animation to swap tiles
-        if (gem1 && this.currentHint.direction1) {
-            gem1.classList.add(`hint-nudge-${this.currentHint.direction1}`);
-        }
-        if (gem2 && this.currentHint.direction2) {
-            gem2.classList.add(`hint-nudge-${this.currentHint.direction2}`);
-        }
-
-        // Highlight tiles that will merge
-        if (this.currentHint.matchTiles) {
-            for (const tile of this.currentHint.matchTiles) {
-                const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
-                matchGem?.classList.add("hint-merge-preview");
-            }
-        }
-    }
 }
