@@ -3,7 +3,7 @@
 
 import { applyGravity } from "./gravity.js";
 import { findMatches } from "./match-detector.js";
-import { processMerges } from "./merge-processor.js";
+import { processMerges, calculateMiddlePositions } from "./merge-processor.js";
 import { getDisplayValue } from "./tile-helpers.js";
 
 /**
@@ -34,6 +34,8 @@ function createSimContext(game, board) {
         lastSwapPosition: null,
         movesUsed: game.movesUsed,
         maxMoves: game.maxMoves,
+        score: 0,
+        animating: false,
         pendingTileLevelShift: false,
         cursedTileCreatedCount: { ...game.cursedTileCreatedCount },
         cursedTileCreatedThisTurn: {},
@@ -60,10 +62,21 @@ function createSimContext(game, board) {
         renderBoard() {},
         dropGems() {},
         checkAndShiftTileLevels() {},
+        shiftTileLevels() { return Promise.resolve(); },
         checkAndGrantPowerUpReward() {},
         grantRandomPowerUp() {},
         grantFormationPowerUp() {},
     };
+}
+
+/**
+ * Accumulate goal progress for a given tile value, filtering to "created" goals only.
+ */
+function accumulateGoal(goalProgress, levelGoals, tileValue, count) {
+    const hasGoal = levelGoals.some((g) => g.goalType === "created" && g.tileValue === tileValue);
+    if (hasGoal) {
+        goalProgress[tileValue] = (goalProgress[tileValue] || 0) + count;
+    }
 }
 
 /**
@@ -127,14 +140,24 @@ export function simulateMove(game, swap) {
             scoreDelta += displayValue * group.tiles.length;
         });
 
-        // Track goal progress
+        // Track goal progress — mirrors createMergedTiles logic in merge-processor.js
         matchGroups.forEach((group) => {
-            const mergedValue = group.value + 1;
-            ctx.levelGoals.forEach((goal) => {
-                if (goal.goalType === "created" && goal.tileValue === mergedValue) {
-                    goalProgress[mergedValue] = (goalProgress[mergedValue] || 0) + 1;
-                }
-            });
+            const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
+            const is5LineFormation = group.direction === "line_5_horizontal" || group.direction === "line_5_vertical";
+            const valueIncrement = isTLFormation || is5LineFormation ? 2 : 1;
+            const mergedValue = group.value + valueIncrement;
+
+            // Count how many merged tiles are produced (1 for T/L/5-line, 2 for 4-tile line/block)
+            const positions = isTLFormation ? [group.intersection] : calculateMiddlePositions(ctx, group.tiles, group);
+            const tileCount = positions ? positions.length : 1;
+
+            // T/L/5-line: track 3 intermediate (N+1) tiles conceptually created in merge chain
+            if (isTLFormation || is5LineFormation) {
+                const intermediateValue = group.value + 1;
+                accumulateGoal(goalProgress, ctx.levelGoals, intermediateValue, 3);
+            }
+
+            accumulateGoal(goalProgress, ctx.levelGoals, mergedValue, tileCount);
         });
 
         // Process merges (mutates ctx.board)

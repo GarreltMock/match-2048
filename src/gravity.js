@@ -83,9 +83,13 @@ export function applyGravity(game) {
         }
 
         // Step 4: Spawn new tiles in topmost section
-        for (let i = 0; i < totalEmptySpaces; i++) {
-            game.board[i][col] = createTile(getRandomTileValue(game));
-            newTiles.push({ row: i, col });
+        if (sections.length > 0 && totalEmptySpaces > 0) {
+            const topSection = sections[0];
+            for (let i = 0; i < totalEmptySpaces; i++) {
+                const spawnRow = topSection.start + i;
+                game.board[spawnRow][col] = createTile(getRandomTileValue(game));
+                newTiles.push({ row: spawnRow, col });
+            }
         }
     }
 

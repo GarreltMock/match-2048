@@ -20,10 +20,10 @@ import {
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
+    findBestJokerValue,
 } from "./tile-helpers.js";
 import { saveScore, isFeatureUnlocked } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, TILE_TYPE, FEATURE_KEYS } from "./config.js";
-import { findBestJokerValue } from "./tile-helpers.js";
 
 // Helper function to update target values for all joker tiles
 function updateJokerTargetValues(game) {
