@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "1438ec918871",
+  "strategy": "manual-commit",
+  "branch": "claude/goofy-kilby",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/animator.js",
+    "src/game.js",
+    "src/gravity.js",
+    "src/input-handler.js",
+    "src/match-detector.js",
+    "src/merge-processor.js",
+    "src/power-ups.js",
+    "src/renderer.js",
+    "src/settings-dialog.js",
+    "src/simulation.js",
+    "src/tile-helpers.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/14/38ec918871/0/metadata.json",
+      "transcript": "/14/38ec918871/0/full.jsonl",
+      "context": "/14/38ec918871/0/context.md",
+      "content_hash": "/14/38ec918871/0/content_hash.txt",
+      "prompt": "/14/38ec918871/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 1362,
+    "cache_creation_tokens": 223914,
+    "cache_read_tokens": 5801534,
+    "output_tokens": 310,
+    "api_call_count": 47
+  }
+}
