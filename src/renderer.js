@@ -20,10 +20,10 @@ import {
     getDisplayValue,
     getFontSize,
     isRectangularBlocked,
+    findBestJokerValue,
 } from "./tile-helpers.js";
 import { saveScore, isFeatureUnlocked } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, TILE_TYPE, FEATURE_KEYS } from "./config.js";
-import { findBestJokerValue } from "./input-handler.js";
 
 // Helper function to update target values for all joker tiles
 function updateJokerTargetValues(game) {
@@ -257,7 +257,32 @@ export function renderBoard(game) {
 
     // Restore hint highlight if active
     if (game.currentHint) {
-        game.renderHintHighlight();
+        renderHintHighlight(game);
+    }
+}
+
+export function renderHintHighlight(game) {
+    if (!game.currentHint) return;
+
+    const gem1 = document.querySelector(
+        `[data-row="${game.currentHint.row1}"][data-col="${game.currentHint.col1}"]`,
+    );
+    const gem2 = document.querySelector(
+        `[data-row="${game.currentHint.row2}"][data-col="${game.currentHint.col2}"]`,
+    );
+
+    if (gem1 && game.currentHint.direction1) {
+        gem1.classList.add(`hint-nudge-${game.currentHint.direction1}`);
+    }
+    if (gem2 && game.currentHint.direction2) {
+        gem2.classList.add(`hint-nudge-${game.currentHint.direction2}`);
+    }
+
+    if (game.currentHint.matchTiles) {
+        for (const tile of game.currentHint.matchTiles) {
+            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
+            matchGem?.classList.add("hint-merge-preview");
+        }
     }
 }
 

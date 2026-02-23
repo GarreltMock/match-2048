@@ -249,3 +249,67 @@ export function getFontSize(displayValue) {
     const length = displayValue.toString().length;
     return 50 - Math.max(0, length - 2) * 7;
 }
+
+export function getUniqueTileValues(game) {
+    const allValues = [];
+    for (let r = 0; r < game.boardHeight; r++) {
+        for (let c = 0; c < game.boardWidth; c++) {
+            const tile = game.board[r][c];
+            if (tile && tile.type === "normal") {
+                const val = getTileValue(tile);
+                if (!allValues.includes(val)) {
+                    allValues.push(val);
+                }
+            }
+        }
+    }
+    return allValues;
+}
+
+/**
+ * Find the best value for a joker tile to become, based on what creates valid matches.
+ * Pure logic: temporarily mutates game.board but restores it before returning.
+ */
+export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnection = false) {
+    const originalTile = game.board[jokerRow][jokerCol];
+
+    if (!isJoker(originalTile)) {
+        return null;
+    }
+
+    const allValues = getUniqueTileValues(game);
+    allValues.sort((a, b) => b - a);
+
+    for (const testValue of allValues) {
+        game.board[jokerRow][jokerCol] = createTile(testValue);
+
+        const matches = game.findMatches();
+
+        const validMatch = matches.find((match) => {
+            const includesJoker = match.tiles.some((tile) => tile.row === jokerRow && tile.col === jokerCol);
+            if (!includesJoker) return false;
+
+            if (requireSwapConnection && game.lastSwapPosition) {
+                const includesSourceTile = match.tiles.some(
+                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col,
+                );
+                if (!includesSourceTile) return false;
+            }
+
+            const hasOtherJokers = match.tiles.some((tile) => {
+                if (tile.row === jokerRow && tile.col === jokerCol) return false;
+                return isJoker(game.board[tile.row][tile.col]);
+            });
+
+            return !hasOtherJokers;
+        });
+
+        if (validMatch) {
+            game.board[jokerRow][jokerCol] = originalTile;
+            return testValue;
+        }
+    }
+
+    game.board[jokerRow][jokerCol] = originalTile;
+    return null;
+}
