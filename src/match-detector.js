@@ -1,8 +1,7 @@
 // Match finding logic for detecting tile matches and special formations
 
-import { getTileValue, isNormal, isCursed, isJoker, createTile, isTilePlusTile } from "./tile-helpers.js";
+import { getTileValue, isNormal, isCursed, isJoker, createTile, isTilePlusTile, findBestJokerValue } from "./tile-helpers.js";
 import { canMatch } from "./board.js";
-import { findBestJokerValue } from "./input-handler.js";
 
 export function hasMatches(game) {
     return findMatches(game).length > 0;

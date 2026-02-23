@@ -85,7 +85,7 @@ import {
     checkBlockFormation,
 } from "./match-detector.js";
 import { processMatches } from "./merge-processor.js";
-import { animateSwap, animateRevert, dropGems } from "./animator.js";
+import { animateSwap, animateRevert, dropGems, animateMerges, animateUnblocking } from "./animator.js";
 import {
     renderBoard,
     renderGoals,
@@ -592,7 +592,7 @@ export class Match3Game {
     }
 
     processMatches() {
-        processMatches(this);
+        processMatches(this, { animateMerges, animateUnblocking });
     }
 
     animateSwap(row1, col1, row2, col2, callback) {

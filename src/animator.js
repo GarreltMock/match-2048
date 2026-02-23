@@ -1,8 +1,9 @@
 // Animation coordination for swaps, merges, and tile drops
 
-import { createTile, isRectangularBlocked, isBlocked, isBlockedWithLife, isBlockedWithMergeCount } from "./tile-helpers.js";
-import { getRandomTileValue } from "./board.js";
+import { isRectangularBlocked } from "./tile-helpers.js";
 import { trySwap } from "./input-handler.js";
+import { applyGravity } from "./gravity.js";
+import { calculateMiddlePositions } from "./merge-processor.js";
 
 export function animateSwap(game, row1, col1, row2, col2, callback) {
     game.animating = true;
@@ -112,6 +113,14 @@ export function animateMerges(game, matchGroups, processMergesCallback, speedMul
 
     // Process merges after animation
     setTimeout(() => {
+        // Clean up animation classes before processing merges
+        document.querySelectorAll(".gem").forEach((gem) => {
+            gem.classList.remove("sliding", "merge-target", "unblocking");
+            gem.style.transform = "";
+            gem.style.transition = "";
+            gem.style.opacity = "";
+            gem.style.zIndex = "";
+        });
         processMergesCallback(matchGroups);
     }, 400 * speedMultiplier);
 }
@@ -186,75 +195,30 @@ function assignTilesToTargets(outerTiles, targetPositions) {
     return assignments;
 }
 
-function calculateMiddlePositions(_game, tiles, group = null) {
-    const positions = [];
-    const length = tiles.length;
-
-    // Special handling for T and L formations
-    if (group && (group.direction === "T-formation" || group.direction === "L-formation")) {
-        // For special formations, the "middle" position is the intersection
-        positions.push(group.intersection);
-        return positions;
-    }
-
-    // Special handling for block formations
-    if (group && group.direction === "block_4_formation") {
-        // For block formations, the "middle" positions are the two intersections
-        return group.intersections;
-    }
-
-    // Special handling for 5-tile lines (should create 1 tile with 4x value)
-    if (group && (group.direction === "line_5_horizontal" || group.direction === "line_5_vertical")) {
-        // 5 tiles: middle position only (creates 1 tile with 4x value)
-        positions.push(tiles[2]);
-        return positions;
-    }
-
-    // Regular match logic
-    if (length === 3) {
-        // 3 tiles: middle position (creates 1 tile with 2x value)
-        positions.push(tiles[1]);
-    } else if (length === 4) {
-        // 4 tiles: two middle positions (creates 2 tiles with 2x value)
-        positions.push(tiles[1]);
-        positions.push(tiles[2]);
-    } else if (length >= 5) {
-        // 5+ tiles: single middle position (creates 1 tile with 4x value)
-        positions.push(tiles[Math.floor(length / 2)]);
-    }
-
-    return positions;
-}
 
 function animateRectangularBlockRemoval(game, tile, speedMultiplier = 1) {
-    // Find the DOM element by rectId
-    const blockedElement = document.querySelector(`[data-rect-id="${tile.rectId}"]`);
-
-    if (blockedElement) {
-        blockedElement.classList.add("disappear");
-    }
-
-    // Capture the rectId and dimensions before the timeout
-    // (in case the tile object reference changes due to hint system board restoration)
+    // Capture the rectId and dimensions (in case tile object reference changes)
     const rectId = tile.rectId;
     const anchorRow = tile.rectAnchor.row;
     const anchorCol = tile.rectAnchor.col;
     const rectHeight = tile.rectHeight;
     const rectWidth = tile.rectWidth;
 
-    // Remove from ALL cells of the rectangle
-    setTimeout(() => {
-        for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
-            for (let c = anchorCol; c < anchorCol + rectWidth; c++) {
-                // Use rectId comparison instead of object identity
-                // (hint system may have replaced objects with shallow copies)
-                const boardTile = game.board[r]?.[c];
-                if (boardTile && boardTile.rectId === rectId) {
-                    game.board[r][c] = null;
-                }
+    // Remove from board state FIRST (before animation)
+    for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
+        for (let c = anchorCol; c < anchorCol + rectWidth; c++) {
+            const boardTile = game.board[r]?.[c];
+            if (boardTile && boardTile.rectId === rectId) {
+                game.board[r][c] = null;
             }
         }
-    }, 400 * speedMultiplier);
+    }
+
+    // Then trigger visual animation
+    const blockedElement = document.querySelector(`[data-rect-id="${rectId}"]`);
+    if (blockedElement) {
+        blockedElement.classList.add("disappear");
+    }
 }
 
 export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCallback, updateGoalDisplayCallback, speedMultiplier = 1) {
@@ -294,6 +258,9 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
         }
 
         // EXISTING: Single-cell blocked tile animation
+        // Remove from board state FIRST (before animation)
+        game.board[blockedEntry.row][blockedEntry.col] = null;
+
         const blockedElement = document.querySelector(
             `[data-row="${blockedEntry.row}"][data-col="${blockedEntry.col}"]`
         );
@@ -302,11 +269,6 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
             // Add disappear animation class (reverse bounce - inflate then shrink)
             blockedElement.classList.add("disappear");
         }
-
-        // Remove from board data after animation completes (350ms)
-        setTimeout(() => {
-            game.board[blockedEntry.row][blockedEntry.col] = null;
-        }, 400 * speedMultiplier);
     });
 
     // Update blocked tile clearing goals if any blocked tiles were cleared
@@ -323,6 +285,12 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
 export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesToImplode, dropGemsCallback) {
     // Animate disappearing cursed tiles
     if (cursedTilesToRemove.length > 0) {
+        // Remove from board state FIRST
+        cursedTilesToRemove.forEach((pos) => {
+            game.board[pos.row][pos.col] = null;
+        });
+
+        // Then trigger visual animation
         cursedTilesToRemove.forEach((pos) => {
             const gem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
             if (gem) {
@@ -330,26 +298,22 @@ export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesTo
             }
         });
 
-        // Remove from board after animation
         setTimeout(() => {
-            cursedTilesToRemove.forEach((pos) => {
-                game.board[pos.row][pos.col] = null;
-            });
             dropGemsCallback();
         }, 400);
     }
 
     // Animate imploding cursed tiles (adjacent tiles slide in)
     if (cursedTilesToImplode.length > 0) {
+        // Collect all tiles to remove and remove from board state FIRST
         cursedTilesToImplode.forEach((pos) => {
             const adjacentPositions = [
-                { row: pos.row - 1, col: pos.col }, // Up
-                { row: pos.row + 1, col: pos.col }, // Down
-                { row: pos.row, col: pos.col - 1 }, // Left
-                { row: pos.row, col: pos.col + 1 }, // Right
+                { row: pos.row - 1, col: pos.col },
+                { row: pos.row + 1, col: pos.col },
+                { row: pos.row, col: pos.col - 1 },
+                { row: pos.row, col: pos.col + 1 },
             ];
 
-            // First, mark adjacent tiles with purple background
             adjacentPositions.forEach((adjPos) => {
                 if (
                     adjPos.row >= 0 &&
@@ -359,10 +323,35 @@ export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesTo
                 ) {
                     const adjTile = game.board[adjPos.row][adjPos.col];
                     if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
-                        const adjGem = document.querySelector(`[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`);
-                        if (adjGem) {
-                            adjGem.classList.add("cursed-sucked");
-                        }
+                        game.board[adjPos.row][adjPos.col] = null;
+                    }
+                }
+            });
+
+            // Remove the cursed tile itself
+            game.board[pos.row][pos.col] = null;
+        });
+
+        // Then trigger visual animations
+        cursedTilesToImplode.forEach((pos) => {
+            const adjacentPositions = [
+                { row: pos.row - 1, col: pos.col },
+                { row: pos.row + 1, col: pos.col },
+                { row: pos.row, col: pos.col - 1 },
+                { row: pos.row, col: pos.col + 1 },
+            ];
+
+            // Mark adjacent tiles with purple background (use DOM state, not board state)
+            adjacentPositions.forEach((adjPos) => {
+                if (
+                    adjPos.row >= 0 &&
+                    adjPos.row < game.boardHeight &&
+                    adjPos.col >= 0 &&
+                    adjPos.col < game.boardWidth
+                ) {
+                    const adjGem = document.querySelector(`[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`);
+                    if (adjGem) {
+                        adjGem.classList.add("cursed-sucked");
                     }
                 }
             });
@@ -376,29 +365,26 @@ export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesTo
                         adjPos.col >= 0 &&
                         adjPos.col < game.boardWidth
                     ) {
-                        const adjTile = game.board[adjPos.row][adjPos.col];
-                        if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
-                            const adjGem = document.querySelector(
-                                `[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`
-                            );
-                            const cursedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
+                        const adjGem = document.querySelector(
+                            `[data-row="${adjPos.row}"][data-col="${adjPos.col}"]`
+                        );
+                        const cursedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
 
-                            if (adjGem && cursedGem) {
-                                const adjRect = adjGem.getBoundingClientRect();
-                                const cursedRect = cursedGem.getBoundingClientRect();
+                        if (adjGem && cursedGem) {
+                            const adjRect = adjGem.getBoundingClientRect();
+                            const cursedRect = cursedGem.getBoundingClientRect();
 
-                                const deltaX = cursedRect.left - adjRect.left;
-                                const deltaY = cursedRect.top - adjRect.top;
+                            const deltaX = cursedRect.left - adjRect.left;
+                            const deltaY = cursedRect.top - adjRect.top;
 
-                                adjGem.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-                                adjGem.style.transition = "transform 0.4s ease-out, opacity 0.4s ease-out";
-                                adjGem.classList.add("sliding");
+                            adjGem.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                            adjGem.style.transition = "transform 0.4s ease-out, opacity 0.4s ease-out";
+                            adjGem.classList.add("sliding");
 
-                                // Fade out the sliding tile
-                                setTimeout(() => {
-                                    adjGem.style.opacity = "0";
-                                }, 300);
-                            }
+                            // Fade out the sliding tile
+                            setTimeout(() => {
+                                adjGem.style.opacity = "0";
+                            }, 300);
                         }
                     }
                 });
@@ -411,130 +397,16 @@ export function animateCursedExpiration(game, cursedTilesToRemove, cursedTilesTo
             }
         });
 
-        // Remove tiles from board after animation (400ms slide + 100ms delay)
+        // Call dropGems after animation completes (400ms slide + 100ms delay)
         setTimeout(() => {
-            cursedTilesToImplode.forEach((pos) => {
-                const adjacentPositions = [
-                    { row: pos.row - 1, col: pos.col },
-                    { row: pos.row + 1, col: pos.col },
-                    { row: pos.row, col: pos.col - 1 },
-                    { row: pos.row, col: pos.col + 1 },
-                ];
-
-                adjacentPositions.forEach((adjPos) => {
-                    if (
-                        adjPos.row >= 0 &&
-                        adjPos.row < game.boardHeight &&
-                        adjPos.col >= 0 &&
-                        adjPos.col < game.boardWidth
-                    ) {
-                        const adjTile = game.board[adjPos.row][adjPos.col];
-                        if (adjTile && (adjTile.type === "normal" || adjTile.type === "cursed")) {
-                            game.board[adjPos.row][adjPos.col] = null;
-                        }
-                    }
-                });
-
-                // Remove the cursed tile itself
-                game.board[pos.row][pos.col] = null;
-            });
             dropGemsCallback();
         }, 500);
     }
 }
 
 export function dropGems(game) {
-    const movedGems = [];
-    const newGems = [];
-
-    // Process each column independently with section-based gravity
-    for (let col = 0; col < game.boardWidth; col++) {
-        // Step 1: Find all immovable blocked tiles in this column
-        const immovableBlockerPositions = [];
-        const processedRectangles = new Set(); // Track rectangular blocks we've already processed
-
-        for (let row = 0; row < game.boardHeight; row++) {
-            const tile = game.board[row][col];
-
-            // Check if this tile should block gravity
-            if ((isBlocked(tile) || isBlockedWithLife(tile) || isBlockedWithMergeCount(tile)) && tile.immovable !== false) {
-                if (isRectangularBlocked(tile)) {
-                    // For rectangular blocks, only process once per rectangle
-                    if (!processedRectangles.has(tile.rectId)) {
-                        processedRectangles.add(tile.rectId);
-                        // Add all rows that this rectangle occupies in this column
-                        const { row: anchorRow } = tile.rectAnchor;
-                        const { rectHeight } = tile;
-                        for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
-                            immovableBlockerPositions.push(r);
-                        }
-                    }
-                } else {
-                    // Single-cell blocked tile
-                    immovableBlockerPositions.push(row);
-                }
-            }
-        }
-
-        // Step 2: Define sections between immovable blockers
-        // Sort positions to ensure correct section boundaries
-        immovableBlockerPositions.sort((a, b) => a - b);
-
-        // Each section is { start: rowIndex, end: rowIndex }
-        const sections = [];
-        let currentSectionStart = 0;
-
-        for (const blockerRow of immovableBlockerPositions) {
-            if (blockerRow > currentSectionStart) {
-                // There's a section from currentSectionStart to blockerRow-1
-                sections.push({ start: currentSectionStart, end: blockerRow - 1 });
-            }
-            currentSectionStart = blockerRow + 1;
-        }
-
-        // Add final section from last blocker to bottom of board
-        if (currentSectionStart < game.boardHeight) {
-            sections.push({ start: currentSectionStart, end: game.boardHeight - 1 });
-        }
-
-        // Step 3: Process gravity within each section independently
-        let totalEmptySpaces = 0;
-
-        for (let sectionIndex = 0; sectionIndex < sections.length; sectionIndex++) {
-            const section = sections[sectionIndex];
-            let writePos = section.end; // Start writing from bottom of this section
-            let sectionEmptyCount = 0;
-
-            // Scan this section from bottom to top
-            for (let row = section.end; row >= section.start; row--) {
-                const tile = game.board[row][col];
-
-                if (tile === null) {
-                    sectionEmptyCount++;
-                } else {
-                    // This is a movable tile (normal, movable_blocked, cursed, joker, etc.)
-                    if (row !== writePos) {
-                        // Tile needs to fall within this section
-                        movedGems.push({ row: writePos, col, fromRow: row });
-                        game.board[writePos][col] = game.board[row][col];
-                        game.board[row][col] = null;
-                    }
-                    writePos--;
-                }
-            }
-
-            // Only the topmost section (index 0) receives new tiles
-            if (sectionIndex === 0) {
-                totalEmptySpaces = sectionEmptyCount;
-            }
-        }
-
-        // Step 4: Spawn new tiles ONLY in the topmost section
-        for (let i = 0; i < totalEmptySpaces; i++) {
-            game.board[i][col] = createTile(getRandomTileValue(game));
-            newGems.push({ row: i, col });
-        }
-    }
+    // Apply gravity logic (pure, no DOM)
+    const { movements: movedGems, newTiles: newGems } = applyGravity(game);
 
     // Only render board if we have moves/new gems to show
     // This prevents breaking ongoing animations

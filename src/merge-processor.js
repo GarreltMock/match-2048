@@ -17,7 +17,6 @@ import {
     getDisplayValue,
     isRectangularBlocked,
 } from "./tile-helpers.js";
-import { animateMerges, animateUnblocking } from "./animator.js";
 import {
     showFormationTutorialDialog,
     getPendingFormationTutorials,
@@ -26,7 +25,7 @@ import {
     clearMergeHighlight,
 } from "./formation-tutorial.js";
 
-export async function processMatches(game) {
+export async function processMatches(game, { animateMerges, animateUnblocking } = {}) {
     const matchGroups = game.findMatches();
 
     // Capture user swap flag before resetting (needed for processMerges callback)
@@ -91,10 +90,23 @@ export async function processMatches(game) {
 
     // Check for blocked tiles adjacent to original match positions and unblock them
     // Done after tutorial dialogs so blocked tiles are still visible during tutorial
-    unblockAdjacentTiles(game, matchGroups, speedMultiplier);
+    const blockedTilesToRemove = unblockAdjacentTiles(game, matchGroups);
+
+    // Animate blocked tile removal
+    if (animateUnblocking) {
+        animateUnblocking(
+            game,
+            blockedTilesToRemove,
+            () => game.updateBlockedTileGoals(),
+            (check) => game.updateGoalDisplay(check),
+            speedMultiplier
+        );
+    }
 
     // Start merge animations
-    animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
+    if (animateMerges) {
+        animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
+    }
 }
 
 export function processMerges(game, matchGroups, wasUserSwap = false) {
@@ -207,17 +219,7 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
     // Let the natural cascade completion in dropGems handle checkLevelComplete
     game.updateGoalDisplay(false);
 
-    // Clean up animation classes
-    document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("sliding", "merge-target", "unblocking");
-        gem.style.transform = "";
-        gem.style.transition = "";
-        gem.style.opacity = "";
-        gem.style.zIndex = "";
-    });
-
     // Re-render the board to show the merged tiles in their new state
-    // This is important so that when we animate tile removal, the board is in the correct state
     game.renderBoard();
 
     // Check if we need to shift tile levels before continuing with cascade
@@ -422,7 +424,7 @@ function getFormationConfig(direction) {
     return formationMap[direction] || null;
 }
 
-function calculateMiddlePositions(game, tiles, group = null) {
+export function calculateMiddlePositions(game, tiles, group = null) {
     const positions = [];
     const length = tiles.length;
 
@@ -462,7 +464,7 @@ function calculateMiddlePositions(game, tiles, group = null) {
     return positions;
 }
 
-function unblockAdjacentTiles(game, matchGroups, speedMultiplier = 1) {
+export function unblockAdjacentTiles(game, matchGroups) {
     const blockedTilesToRemove = [];
     const goalTilesToDamage = [];
     const cellsToDecrement = new Set(); // Track individual cells to decrement for merge-count blocks
@@ -686,14 +688,7 @@ function unblockAdjacentTiles(game, matchGroups, speedMultiplier = 1) {
         }
     });
 
-    // Animate and remove blocked tiles
-    animateUnblocking(
-        game,
-        blockedTilesToRemove,
-        () => game.updateBlockedTileGoals(),
-        (check) => game.updateGoalDisplay(check),
-        speedMultiplier
-    );
+    return blockedTilesToRemove;
 }
 
 function trackGoalProgress(game, newValue, count = 1) {

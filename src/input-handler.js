@@ -18,6 +18,8 @@ import {
     isTileTeleportTile,
     isWildTeleportTile,
     getDisplayValue,
+    findBestJokerValue,
+    getUniqueTileValues,
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
 import { getMatchTilesForSwap } from "./hint-system.js";
@@ -78,87 +80,6 @@ function handleMouseUp() {
     endDrag(this);
 }
 
-export function getUniqueTileValues(game) {
-    // Get all unique tile values on the board (excluding blocked and joker tiles)
-    const allValues = [];
-    for (let r = 0; r < game.boardHeight; r++) {
-        for (let c = 0; c < game.boardWidth; c++) {
-            const tile = game.board[r][c];
-            if (tile && tile.type === "normal") {
-                const val = getTileValue(tile);
-                if (!allValues.includes(val)) {
-                    allValues.push(val);
-                }
-            }
-        }
-    }
-    return allValues;
-}
-
-export function findBestJokerValue(game, jokerRow, jokerCol, requireSwapConnection = false) {
-    // Find the best value to transform the joker into
-    // Returns the value if a match is found, null otherwise
-    // If requireSwapConnection is true, only returns values that create matches involving swapped tiles
-
-    // Store the original tile to restore it properly
-    const originalTile = game.board[jokerRow][jokerCol];
-
-    // If it's not actually a joker, return null
-    if (!isJoker(originalTile)) {
-        return null;
-    }
-
-    const allValues = getUniqueTileValues(game);
-
-    // Sort from highest to lowest
-    allValues.sort((a, b) => b - a);
-
-    // Try each value from highest to lowest
-    for (const testValue of allValues) {
-        // Temporarily set joker to this value
-        game.board[jokerRow][jokerCol] = createTile(testValue);
-
-        // Use existing findMatches to check if this creates a valid match
-        const matches = game.findMatches();
-
-        // Check if any match includes our joker position AND has no other jokers
-        const validMatch = matches.find((match) => {
-            // Check if this match includes our joker position
-            const includesJoker = match.tiles.some((tile) => tile.row === jokerRow && tile.col === jokerCol);
-
-            if (!includesJoker) return false;
-
-            // Optional: check if match includes the actively dragged tile (source, not target)
-            if (requireSwapConnection && game.lastSwapPosition) {
-                const includesSourceTile = match.tiles.some(
-                    (tile) => tile.row === game.lastSwapPosition.row && tile.col === game.lastSwapPosition.col,
-                );
-
-                if (!includesSourceTile) return false;
-            }
-
-            // Check that no other jokers are in this match
-            const hasOtherJokers = match.tiles.some((tile) => {
-                // Skip the joker we're testing
-                if (tile.row === jokerRow && tile.col === jokerCol) return false;
-                // Check if this tile is a joker
-                return isJoker(game.board[tile.row][tile.col]);
-            });
-
-            return !hasOtherJokers;
-        });
-
-        if (validMatch) {
-            // Found a valid match! Restore the original joker and return the value
-            game.board[jokerRow][jokerCol] = originalTile;
-            return testValue;
-        }
-    }
-
-    // No valid matches found, restore original joker tile
-    game.board[jokerRow][jokerCol] = originalTile;
-    return null;
-}
 
 function startDrag(game, x, y) {
     if (!game.gameActive) return;
@@ -533,6 +454,75 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
     return result;
 }
 
+/**
+ * Execute the board-level swap logic (pure: no DOM, no animation).
+ * Mutates game.board and game state flags.
+ * @returns {{ valid: boolean, hasMatch: boolean, hasFreeSwap: boolean, hasTeleport: boolean,
+ *             isSwapPowerUp: boolean, isTeleportPowerUp: boolean, allowNonMatchingSwap: boolean }}
+ *   or null if the swap is not allowed at all.
+ */
+export function executeSwap(game, row1, col1, row2, col2) {
+    const tile1 = game.board[row1][col1];
+    const tile2 = game.board[row2][col2];
+
+    const isHorizontalSwap = row1 === row2;
+    const isVerticalSwap = col1 === col2;
+
+    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
+    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
+    const isDirectionalFreeSwap1 =
+        !tile1.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
+    const isDirectionalFreeSwap2 =
+        !tile2.hasBeenSwapped &&
+        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
+            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
+    const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
+    const hasTeleport = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
+    const isSwapPowerUp = game.activePowerUp === "swap";
+    const isTeleportPowerUp = game.activePowerUp === "teleport";
+    const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
+
+    // Perform the board swap
+    const temp = game.board[row1][col1];
+    game.board[row1][col1] = game.board[row2][col2];
+    game.board[row2][col2] = temp;
+
+    game.lastSwapPosition = { row: row2, col: col2, movedFrom: { row: row1, col: col1 } };
+    game.isUserSwap = true;
+
+    const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
+
+    if (hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
+        // Count the move
+        if (!isSwapPowerUp && !isTeleportPowerUp && !hasFreeSwap && !hasTeleport) {
+            game.movesUsed++;
+        }
+
+        game.shouldDecrementCursedTimers = true;
+        game.cursedTileCreatedThisTurn = {};
+
+        // Mark free swap tiles as used
+        if (hasFreeSwap) {
+            if (isFreeSwap1 || isDirectionalFreeSwap1) game.board[row2][col2].hasBeenSwapped = true;
+            if (isFreeSwap2 || isDirectionalFreeSwap2) game.board[row1][col1].hasBeenSwapped = true;
+        }
+        if (hasTeleport) {
+            game.board[row2][col2].hasBeenSwapped = true;
+        }
+
+        return { valid: true, hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap };
+    } else {
+        // Revert the swap
+        game.board[row2][col2] = game.board[row1][col1];
+        game.board[row1][col1] = temp;
+        game.lastSwapPosition = null;
+        game.isUserSwap = false;
+        return { valid: false, hasMatch: false, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap };
+    }
+}
+
 export function trySwap(game, row1, col1, row2, col2) {
     if (!game.gameActive) return;
 
@@ -567,7 +557,6 @@ export function trySwap(game, row1, col1, row2, col2) {
     // If animating, queue the swap to execute after animation completes
     if (game.animating) {
         game.interruptCascade = true;
-        // Store tile references to validate they haven't changed when executing
         game.pendingSwap = {
             row1,
             col1,
@@ -577,7 +566,6 @@ export function trySwap(game, row1, col1, row2, col2) {
             tile2: game.board[row2][col2],
         };
 
-        // Visualize the pending swap with preview class
         const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
         const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
         if (gem1) gem1.classList.add("pending-preview");
@@ -586,112 +574,42 @@ export function trySwap(game, row1, col1, row2, col2) {
         return;
     }
 
-    // Check if either tile is a free swap tile (or sticky free swap) that hasn't been used
-    const tile1 = game.board[row1][col1];
-    const tile2 = game.board[row2][col2];
+    // Execute board-level swap logic
+    const result = executeSwap(game, row1, col1, row2, col2);
 
-    // Determine if this swap is horizontal or vertical
-    const isHorizontalSwap = row1 === row2; // Same row means horizontal swap
-    const isVerticalSwap = col1 === col2; // Same column means vertical swap
+    if (result.valid) {
+        const { hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap } = result;
 
-    // Check for regular free swap tiles
-    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
-    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
-
-    // Check for directional free swap tiles and validate direction
-    const isDirectionalFreeSwap1 =
-        !tile1.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
-    const isDirectionalFreeSwap2 =
-        !tile2.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
-
-    const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
-
-    // Check for teleport tile (only the dragged tile, not the target)
-    const hasTeleport = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
-
-    // Temporarily swap gems
-    const temp = game.board[row1][col1];
-    game.board[row1][col1] = game.board[row2][col2];
-    game.board[row2][col2] = temp;
-
-    // Track which tile was moved (the one that changed position)
-    game.lastSwapPosition = { row: row2, col: col2, movedFrom: { row: row1, col: col1 } };
-
-    // Mark this as a user swap for match detection
-    game.isUserSwap = true;
-
-    // Check if this creates any matches (or if using swap power-up or free swap tile)
-    const isSwapPowerUp = game.activePowerUp === "swap";
-    const isTeleportPowerUp = game.activePowerUp === "teleport";
-    const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
-    const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
-
-    if (hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
-        if (!isSwapPowerUp && !isTeleportPowerUp && !hasFreeSwap && !hasTeleport) {
-            game.movesUsed++;
-            game.updateMovesDisplay();
-        }
-
-        // Flag that we should decrement cursed timers after this turn completes
-        game.shouldDecrementCursedTimers = true;
-
-        // Reset cursed tile creation flag for frequency:0 goals
-        game.cursedTileCreatedThisTurn = {};
-
-        // Mark free swap tile as used
-        if (hasFreeSwap) {
-            if (isFreeSwap1 || isDirectionalFreeSwap1) {
-                game.board[row2][col2].hasBeenSwapped = true;
-            }
-            if (isFreeSwap2 || isDirectionalFreeSwap2) {
-                game.board[row1][col1].hasBeenSwapped = true;
-            }
-        }
-
-        // Mark teleport tile as used (tile1 has been swapped to row2/col2)
-        if (hasTeleport) {
-            game.board[row2][col2].hasBeenSwapped = true;
-        }
+        game.updateMovesDisplay();
 
         game.animateSwap(row1, col1, row2, col2, () => {
             game.renderBoard();
 
-            // Progress tutorial if active
             if (isTutorialActive(game)) {
                 advanceTutorialStep(game);
             }
 
             if (isSwapPowerUp) {
-                // Consume power-up
                 game.consumePowerUp("swap");
                 game.updatePowerUpButtons();
-
-                // Track power-up usage
                 track("power_up_used", {
                     level: game.currentLevel,
                     power_up_type: "swap",
                     remaining_moves: game.maxMoves - game.movesUsed,
                     uses_remaining: game.getTotalPowerUpCount("swap"),
                 });
-
                 game.deactivatePowerUp();
             }
 
             if (isTeleportPowerUp) {
                 game.consumePowerUp("teleport");
                 game.updatePowerUpButtons();
-
                 track("power_up_used", {
                     level: game.currentLevel,
                     power_up_type: "teleport",
                     remaining_moves: game.maxMoves - game.movesUsed,
                     uses_remaining: game.getTotalPowerUpCount("teleport"),
                 });
-
                 game.deactivatePowerUp();
             }
 
@@ -700,7 +618,6 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.isUserSwap = false;
             }
 
-            // Ensure any drag/preview state is cleared so the board can accept new input
             document.querySelectorAll(".gem").forEach((gem) => {
                 gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview");
             });
@@ -713,11 +630,6 @@ export function trySwap(game, row1, col1, row2, col2) {
 
         return true;
     } else {
-        // Revert the swap
-        game.board[row2][col2] = game.board[row1][col1];
-        game.board[row1][col1] = temp;
-        game.lastSwapPosition = null;
-        game.isUserSwap = false;
         game.animateRevert(row1, col1, row2, col2);
     }
 }
