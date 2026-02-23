@@ -197,7 +197,8 @@ function animateRectangularBlockRemoval(game, tile, speedMultiplier = 1) {
     const rectHeight = tile.rectHeight;
     const rectWidth = tile.rectWidth;
 
-    // Remove from board state FIRST (before animation)
+    // Remove from board state FIRST (before animation) - all board reads
+    // during animation use DOM state, not game.board, so this is safe.
     for (let r = anchorRow; r < anchorRow + rectHeight; r++) {
         for (let c = anchorCol; c < anchorCol + rectWidth; c++) {
             const boardTile = game.board[r]?.[c];

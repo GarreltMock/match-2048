@@ -459,7 +459,7 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
  * Mutates game.board and game state flags.
  * @returns {{ valid: boolean, hasMatch: boolean, hasFreeSwap: boolean, hasTeleport: boolean,
  *             isSwapPowerUp: boolean, isTeleportPowerUp: boolean, allowNonMatchingSwap: boolean }}
- *   or null if the swap is not allowed at all.
+ *   An invalid or disallowed swap is indicated by `valid: false`.
  */
 export function executeSwap(game, row1, col1, row2, col2) {
     const tile1 = game.board[row1][col1];
@@ -503,7 +503,7 @@ export function executeSwap(game, row1, col1, row2, col2) {
         game.shouldDecrementCursedTimers = true;
         game.cursedTileCreatedThisTurn = {};
 
-        // Mark free swap tiles as used
+        // Mark free swap tiles as used (tiles have been swapped, so tile1 is now at row2/col2)
         if (hasFreeSwap) {
             if (isFreeSwap1 || isDirectionalFreeSwap1) game.board[row2][col2].hasBeenSwapped = true;
             if (isFreeSwap2 || isDirectionalFreeSwap2) game.board[row1][col1].hasBeenSwapped = true;

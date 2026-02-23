@@ -7,7 +7,7 @@ import { getRandomTileValue } from "./board.js";
 /**
  * Apply gravity to the board: tiles fall down, new tiles spawn at top.
  * Mutates game.board directly.
- * @returns {{ movements: Array<{fromRow, toRow, col}>, newTiles: Array<{row, col}> }}
+ * @returns {{ movements: Array<{fromRow, row, col}>, newTiles: Array<{row, col}> }}
  */
 export function applyGravity(game) {
     const movements = [];

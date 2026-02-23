@@ -103,9 +103,11 @@ export async function processMatches(game, { animateMerges, animateUnblocking } 
         );
     }
 
-    // Start merge animations
+    // Start merge animations, or process merges directly if no animation callback
     if (animateMerges) {
         animateMerges(game, matchGroups, (matchGroups) => processMerges(game, matchGroups, wasUserSwap), speedMultiplier);
+    } else {
+        processMerges(game, matchGroups, wasUserSwap);
     }
 }
 

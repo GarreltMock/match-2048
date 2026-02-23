@@ -7,10 +7,25 @@ import { processMerges, calculateMiddlePositions } from "./merge-processor.js";
 import { getDisplayValue } from "./tile-helpers.js";
 
 /**
+ * Deep-clone an individual tile, including nested objects.
+ */
+function cloneTile(tile) {
+    if (!tile) return null;
+    const cloned = { ...tile };
+    if (tile.rectAnchor && typeof tile.rectAnchor === "object") {
+        cloned.rectAnchor = { ...tile.rectAnchor };
+    }
+    if (tile.cellMergeCounts && typeof tile.cellMergeCounts === "object") {
+        cloned.cellMergeCounts = { ...tile.cellMergeCounts };
+    }
+    return cloned;
+}
+
+/**
  * Deep-clone the board (2D array of tile objects).
  */
 function cloneBoard(board) {
-    return board.map((row) => row.map((tile) => (tile ? { ...tile } : null)));
+    return board.map((row) => row.map((tile) => cloneTile(tile)));
 }
 
 /**
