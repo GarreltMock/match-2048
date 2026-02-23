@@ -112,15 +112,8 @@ export function animateMerges(game, matchGroups, processMergesCallback, speedMul
     });
 
     // Process merges after animation
+    // Note: no DOM cleanup needed here — processMerges calls renderBoard() which replaces all gem elements
     setTimeout(() => {
-        // Clean up animation classes before processing merges
-        document.querySelectorAll(".gem").forEach((gem) => {
-            gem.classList.remove("sliding", "merge-target", "unblocking");
-            gem.style.transform = "";
-            gem.style.transition = "";
-            gem.style.opacity = "";
-            gem.style.zIndex = "";
-        });
         processMergesCallback(matchGroups);
     }, 400 * speedMultiplier);
 }
