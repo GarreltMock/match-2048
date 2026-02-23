@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "8063ec1828c0",
+  "strategy": "manual-commit",
+  "branch": "claude/sleepy-brahmagupta",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/merge-processor.js",
+    "styles/game.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/80/63ec1828c0/0/metadata.json",
+      "transcript": "/80/63ec1828c0/0/full.jsonl",
+      "context": "/80/63ec1828c0/0/context.md",
+      "content_hash": "/80/63ec1828c0/0/content_hash.txt",
+      "prompt": "/80/63ec1828c0/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 46,
+    "cache_creation_tokens": 92647,
+    "cache_read_tokens": 2006324,
+    "output_tokens": 391,
+    "api_call_count": 43
+  }
+}
