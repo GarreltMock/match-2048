@@ -243,7 +243,7 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     const formationType = getFormationConfig(group.direction);
     let specialTileType = formationType ? game.specialTileConfig[formationType] : null;
 
-    // When Super Strike (super streak) is active and the setting is enabled,
+    // When Super Streak is active and the setting is enabled,
     // replace Wildcard (joker) rewards with Wildcard Teleport
     if (
         specialTileType === "joker" &&

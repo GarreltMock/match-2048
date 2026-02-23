@@ -539,7 +539,7 @@ export function saveSelectedPowerUps(selected) {
 }
 
 /**
- * Load the "Super Strike Wildcard Teleport" setting.
+ * Load the "Super Streak Wildcard Teleport" setting.
  * When enabled and super streak is active, Wildcard rewards are replaced by Wildcard Teleport.
  * @returns {boolean} True if enabled (default: false)
  */
@@ -552,7 +552,7 @@ export function loadSuperStrikeWildcardTeleport() {
 }
 
 /**
- * Save the "Super Strike Wildcard Teleport" setting.
+ * Save the "Super Streak Wildcard Teleport" setting.
  * @param {boolean} enabled
  */
 export function saveSuperStrikeWildcardTeleport(enabled) {
