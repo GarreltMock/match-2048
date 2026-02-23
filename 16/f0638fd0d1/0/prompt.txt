@@ -1,0 +1,1 @@
+Please update your @CLAUDE.md to represent the current project structure. We just refactored a lot
