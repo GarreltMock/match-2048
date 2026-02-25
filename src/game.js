@@ -41,6 +41,7 @@ import {
     loadPowerUpOnSpecialTileUseEnabled,
     loadDeterministicPowerUpCycleEnabled,
     loadSelectedPowerUps,
+    loadSuperStrikeWildcardTeleport,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import {
@@ -131,6 +132,7 @@ export class Match3Game {
         this.superUpgradeAction = loadSuperUpgradeAction(); // "disappear", "blocked", "blocked_movable", or "double"
         this.currentStreak = loadStreak(); // 0-3 consecutive wins
         this.superStreak = loadSuperStreak(); // 0+ consecutive wins for super streak
+        this.superStrikeWildcardTeleport = loadSuperStrikeWildcardTeleport(); // Replace Wildcard with Wildcard Teleport during super streak
 
         // Hearts system
         const heartsData = loadHearts();
