@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "256380b48d3b",
+  "strategy": "manual-commit",
+  "branch": "claude/nostalgic-ptolemy",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "index.html",
+    "scripts/simulate.js",
+    "src/game.js",
+    "src/hint-system.js",
+    "src/mcts.js",
+    "src/settings-dialog.js",
+    "src/simulation.js",
+    "src/storage.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/25/6380b48d3b/0/metadata.json",
+      "transcript": "/25/6380b48d3b/0/full.jsonl",
+      "context": "/25/6380b48d3b/0/context.md",
+      "content_hash": "/25/6380b48d3b/0/content_hash.txt",
+      "prompt": "/25/6380b48d3b/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 80,
+    "cache_creation_tokens": 181248,
+    "cache_read_tokens": 5551410,
+    "output_tokens": 717,
+    "api_call_count": 68
+  }
+}
