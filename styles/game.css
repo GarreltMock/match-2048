@@ -986,27 +986,25 @@
 @keyframes damageFloat {
     0% {
         opacity: 1;
-        transform: translateY(0) scale(1);
+        transform: translateX(-10%) translateY(0) scale(1);
     }
     20% {
         opacity: 1;
-        transform: translateY(-20%) scale(1.1);
+        transform: translateX(-10%) translateY(-10px) scale(1.1);
     }
     100% {
         opacity: 0;
-        transform: translateY(-80%) scale(0.8);
+        transform: translateX(-10%) translateY(-50px) scale(0.8);
     }
 }
 
 .damage-text {
-    position: absolute;
-    bottom: 60%;
-    left: 60%;
-    z-index: 300;
+    position: fixed;
+    z-index: 1000;
     pointer-events: none;
     font-weight: bolder;
     font-style: italic;
-    font-size: clamp(1.5rem, 45cqw, 2rem);
+    font-size: clamp(0.6rem, 30cqw, 1.2rem);
     color: #ff4444;
     text-shadow:
         0 0 3px rgba(0, 0, 0, 0.8),
@@ -1015,7 +1013,48 @@
 }
 
 .gem.tile-BLOCKED_WITH_LIFE.unblocking {
-    animation: unblock-move 0.6s ease-out forwards;
+    animation: shakeShrink 0.6s ease-out forwards;
+    z-index: 200;
+}
+
+@keyframes shakeShrink {
+    0% {
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    10% {
+        transform: translateX(calc(-1 * var(--shake-intensity, 8px))) scale(1.05);
+    }
+    20% {
+        transform: translateX(calc(var(--shake-intensity, 8px))) scale(1.05);
+    }
+    25% {
+        transform: translateX(calc(-0.7 * var(--shake-intensity, 8px))) scale(1.05);
+    }
+    30% {
+        transform: translateX(calc(0.5 * var(--shake-intensity, 8px))) scale(1.05);
+    }
+    35% {
+        transform: translateX(calc(-0.3 * var(--shake-intensity, 8px))) scale(1.05);
+    }
+    40% {
+        transform: translateX(0) scale(0.95);
+    }
+    45% {
+        transform: translateX(0) scale(0.9);
+    }
+    55% {
+        transform: translateX(0) scale(0.7);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(0) scale(0);
+        opacity: 0;
+    }
+}
+
+.gem.shake-shrink {
+    animation: shakeShrink 0.6s ease-out forwards;
     z-index: 200;
 }
 

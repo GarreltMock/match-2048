@@ -260,8 +260,13 @@ export function animateUnblocking(game, blockedTiles, updateBlockedTileGoalsCall
         );
 
         if (blockedElement) {
-            // Add disappear animation class (reverse bounce - inflate then shrink)
-            blockedElement.classList.add("disappear");
+            if (blockedElement.classList.contains("blocked-dying")) {
+                // Already has shake-intensity set; play combined shake+shrink
+                blockedElement.classList.remove("blocked-dying");
+                blockedElement.classList.add("shake-shrink");
+            } else {
+                blockedElement.classList.add("disappear");
+            }
         }
     });
 

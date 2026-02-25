@@ -249,11 +249,7 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
 
     // When Super Streak is active and the setting is enabled,
     // replace Wildcard (joker) rewards with Wildcard Teleport
-    if (
-        specialTileType === "joker" &&
-        game.superStrikeWildcardTeleport &&
-        game.superStreak >= SUPER_STREAK_THRESHOLD
-    ) {
+    if (specialTileType === "joker" && game.superStrikeWildcardTeleport && game.superStreak >= SUPER_STREAK_THRESHOLD) {
         specialTileType = "wild_teleport";
     }
 
@@ -481,6 +477,17 @@ export function calculateMiddlePositions(game, tiles, group = null) {
     return positions;
 }
 
+function spawnDamageText(el, damage) {
+    const rect = el.getBoundingClientRect();
+    const dmgText = document.createElement("span");
+    dmgText.className = "damage-text";
+    dmgText.textContent = `-${damage}`;
+    dmgText.style.left = `${rect.left + rect.width / 2}px`;
+    dmgText.style.top = `${rect.top + rect.height * 0.3}px`;
+    document.body.appendChild(dmgText);
+    setTimeout(() => dmgText.remove(), 850);
+}
+
 export function unblockAdjacentTiles(game, matchGroups) {
     const blockedTilesToRemove = [];
     const goalTilesToDamage = [];
@@ -662,6 +669,15 @@ export function unblockAdjacentTiles(game, matchGroups) {
             tile.lifeValue -= entry.damage;
             // If life goes below or equal to 0, mark for removal
             if (tile.lifeValue <= 0) {
+                // Visual feedback: shake + damage text before death
+                const elDying = isRectangularBlocked(tile)
+                    ? document.querySelector(`[data-rect-id="${tile.rectId}"]`)
+                    : document.querySelector(`[data-row="${entry.row}"][data-col="${entry.col}"]`);
+                if (elDying) {
+                    elDying.style.setProperty("--shake-intensity", "6px");
+                    elDying.classList.add("blocked-dying");
+                    spawnDamageText(elDying, entry.damage);
+                }
                 blockedTilesToRemove.push({
                     row: entry.row,
                     col: entry.col,
@@ -679,14 +695,10 @@ export function unblockAdjacentTiles(game, matchGroups) {
                     el.classList.add("blocked-damaged");
                     el.dataset.life = tile.lifeValue;
 
-                    const dmgText = document.createElement("span");
-                    dmgText.className = "damage-text";
-                    dmgText.textContent = `-${entry.damage}`;
-                    el.appendChild(dmgText);
+                    spawnDamageText(el, entry.damage);
 
                     setTimeout(() => {
                         el.classList.remove("blocked-damaged");
-                        dmgText.remove();
                     }, 800);
                 }
             }
