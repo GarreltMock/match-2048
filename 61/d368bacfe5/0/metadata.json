@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "38b4c101-67bb-4c04-b24e-857136dbdb4c",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-25T13:55:19.980966Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/animator.js",
+    "src/merge-processor.js",
+    "styles/game.css"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 35133,
+    "cache_read_tokens": 1279443,
+    "output_tokens": 300,
+    "api_call_count": 30
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-25T13:55:19.802888Z",
+    "agent_lines": 54,
+    "human_added": 5,
+    "human_modified": 13,
+    "human_removed": 0,
+    "total_committed": 72,
+    "agent_percentage": 75
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/38b4c101-67bb-4c04-b24e-857136dbdb4c.jsonl"
+}

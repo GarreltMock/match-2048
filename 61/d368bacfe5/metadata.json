@@ -1,0 +1,28 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/animator.js",
+    "src/merge-processor.js",
+    "styles/game.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/61/d368bacfe5/0/metadata.json",
+      "transcript": "/61/d368bacfe5/0/full.jsonl",
+      "context": "/61/d368bacfe5/0/context.md",
+      "content_hash": "/61/d368bacfe5/0/content_hash.txt",
+      "prompt": "/61/d368bacfe5/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 32,
+    "cache_creation_tokens": 35133,
+    "cache_read_tokens": 1279443,
+    "output_tokens": 300,
+    "api_call_count": 30
+  }
+}
