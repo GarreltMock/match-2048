@@ -756,7 +756,7 @@ export const NEW_LEVELS = [
         maxMoves: 25,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
-            { tileValue: 7, target: 1, current: 0, goalType: "current" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
         unlockFeature: "streak",
@@ -768,7 +768,7 @@ export const NEW_LEVELS = [
         boardHeight: 10,
         blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
         goals: [
-            { tileValue: 7, target: 2, current: 0, goalType: "current" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
@@ -778,7 +778,7 @@ export const NEW_LEVELS = [
         boardHeight: 9,
         blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }, { col: 0 }, { col: 7 }],
         goals: [
-            { tileValue: 7, target: 2, current: 0, goalType: "current" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
@@ -788,7 +788,7 @@ export const NEW_LEVELS = [
         maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
-            { tileValue: 8, target: 1, current: 0, goalType: "current" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
@@ -829,7 +829,7 @@ export const NEW_LEVELS = [
             { row: 7, movable: true },
         ],
         goals: [
-            { tileValue: 7, target: 1, current: 0, goalType: "current" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
         ],
     },
@@ -846,7 +846,7 @@ export const NEW_LEVELS = [
             { row: 8, movable: true },
         ],
         goals: [
-            { tileValue: 7, target: 1, current: 0, goalType: "current" },
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
         ],
         spawnableTiles: [1, 2, 3],
@@ -886,7 +886,7 @@ export const NEW_LEVELS = [
             { row: 5, col: [2, 3, 4, 5], lifeValue: 16 },
         ],
         goals: [
-            { tileValue: 7, target: 2, current: 0, goalType: "current" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
@@ -930,7 +930,7 @@ export const NEW_LEVELS = [
             { row: 7, col: [3, 5], movable: true },
         ],
         goals: [
-            { tileValue: 8, target: 1, current: 0, goalType: "current" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
@@ -959,7 +959,7 @@ export const NEW_LEVELS = [
             { row: 7, col: [3, 5], movable: true },
         ],
         goals: [
-            { tileValue: 8, target: 1, current: 0, goalType: "current" },
+            { tileValue: 8, target: 1, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [5],
@@ -1001,7 +1001,7 @@ export const NEW_LEVELS = [
         maxMoves: 20,
         boardHeight: 9,
         blockedTiles: [{ row: 3, movable: true }, { row: 4, movable: true }, { row: 7 }, { row: 8 }],
-        goals: [{ tileValue: 9, target: 1, current: 0, goalType: "current" }],
+        goals: [{ tileValue: 9, target: 1, current: 0, goalType: "created" }],
         boardUpgrades: [5, 8],
     },
     {
@@ -1084,7 +1084,7 @@ export const NEW_LEVELS = [
             { row: 5, col: 6, width: 2, height: 3 },
         ],
         goals: [
-            { tileValue: 7, target: 2, current: 0, goalType: "current" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [6],
@@ -1102,7 +1102,7 @@ export const NEW_LEVELS = [
             { row: 6, col: 7, width: 2, height: 2 },
         ],
         goals: [
-            { tileValue: 6, target: 20, current: 0, goalType: "current" },
+            { tileValue: 6, target: 20, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
         boardUpgrades: [6, 7],
