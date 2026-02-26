@@ -1,0 +1,484 @@
+Implement this plan: /Users/garreltmock/.claude/plans/mcts-hint-system.md
+
+---
+
+Wait explain to me why hint-system did not really change. How did you integrate the mcts system?
+
+---
+
+Ok lets add some tracking. For once, track the time it took to create the hint.
+Then maybe show me the options and there score.
+I just tried the new hint system and the first hint it gave me is nonesense. It just wants to swap to same tiles
+
+---
+
+How do you pick the first swap? I see one swap on the board which would be a 5-tile line swap. But I do not see that even in the top 5 candidates. Why?
+How do I effectively tweek this system?
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Analysis:
+Let me chronologically analyze the conversation:
+
+1. User asked to implement a plan from `/Users/garreltmock/.claude/plans/mcts-hint-system.md`
+2. I read the plan file - it described implementing Monte Carlo Tree Search for the hint system
+3. I read the existing `hint-system.js` and `simulation.js` to understand the codebase
+4. I read `game.js` to understand `showHint()` and settings integration
+5. I read `settings-dialog.js` and `storage.js` for the settings UI pattern
+6. I read `index.html` for the settings HTML structure
+
+Key implementation steps:
+- Created `src/mcts.js` (twice - first had a CommonJS `require` bug, rewrote)
+- Exported `findAllValidSwaps` from `hint-system.js`
+- Added `allowNonMatchingSwaps` support to `simulation.js`
+- Added `loadUseMCTSHint`/`saveUseMCTSHint` to `storage.js`
+- Added checkbox to `index.html`
+- Wired up in `settings-dialog.js`
+- Integrated into `game.js` `showHint()`
+
+User asked for explanation of how hint-system.js changed - I explained only `export` keyword was added and the integration point is in `game.js showHint()`.
+
+User reported: "I just tried the new hint system and the first hint it gave me is nonsense. It just wants to swap the same tiles"
+
+I identified bugs:
+1. `makeProxy` used `Object.assign(Object.create(null), game, ...)` which copies class instance badly
+2. Filter condition `r.cascades >= 0` was always true (not filtering)
+3. Fixed makeProxy to explicit plain object
+4. Added console logging of timing + top 5 candidates
+
+User then asked: "How do you pick the first swap? I see one swap on the board which would be a 5-tile line swap. But I do not see that even in the top 5 candidates. Why? How do I effectively tweak this system?"
+
+I identified the root cause: the shuffle + `maxChildren=30` cap was randomly discarding swaps including the 5-line swap. Also explained the visit-count selection problem.
+
+Final fixes:
+- Removed random shuffle/cap (no maxChildren)
+- Added sorted expansion: all swaps evaluated immediately, sorted by `scoreDelta + cascades * 5000` so 5-line sorts first
+- Top-half sampling instead of pure random to keep exploration while biasing toward strong moves
+- Improved logging showing up to 8 candidates with ★ marker
+- Explained tuning knobs
+
+Key files modified:
+- `src/mcts.js` (created, then rewritten twice)
+- `src/hint-system.js` (export added)
+- `src/simulation.js` (allowNonMatchingSwaps)
+- `src/storage.js` (loadUseMCTSHint/saveUseMCTSHint)
+- `index.html` (checkbox)
+- `src/settings-dialog.js` (wire up checkbox)
+- `src/game.js` (import, init, showHint branch)
+
+Summary:
+1. Primary Request and Intent:
+   - Implement a Monte Carlo Tree Search (MCTS) hint system as specified in `/Users/garreltmock/.claude/plans/mcts-hint-system.md`
+   - The plan called for: new `src/mcts.js`, exporting `findAllValidSwaps` from hint-system, `allowNonMatchingSwaps` support in simulation.js, a settings toggle, and integration into `game.js showHint()`
+   - After initial implementation, user reported the hint was nonsense (swapping same tiles)
+   - After a fix, user reported a 5-line swap on the board was not appearing in top 5 MCTS candidates and asked why, and how to tune the system
+
+2. Key Technical Concepts:
+   - MCTS (Monte Carlo Tree Search): Selection (UCB1) → Expansion → Rollout → Backpropagation
+   - UCB1 formula: `avgReward + C * sqrt(ln(parentVisits) / visits)`
+   - Headless game simulation via `simulateMove()` in `simulation.js`
+   - Lazy initialization of `untriedSwaps` per node
+   - Robust selection: pick most-visited child (not highest avgReward) as final answer
+   - `findAllValidSwaps` reused for move generation at each node
+   - Reward function: `scoreDelta * 0.01 + cascades * 50 + goalProgress * 200`
+   - `immediateScore` for sorting: `scoreDelta + cascades * 5000`
+   - Top-half sampling during expansion to balance exploration vs exploitation
+
+3. Files and Code Sections:
+   - **`src/mcts.js`** (NEW — rewritten three times)
+     - Final version: explicit `makeProxy`, sorted expansion (no random cap), top-half sampling, console logging
+     ```js
+     export function findBestSwapMCTS(game, config = {}) { ... }
+     // Key: at expansion, evaluate ALL swaps, sort by immediateScore, pick from top-half
+     // Key: no maxChildren cap — nothing is randomly discarded
+     // Logs: [MCTS] N iters / Xms — M root candidates, top 8 shown
+     ```
+     - `makeProxy(game, board)` — explicit plain object with only needed fields (boardWidth, boardHeight, tileValues, spawnableTileValues, specialTileConfig, levelGoals, allowNonMatchingSwaps, movesUsed, maxMoves, cursedTileCreatedCount, score)
+     - `evaluateResult(result, game)` — reward = scoreDelta*0.01 + cascades*50 + goalProgress*200
+     - `immediateScore(result)` — scoreDelta + cascades*5000 (for sorting expansion order)
+     - `rollout(board, game, depth)` — random moves for depth steps, accumulates reward
+
+   - **`src/hint-system.js`**
+     - Changed `function findAllValidSwaps` → `export function findAllValidSwaps` (one word change)
+
+   - **`src/simulation.js`**
+     - `createSimContext`: `allowNonMatchingSwaps: game.allowNonMatchingSwaps || false` (was hardcoded `false`)
+     - Added branch in `simulateMove` after no-match check:
+     ```js
+     if (!hasMatch) {
+         if (!ctx.allowNonMatchingSwaps) {
+             ctx.board[row2][col2] = ctx.board[row1][col1];
+             ctx.board[row1][col1] = temp;
+             return { valid: false, newBoard: ctx.board, scoreDelta: 0, goalProgress: {}, cascades: 0 };
+         }
+         return { valid: true, newBoard: ctx.board, scoreDelta: 0, goalProgress: {}, cascades: 0 };
+     }
+     ```
+
+   - **`src/storage.js`**
+     - Added after `saveHintsEnabled`:
+     ```js
+     export function loadUseMCTSHint() {
+         return localStorage.getItem("match2048_useMCTSHint") === "true";
+     }
+     export function saveUseMCTSHint(enabled) {
+         localStorage.setItem("match2048_useMCTSHint", enabled.toString());
+     }
+     ```
+
+   - **`index.html`**
+     - Added after hintsEnabled checkbox:
+     ```html
+     <div class="setting-item setting-item-checkbox">
+         <label for="useMCTSHint">AI Hint (slower, smarter)</label>
+         <input type="checkbox" id="useMCTSHint" />
+     </div>
+     ```
+
+   - **`src/settings-dialog.js`**
+     - Added `saveUseMCTSHint` to import
+     - Added `const useMCTSHintCheckbox = document.getElementById("useMCTSHint");`
+     - Added read into form: `if (useMCTSHintCheckbox) useMCTSHintCheckbox.checked = game.useMCTSHint;`
+     - Added save: `if (useMCTSHintCheckbox) { game.useMCTSHint = useMCTSHintCheckbox.checked; saveUseMCTSHint(game.useMCTSHint); }`
+
+   - **`src/game.js`**
+     - Added import: `import { findBestSwapMCTS } from "./mcts.js";`
+     - Added `loadUseMCTSHint` to storage imports
+     - Added init: `this.useMCTSHint = loadUseMCTSHint();`
+     - Updated `showHint()`:
+     ```js
+     const bestSwap = this.useMCTSHint ? findBestSwapMCTS(this) : findBestSwap(this);
+     // direction1/direction2 derived inline since MCTS doesn't return them
+     direction1: bestSwap.direction1 || (bestSwap.col2 > bestSwap.col1 ? "right" : ...),
+     ```
+
+4. Errors and fixes:
+   - **Initial `mcts.js` used `require()` (CommonJS)**: Caught before shipping, rewrote using ES module imports only.
+   - **`makeProxy` using `Object.assign(Object.create(null), game, ...)`**: Copying a class instance onto a null-prototype object doesn't copy prototype methods; also drags in stale/unexpected state. Fixed to explicit plain object with only needed fields.
+   - **Filter `r.cascades >= 0` always true**: Was intended to filter zero-reward moves but cascades is always ≥0. Didn't actually filter anything useful.
+   - **Random shuffle + `maxChildren=30` cap dropping the 5-line swap**: This was the critical bug. With >30 candidates, the shuffle randomly discarded some — the 5-line swap could be cut before ever being tried. Fixed by removing the cap entirely.
+   - **Visit-count selection with ~16 visits per child is nearly random**: With 500 iterations across 30 children, distribution is noisy. Fixed by sorting expansion order so strong moves get explored first (and more visits).
+
+5. Problem Solving:
+   - Root cause of "nonsense hint" (same-tile swap): `makeProxy` issues + filter not working → no-op swaps were valid in MCTS tree
+   - Root cause of 5-line swap missing from top 5: random shuffle discarded it before it was ever expanded; even if present, ~16 visits per child is too noisy for visit-count selection to be meaningful
+   - Solution: evaluate all swaps at expansion, sort by `immediateScore` (scoreDelta + cascades*5000), use top-half sampling to bias exploration toward strong moves without being fully greedy
+
+6. All user messages:
+   - "Implement this plan: /Users/garreltmock/.claude/plans/mcts-hint-system.md"
+   - "Wait explain to me why hint-system did not really change. How did you integrate the mcts system?"
+   - "Ok lets add some tracking. For once, track the time it took to create the hint. Then maybe show me the options and there score. I just tried the new hint system and the first hint it gave me is nonesense. It just wants to swap to same tiles"
+   - "How do you pick the first swap? I see one swap on the board which would be a 5-tile line swap. But I do not see that even in the top 5 candidates. Why? How do I effectively tweek this system?"
+
+7. Pending Tasks:
+   - No explicit pending tasks. The user's last question was answered both in prose (explanation of root causes and tuning knobs) and in code (the third rewrite of mcts.js). No further action was requested.
+
+8. Current Work:
+   The final work was the third rewrite of `src/mcts.js` addressing the 5-line swap not appearing in candidates. The key changes were removing the random shuffle/cap, adding sorted expansion via `immediateScore`, and top-half sampling. Console logging was also improved to show up to 8 candidates with a ★ marker on the winner.
+
+9. Optional Next Step:
+   No explicit next step was requested. The user's last message was "How do you pick the first swap? ... How do I effectively tweak this system?" — which was answered. The user should test the new version to see if the 5-line swap now correctly appears as the top candidate before any further changes are made.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
+
+---
+
+Ok before we continue improving the mcts algorithm, can we create a node script which runs the mcts and makes always the recommended move on a level. Then evaluate how often the level is solved?
+And we want to be able to set the level play count.
+This should be a good way to test if we improve or degrade the mcts.
+If you have a better idea let me know.
+I want to implement this simulation so it can later also be used to test the RL ai performance if we create one.
+
+---
+
+Are you done?
+
+---
+
+Can you add a progress log? I want to see which run it is currently on. Especially mcts does take quite a while
+
+---
+
+Ah you already use "reprints". Can you add a progress bar then?
+
+---
+
+mcts seems really slow. Why is that so?
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+Ok try again. I will allow it now
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Analysis:
+Let me analyze the conversation chronologically:
+
+1. The conversation started as a continuation from a previous session (context compacted). The summary shows MCTS was implemented in src/mcts.js with various bug fixes.
+
+2. User asked to create a Node.js script to simulate MCTS playing a level repeatedly to evaluate win rate - a testing harness for comparing strategies.
+
+3. I explored the codebase to understand which files are Node.js compatible vs browser-specific.
+
+4. Created scripts/simulate.js with:
+   - CLI argument parsing (--level, --runs, --strategy, --mcts-iters, --mcts-depth, --mcts-time, --config, --verbose, --help)
+   - createGameContext() - minimal game object for Node.js
+   - Goal tracking for "created", "blocked", "current" goal types
+   - Three strategies: random, hint, mcts
+   - Results summary
+
+5. Fixed multiple errors:
+   - specialTileConfig was null → added default inline
+   - game.findMatches() missing → added to game context
+   - Infinite loop when strategy returns invalid swaps → break on invalid
+   - randomSwap returning non-matching swaps causing infinite loop → pre-filter
+   - "blocked" goal target undefined → use initialBlockedCount as fallback target
+   - MCTS logging too verbose in simulator → added `silent` option to mcts.js
+
+6. User asked for progress log → added `\r` reprinting with run counter
+
+7. User asked for progress bar → added ASCII progress bar with █/░ characters, percentage, run count, rolling win rate
+
+8. User asked why MCTS is so slow → I analyzed and benchmarked:
+   - ~400ms per move at iters=500, depth=4
+   - ~57ms per move at iters=100, depth=1
+   - Main cost: each simulateMove deep-clones board + runs full cascade
+   - Asked user if they want defaults changed or just pass flags manually
+
+The conversation ended with the benchmark results and asking the user how to proceed.
+
+Summary:
+1. Primary Request and Intent:
+   - Create a Node.js headless level simulator (`scripts/simulate.js`) that plays a level N times using a chosen strategy (MCTS, hint, or random) and reports win rate
+   - Support configurable play count, strategy selection, and MCTS parameters
+   - Designed to be reusable as RL training harness later
+   - Add progress logging → progress bar
+   - User then asked why MCTS is so slow (most recent question, not yet resolved)
+
+2. Key Technical Concepts:
+   - Headless Node.js simulation using ES modules (no DOM, no localStorage)
+   - Three strategies: `random` (match-producing swaps only), `hint` (existing findBestSwap heuristic), `mcts` (MCTS with silent flag)
+   - Goal types: `created` (cumulative tile creation), `blocked` (clear all blocked tiles), `current` (live board count), `score` (treated as always-met)
+   - ASCII progress bar with `\r` reprinting: `█░` characters + rolling win rate
+   - `silent` option added to `findBestSwapMCTS` to suppress per-move logging
+   - MCTS cost: ~400ms/move at iters=500 depth=4, ~57ms/move at iters=100 depth=1
+   - Main bottleneck: each `simulateMove` deep-clones board + runs full cascade
+
+3. Files and Code Sections:
+   - **`scripts/simulate.js`** (NEW — primary file created)
+     - Full headless simulator with CLI, game context factory, goal checking, three strategies, progress bar
+     - Key sections:
+     ```js
+     // createGameContext — minimal Node.js game object
+     function createGameContext(levelConfig) {
+         const tileValues = levelConfig.spawnableTiles || DEFAULT_TILE_VALUES;
+         const game = {
+             board: [], boardWidth: levelConfig.boardWidth || 8, boardHeight: levelConfig.boardHeight || 8,
+             tileValues, spawnableTileValues: tileValues, levelConfig,
+             blockedTiles: levelConfig.blockedTiles || [],
+             specialTileConfig: levelConfig.specialTileConfig || {
+                 line_4: "freeswap_horizontal", block_4: "freeswap_horizontal",
+                 line_5: "joker", t_formation: "freeswap", l_formation: "freeswap",
+             },
+             allowNonMatchingSwaps: levelConfig.allowNonMatchingSwaps || false,
+             levelGoals: levelConfig.goals.map((g) => ({ ...g })),
+             maxMoves: levelConfig.maxMoves, movesUsed: 0, score: 0, cursedTileCreatedCount: {},
+             checkTFormation(row, col, value) { return checkTFormation(this, row, col, value); },
+             checkLFormation(row, col, value)  { return checkLFormation(this, row, col, value); },
+             checkBlockFormation(row, col, value) { return checkBlockFormation(this, row, col, value); },
+             findMatches() { return findMatches(this); },
+         };
+         createBoard(game);
+         return game;
+     }
+     ```
+     ```js
+     // Progress bar
+     const BAR_WIDTH = 30;
+     function drawProgress(i, wins) {
+         const filled = Math.round((i / runs) * BAR_WIDTH);
+         const bar = "█".repeat(filled) + "░".repeat(BAR_WIDTH - filled);
+         const pct = ((i / runs) * 100).toFixed(0).padStart(3);
+         const winRate = i > 0 ? `${((wins / i) * 100).toFixed(0)}% win` : "—";
+         process.stdout.write(`\r  [${bar}] ${pct}%  ${i}/${runs}  ${winRate}`);
+     }
+     ```
+     ```js
+     // randomSwap — pre-filters to match-producing swaps to avoid infinite loop
+     function randomSwap(game) {
+         const swaps = findAllValidSwaps(game);
+         if (swaps.length === 0) return null;
+         const validSwaps = swaps.filter((s) => {
+             const r = simulateMove(game, s);
+             return r.valid && r.scoreDelta > 0;
+         });
+         if (validSwaps.length === 0) return swaps[Math.floor(Math.random() * swaps.length)];
+         return validSwaps[Math.floor(Math.random() * validSwaps.length)];
+     }
+     ```
+     ```js
+     // blocked goal: target undefined → use initialBlockedCount
+     } else if (goal.goalType === "blocked") {
+         const currentBlocked = countBlockedTiles(board);
+         const cleared = initialBlockedCount - currentBlocked;
+         const target = goal.target || initialBlockedCount;
+         if (cleared < target) return false;
+     }
+     ```
+     ```js
+     // Invalid swap handling — break to avoid infinite loop
+     if (!result.valid) {
+         if (game.allowNonMatchingSwaps) {
+             game.board = result.newBoard;
+             game.movesUsed++;
+         } else {
+             break; // prevent infinite loop
+         }
+         continue;
+     }
+     ```
+
+   - **`src/mcts.js`** (MODIFIED)
+     - Added `silent = false` option to suppress console output in simulator context
+     ```js
+     export function findBestSwapMCTS(game, config = {}) {
+         const {
+             iterations = MCTS_DEFAULT_CONFIG.iterations,
+             rolloutDepth = MCTS_DEFAULT_CONFIG.rolloutDepth,
+             explorationConstant = MCTS_DEFAULT_CONFIG.explorationConstant,
+             timeLimit = MCTS_DEFAULT_CONFIG.timeLimit,
+             silent = false,
+         } = config;
+         // ...
+         if (root.children.length === 0) {
+             if (!silent) console.log(`[MCTS] No children after ${itersRun} iters (${elapsed}ms)`);
+             return null;
+         }
+         // ...
+         if (!silent) {
+             console.group(`[MCTS] ${itersRun} iters / ${elapsed}ms — ${root.children.length} root candidates`);
+             // ... logging
+             console.groupEnd();
+         }
+     }
+     ```
+
+4. Errors and fixes:
+   - **`specialTileConfig` null crash** in merge-processor.js: `Cannot read properties of null (reading 'line_5')` → added default specialTileConfig object inline in `createGameContext`
+   - **`game.findMatches is not a function`** when using `hint` strategy: hint-system calls `game.findMatches()` internally → added `findMatches() { return findMatches(this); }` to game context
+   - **Infinite loop** when strategy returns invalid swaps (no moves found but loop never increments movesUsed) → added `break` when `!allowNonMatchingSwaps` and result is invalid
+   - **`randomSwap` returning non-matching swaps** causing infinite loop (findAllValidSwaps returns swaps that pass position checks but don't create matches) → added pre-filtering via `simulateMove` in `randomSwap`
+   - **"blocked" goal `target: undefined`** (dynamically set in real game) → fallback to `initialBlockedCount` as target
+   - **MCTS console output flooding simulator** → added `silent: true` option, passed from simulator
+
+5. Problem Solving:
+   - Identified which src/ files are Node.js-compatible (all core logic files are; only UI files like renderer, animator, merge-processor's async parts are DOM-specific)
+   - `simulation.js` already stubs all DOM calls, so the simulation path works cleanly in Node.js
+   - Board needs `checkTFormation/L/Block` methods during `createBoard` → added as methods on the game context object
+   - MCTS slowness diagnosed via benchmark: iters=500 depth=4 → 416ms/move; iters=100 depth=1 → 57ms/move. Root cause: `simulateMove` deep-clones board + full cascade on every call. No algorithmic fix without rewriting core simulation.
+
+6. All user messages:
+   - "Ok before we continue improving the mcts algorithm, can we create a node script which runs the mcts and makes always the recommended move on a level. Then evaluate how often the level is solved? And we want to be able to set the level play count. This should be a good way to test if we improve or degrade the mcts. If you have a better idea let me know. I want to implement this simulation so it can later also be used to test the RL ai performance if we create one."
+   - "Are you done?"
+   - "Can you add a progress log? I want to see which run it is currently on. Especially mcts does take quite a while"
+   - "Ah you already use 'reprints'. Can you add a progress bar then?"
+   - "mcts seems really slow. Why is that so?"
+   - "[Request interrupted by user for tool use] Ok try again. I will allow it now"
+   - (system summary request — current message)
+
+7. Pending Tasks:
+   - Resolve MCTS slowness — user asked why it's slow, I explained and benchmarked, then asked: "Want me to update the defaults, or would you prefer to just pass those flags manually?" — no answer yet
+
+8. Current Work:
+   Benchmarked MCTS performance, identifying that `iters=500 depth=4` costs ~416ms/move vs `iters=100 depth=1` at ~57ms/move. Explained the root cause (simulateMove deep-clones + full cascade per call) and proposed either changing simulator defaults or letting user pass flags manually. Awaiting user decision.
+
+9. Optional Next Step:
+   User asked "mcts seems really slow. Why is that so?" and I explained + benchmarked. I then asked: "Want me to update the defaults, or would you prefer to just pass those flags manually?" The next step is to wait for user's answer on whether to change the default `--mcts-iters` and `--mcts-depth` values in `scripts/simulate.js`, or leave them as-is.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
+
+---
+
+Ok so we added the simulate script.
+In the commit before that we introduced the mcts algo.
+In my tests with the simulation I discovered, that the mcts was not really better than the hint system before that.
+This is quite sobering. Why is that? Can you investigate a little and think about if mcts really is a good approach here? And if we implemented it correctly for this type of game.
+
+---
+
+Explain beam search in more depth.
+
+---
+
+Ok this sounds promising and I also really like your heuristics. Maybe for a first step, could you improve our calculateSwapScore function of the hint system with the suggestions you made.
+I find the "number of potential matches available" really interesting. Because this is something we want to evaluate if we do a non-matching swap. I want to bring that in later to. So we can also explore swaps that do not have any effect on all the other heuristics, but enable us to do a really good match which we couldn't do before. For these cases it is fine for me to have that with max. of 1 depth. So one non-match swap + one matching, and then evaluate against directly matching swaps.
+Could we do that? This could be a variation of the beam search right? What do you think?
+
+---
+
+Look at this: 
+```
+node scripts/simulate.js --level 14 --runs 200 --strategy hint
+Level 14: "undefined"
+Config: new  Strategy: hint  Runs: 200
+Goals: current:7×2, blocked:×undefined
+Moves: 30  Board: 6×10
+──────────────────────────────────────────────────
+  [██████████████░░░░░░░░░░░░░░░░]  45%  90/200  0% win
+```
+
+Why is this so bad?
+
+---
+
+I do not see the Run outputs
+
+---
+
+Something seems off:
+Run   1: LOSS  moves=21  7:1/2  blocked:0/30  0.8s
+  Run   2: LOSS  moves=25  7:2/2  blocked:0/30  0.9s
+  Run   3: LOSS  moves=30  7:2/2  blocked:0/30  1.0s
+  Run   4: LOSS  moves=30  7:2/2  blocked:0/30  1.1s
+  Run   5: LOSS  moves=30  7:2/2  blocked:0/30  2.6s
+  Run   6: LOSS  moves=6  7:0/2  blocked:0/30  0.6s
+  Run   7: LOSS  moves=30  7:2/2  blocked:0/30  1.0s
+  Run   8: LOSS  moves=27  7:1/2  blocked:0/30  0.7s
+  Run   9: LOSS  moves=30  7:4/2  blocked:0/30  1.6s
+  Run  10: LOSS  moves=13  7:0/2  blocked:0/30  0.6s
+  Run  11: LOSS  moves=30  7:4/2  blocked:0/30  1.7s
+  Run  12: LOSS  moves=30  7:3/2  blocked:0/30  0.7s
+  Run  13: LOSS  moves=30  7:1/2  blocked:0/30  0.8s
+  Run  14: LOSS  moves=28  7:1/2  blocked:0/30  2.2s
+  Run  15: LOSS  moves=30  7:2/2  blocked:0/30  1.1s
+  Run  16: LOSS  moves=30  7:2/2  blocked:0/30  1.4s
+  Run  17: LOSS  moves=30  7:1/2  blocked:0/30  0.9s
+  Run  18: LOSS  moves=30  7:1/2  blocked:0/30  0.8s
+  Run  19: LOSS  moves=30  7:2/2  blocked:0/30  1.2s
+  Run  20: LOSS  moves=18  7:0/2  blocked:0/30  0.6s
+
+A lot of them seem as a WIN
+7:2/2 blocked 0/30 are a win right? What is happening?>
+
+---
+
+Maybe the scoring should consider the goals more?
+
+---
+
+Give the goal contribution much more weight.
+Much more weight!! 
+I think we somewhere give points for removing blocked tiles.
+Lets focus on goal contribution. Everything else is secondary
+
+---
+
+If we check for the non-matching swap. Does the function checking the swaps after that also check the goal progress?

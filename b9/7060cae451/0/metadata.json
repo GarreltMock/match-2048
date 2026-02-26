@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "b97060cae451",
+  "session_id": "2d43c32a-a260-4fdb-8664-04a32e47ef59",
+  "strategy": "manual-commit",
+  "created_at": "2026-02-26T07:04:37.65569Z",
+  "branch": "claude/nostalgic-ptolemy",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "index.html",
+    "scripts/simulate.js",
+    "src/game.js",
+    "src/hint-system.js",
+    "src/mcts.js",
+    "src/settings-dialog.js",
+    "src/simulation.js",
+    "src/storage.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "e9d8ee8c-3e71-44bc-9e17-06bd14d72d6f",
+  "checkpoint_transcript_start": 398,
+  "transcript_lines_at_start": 398,
+  "token_usage": {
+    "input_tokens": 93,
+    "cache_creation_tokens": 190554,
+    "cache_read_tokens": 6370517,
+    "output_tokens": 615,
+    "api_call_count": 73
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-02-26T07:04:37.001413Z",
+    "agent_lines": 152,
+    "human_added": 0,
+    "human_modified": 48,
+    "human_removed": 0,
+    "total_committed": 200,
+    "agent_percentage": 76
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock--claude-worktrees-match-2048-nostalgic-ptolemy/2d43c32a-a260-4fdb-8664-04a32e47ef59.jsonl"
+}
