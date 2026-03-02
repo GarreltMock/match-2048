@@ -403,6 +403,16 @@ export function saveAllowNonMatchingSwaps(enabled) {
     localStorage.setItem("match2048_allowNonMatchingSwaps", enabled.toString());
 }
 
+export function loadExtendedFreeSwap() {
+    const saved = localStorage.getItem("match2048_extendedFreeSwap");
+    if (saved === null) return false;
+    return saved === "true";
+}
+
+export function saveExtendedFreeSwap(enabled) {
+    localStorage.setItem("match2048_extendedFreeSwap", enabled.toString());
+}
+
 /**
  * Load set of already-shown formation tutorials from localStorage
  * @returns {Set<string>} Set of formation types that have been shown

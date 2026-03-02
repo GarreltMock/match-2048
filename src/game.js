@@ -36,6 +36,7 @@ import {
     loadHintsEnabled,
     loadHintTimeoutMs,
     loadAllowNonMatchingSwaps,
+    loadExtendedFreeSwap,
     loadFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
     loadPowerUpOnSpecialTileUseEnabled,
@@ -168,6 +169,7 @@ export class Match3Game {
         this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
+        this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();

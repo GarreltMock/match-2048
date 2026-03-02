@@ -349,7 +349,7 @@ function isTeleportSwapAllowed(game, row1, col1, row2, col2) {
 }
 
 function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
-    if (game.allowNonMatchingSwaps !== true) {
+    if (game.extendedFreeSwap !== true) {
         return false;
     }
 
