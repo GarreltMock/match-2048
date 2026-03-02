@@ -220,7 +220,7 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
 
     // When Super Streak is active and the setting is enabled,
     // replace Wildcard (joker) rewards with Wildcard Teleport
-    if (specialTileType === "joker" && game.superStrikeWildcardTeleport && game.superStreak >= SUPER_STREAK_THRESHOLD) {
+    if (game.superStrikeWildcardTeleport && game.superStreak >= SUPER_STREAK_THRESHOLD) {
         specialTileType = "wild_teleport";
     }
 
