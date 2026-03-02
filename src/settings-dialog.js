@@ -12,6 +12,7 @@ import {
     saveHintsEnabled,
     saveHintTimeoutMs,
     saveAllowNonMatchingSwaps,
+    saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
     savePersistentPowerUpsEnabled,
     savePowerUpOnSpecialTileUseEnabled,
@@ -42,6 +43,7 @@ export function setupSettingsButton(game) {
     const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
     const hintTimeoutInput = document.getElementById("hintTimeoutMs");
     const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
+    const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
     const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
@@ -148,6 +150,9 @@ export function setupSettingsButton(game) {
         }
         if (allowNonMatchingSwapsCheckbox) {
             allowNonMatchingSwapsCheckbox.checked = game.allowNonMatchingSwaps;
+        }
+        if (extendedFreeSwapCheckbox) {
+            extendedFreeSwapCheckbox.checked = game.extendedFreeSwap;
         }
         if (formationPowerUpRewardsCheckbox) {
             formationPowerUpRewardsCheckbox.checked = game.formationPowerUpRewards;
@@ -257,6 +262,10 @@ export function setupSettingsButton(game) {
                 if (allowNonMatchingSwapsCheckbox) {
                     game.allowNonMatchingSwaps = allowNonMatchingSwapsCheckbox.checked;
                     saveAllowNonMatchingSwaps(game.allowNonMatchingSwaps);
+                }
+                if (extendedFreeSwapCheckbox) {
+                    game.extendedFreeSwap = extendedFreeSwapCheckbox.checked;
+                    saveExtendedFreeSwap(game.extendedFreeSwap);
                 }
                 if (formationPowerUpRewardsCheckbox) {
                     game.formationPowerUpRewards = formationPowerUpRewardsCheckbox.checked;
