@@ -1,0 +1,42 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "f03297f5-4baf-469d-9928-5b0eb42209d2",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-02T14:55:13.818943Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "CLAUDE.md",
+    "index.html",
+    "src/config.js",
+    "src/game.js",
+    "src/match-detector.js",
+    "src/merge-processor.js",
+    "src/power-ups.js",
+    "src/settings-dialog.js",
+    "src/simulation.js",
+    "src/storage.js",
+    "src/tile-helpers.js",
+    "styles/game.css"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "d4158c46-dd47-4276-a977-11729645ab36",
+  "token_usage": {
+    "input_tokens": 40,
+    "cache_creation_tokens": 56143,
+    "cache_read_tokens": 2112884,
+    "output_tokens": 10889,
+    "api_call_count": 38
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-02T14:55:13.374318Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 208,
+    "total_committed": 7,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/f03297f5-4baf-469d-9928-5b0eb42209d2.jsonl"
+}
