@@ -39,8 +39,6 @@ import {
     loadExtendedFreeSwap,
     loadFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
-    loadPowerUpOnSpecialTileUseEnabled,
-    loadDeterministicPowerUpCycleEnabled,
     loadSelectedPowerUps,
     loadSuperStrikeWildcardTeleport,
 } from "./storage.js";
@@ -100,16 +98,13 @@ import {
     deactivatePowerUp,
     isPowerUpButtonVisible,
     getVisiblePowerUpTypes,
-    grantRandomPowerUp,
     grantPowerUp,
     getTotalPowerUpCount,
     consumePowerUp,
     grantFormationPowerUp,
-    showPowerUpRewardAnimation,
     showPowerUps,
     hidePowerUps,
     updatePowerUpButtons,
-    updatePowerUpCycleIndicator,
     handlePowerUpAction,
     usePowerUpHammer,
     usePowerUpHalve,
@@ -172,10 +167,6 @@ export class Match3Game {
         this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
-        this.powerUpOnSpecialTileUseEnabled = loadPowerUpOnSpecialTileUseEnabled();
-        this.deterministicPowerUpCycleEnabled = loadDeterministicPowerUpCycleEnabled();
-        // Deterministic cycle state resets every level (starts at hammer)
-        this.powerUpCycleIndex = 0;
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -346,9 +337,6 @@ export class Match3Game {
         this.powerUpCounts.swap.transient = 0;
         this.powerUpCounts.teleport.transient = 0;
         this.powerUpCounts.wildcard.transient = 0;
-
-        // Reset deterministic power-up cycle state per-level
-        this.powerUpCycleIndex = 0;
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -733,14 +721,12 @@ export class Match3Game {
     deactivatePowerUp()             { deactivatePowerUp(this); }
     isPowerUpButtonVisible(type)    { return isPowerUpButtonVisible(this, type); }
     getVisiblePowerUpTypes()        { return getVisiblePowerUpTypes(this); }
-    grantRandomPowerUp()            { grantRandomPowerUp(this); }
     grantPowerUp(type)              { grantPowerUp(this, type); }
     getTotalPowerUpCount(type)      { return getTotalPowerUpCount(this, type); }
     consumePowerUp(type)            { consumePowerUp(this, type); }
     grantFormationPowerUp(ft)       { grantFormationPowerUp(this, ft); }
     handlePowerUpAction(r, c, el)   { return handlePowerUpAction(this, r, c, el); }
     updatePowerUpButtons()          { updatePowerUpButtons(this); }
-    updatePowerUpCycleIndicator()   { updatePowerUpCycleIndicator(this); }
     showPowerUps()                  { showPowerUps(this); }
     hidePowerUps()                  { hidePowerUps(this); }
     openPowerupShop()               { openPowerupShop(this); }

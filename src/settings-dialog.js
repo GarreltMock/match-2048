@@ -15,8 +15,6 @@ import {
     saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
     savePersistentPowerUpsEnabled,
-    savePowerUpOnSpecialTileUseEnabled,
-    saveDeterministicPowerUpCycleEnabled,
     saveSelectedPowerUps,
     saveSuperStrikeWildcardTeleport,
 } from "./storage.js";
@@ -46,8 +44,6 @@ export function setupSettingsButton(game) {
     const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
-    const powerUpOnSpecialTileUseEnabledCheckbox = document.getElementById("powerUpOnSpecialTileUseEnabled");
-    const deterministicPowerUpCycleEnabledCheckbox = document.getElementById("deterministicPowerUpCycleEnabled");
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
 
     const togglePowerUpOptions = (show) => {
@@ -160,12 +156,6 @@ export function setupSettingsButton(game) {
         if (persistentPowerUpsEnabledCheckbox) {
             persistentPowerUpsEnabledCheckbox.checked = game.persistentPowerUpsEnabled;
         }
-        if (powerUpOnSpecialTileUseEnabledCheckbox) {
-            powerUpOnSpecialTileUseEnabledCheckbox.checked = game.powerUpOnSpecialTileUseEnabled;
-        }
-        if (deterministicPowerUpCycleEnabledCheckbox) {
-            deterministicPowerUpCycleEnabledCheckbox.checked = game.deterministicPowerUpCycleEnabled;
-        }
         if (superStrikeWildcardTeleportCheckbox) {
             superStrikeWildcardTeleportCheckbox.checked = game.superStrikeWildcardTeleport;
         }
@@ -275,14 +265,6 @@ export function setupSettingsButton(game) {
                     game.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
                     savePersistentPowerUpsEnabled(game.persistentPowerUpsEnabled);
                 }
-                if (powerUpOnSpecialTileUseEnabledCheckbox) {
-                    game.powerUpOnSpecialTileUseEnabled = powerUpOnSpecialTileUseEnabledCheckbox.checked;
-                    savePowerUpOnSpecialTileUseEnabled(game.powerUpOnSpecialTileUseEnabled);
-                }
-                if (deterministicPowerUpCycleEnabledCheckbox) {
-                    game.deterministicPowerUpCycleEnabled = deterministicPowerUpCycleEnabledCheckbox.checked;
-                    saveDeterministicPowerUpCycleEnabled(game.deterministicPowerUpCycleEnabled);
-                }
                 if (superStrikeWildcardTeleportCheckbox) {
                     game.superStrikeWildcardTeleport = superStrikeWildcardTeleportCheckbox.checked;
                     saveSuperStrikeWildcardTeleport(game.superStrikeWildcardTeleport);
@@ -304,7 +286,6 @@ export function setupSettingsButton(game) {
                 if (levelChanged) {
                     location.reload();
                 } else {
-                    game.updatePowerUpCycleIndicator();
                     settingsDialog.classList.add("hidden");
                 }
             });

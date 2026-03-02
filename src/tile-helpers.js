@@ -210,10 +210,6 @@ export function isTileHalverTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "halver";
 }
 
-export function isTileRandomPowerupTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "random_powerup";
-}
-
 export function isTileTeleportTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "teleport";
 }

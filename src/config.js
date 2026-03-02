@@ -26,7 +26,6 @@ export const SPECIAL_TILE_TYPES = {
     FREESWAP_VERTICAL: "freeswap_vertical",
     HAMMER: "hammer",
     HALVER: "halver",
-    RANDOM_POWERUP: "random_powerup",
     TELEPORT: "teleport",
     WILD_TELEPORT: "wild_teleport",
     PLUS: "plus",

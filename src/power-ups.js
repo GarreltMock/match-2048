@@ -106,22 +106,6 @@ export function getVisiblePowerUpTypes(game) {
     return game.selectedPowerUps.filter((t) => isPowerUpButtonVisible(game, t));
 }
 
-export function grantRandomPowerUp(game) {
-    const powerUpTypes = game.selectedPowerUps;
-    let powerUpType = null;
-
-    if (game.deterministicPowerUpCycleEnabled) {
-        const index = game.powerUpCycleIndex % powerUpTypes.length;
-        powerUpType = powerUpTypes[index];
-        game.powerUpCycleIndex = (index + 1) % powerUpTypes.length;
-    } else {
-        powerUpType = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
-    }
-
-    grantPowerUp(game, powerUpType);
-    showPowerUpRewardAnimation(game, powerUpType);
-}
-
 export function grantPowerUp(game, powerUpType) {
     game.powerUpCounts[powerUpType].transient++;
     updatePowerUpButtons(game);
@@ -300,25 +284,7 @@ export function updatePowerUpButtons(game) {
         }
     });
 
-    updatePowerUpCycleIndicator(game);
-}
-
-export function updatePowerUpCycleIndicator(game) {
-    const indicator = document.getElementById("powerUpCycleIndicator");
-    if (!indicator) return;
-
-    if (!game.deterministicPowerUpCycleEnabled) {
-        indicator.style.display = "none";
-        return;
     }
-
-    const powerUpTypes = game.selectedPowerUps;
-    const nextType = powerUpTypes[game.powerUpCycleIndex % powerUpTypes.length];
-
-    indicator.innerHTML = powerUpTypes
-        .map((type) => `<span class="cycle-dot${type === nextType ? " active" : ""}"></span>`)
-        .join("");
-    indicator.style.display = "flex";
 }
 
 export function handlePowerUpAction(game, row, col, element) {

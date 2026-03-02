@@ -150,7 +150,6 @@
                         ✨
                     </button>
                 </div>
-                <div id="powerUpCycleIndicator" class="power-up-cycle-indicator"></div>
 
                 <div id="powerUpRewardsContainer" class="powerup-rewards-container" style="display: none">
                     <div class="label">
@@ -488,7 +487,7 @@
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
-                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+
                             <option value="teleport" class="regular-option">🚀 Teleport</option>
                             <option value="wild_teleport" class="regular-option">*🚀 Wildcard Teleport</option>
                         </select>
@@ -505,7 +504,7 @@
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
-                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+
                             <option value="teleport" class="regular-option">🚀 Teleport</option>
                             <option value="wild_teleport" class="regular-option">*🚀 Wildcard Teleport</option>
                         </select>
@@ -522,7 +521,7 @@
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
-                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+
                             <option value="teleport" class="regular-option">🚀 Teleport</option>
                             <option value="wild_teleport" class="regular-option">*🚀 Wildcard Teleport</option>
                         </select>
@@ -539,7 +538,7 @@
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
-                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+
                             <option value="teleport" class="regular-option">🚀 Teleport</option>
                             <option value="wild_teleport" class="regular-option">*🚀 Wildcard Teleport</option>
                         </select>
@@ -556,7 +555,7 @@
                             <option value="freeswap_horizontal" class="regular-option">↔ Directional Free Swap</option>
                             <option value="hammer" class="regular-option">🔨 Hammer Tile</option>
                             <option value="halver" class="regular-option">✂️ Halver Tile</option>
-                            <option value="random_powerup" class="regular-option">🎁 Random Joker</option>
+
                             <option value="teleport" class="regular-option">🚀 Teleport</option>
                             <option value="wild_teleport" class="regular-option">*🚀 Wildcard Teleport</option>
                         </select>
@@ -576,8 +575,6 @@
                             direction (horizontal or vertical) of the swap that created it.<br />
                             <strong>🔨 Hammer Tile:</strong> Tap to remove the tile from the board (costs 1 move).<br />
                             <strong>✂️ Halver Tile:</strong> Tap to halve the tile's value (costs 1 move).<br />
-                            <strong>🎁 Random Joker:</strong> When matched, grants a random Joker (hammer, halver, or
-                            swap).<br />
                             <strong>🚀 Teleport:</strong> Tap to select, then tap another tile to swap positions (costs
                             1 move).
                         </div>
@@ -610,29 +607,6 @@
                         </details>
                         <label for="formationPowerUpRewards">5-Tile Formation Joker Rewards</label>
                         <input type="checkbox" id="formationPowerUpRewards" />
-                    </div>
-
-                    <div class="setting-item setting-item-checkbox">
-                        <details class="setting-help inline">
-                            <summary>ⓘ</summary>
-                            <div class="special-tile-help">
-                                When enabled, consuming a <strong>* Wildcard</strong> or <strong>+ Wildcard</strong> in
-                                a merge grants a random Joker (hammer, halver, or swap).
-                            </div>
-                        </details>
-                        <label for="powerUpOnSpecialTileUseEnabled">Power-Up on Wildcard Use</label>
-                        <input type="checkbox" id="powerUpOnSpecialTileUseEnabled" />
-                    </div>
-
-                    <div class="setting-item setting-item-checkbox">
-                        <details class="setting-help inline">
-                            <summary>ⓘ</summary>
-                            <div class="special-tile-help">
-                                When enabled, random Joker rewards cycle in order: <strong>🔨 → ✂️ → 🔄</strong>.
-                            </div>
-                        </details>
-                        <label for="deterministicPowerUpCycleEnabled">Deterministic Random Joker Cycle</label>
-                        <input type="checkbox" id="deterministicPowerUpCycleEnabled" />
                     </div>
 
                     <div class="setting-item setting-item-checkbox">

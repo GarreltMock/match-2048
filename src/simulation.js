@@ -43,8 +43,6 @@ function createSimContext(game, board) {
         levelGoals: game.levelGoals.map((g) => ({ ...g })),
         allowNonMatchingSwaps: false,
         activePowerUp: null,
-        activatedJokerPositions: null,
-        powerUpOnSpecialTileUseEnabled: false,
         isUserSwap: false,
         lastSwapPosition: null,
         movesUsed: game.movesUsed,
@@ -79,7 +77,6 @@ function createSimContext(game, board) {
         checkAndShiftTileLevels() {},
         shiftTileLevels() { return Promise.resolve(); },
         checkAndGrantPowerUpReward() {},
-        grantRandomPowerUp() {},
         grantFormationPowerUp() {},
     };
 }
