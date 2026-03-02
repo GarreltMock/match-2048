@@ -143,10 +143,22 @@
                     <button id="swapPowerUp" class="power-up-btn game" data-powerup="swap" title="Swap any two tiles">
                         🔄
                     </button>
-                    <button id="teleportPowerUp" class="power-up-btn game" data-powerup="teleport" title="Teleport: swap any two tiles" style="display:none">
+                    <button
+                        id="teleportPowerUp"
+                        class="power-up-btn game"
+                        data-powerup="teleport"
+                        title="Teleport: swap any two tiles"
+                        style="display: none"
+                    >
                         🚀
                     </button>
-                    <button id="wildcardPowerUp" class="power-up-btn game" data-powerup="wildcard" title="Turn a tile into a wildcard" style="display:none">
+                    <button
+                        id="wildcardPowerUp"
+                        class="power-up-btn game"
+                        data-powerup="wildcard"
+                        title="Turn a tile into a wildcard"
+                        style="display: none"
+                    >
                         ✨
                     </button>
                 </div>
@@ -447,7 +459,7 @@
                         </select>
                     </div>
 
-                    <div class="settings-section-title">Tile Level Management</div>
+                    <!-- <div class="settings-section-title">Tile Level Management</div>
 
                     <div class="setting-item">
                         <label for="boardUpgradeAction">Board Upgrade Action:</label>
@@ -467,12 +479,7 @@
                             <option value="blocked_movable">Transform to Blocked Movable</option>
                             <option value="double">Double Value</option>
                         </select>
-                    </div>
-
-                    <div class="setting-item">
-                        <label for="superStrikeWildcardTeleport">Super Streak: Wildcard → Wildcard Teleport</label>
-                        <input type="checkbox" id="superStrikeWildcardTeleport" />
-                    </div>
+                    </div> -->
 
                     <div class="settings-section-title">Special Tile Rewards</div>
 
@@ -588,8 +595,12 @@
                             <label><input type="checkbox" value="hammer" class="powerup-select-cb" /> 🔨 Hammer</label>
                             <label><input type="checkbox" value="halve" class="powerup-select-cb" /> ✂️ Halver</label>
                             <label><input type="checkbox" value="swap" class="powerup-select-cb" /> 🔄 Swap</label>
-                            <label><input type="checkbox" value="teleport" class="powerup-select-cb" /> 🚀 Teleport</label>
-                            <label><input type="checkbox" value="wildcard" class="powerup-select-cb" /> ✨ Wildcard</label>
+                            <label
+                                ><input type="checkbox" value="teleport" class="powerup-select-cb" /> 🚀 Teleport</label
+                            >
+                            <label
+                                ><input type="checkbox" value="wildcard" class="powerup-select-cb" /> ✨ Wildcard</label
+                            >
                         </div>
                     </div>
 
@@ -624,6 +635,11 @@
                     <div class="setting-item setting-item-checkbox">
                         <label for="extendedFreeSwap">Extended Free Swap (full row/col)</label>
                         <input type="checkbox" id="extendedFreeSwap" />
+                    </div>
+
+                    <div class="setting-item">
+                        <label for="superStrikeWildcardTeleport">Super Streak: Wildcard → Wildcard Teleport</label>
+                        <input type="checkbox" id="superStrikeWildcardTeleport" />
                     </div>
 
                     <div class="setting-item setting-item-checkbox">
