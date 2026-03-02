@@ -1,0 +1,12 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+We have settings allow non-matching swaps. If this is activated, the special tiles for the free swap and director free swap behave a little bit different. So you then can move them in the whole horizontal or vertical line. Could you maybe don't connect this functionality to the allow non-matching swaps, but add another setting which activates this kind of behavior.
+
+### Prompt 2
+
+Please commit all of my changes so we can make a PR.
+

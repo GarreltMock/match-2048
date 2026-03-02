@@ -1,0 +1,30 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "be6e9651840f",
+  "strategy": "manual-commit",
+  "branch": "claude/quizzical-black",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "index.html",
+    "src/game.js",
+    "src/input-handler.js",
+    "src/settings-dialog.js",
+    "src/storage.js"
+  ],
+  "sessions": [
+    {
+      "metadata": "/be/6e9651840f/0/metadata.json",
+      "transcript": "/be/6e9651840f/0/full.jsonl",
+      "context": "/be/6e9651840f/0/context.md",
+      "content_hash": "/be/6e9651840f/0/content_hash.txt",
+      "prompt": "/be/6e9651840f/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 26,
+    "cache_creation_tokens": 81795,
+    "cache_read_tokens": 1033074,
+    "output_tokens": 269,
+    "api_call_count": 22
+  }
+}
