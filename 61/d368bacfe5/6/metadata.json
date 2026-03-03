@@ -3,28 +3,36 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "7d929927-d024-4709-bed5-27b573c00e03",
   "strategy": "manual-commit",
-  "created_at": "2026-03-03T11:20:34.747962Z",
+  "created_at": "2026-03-03T13:00:51.267507Z",
   "branch": "main",
-  "checkpoints_count": 1,
+  "checkpoints_count": 5,
   "files_touched": [
+    "index.html",
+    "src/game.js",
     "src/input-handler.js",
+    "src/settings-dialog.js",
+    "src/storage.js",
     "styles/game.css"
   ],
   "agent": "Claude Code",
+  "transcript_identifier_at_start": "558a4ff3-ce53-4029-93cc-101a244fb133",
+  "checkpoint_transcript_start": 32,
+  "transcript_lines_at_start": 32,
   "token_usage": {
-    "input_tokens": 5,
-    "cache_creation_tokens": 31598,
-    "cache_read_tokens": 108844,
-    "output_tokens": 1254,
-    "api_call_count": 3
+    "input_tokens": 52,
+    "cache_creation_tokens": 63117,
+    "cache_read_tokens": 2572474,
+    "output_tokens": 7846,
+    "api_call_count": 40
   },
   "initial_attribution": {
-    "calculated_at": "2026-03-03T11:20:34.641024Z",
-    "agent_lines": 0,
-    "human_added": 0,
-    "human_modified": 7,
-    "human_removed": 16,
-    "total_committed": 7,
-    "agent_percentage": 0
-  }
+    "calculated_at": "2026-03-03T13:00:50.940032Z",
+    "agent_lines": 15,
+    "human_added": 20,
+    "human_modified": 9,
+    "human_removed": 0,
+    "total_committed": 44,
+    "agent_percentage": 34.090909090909086
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/7d929927-d024-4709-bed5-27b573c00e03.jsonl"
 }

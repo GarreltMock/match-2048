@@ -20,3 +20,36 @@ On drag start, compute valid swap targets for the selected tile and add `.swap-d
 
 **Add `sho...
 
+### Prompt 2
+
+input-handler.js:355 Uncaught TypeError: Cannot read properties of undefined (reading 'NaN')
+    at isTeleportSwapAllowed (input-handler.js:355:35)
+    at canPreviewSwap (input-handler.js:346:9)
+    at showValidSwapTargets (input-handler.js:331:14)
+    at startDrag (input-handler.js:135:9)
+    at Match3Game.handleTouchStart (input-handler.js:57:5)
+
+### Prompt 3
+
+Hm the highlights are removed if I move the mouse while having mousedown
+
+### Prompt 4
+
+Ah we have the merge preview class. Maybe this should also reset the opacity.
+
+### Prompt 5
+
+Can we also dimm the swap options if the merge preview is active?
+
+### Prompt 6
+
+[Request interrupted by user]
+
+### Prompt 7
+
+Please undo the last changes
+
+### Prompt 8
+
+Could you put showValidSwapTargets behind a setting please. Disabled is default
+
