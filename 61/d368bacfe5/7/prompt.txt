@@ -1,0 +1,1 @@
+Can you remove the functionality that a wildcard/joker is merged automatically? We just keep the transform on tap.
