@@ -3,11 +3,6 @@
 
 import { TILE_TYPE, FEATURE_KEYS } from "./config.js";
 import {
-    isBlockedWithLife,
-    isRectangularBlocked,
-    isBlockedWithMergeCount,
-    isBlocked,
-    isBlockedMovable,
     isNormal,
     createTile,
     createCursedTile,
@@ -355,12 +350,7 @@ export function handlePowerUpAction(game, row, col, element) {
     switch (game.activePowerUp) {
         case "hammer":
             if (!tile) return;
-            const allowedTypes = [
-                TILE_TYPE.NORMAL,
-                TILE_TYPE.BLOCKED_MOVABLE,
-                TILE_TYPE.BLOCKED,
-                TILE_TYPE.BLOCKED_WITH_LIFE,
-            ];
+            const allowedTypes = [TILE_TYPE.NORMAL];
             if (!allowedTypes.includes(tile.type)) return;
             usePowerUpHammer(game, row, col, element);
             break;
@@ -377,8 +367,6 @@ export function handlePowerUpAction(game, row, col, element) {
 }
 
 export function usePowerUpHammer(game, row, col, element) {
-    const tile = game.board[row][col];
-
     game.resetHintTimer();
 
     consumePowerUp(game, "hammer");
@@ -393,112 +381,15 @@ export function usePowerUpHammer(game, row, col, element) {
 
     game.animating = true;
 
-    if (isBlockedWithLife(tile)) {
-        element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-        element.style.opacity = "0";
-        element.style.transform = "scale(0)";
+    element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+    element.style.opacity = "0";
+    element.style.transform = "scale(0)";
 
-        setTimeout(() => {
-            if (isRectangularBlocked(tile)) {
-                for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                    for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                        if (r >= 0 && r < game.boardHeight && c >= 0 && c < game.boardWidth) {
-                            game.board[r][c] = null;
-                        }
-                    }
-                }
-            } else {
-                game.board[row][col] = null;
-            }
-
-            game.updateBlockedTileGoals();
-            game.dropGems();
-            deactivatePowerUp(game);
-        }, 300);
-    } else if (isBlockedWithMergeCount(tile)) {
-        let cellToClear = null;
-        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                const cellKey = `${r}_${c}`;
-                if (tile.cellMergeCounts[cellKey] > 0) {
-                    cellToClear = { row: r, col: c, cellKey: cellKey };
-                    break;
-                }
-            }
-            if (cellToClear) break;
-        }
-
-        if (cellToClear) {
-            tile.cellMergeCounts[cellToClear.cellKey]--;
-
-            const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
-
-            if (allCleared) {
-                element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-                element.style.opacity = "0";
-                element.style.transform = "scale(0)";
-
-                setTimeout(() => {
-                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                            if (r >= 0 && r < game.boardHeight && c >= 0 && c < game.boardWidth) {
-                                game.board[r][c] = null;
-                            }
-                        }
-                    }
-
-                    game.updateBlockedTileGoals();
-                    game.dropGems();
-                    deactivatePowerUp(game);
-                }, 300);
-            } else {
-                element.style.transition = "transform 0.2s ease";
-                element.style.transform = "scale(1.1)";
-
-                setTimeout(() => {
-                    element.style.transform = "scale(1)";
-                    game.renderBoard();
-                    game.animating = false;
-                    deactivatePowerUp(game);
-                }, 200);
-            }
-        } else {
-            game.animating = false;
-            deactivatePowerUp(game);
-        }
-    } else if (isBlocked(tile) || isBlockedMovable(tile)) {
-        element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-        element.style.opacity = "0";
-        element.style.transform = "scale(0)";
-
-        setTimeout(() => {
-            if (isRectangularBlocked(tile)) {
-                for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                    for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                        if (r >= 0 && r < game.boardHeight && c >= 0 && c < game.boardWidth) {
-                            game.board[r][c] = null;
-                        }
-                    }
-                }
-            } else {
-                game.board[row][col] = null;
-            }
-
-            game.updateBlockedTileGoals();
-            game.dropGems();
-            deactivatePowerUp(game);
-        }, 300);
-    } else {
-        element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
-        element.style.opacity = "0";
-        element.style.transform = "scale(0)";
-
-        setTimeout(() => {
-            game.board[row][col] = null;
-            game.dropGems();
-            deactivatePowerUp(game);
-        }, 300);
-    }
+    setTimeout(() => {
+        game.board[row][col] = null;
+        game.dropGems();
+        deactivatePowerUp(game);
+    }, 300);
 }
 
 export function usePowerUpHalve(game, row, col, element) {
