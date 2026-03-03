@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "48805941-6102-408a-9ae7-fa3e6407b38c",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-03T08:31:16.261824Z",
+  "branch": "main",
+  "checkpoints_count": 7,
+  "files_touched": [
+    "index.html",
+    "src/game.js",
+    "src/main.js",
+    "src/power-ups.js",
+    "src/settings-dialog.js",
+    "style.css",
+    "styles/game.css"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "56262ac7-6d86-48b7-8ded-f38f093b23c0",
+  "token_usage": {
+    "input_tokens": 116,
+    "cache_creation_tokens": 81249,
+    "cache_read_tokens": 6731829,
+    "output_tokens": 22593,
+    "api_call_count": 96
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-03T08:31:15.687185Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 112,
+    "human_removed": 13,
+    "total_committed": 61,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/48805941-6102-408a-9ae7-fa3e6407b38c.jsonl"
+}
