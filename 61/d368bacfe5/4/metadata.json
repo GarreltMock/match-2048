@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "d86e1f36-00d8-4e2f-94a0-6d020f897a96",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-03T08:58:59.685734Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "index.html",
+    "src/game.js",
+    "src/power-ups.js",
+    "src/settings-dialog.js",
+    "src/storage.js"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 15,
+    "cache_creation_tokens": 19922,
+    "cache_read_tokens": 467962,
+    "output_tokens": 4365,
+    "api_call_count": 13
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-03T08:58:59.524605Z",
+    "agent_lines": 54,
+    "human_added": 4,
+    "human_modified": 13,
+    "human_removed": 0,
+    "total_committed": 71,
+    "agent_percentage": 76.05633802816901
+  }
+}

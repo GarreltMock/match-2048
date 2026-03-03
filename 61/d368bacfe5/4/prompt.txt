@@ -1,0 +1,42 @@
+Implement the following plan:
+
+# Add "Move Cost" PowerUp Buy Mode
+
+## Context
+Add setting where buying a powerUp costs 1 move instead of gold (when user has no persistent/transient powerUp).
+
+## Files to modify
+
+### 1. `src/storage.js` — add load/save for `powerUpMoveCost`
+- Add `loadPowerUpMoveCost()` (default `false`) and `savePowerUpMoveCost(enabled)` following existing pattern (lines ~475-490)
+
+### 2. `src/game.js` — load setting on init
+- Add `this.powerUpMoveCost = loadPowerUpMoveCost()` next to other settings (~line 155)
+
+### 3. `index.html` — add checkbox in Jokers settings section
+- Add checkbox `powerUpMoveCost` with label "Joker Move Cost" after persistentPowerUpsEnabled (~line 574)
+
+### 4. `src/settings-dialog.js` — wire up checkbox
+- Get element, set checked on open, save on close (follow existing pattern)
+
+### 5. `src/power-ups.js` — core logic changes
+
+**Buy check (lines 66-74):** When `game.powerUpMoveCost` enabled and buying:
+- Skip coin check, instead check `game.movesUsed < game.maxMoves` (has moves remaining)
+- If no moves left, don't open shop — just return (or show some feedback)
+
+**consumePowerUp (lines 147-156):** When `game.powerUpBuying && game.powerUpMoveCost`:
+- Instead of deducting coins: `game.movesUsed++` and call `updateMovesDisplay(game)`
+- Still increment buy count, set `powerUpBuying = false`, update buttons
+
+**updatePowerUpButtons (lines 295-315):** When `game.powerUpMoveCost` and `total <= 0`:
+- Instead of coin cost indicator, show "-1 Move" text in `.cost-amount` style
+- Skip the coin icon, just show the text badge
+
+## Verification
+- Toggle setting on, verify powerUp buttons show "-1 Move" instead of coin cost
+- Use a powerUp: should cost 1 move, not coins
+- Toggle setting off: original coin behavior restored
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
