@@ -17,6 +17,23 @@ import {
 } from "./tile-helpers.js";
 import { savePowerUpCounts, isFeatureUnlocked } from "./storage.js";
 import { track } from "./tracker.js";
+
+const BASE_POWERUP_COST = 5;
+
+// Per-level buy counts, reset each level
+let levelBuyCounts = { hammer: 0, halve: 0, swap: 0, teleport: 0, wildcard: 0 };
+
+export function resetPowerUpBuyCounts() {
+    levelBuyCounts = { hammer: 0, halve: 0, swap: 0, teleport: 0, wildcard: 0 };
+}
+
+export function getPowerUpCost(type) {
+    return BASE_POWERUP_COST * Math.pow(2, levelBuyCounts[type]);
+}
+
+function incrementBuyCount(type) {
+    levelBuyCounts[type]++;
+}
 import {
     isTutorialActive,
     isTutorialPowerUpStep,
@@ -37,11 +54,6 @@ export function setupPowerUps(game) {
                 return;
             }
 
-            if (getTotalPowerUpCount(game, powerUpType) <= 0) {
-                openPowerupShop(game);
-                return;
-            }
-
             if (isTutorialActive(game) && isTutorialPowerUpStep(game)) {
                 if (!isValidTutorialPowerUp(game, powerUpType)) {
                     return;
@@ -51,19 +63,30 @@ export function setupPowerUps(game) {
             if (game.activePowerUp === powerUpType) {
                 deactivatePowerUp(game);
             } else {
-                activatePowerUp(game, powerUpType);
+                const isBuying = getTotalPowerUpCount(game, powerUpType) <= 0;
+                if (isBuying && game.coins < getPowerUpCost(powerUpType)) {
+                    // Not enough coins - open coin shop
+                    const shopDialog = document.getElementById("shopDialog");
+                    if (shopDialog) {
+                        shopDialog.classList.remove("hidden");
+                        game.updateCoinsDisplays();
+                    }
+                    return;
+                }
+                activatePowerUp(game, powerUpType, isBuying);
             }
         });
     });
 }
 
-export function activatePowerUp(game, type) {
+export function activatePowerUp(game, type, buying = false) {
     if (isTutorialActive(game) && !isTutorialPowerUpStep(game)) {
         return;
     }
 
     deactivatePowerUp(game);
     game.activePowerUp = type;
+    game.powerUpBuying = buying;
     game.powerUpSwapTiles = [];
 
     const button = document.querySelector(`[data-powerup="${type}"]`);
@@ -85,6 +108,7 @@ export function deactivatePowerUp(game) {
     }
 
     game.activePowerUp = null;
+    game.powerUpBuying = false;
     game.powerUpSwapTiles = [];
 }
 
@@ -119,6 +143,18 @@ export function getTotalPowerUpCount(game, type) {
 
 export function consumePowerUp(game, type) {
     game.powerUpUsedCounts[type]++;
+
+    if (game.powerUpBuying) {
+        // Buying mode: deduct coins instead of count
+        const cost = getPowerUpCost(type);
+        game.coins = Number(game.coins) - Number(cost);
+        incrementBuyCount(type);
+        game.saveCoins();
+        game.updateCoinsDisplays();
+        game.updatePowerUpButtons();
+        game.powerUpBuying = false;
+        return;
+    }
 
     const counts = game.powerUpCounts[type];
     if (counts.transient > 0) {
@@ -251,14 +287,32 @@ export function updatePowerUpButtons(game) {
         const transient = counts.transient;
         const total = persistent + transient;
 
-        const existingIndicator = button.querySelector(".use-indicator");
+        const existingIndicator = button.querySelector(".use-indicator, .cost-indicator");
         if (existingIndicator) {
             existingIndicator.remove();
         }
 
         if (total <= 0) {
-            button.classList.add("can-purchase");
-            button.title = `${button.title.split(" - ")[0]} - Click to buy more`;
+            button.classList.remove("can-purchase");
+            // Show cost indicator with coin icon
+            const cost = getPowerUpCost(powerUpType);
+            const indicator = document.createElement("div");
+            indicator.className = "cost-indicator";
+
+            const amountBox = document.createElement("div");
+            amountBox.className = "cost-amount";
+            amountBox.textContent = cost;
+
+            const coinIcon = document.createElement("img");
+            coinIcon.src = "assets/shop/coin.png";
+            coinIcon.className = "cost-coin-icon";
+            coinIcon.alt = "Coins";
+
+            indicator.appendChild(amountBox);
+            indicator.appendChild(coinIcon);
+            button.appendChild(indicator);
+
+            button.title = `${button.title.split(" - ")[0]} - Buy for ${cost} coins`;
         } else {
             button.classList.remove("can-purchase");
             const indicator = document.createElement("div");
@@ -283,8 +337,6 @@ export function updatePowerUpButtons(game) {
             button.title = `${baseTitle} - ${total} uses left`;
         }
     });
-
-    }
 }
 
 export function handlePowerUpAction(game, row, col, element) {
@@ -537,94 +589,3 @@ export function usePowerUpWildcard(game, row, col, element) {
     deactivatePowerUp(game);
 }
 
-export function setupPowerupShop(game) {
-    const powerupShopDialog = document.getElementById("powerupShopDialog");
-    const closePowerupShopBtn = document.getElementById("closePowerupShopBtn");
-    const powerupBuyButtons = document.querySelectorAll(".powerup-buy-btn");
-
-    if (closePowerupShopBtn) {
-        closePowerupShopBtn.addEventListener("click", () => {
-            powerupShopDialog.classList.add("hidden");
-        });
-    }
-
-    if (powerupShopDialog) {
-        powerupShopDialog.addEventListener("click", (e) => {
-            if (e.target === powerupShopDialog) {
-                powerupShopDialog.classList.add("hidden");
-            }
-        });
-    }
-
-    powerupBuyButtons.forEach((button) => {
-        const originalHTML = button.innerHTML;
-        let isPurchasing = false;
-
-        button.addEventListener("click", (e) => {
-            e.stopPropagation();
-
-            if (isPurchasing) return;
-
-            const shopItem = button.closest(".powerup-shop-item");
-            const powerupType = shopItem.getAttribute("data-powerup");
-            const cost = parseInt(shopItem.getAttribute("data-cost"));
-
-            if (isNaN(cost) || isNaN(game.coins)) {
-                return;
-            }
-
-            if (game.coins >= cost) {
-                isPurchasing = true;
-
-                game.coins = Number(game.coins) - Number(cost);
-                game.saveCoins();
-
-                if (game.persistentPowerUpsEnabled) {
-                    game.powerUpCounts[powerupType].persistent++;
-                    savePowerUpCounts({
-                        hammer: game.powerUpCounts.hammer.persistent,
-                        halve: game.powerUpCounts.halve.persistent,
-                        swap: game.powerUpCounts.swap.persistent,
-                        teleport: game.powerUpCounts.teleport.persistent,
-                        wildcard: game.powerUpCounts.wildcard.persistent,
-                    });
-                } else {
-                    game.powerUpCounts[powerupType].transient++;
-                }
-
-                updatePowerUpButtons(game);
-                game.updateCoinsDisplays();
-
-                const originalBg = button.style.background;
-                button.textContent = "✓";
-                button.style.background = "#8bc34a";
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                    button.style.background = originalBg;
-                    isPurchasing = false;
-                }, 1500);
-            } else {
-                const shopDialog = document.getElementById("shopDialog");
-                if (shopDialog) {
-                    shopDialog.classList.remove("hidden");
-                    game.updateCoinsDisplays();
-                }
-            }
-        });
-    });
-}
-
-export function openPowerupShop(game) {
-    const powerupShopDialog = document.getElementById("powerupShopDialog");
-    if (powerupShopDialog) {
-        game.updateCoinsDisplays();
-
-        const shopItems = powerupShopDialog.querySelectorAll(".powerup-shop-item");
-        shopItems.forEach((item) => {
-            const powerupType = item.dataset.powerup;
-            item.style.display = isPowerUpButtonVisible(game, powerupType) ? "" : "none";
-        });
-
-        powerupShopDialog.classList.remove("hidden");
-    }
-}

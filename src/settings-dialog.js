@@ -127,8 +127,8 @@ export function setupSettingsButton(game) {
             levelSelect.value = game.currentLevel.toString();
         }
         levelConfigSelect.value = selectedLevelConfigKey;
-        boardUpgradeActionSelect.value = game.boardUpgradeAction;
-        superUpgradeActionSelect.value = game.superUpgradeAction;
+        if (boardUpgradeActionSelect) boardUpgradeActionSelect.value = game.boardUpgradeAction;
+        if (superUpgradeActionSelect) superUpgradeActionSelect.value = game.superUpgradeAction;
 
         togglePowerUpOptions(false);
 
@@ -228,10 +228,14 @@ export function setupSettingsButton(game) {
                     }
                 }
 
-                game.boardUpgradeAction = boardUpgradeActionSelect.value;
-                saveBoardUpgradeAction(game.boardUpgradeAction);
-                game.superUpgradeAction = superUpgradeActionSelect.value;
-                saveSuperUpgradeAction(game.superUpgradeAction);
+                if (boardUpgradeActionSelect) {
+                    game.boardUpgradeAction = boardUpgradeActionSelect.value;
+                    saveBoardUpgradeAction(game.boardUpgradeAction);
+                }
+                if (superUpgradeActionSelect) {
+                    game.superUpgradeAction = superUpgradeActionSelect.value;
+                    saveSuperUpgradeAction(game.superUpgradeAction);
+                }
 
                 game.specialTileConfig.line_4 = line4Select.value;
                 game.specialTileConfig.block_4 = block4Select.value;

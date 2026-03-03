@@ -43,11 +43,7 @@ import {
     loadSuperStrikeWildcardTeleport,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
-import {
-    createTile,
-    createBlockedTile,
-    createBlockedMovableTile,
-} from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedMovableTile } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import {
@@ -79,18 +75,9 @@ import {
     restartLevel,
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
-import {
-    showGoalDialog,
-    hasDialogBeenShown,
-    showFeatureUnlockDialog,
-    hasFeatureBeenUnlocked,
-} from "./goal-dialogs.js";
+import { showGoalDialog, hasDialogBeenShown, showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
 import { showHomeScreen } from "./home-screen.js";
-import {
-    initTutorial,
-    isTutorialActive,
-    showTutorialUI,
-} from "./tutorial.js";
+import { initTutorial, isTutorialActive, showTutorialUI } from "./tutorial.js";
 import { setupSettingsButton, setupInfoButton } from "./settings-dialog.js";
 import {
     setupPowerUps,
@@ -109,8 +96,7 @@ import {
     usePowerUpHammer,
     usePowerUpHalve,
     usePowerUpWildcard,
-    setupPowerupShop,
-    openPowerupShop,
+    resetPowerUpBuyCounts,
 } from "./power-ups.js";
 
 export class Match3Game {
@@ -183,6 +169,7 @@ export class Match3Game {
 
         // Power-up system
         this.activePowerUp = null;
+        this.powerUpBuying = false;
         this.powerUpSwapTiles = [];
         this.selectedPowerUps = loadSelectedPowerUps();
         // Power-up counts: persistent (saved) and transient (temporary for level)
@@ -237,7 +224,7 @@ export class Match3Game {
         setupInfoButton(this);
         setupSettingsButton(this);
         this.setupExtraMovesDialog();
-        setupPowerupShop(this);
+        // Power-up buying now handled inline on power-up buttons
         this.setupControlButtons();
         // Setup event listeners once during initialization
         setupEventListeners(this);
@@ -331,12 +318,13 @@ export class Match3Game {
         this.extraMovesUsed = false; // Reset extra moves flag for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
-        // Reset transient power-up counts for new level (start with 1 if persistent disabled)
+        // Reset transient power-up counts and buy costs for new level
         this.powerUpCounts.hammer.transient = 0;
         this.powerUpCounts.halve.transient = 0;
         this.powerUpCounts.swap.transient = 0;
         this.powerUpCounts.teleport.transient = 0;
         this.powerUpCounts.wildcard.transient = 0;
+        resetPowerUpBuyCounts();
 
         this.initialBlockedTileCount = countBlockedLevelTiles(this);
 
@@ -410,6 +398,7 @@ export class Match3Game {
 
         // Update power-up button states
         this.updatePowerUpButtons();
+        this.updateCoinsDisplays();
 
         // Track level started
         track("level_started", {
@@ -693,10 +682,10 @@ export class Match3Game {
             `;
         }
 
-        // Update powerup shop coins display
-        const powerupShopCoinsDisplay = document.getElementById("powerup-shop-coins-display");
-        if (powerupShopCoinsDisplay) {
-            powerupShopCoinsDisplay.innerHTML = coinsHTML;
+        // Update game screen coins display
+        const gameCoinsDisplay = document.getElementById("game-coins-display");
+        if (gameCoinsDisplay) {
+            gameCoinsDisplay.innerHTML = coinsHTML;
         }
     }
 
@@ -717,19 +706,42 @@ export class Match3Game {
     }
 
     // Power-up methods (delegated to power-ups.js)
-    activatePowerUp(type)           { activatePowerUp(this, type); }
-    deactivatePowerUp()             { deactivatePowerUp(this); }
-    isPowerUpButtonVisible(type)    { return isPowerUpButtonVisible(this, type); }
-    getVisiblePowerUpTypes()        { return getVisiblePowerUpTypes(this); }
-    grantPowerUp(type)              { grantPowerUp(this, type); }
-    getTotalPowerUpCount(type)      { return getTotalPowerUpCount(this, type); }
-    consumePowerUp(type)            { consumePowerUp(this, type); }
-    grantFormationPowerUp(ft)       { grantFormationPowerUp(this, ft); }
-    handlePowerUpAction(r, c, el)   { return handlePowerUpAction(this, r, c, el); }
-    updatePowerUpButtons()          { updatePowerUpButtons(this); }
-    showPowerUps()                  { showPowerUps(this); }
-    hidePowerUps()                  { hidePowerUps(this); }
-    openPowerupShop()               { openPowerupShop(this); }
+    activatePowerUp(type) {
+        activatePowerUp(this, type);
+    }
+    deactivatePowerUp() {
+        deactivatePowerUp(this);
+    }
+    isPowerUpButtonVisible(type) {
+        return isPowerUpButtonVisible(this, type);
+    }
+    getVisiblePowerUpTypes() {
+        return getVisiblePowerUpTypes(this);
+    }
+    grantPowerUp(type) {
+        grantPowerUp(this, type);
+    }
+    getTotalPowerUpCount(type) {
+        return getTotalPowerUpCount(this, type);
+    }
+    consumePowerUp(type) {
+        consumePowerUp(this, type);
+    }
+    grantFormationPowerUp(ft) {
+        grantFormationPowerUp(this, ft);
+    }
+    handlePowerUpAction(r, c, el) {
+        return handlePowerUpAction(this, r, c, el);
+    }
+    updatePowerUpButtons() {
+        updatePowerUpButtons(this);
+    }
+    showPowerUps() {
+        showPowerUps(this);
+    }
+    hidePowerUps() {
+        hidePowerUps(this);
+    }
 
     showControls() {
         const controlsContainer = document.querySelector(".controls");
@@ -744,7 +756,6 @@ export class Match3Game {
             controlsContainer.style.display = "none";
         }
     }
-
 
     setupExtraMovesDialog() {
         const extraMovesDialog = document.getElementById("extraMovesDialog");
@@ -1036,7 +1047,6 @@ export class Match3Game {
             });
         }
     }
-
 
     showLevelSolved() {
         // Track level_solved when level solved screen is shown
@@ -1426,5 +1436,4 @@ export class Match3Game {
         this.clearHintTimer();
         this.startHintTimer();
     }
-
 }

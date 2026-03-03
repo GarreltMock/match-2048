@@ -54,6 +54,7 @@
 
         <div class="game-container" id="game-container">
             <button id="backBtn" class="back-btn" title="Back to Home">←</button>
+            <div id="game-coins-display" class="coins-display game-coins-display"></div>
             <button id="infoBtnGame" class="info-btn game-info-btn" title="Show Tutorial" tabindex="2">?</button>
 
             <div class="top-spacer">
@@ -311,59 +312,6 @@
                     <div style="flex: 1"></div>
 
                     <button class="extra-move-option tertiary" id="showBoardBtn">Review Board</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Powerup Shop Dialog -->
-        <div id="powerupShopDialog" class="shop-dialog hidden">
-            <div class="shop-content">
-                <div class="shop-header">
-                    <h2 class="shop-title">Joker Shop</h2>
-                    <div id="powerup-shop-coins-display" class="coins-display"></div>
-                    <button id="closePowerupShopBtn" class="close-shop-btn">✕</button>
-                </div>
-                <div class="shop-items powerup-shop-items">
-                    <div class="shop-item powerup-shop-item" data-powerup="hammer" data-cost="100">
-                        <div class="powerup-shop-icon">🔨</div>
-                        <div class="powerup-shop-name">Hammer</div>
-                        <button class="shop-buy-btn powerup-buy-btn">
-                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
-                            <span class="shop-price">100</span>
-                        </button>
-                    </div>
-                    <div class="shop-item powerup-shop-item" data-powerup="halve" data-cost="200">
-                        <div class="powerup-shop-icon">✂️</div>
-                        <div class="powerup-shop-name">Halver</div>
-                        <button class="shop-buy-btn powerup-buy-btn">
-                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
-                            <span class="shop-price">200</span>
-                        </button>
-                    </div>
-                    <div class="shop-item powerup-shop-item" data-powerup="swap" data-cost="300">
-                        <div class="powerup-shop-icon">🔄</div>
-                        <div class="powerup-shop-name">Swap</div>
-                        <button class="shop-buy-btn powerup-buy-btn">
-                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
-                            <span class="shop-price">300</span>
-                        </button>
-                    </div>
-                    <div class="shop-item powerup-shop-item" data-powerup="teleport" data-cost="300">
-                        <div class="powerup-shop-icon">🚀</div>
-                        <div class="powerup-shop-name">Teleport</div>
-                        <button class="shop-buy-btn powerup-buy-btn">
-                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
-                            <span class="shop-price">300</span>
-                        </button>
-                    </div>
-                    <div class="shop-item powerup-shop-item" data-powerup="wildcard" data-cost="400">
-                        <div class="powerup-shop-icon">✨</div>
-                        <div class="powerup-shop-name">Wildcard</div>
-                        <button class="shop-buy-btn powerup-buy-btn">
-                            <img src="assets/shop/coin.png" class="powerup-shop-coin-icon" alt="Coins" />
-                            <span class="shop-price">400</span>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -637,8 +585,8 @@
                         <input type="checkbox" id="extendedFreeSwap" />
                     </div>
 
-                    <div class="setting-item">
-                        <label for="superStrikeWildcardTeleport">Super Streak: Wildcard → Wildcard Teleport</label>
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="superStrikeWildcardTeleport">Super Streak: Wildcard Teleport</label>
                         <input type="checkbox" id="superStrikeWildcardTeleport" />
                     </div>
 

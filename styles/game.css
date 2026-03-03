@@ -33,6 +33,21 @@
     padding-bottom: 2px;
 }
 
+.game-coins-display {
+    position: absolute;
+    top: calc(10px + env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    padding: 2px clamp(12px, 2.5vw, 20px);
+    box-shadow: none;
+
+    .coin-icon {
+        width: clamp(24px, 5vw, 32px);
+        height: clamp(24px, 5vw, 32px);
+    }
+}
+
 .game-info-btn {
     position: absolute;
     top: calc(10px + env(safe-area-inset-top));
@@ -1332,6 +1347,39 @@
     &.transient-count {
         background: var(--tile-freeswap-badge-bg);
     }
+}
+
+.cost-indicator {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    z-index: 10;
+}
+
+.cost-amount {
+    background: #141414;
+    border: 3px solid #000;
+    border-radius: 12px 0 0 12px;
+    padding: 0px 8px;
+    padding-right: 40%;
+    margin-top: 2px;
+    margin-right: -40%;
+    color: #fff;
+    font-family: "Nunito", sans-serif;
+    font-size: clamp(10px, 3vw, 18px);
+    font-weight: 900;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+}
+
+.cost-coin-icon {
+    width: clamp(26px, 8vw, 50px);
+    height: clamp(26px, 8vw, 50px);
+    object-fit: contain;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
 .use-indicator stroked-text {

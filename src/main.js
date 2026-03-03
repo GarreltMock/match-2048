@@ -179,8 +179,4 @@ function closeAllDialogs() {
         shopDialog.classList.add("hidden");
     }
 
-    const powerupShopDialog = document.getElementById("powerupShopDialog");
-    if (powerupShopDialog) {
-        powerupShopDialog.classList.add("hidden");
-    }
 }
