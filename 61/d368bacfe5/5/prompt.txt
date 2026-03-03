@@ -1,0 +1,21 @@
+Implement the following plan:
+
+# Nerf Hammer: Disallow on Blocked Tiles
+
+## Context
+Hammer powerup can destroy blocked tiles (including rectangular blocks), making it too powerful.
+
+## Changes
+
+### `src/power-ups.js`
+
+1. **Line 358-363**: Remove `BLOCKED_MOVABLE`, `BLOCKED`, `BLOCKED_WITH_LIFE` from `allowedTypes` — only keep `TILE_TYPE.NORMAL`
+2. **Lines 396-490**: Delete all blocked-tile branches in `usePowerUpHammer()` (the `isBlockedWithLife`, `isBlockedWithMergeCount`, and `isBlocked || isBlockedMovable` blocks). Only the `else` branch (normal tile, lines 491-501) remains.
+3. Clean up unused imports (`isBlockedWithLife`, `isBlockedWithMergeCount`, `isBlocked`, `isBlockedMovable`, `isRectangularBlocked`) if no longer used elsewhere in the file.
+
+## Verification
+- Activate hammer, tap a blocked tile → nothing happens
+- Activate hammer, tap a normal tile → tile destroyed as before
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
