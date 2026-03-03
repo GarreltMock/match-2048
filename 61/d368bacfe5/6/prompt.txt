@@ -1,0 +1,50 @@
+Implement the following plan:
+
+# Highlight Valid Swap Targets
+
+## Context
+When pressing a tile, it's unclear which tiles are valid swap targets — especially for extended free-swap and teleport tiles that allow non-adjacent swaps. Dimming invalid targets makes this immediately visible.
+
+## Approach
+On drag start, compute valid swap targets for the selected tile and add `.swap-dimmed` CSS class to all **invalid** targets. Remove on drag end.
+
+## Changes
+
+### 1. `src/input-handler.js`
+
+**Add `showValidSwapTargets(game, row, col)`** — iterates all board tiles, calls `canPreviewSwap()` for each, adds `.swap-dimmed` to tiles that return false (skip the selected tile itself).
+
+**Add `clearSwapTargetHighlights()`** — removes `.swap-dimmed` from all gems.
+
+**In `startDrag()`** (after line 134 `element.classList.add("dragging")`):
+- Call `showValidSwapTargets(game, row, col)`
+
+**In `endDrag()`** cleanup (line 196-198):
+- Add `.swap-dimmed` to the removal list
+
+**In `clearDragPreviews()`**:
+- Also clear `.swap-dimmed`
+
+### 2. `styles/game.css`
+
+Add `.gem.swap-dimmed` rule:
+```css
+.gem.swap-dimmed {
+    opacity: 0.3;
+    filter: grayscale(0.5);
+    pointer-events: none;
+}
+```
+
+`pointer-events: none` so dragging over dimmed tiles doesn't trigger preview attempts.
+
+## Verification
+- Normal tile: only 2-4 adjacent tiles stay bright
+- Free-swap tile (extended): entire row/col stays bright
+- Teleport tile: all non-blocked tiles stay bright
+- Power-up active (swap/teleport): all tiles stay bright
+- Blocked tiles: always dimmed
+- Release drag: all dimming clears
+
+
+If you need specific details from before exiting plan mode (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
