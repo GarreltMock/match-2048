@@ -1,0 +1,2 @@
+We have the isExtendedFreeSwapAllowed.\
+These should only work for the specialTiles. Not the free swap powerUP
