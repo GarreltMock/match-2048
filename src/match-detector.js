@@ -1,6 +1,6 @@
 // Match finding logic for detecting tile matches and special formations
 
-import { getTileValue, isNormal, isCursed, isJoker, createTile, isTilePlusTile, findBestJokerValue } from "./tile-helpers.js";
+import { getTileValue, isNormal, isCursed, isTilePlusTile } from "./tile-helpers.js";
 import { canMatch } from "./board.js";
 
 export function hasMatches(game) {
@@ -20,11 +20,6 @@ export function hasMatchesForSwap(game, row1, col1, row2, col2) {
 }
 
 export function findMatches(game) {
-    // During user swap, activate jokers that can participate in matches
-    if (game.isUserSwap) {
-        activateJokers(game);
-    }
-
     // Find all matches with priority: 5-line > T > L > 4-line > Block > 3-line
     const allMatches = [
         ...findLineMatches(game, 5),
@@ -39,25 +34,7 @@ export function findMatches(game) {
     return filterOverlappingMatches(allMatches);
 }
 
-function activateJokers(game) {
-    // When allowNonMatchingSwaps is enabled, jokers only activate by tap
-    if (game.allowNonMatchingSwaps) {
-        return;
-    }
 
-    // Activate jokers that can form valid matches involving the swapped tiles
-    for (let row = 0; row < game.boardHeight; row++) {
-        for (let col = 0; col < game.boardWidth; col++) {
-            const tile = game.board[row][col];
-            if (isJoker(tile)) {
-                const bestValue = findBestJokerValue(game, row, col, true);
-                if (bestValue !== null) {
-                    game.board[row][col] = createTile(bestValue);
-                }
-            }
-        }
-    }
-}
 
 function findLineMatches(game, targetLength) {
     const matches = [];
