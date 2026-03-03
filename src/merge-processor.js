@@ -218,17 +218,17 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     const formationType = getFormationConfig(group.direction);
     let specialTileType = formationType ? game.specialTileConfig[formationType] : null;
 
-    // When Super Streak is active and the setting is enabled,
-    // replace Wildcard (joker) rewards with Wildcard Teleport
-    if (game.superStrikeWildcardTeleport && game.superStreak >= SUPER_STREAK_THRESHOLD) {
-        specialTileType = "wild_teleport";
-    }
-
     // Calculate positions and value based on formation type
     const isTLFormation = group.direction === "T-formation" || group.direction === "L-formation";
     const is5LineFormation = group.direction === "line_5_horizontal" || group.direction === "line_5_vertical";
     const positions = isTLFormation ? [group.intersection] : calculateMiddlePositions(game, group.tiles, group);
     const valueIncrement = isTLFormation || is5LineFormation ? 2 : 1;
+
+    // When Super Streak is active and the setting is enabled,
+    // replace Wildcard (joker) rewards with Wildcard Teleport
+    if (is5LineFormation && game.superStrikeWildcardTeleport && game.superStreak >= SUPER_STREAK_THRESHOLD) {
+        specialTileType = "wild_teleport";
+    }
 
     const newValue = group.value + valueIncrement;
 
