@@ -39,6 +39,7 @@ import {
     loadExtendedFreeSwap,
     loadFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
+    loadPowerUpMoveCost,
     loadSelectedPowerUps,
     loadSuperStrikeWildcardTeleport,
 } from "./storage.js";
@@ -153,6 +154,7 @@ export class Match3Game {
         this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
+        this.powerUpMoveCost = loadPowerUpMoveCost();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];

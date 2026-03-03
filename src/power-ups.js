@@ -16,6 +16,7 @@ import {
     getFontSize,
 } from "./tile-helpers.js";
 import { savePowerUpCounts, isFeatureUnlocked } from "./storage.js";
+import { updateMovesDisplay } from "./renderer.js";
 import { track } from "./tracker.js";
 
 const BASE_POWERUP_COST = 5;
@@ -34,12 +35,7 @@ export function getPowerUpCost(type) {
 function incrementBuyCount(type) {
     levelBuyCounts[type]++;
 }
-import {
-    isTutorialActive,
-    isTutorialPowerUpStep,
-    isValidTutorialPowerUp,
-    updateTutorialUI,
-} from "./tutorial.js";
+import { isTutorialActive, isTutorialPowerUpStep, isValidTutorialPowerUp, updateTutorialUI } from "./tutorial.js";
 
 export function setupPowerUps(game) {
     const powerUpButtons = document.querySelectorAll(".power-up-btn.game");
@@ -64,14 +60,17 @@ export function setupPowerUps(game) {
                 deactivatePowerUp(game);
             } else {
                 const isBuying = getTotalPowerUpCount(game, powerUpType) <= 0;
-                if (isBuying && game.coins < getPowerUpCost(powerUpType)) {
-                    // Not enough coins - open coin shop
-                    const shopDialog = document.getElementById("shopDialog");
-                    if (shopDialog) {
-                        shopDialog.classList.remove("hidden");
-                        game.updateCoinsDisplays();
+                if (isBuying) {
+                    if (game.powerUpMoveCost) {
+                        if (game.movesUsed >= game.maxMoves) return;
+                    } else if (game.coins < getPowerUpCost(powerUpType)) {
+                        const shopDialog = document.getElementById("shopDialog");
+                        if (shopDialog) {
+                            shopDialog.classList.remove("hidden");
+                            game.updateCoinsDisplays();
+                        }
+                        return;
                     }
-                    return;
                 }
                 activatePowerUp(game, powerUpType, isBuying);
             }
@@ -145,12 +144,16 @@ export function consumePowerUp(game, type) {
     game.powerUpUsedCounts[type]++;
 
     if (game.powerUpBuying) {
-        // Buying mode: deduct coins instead of count
-        const cost = getPowerUpCost(type);
-        game.coins = Number(game.coins) - Number(cost);
+        if (game.powerUpMoveCost) {
+            game.movesUsed++;
+            updateMovesDisplay(game);
+        } else {
+            const cost = getPowerUpCost(type);
+            game.coins = Number(game.coins) - Number(cost);
+            game.saveCoins();
+            game.updateCoinsDisplays();
+        }
         incrementBuyCount(type);
-        game.saveCoins();
-        game.updateCoinsDisplays();
         game.updatePowerUpButtons();
         game.powerUpBuying = false;
         return;
@@ -294,25 +297,32 @@ export function updatePowerUpButtons(game) {
 
         if (total <= 0) {
             button.classList.remove("can-purchase");
-            // Show cost indicator with coin icon
-            const cost = getPowerUpCost(powerUpType);
             const indicator = document.createElement("div");
             indicator.className = "cost-indicator";
 
-            const amountBox = document.createElement("div");
-            amountBox.className = "cost-amount";
-            amountBox.textContent = cost;
+            if (game.powerUpMoveCost) {
+                const amountBox = document.createElement("div");
+                amountBox.className = "cost-amount move";
+                amountBox.textContent = "-1 Move";
+                indicator.appendChild(amountBox);
+                button.appendChild(indicator);
+                button.title = `${button.title.split(" - ")[0]} - Buy for 1 move`;
+            } else {
+                const cost = getPowerUpCost(powerUpType);
+                const amountBox = document.createElement("div");
+                amountBox.className = "cost-amount";
+                amountBox.textContent = cost;
 
-            const coinIcon = document.createElement("img");
-            coinIcon.src = "assets/shop/coin.png";
-            coinIcon.className = "cost-coin-icon";
-            coinIcon.alt = "Coins";
+                const coinIcon = document.createElement("img");
+                coinIcon.src = "assets/shop/coin.png";
+                coinIcon.className = "cost-coin-icon";
+                coinIcon.alt = "Coins";
 
-            indicator.appendChild(amountBox);
-            indicator.appendChild(coinIcon);
-            button.appendChild(indicator);
-
-            button.title = `${button.title.split(" - ")[0]} - Buy for ${cost} coins`;
+                indicator.appendChild(amountBox);
+                indicator.appendChild(coinIcon);
+                button.appendChild(indicator);
+                button.title = `${button.title.split(" - ")[0]} - Buy for ${cost} coins`;
+            }
         } else {
             button.classList.remove("can-purchase");
             const indicator = document.createElement("div");
@@ -588,4 +598,3 @@ export function usePowerUpWildcard(game, row, col, element) {
 
     deactivatePowerUp(game);
 }
-

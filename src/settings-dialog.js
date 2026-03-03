@@ -15,6 +15,7 @@ import {
     saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
     savePersistentPowerUpsEnabled,
+    savePowerUpMoveCost,
     saveSelectedPowerUps,
     saveSuperStrikeWildcardTeleport,
 } from "./storage.js";
@@ -44,6 +45,7 @@ export function setupSettingsButton(game) {
     const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
+    const powerUpMoveCostCheckbox = document.getElementById("powerUpMoveCost");
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
 
     const togglePowerUpOptions = (show) => {
@@ -155,6 +157,9 @@ export function setupSettingsButton(game) {
         }
         if (persistentPowerUpsEnabledCheckbox) {
             persistentPowerUpsEnabledCheckbox.checked = game.persistentPowerUpsEnabled;
+        }
+        if (powerUpMoveCostCheckbox) {
+            powerUpMoveCostCheckbox.checked = game.powerUpMoveCost;
         }
         if (superStrikeWildcardTeleportCheckbox) {
             superStrikeWildcardTeleportCheckbox.checked = game.superStrikeWildcardTeleport;
@@ -268,6 +273,10 @@ export function setupSettingsButton(game) {
                 if (persistentPowerUpsEnabledCheckbox) {
                     game.persistentPowerUpsEnabled = persistentPowerUpsEnabledCheckbox.checked;
                     savePersistentPowerUpsEnabled(game.persistentPowerUpsEnabled);
+                }
+                if (powerUpMoveCostCheckbox) {
+                    game.powerUpMoveCost = powerUpMoveCostCheckbox.checked;
+                    savePowerUpMoveCost(game.powerUpMoveCost);
                 }
                 if (superStrikeWildcardTeleportCheckbox) {
                     game.superStrikeWildcardTeleport = superStrikeWildcardTeleportCheckbox.checked;

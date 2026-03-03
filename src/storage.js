@@ -489,6 +489,16 @@ export function savePersistentPowerUpsEnabled(enabled) {
     localStorage.setItem("match2048_persistentPowerUpsEnabled", enabled.toString());
 }
 
+export function loadPowerUpMoveCost() {
+    const saved = localStorage.getItem("match2048_powerUpMoveCost");
+    if (saved === null) return false;
+    return saved === "true";
+}
+
+export function savePowerUpMoveCost(enabled) {
+    localStorage.setItem("match2048_powerUpMoveCost", enabled.toString());
+}
+
 export function loadSelectedPowerUps() {
     const saved = localStorage.getItem("match2048_selectedPowerUps");
     if (saved) {
