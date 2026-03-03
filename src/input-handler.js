@@ -338,7 +338,7 @@ function canPreviewSwap(game, row1, col1, row2, col2) {
         return true;
     }
 
-    if (game.activePowerUp === "swap" || game.activePowerUp === "teleport") {
+    if (game.activePowerUp === "teleport") {
         return true;
     }
 
@@ -563,7 +563,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
     const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
     const allowTeleportSwap = !isAdjacentSwap && isTeleportSwapAllowed(game, row1, col1, row2, col2);
-    const isPowerUpSwap = !isAdjacentSwap && (game.activePowerUp === "swap" || game.activePowerUp === "teleport");
+    const isPowerUpSwap = !isAdjacentSwap && game.activePowerUp === "teleport";
 
     if (!isAdjacentSwap && !allowExtendedFreeSwap && !allowTeleportSwap && !isPowerUpSwap) {
         return false;
