@@ -360,6 +360,16 @@ export function saveHintsEnabled(enabled) {
     localStorage.setItem("match2048_hintsEnabled", enabled.toString());
 }
 
+export function loadShowSwapTargets() {
+    const saved = localStorage.getItem("match2048_showSwapTargets");
+    if (saved === null) return false;
+    return saved === "true";
+}
+
+export function saveShowSwapTargets(enabled) {
+    localStorage.setItem("match2048_showSwapTargets", enabled.toString());
+}
+
 /**
  * Load hint delay in ms
  * @returns {number} Hint delay in milliseconds (default: 4000)

@@ -494,6 +494,12 @@
     pointer-events: none;
 }
 
+.gem.swap-dimmed {
+    opacity: 0.6;
+    filter: grayscale(0.2);
+    pointer-events: none;
+}
+
 .gem.dragging {
     z-index: 10;
     /* opacity: 0.7; */
@@ -1569,6 +1575,8 @@
     outline: 2px dashed rgba(0, 0, 0, 0.4);
     outline-offset: -4px;
     z-index: 100;
+    opacity: 1 !important;
+    filter: none !important;
 }
 
 /* Unblock Preview - blocked tiles that will be removed */
@@ -1576,6 +1584,8 @@
     outline: 2px dashed rgba(255, 100, 100, 0.8);
     outline-offset: -4px;
     z-index: 100;
+    opacity: 1 !important;
+    filter: none !important;
 }
 
 /* Formation Power-Up Reward Animation */

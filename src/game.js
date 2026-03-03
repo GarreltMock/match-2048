@@ -34,6 +34,7 @@ import {
     isFeatureUnlocked,
     saveUnlockedFeature,
     loadHintsEnabled,
+    loadShowSwapTargets,
     loadHintTimeoutMs,
     loadAllowNonMatchingSwaps,
     loadExtendedFreeSwap,
@@ -150,6 +151,7 @@ export class Match3Game {
         this.hintTimer = null; // setTimeout reference
         this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
+        this.showSwapTargets = loadShowSwapTargets();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();

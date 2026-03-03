@@ -132,6 +132,7 @@ function startDrag(game, x, y) {
         game.isDragging = true;
         game.dragStartPos = { x, y };
         element.classList.add("dragging");
+        showValidSwapTargets(game, row, col);
     }
 }
 
@@ -194,7 +195,7 @@ function endDrag(game) {
 
     // Clean up
     document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview");
+        gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview", "swap-dimmed");
     });
 
     // Reset hint timer after user interaction completes
@@ -316,6 +317,20 @@ function clearDragPreviews() {
     document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
         gem.classList.remove("unblock-preview");
     });
+}
+
+function showValidSwapTargets(game, row, col) {
+    if (!game.showSwapTargets) return;
+    const gems = document.querySelectorAll(".gem");
+    for (const gem of gems) {
+        const r = parseInt(gem.dataset.row);
+        const c = parseInt(gem.dataset.col);
+        if (isNaN(r) || isNaN(c)) continue;
+        if (r === row && c === col) continue;
+        if (!canPreviewSwap(game, row, col, r, c)) {
+            gem.classList.add("swap-dimmed");
+        }
+    }
 }
 
 function canPreviewSwap(game, row1, col1, row2, col2) {

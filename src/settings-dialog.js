@@ -10,6 +10,7 @@ import {
     saveSuperUpgradeAction,
     saveSpecialTileConfig,
     saveHintsEnabled,
+    saveShowSwapTargets,
     saveHintTimeoutMs,
     saveAllowNonMatchingSwaps,
     saveExtendedFreeSwap,
@@ -39,6 +40,7 @@ export function setupSettingsButton(game) {
     const tFormationSelect = document.getElementById("tFormationReward");
     const lFormationSelect = document.getElementById("lFormationReward");
 
+    const showSwapTargetsCheckbox = document.getElementById("showSwapTargets");
     const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
     const hintTimeoutInput = document.getElementById("hintTimeoutMs");
     const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
@@ -140,6 +142,9 @@ export function setupSettingsButton(game) {
         tFormationSelect.value = game.specialTileConfig.t_formation;
         lFormationSelect.value = game.specialTileConfig.l_formation;
 
+        if (showSwapTargetsCheckbox) {
+            showSwapTargetsCheckbox.checked = game.showSwapTargets;
+        }
         if (hintsEnabledCheckbox) {
             hintsEnabledCheckbox.checked = game.hintsEnabled;
         }
@@ -249,6 +254,10 @@ export function setupSettingsButton(game) {
                 game.specialTileConfig.l_formation = lFormationSelect.value;
                 saveSpecialTileConfig(game.specialTileConfig);
 
+                if (showSwapTargetsCheckbox) {
+                    game.showSwapTargets = showSwapTargetsCheckbox.checked;
+                    saveShowSwapTargets(game.showSwapTargets);
+                }
                 if (hintsEnabledCheckbox) {
                     game.hintsEnabled = hintsEnabledCheckbox.checked;
                     saveHintsEnabled(game.hintsEnabled);
