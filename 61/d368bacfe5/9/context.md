@@ -1,0 +1,8 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+If the setting SuperStreak: Wildcard Teleport is active, can you please display a wildcard teleport tile on the homescreen instead of the upgrade-icon_streak.png?
+
