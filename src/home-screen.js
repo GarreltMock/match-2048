@@ -114,7 +114,11 @@ function updateSuperStreakDisplay(game, superStreakDisplay) {
                 </defs>
             </svg>
             <div class="super-streak-icon">
-                <img src="assets/upgrade-icon_streak.png" alt="Super Streak" />
+                ${
+                    game.superStrikeWildcardTeleport
+                        ? '<div class="super-streak-teleport-tile"><span class="super-streak-teleport-star">*</span><span class="super-streak-teleport-rocket">🚀</span></div>'
+                        : '<img src="assets/upgrade-icon_streak.png" alt="Super Streak" />'
+                }
             </div>
             <div class="super-streak-text">${progress}/${SUPER_STREAK_THRESHOLD}</div>
         </div>
