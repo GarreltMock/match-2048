@@ -519,9 +519,9 @@ export function executeSwap(game, row1, col1, row2, col2) {
         game.cursedTileCreatedThisTurn = {};
 
         // Mark free swap tiles as used (tiles have been swapped, so tile1 is now at row2/col2)
+        // Only the actively swapped tile (tile1) loses its special feature; the passively swapped tile (tile2) keeps it.
         if (hasFreeSwap) {
             if (isFreeSwap1 || isDirectionalFreeSwap1) game.board[row2][col2].hasBeenSwapped = true;
-            if (isFreeSwap2 || isDirectionalFreeSwap2) game.board[row1][col1].hasBeenSwapped = true;
         }
         if (hasTeleport) {
             game.board[row2][col2].hasBeenSwapped = true;
