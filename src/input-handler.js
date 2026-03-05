@@ -80,7 +80,6 @@ function handleMouseUp() {
     endDrag(this);
 }
 
-
 function startDrag(game, x, y) {
     if (!game.gameActive) return;
 
@@ -376,21 +375,15 @@ function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
     }
 
     const tile1 = game.board[row1][col1];
-    const tile2 = game.board[row2][col2];
 
     const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
-    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
 
     const isDirectionalFreeSwap1 =
         !tile1.hasBeenSwapped &&
         ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
             (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
-    const isDirectionalFreeSwap2 =
-        !tile2.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
 
-    return isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
+    return isFreeSwap1 || isDirectionalFreeSwap1;
 }
 
 function previewSwap(game, row1, col1, row2, col2) {
@@ -478,22 +471,16 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
  */
 export function executeSwap(game, row1, col1, row2, col2) {
     const tile1 = game.board[row1][col1];
-    const tile2 = game.board[row2][col2];
 
     const isHorizontalSwap = row1 === row2;
     const isVerticalSwap = col1 === col2;
 
     const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
-    const isFreeSwap2 = (isTileFreeSwapTile(tile2) || isTileStickyFreeSwapTile(tile2)) && !tile2.hasBeenSwapped;
     const isDirectionalFreeSwap1 =
         !tile1.hasBeenSwapped &&
         ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
             (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
-    const isDirectionalFreeSwap2 =
-        !tile2.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile2) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile2) && isVerticalSwap));
-    const hasFreeSwap = isFreeSwap1 || isFreeSwap2 || isDirectionalFreeSwap1 || isDirectionalFreeSwap2;
+    const hasFreeSwap = isFreeSwap1 || isDirectionalFreeSwap1;
     const hasTeleport = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
     const isSwapPowerUp = game.activePowerUp === "swap";
     const isTeleportPowerUp = game.activePowerUp === "teleport";
@@ -518,23 +505,38 @@ export function executeSwap(game, row1, col1, row2, col2) {
         game.shouldDecrementCursedTimers = true;
         game.cursedTileCreatedThisTurn = {};
 
-        // Mark free swap tiles as used (tiles have been swapped, so tile1 is now at row2/col2)
+        // Mark free swap tile as used (tile1 is now at row2/col2 after swap)
         if (hasFreeSwap) {
-            if (isFreeSwap1 || isDirectionalFreeSwap1) game.board[row2][col2].hasBeenSwapped = true;
-            if (isFreeSwap2 || isDirectionalFreeSwap2) game.board[row1][col1].hasBeenSwapped = true;
+            game.board[row2][col2].hasBeenSwapped = true;
         }
         if (hasTeleport) {
             game.board[row2][col2].hasBeenSwapped = true;
         }
 
-        return { valid: true, hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap };
+        return {
+            valid: true,
+            hasMatch,
+            hasFreeSwap,
+            hasTeleport,
+            isSwapPowerUp,
+            isTeleportPowerUp,
+            allowNonMatchingSwap,
+        };
     } else {
         // Revert the swap
         game.board[row2][col2] = game.board[row1][col1];
         game.board[row1][col1] = temp;
         game.lastSwapPosition = null;
         game.isUserSwap = false;
-        return { valid: false, hasMatch: false, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap };
+        return {
+            valid: false,
+            hasMatch: false,
+            hasFreeSwap,
+            hasTeleport,
+            isSwapPowerUp,
+            isTeleportPowerUp,
+            allowNonMatchingSwap,
+        };
     }
 }
 
@@ -628,7 +630,12 @@ export function trySwap(game, row1, col1, row2, col2) {
                 game.deactivatePowerUp();
             }
 
-            if (!hasMatch && (allowNonMatchingSwap || hasTeleport || isTeleportPowerUp) && !isSwapPowerUp && !hasFreeSwap) {
+            if (
+                !hasMatch &&
+                (allowNonMatchingSwap || hasTeleport || isTeleportPowerUp) &&
+                !isSwapPowerUp &&
+                !hasFreeSwap
+            ) {
                 game.lastSwapPosition = null;
                 game.isUserSwap = false;
             }
@@ -648,4 +655,3 @@ export function trySwap(game, row1, col1, row2, col2) {
         game.animateRevert(row1, col1, row2, col2);
     }
 }
-
