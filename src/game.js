@@ -686,10 +686,15 @@ export class Match3Game {
             `;
         }
 
-        // Update game screen coins display
+        // Update game screen coins display (hidden when jokers cost moves)
         const gameCoinsDisplay = document.getElementById("game-coins-display");
         if (gameCoinsDisplay) {
-            gameCoinsDisplay.innerHTML = coinsHTML;
+            if (this.powerUpMoveCost) {
+                gameCoinsDisplay.style.display = "none";
+            } else {
+                gameCoinsDisplay.style.display = "";
+                gameCoinsDisplay.innerHTML = coinsHTML;
+            }
         }
     }
 
