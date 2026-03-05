@@ -1,0 +1,1 @@
+Can you hide the coin display in the core game if the setting "Joker cost moves" is active?
