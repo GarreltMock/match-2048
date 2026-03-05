@@ -1,0 +1,5 @@
+Currently the special tile feature is lost if I swap the tile passively. I want to keep it and only remove the feature if I actively use it or it gets merged
+
+---
+
+Currently the special tile feature is lost if I swap the tile passively. I want to keep it and only remove the feature if I actively use it or it gets merged
