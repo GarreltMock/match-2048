@@ -3,13 +3,14 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 23,
+  "checkpoints_count": 26,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
     "src/animator.js",
     "src/config.js",
     "src/game.js",
+    "src/goal-dialogs.js",
     "src/home-screen.js",
     "src/input-handler.js",
     "src/main.js",
@@ -115,13 +116,20 @@
       "context": "/61/d368bacfe5/12/context.md",
       "content_hash": "/61/d368bacfe5/12/content_hash.txt",
       "prompt": "/61/d368bacfe5/12/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/13/metadata.json",
+      "transcript": "/61/d368bacfe5/13/full.jsonl",
+      "context": "/61/d368bacfe5/13/context.md",
+      "content_hash": "/61/d368bacfe5/13/content_hash.txt",
+      "prompt": "/61/d368bacfe5/13/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 393,
-    "cache_creation_tokens": 438073,
-    "cache_read_tokens": 18018929,
-    "output_tokens": 65746,
-    "api_call_count": 340
+    "input_tokens": 454,
+    "cache_creation_tokens": 641607,
+    "cache_read_tokens": 22399706,
+    "output_tokens": 79758,
+    "api_call_count": 393
   }
 }

@@ -1,0 +1,90 @@
+Ich hab gestern für User Interviews zu dem Spiel match-2048 gemacht. Die ersten zwei hatten die Einstellung "Joker cost moves" die letzten zwei nicht (haben also Coins für Joker bezahlt)\
+Hier sind die Notizen:\
+1. Jonas (L1-8, Joker kosten Moves)
+Hätte Lust, einfach Combos zu machen, anstatt Blöcke zu entfernen.
+Allow non-matching swaps erwartet
+Preview war sehr hilfreich.
+Es könnte noch mehr passieren visuell, wenn man Combos macht.
+Bewertung am Ende der Runde wäre cool. Bringt es mir was Moves übrig zu haben?
+Es macht Spaß die Zahlen gröser werden zu sehen
+"Man fühlt sich smart, wenn man Joker gut einsetzt."
+"Oh mist, ich muss noch 256 machen, hab gedacht ich hätte geschafft."
+"Hint nervt irgendwann"
+"Ich schaff es vermutlich nicht mehr."
+Münzen für Joker würde ich nicht beim 1. Versuch eines Levels einsetzen. Erst wenn es mehr Frust gibt.
+
+![IMG_4877.PNG](:/875626d3e4cf41f7a2806436fc20432b)
+
+2. Robin (L1-6 (skip 3-5), Joker kosten Moves)
+Man erwartet einen Highscore.
+Helferlein: Ist das nötig? Ist zu schnell
+Wie entferne ich blocked Tiles?
+Krone verwirrt
+Special Tiles schnell gecheckt.
+Kein Frust, dass man 2 Tiles nutzt zsm. ziehen kann
+*ist nicht mehr so gaming affin*
+"Ach da muss man auch rechnen."
+- *"Wann denkst du das* 
+- ja weiß auch nicht, eigentlich nicht oder?
+
+3. Robert (L6-7, Joker kosten Coins, Spielprinzip vorher erklärt)
+Die ersten Automerges sind sehr schnell.
+komisch, wenn ich mir so viele Joker kaufen kann, macht es das so einfach
+    - wäre enttäuscht (für das Spiel), wenn sich die Jokerkosten zurücksetzen
+    - Moves als Jokerkosten wären taktischer.
+        - weil ich abwägen muss was der beste Move ist
+        - Ich hab nicht einfach so ein paralleles Konto von dem was abgeht
+Hint ist aufdringlich, lenkt ab.
+32 und 64 sehen ähnlich aus.
+Joker Icons nicht verständlich (Halver, Swap)
+Joker durch Coins erweitertes Toolset um Level zu lösen.
+    wunsch die Joker mehr zu limitieren
+
+![IMG_4878.PNG](:/8019a698a64b4f9a8c66b638215e04e2)
+
+4. Cedric (L1-9 (skip 3-5), Joker kosten Coins)
+Special Tiles nicht erklärt.
+Wann lösen sich die blocked Tiles?
+Was bringe mir große Zahlen? L2
+Hint gut
+Viele Möglichkeiten, was soll ich machen?
+Coins erst nach der Joker-Nutzung auffällig.
+ - 10 Coins Kosten weil dieser Joker wertvoller ist? (beim nächsten Joker nutzen war es dann klar)
+Blöcke = Bomben? *Ich hätte jetzt bei so Blöcken erwartet, dass ich sie mit Bomben wegmachen kann*
+Tutorial-Dialog war war störend beim 3. 5er Match (Line und L waren schon erklärt und T war dann störend. Hat aber vorher auch im ?-Dialog geschaut)
+"Hab gedacht hammer könnte Blocked Tiles entfernen"
+Übertragen sich die Joker-Kosten?
+Wunsch: Tile Animation Preview -> auch Swap previewen
+Klein am iPhone 13 mini
+Moves als Score wahrgenommen.
+Wieso/Wann sollte ich die Joker nicht benutzen? Wofur kann ich die Coins überhaupt nutzen? - *hat hier noch gedacht, dass Moves Score sind*
+"POS wahrscheinlich würde ich es schaffen, 900 Coins aber viel. Give up disabled?"
+Vorausplanen wirkt overwhelming.
+Vielleicht mit kleineren Boards anfangen?
+kleines 3-Tiles L war frustrierend (Ich hab hier doch alle Tiles die ich brauche)
+    wäre cool, wenn es zählt *geht aber nicht, sonst geht 4xBlock nicht*
+"mir fehlt ein größeres Ziel"
+    Meta Game mit Coins?
+Am Anfang Fail Bedingung nicht gesehen
+Effekt von Joker zu klein für den Münzwert\
+Was für Schlüsse kannst du daraus ziehen?\
+Explorier auch gerne die Codebasis für mehr Kontextwissen
+
+---
+
+Ok lets do following things:\
+- 2: Lets keep the 4000ms Timeout for hints as long as there are open formation-dialogs. After that maybe go to 6000ms.\
+- 7: add Labels below the Joker\
+- lets add back the functionality that the hammer can remove blocked tiles. If the blocked tile has a life value, instead of removing it, half the current life value
+
+---
+
+Please use the hintTimeout from localstorage for the second (6000ms) timeout. Make 6000ms the default.\
+For the rectangular blocked tiles without life, you can remove one X from it.
+
+---
+
+> Rectangular blocks with  
+  life are still excluded since they don't use the merge-count system.\
+What do you mean by that?\
+We should include them in the hammer
