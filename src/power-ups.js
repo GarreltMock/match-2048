@@ -6,7 +6,13 @@ import {
     isNormal,
     createTile,
     createCursedTile,
+    createBlockedWithLifeTile,
     isCursed,
+    isBlocked,
+    isBlockedWithLife,
+    isBlockedMovable,
+    isBlockedWithMergeCount,
+    isRectangularBlocked,
     getDisplayValue,
     getFontSize,
 } from "./tile-helpers.js";
@@ -350,7 +356,7 @@ export function handlePowerUpAction(game, row, col, element) {
     switch (game.activePowerUp) {
         case "hammer":
             if (!tile) return;
-            const allowedTypes = [TILE_TYPE.NORMAL];
+            const allowedTypes = [TILE_TYPE.NORMAL, TILE_TYPE.BLOCKED, TILE_TYPE.BLOCKED_WITH_LIFE, TILE_TYPE.BLOCKED_MOVABLE];
             if (!allowedTypes.includes(tile.type)) return;
             usePowerUpHammer(game, row, col, element);
             break;
@@ -367,6 +373,8 @@ export function handlePowerUpAction(game, row, col, element) {
 }
 
 export function usePowerUpHammer(game, row, col, element) {
+    const tile = game.board[row][col];
+
     game.resetHintTimer();
 
     consumePowerUp(game, "hammer");
@@ -381,12 +389,90 @@ export function usePowerUpHammer(game, row, col, element) {
 
     game.animating = true;
 
+    // Blocked with life: halve the life value instead of removing
+    if (isBlockedWithLife(tile)) {
+        const halvedLife = Math.floor(tile.lifeValue / 2);
+
+        if (halvedLife <= 0) {
+            // Life depleted — remove tile(s)
+            element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
+            element.style.opacity = "0";
+            element.style.transform = "scale(0)";
+
+            setTimeout(() => {
+                if (tile.isRectangular) {
+                    for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                        for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                            game.board[r][c] = null;
+                        }
+                    }
+                } else {
+                    game.board[row][col] = null;
+                }
+                game.updateGoalDisplay(false);
+                game.dropGems();
+                deactivatePowerUp(game);
+            }, 300);
+        } else {
+            // Halve life value (mutate shared object so rectangular tiles stay consistent)
+            tile.lifeValue = halvedLife;
+
+            element.style.transform = "scale(1.2)";
+            setTimeout(() => {
+                element.style.transform = "scale(1)";
+                game.renderBoard();
+                game.updateGoalDisplay(false);
+                game.animating = false;
+            }, 200);
+
+            deactivatePowerUp(game);
+        }
+        return;
+    }
+
+    // Rectangular merge-count blocked: decrement one cell
+    if (isBlockedWithMergeCount(tile)) {
+        // Find a cell with count > 0
+        let cellToClear = null;
+        for (const [cellKey, count] of Object.entries(tile.cellMergeCounts)) {
+            if (count > 0) {
+                cellToClear = cellKey;
+                break;
+            }
+        }
+
+        if (!cellToClear) return;
+
+        tile.cellMergeCounts[cellToClear]--;
+
+        // Check if all cells cleared
+        const allCleared = Object.values(tile.cellMergeCounts).every((c) => c === 0);
+
+        if (allCleared) {
+            // Remove entire rectangular block
+            for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                    game.board[r][c] = null;
+                }
+            }
+        }
+
+        game.renderBoard();
+        game.updateGoalDisplay(false);
+        game.animating = false;
+        if (allCleared) game.dropGems();
+        deactivatePowerUp(game);
+        return;
+    }
+
+    // Normal tile or blocked/blocked_movable: remove
     element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
     element.style.opacity = "0";
     element.style.transform = "scale(0)";
 
     setTimeout(() => {
         game.board[row][col] = null;
+        game.updateGoalDisplay(false);
         game.dropGems();
         deactivatePowerUp(game);
     }, 300);

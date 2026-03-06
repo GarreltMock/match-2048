@@ -1304,9 +1304,19 @@
     cursor: pointer;
     backdrop-filter: blur(10px);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
+}
+
+.power-up-label {
+    font-size: clamp(8px, 2.5vw, 14px);
+    color: #aaa;
+    margin-top: -2px;
+    line-height: 1;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .power-up-btn.disabled {

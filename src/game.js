@@ -78,6 +78,7 @@ import {
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
 import { showGoalDialog, hasDialogBeenShown, showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
+import { hasFormationTutorialBeenShown, FORMATION_TUTORIAL_DIALOGS } from "./formation-tutorial.js";
 import { showHomeScreen } from "./home-screen.js";
 import { initTutorial, isTutorialActive, showTutorialUI } from "./tutorial.js";
 import { setupSettingsButton, setupInfoButton } from "./settings-dialog.js";
@@ -1367,10 +1368,15 @@ export class Match3Game {
             return;
         }
 
+        // Use shorter timeout while formation tutorials are still pending, longer after
+        const allFormationTypes = Object.keys(FORMATION_TUTORIAL_DIALOGS);
+        const allShown = allFormationTypes.every((type) => hasFormationTutorialBeenShown(type));
+        const timeout = allShown ? this.hintTimeout : 4000;
+
         // Start new timer
         this.hintTimer = setTimeout(() => {
             this.showHint();
-        }, this.hintTimeout);
+        }, timeout);
     }
 
     /**

@@ -103,9 +103,7 @@ export function createCursedTile(value, movesRemaining) {
 }
 
 export function createRectangularBlockedTile(rectId, anchor, width, height, lifeValue) {
-    const baseType = lifeValue !== undefined
-        ? TILE_TYPE.BLOCKED_WITH_LIFE
-        : TILE_TYPE.BLOCKED;
+    const baseType = lifeValue !== undefined ? TILE_TYPE.BLOCKED_WITH_LIFE : TILE_TYPE.BLOCKED;
 
     return {
         type: baseType,

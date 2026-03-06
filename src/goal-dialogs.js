@@ -72,7 +72,7 @@ export const FEATURE_DESCRIPTIONS = {
     power_hammer: {
         icon: "🔨",
         title: "Hammer Power-up",
-        description: "Remove any tile from the board",
+        description: "Remove any tile or damage blocked tiles",
     },
     power_halve: {
         icon: "✂️",
@@ -192,7 +192,7 @@ export const GOAL_DIALOGS = {
 // Feature unlock dialogs for game mechanics
 // Power-up info keyed by type name, used to build unlock dialogs dynamically
 const POWER_UP_INFO = {
-    hammer: { name: "Hammer", icon: "🔨", description: "Remove any tile from the board" },
+    hammer: { name: "Hammer", icon: "🔨", description: "Remove any tile or damage blocked tiles" },
     halve: { name: "Halver", icon: "✂️", description: "Halve the value of any tile instantly" },
     swap: { name: "Swap", icon: "🔄", description: "Swap any two tiles" },
     teleport: { name: "Teleport", icon: "🚀", description: "Teleport any tile to any position" },

@@ -372,15 +372,15 @@ export function saveShowSwapTargets(enabled) {
 
 /**
  * Load hint delay in ms
- * @returns {number} Hint delay in milliseconds (default: 4000)
+ * @returns {number} Hint delay in milliseconds (default: 6000)
  */
 export function loadHintTimeoutMs() {
     const saved = localStorage.getItem("match2048_hintTimeoutMs");
     if (saved === null) {
-        return 4000;
+        return 6000;
     }
     const n = parseInt(saved, 10);
-    return Number.isFinite(n) && n >= 0 ? n : 4000;
+    return Number.isFinite(n) && n >= 0 ? n : 6000;
 }
 
 /**
@@ -389,7 +389,7 @@ export function loadHintTimeoutMs() {
  */
 export function saveHintTimeoutMs(ms) {
     const n = typeof ms === "number" ? ms : parseInt(ms, 10);
-    const safe = Number.isFinite(n) && n >= 0 ? n : 4000;
+    const safe = Number.isFinite(n) && n >= 0 ? n : 6000;
     localStorage.setItem("match2048_hintTimeoutMs", String(safe));
 }
 
