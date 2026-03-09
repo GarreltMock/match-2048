@@ -103,15 +103,15 @@ export function renderBoard(game) {
     gameBoard.style.gridTemplateColumns = `repeat(${game.boardWidth}, 1fr)`;
     gameBoard.style.gridTemplateRows = `repeat(${game.boardHeight}, 1fr)`;
 
-    // Calculate width based on board aspect ratio to fit within 50vh height
-    // Use visualViewport for zoom-independent dimensions
-    const viewport = window.visualViewport || window;
+    // Calculate width based on board aspect ratio to fit within 50dvh height
     const aspectRatio = game.boardWidth / game.boardHeight;
-    const maxHeight = viewport.height * 0.5; // 50vh of actual visible viewport
+    const vh = window.visualViewport?.height ?? window.innerHeight;
+    const vw = window.visualViewport?.width ?? window.innerWidth;
+    const maxHeight = vh * 0.5; // 50dvh
     const padding = 30; // Approximate padding from CSS clamp(6px, 3vw, 15px) * 2
     const maxContentHeight = maxHeight - padding;
     const calculatedWidth = maxContentHeight * aspectRatio + padding;
-    const maxWidth = Math.min(calculatedWidth, viewport.width * 0.9, 550);
+    const maxWidth = Math.min(calculatedWidth, vw * 0.9, 550);
 
     gameBoard.style.width = `${maxWidth}px`;
 

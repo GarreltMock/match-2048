@@ -436,6 +436,11 @@ export class Match3Game {
         if (isTutorialActive(this)) {
             showTutorialUI(this);
         }
+
+        // Re-render board on viewport resize (fixes iOS browser chrome show/hide timing)
+        window.visualViewport?.addEventListener("resize", () => {
+            if (this.board.length > 0) this.renderBoard();
+        });
     }
 
     checkAndUnlockFeature() {
