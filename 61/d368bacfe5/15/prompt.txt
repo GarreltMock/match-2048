@@ -1,0 +1,25 @@
+I had the issue where after the PoS (or maybe even slightly before the extraMoves dialog was opened) the board size was smaller. And in the next level, the board dimensions where wrong. The tiles had the correct size I think, but the board container seemed off.\
+
+---
+
+[Request interrupted by user]
+
+---
+
+Look at the screenshots:
+
+---
+
+[Image: source: /Users/garreltmock/Downloads/IMG_4869.PNG]
+
+[Image: source: /Users/garreltmock/Downloads/IMG_4870.PNG]
+
+[Image: source: /Users/garreltmock/Downloads/IMG_4871.PNG]
+
+---
+
+Now its broken
+
+---
+
+[Image: source: REDACTED 2026-03-09 um 13.57.28.png]
