@@ -389,11 +389,12 @@ export function usePowerUpHammer(game, row, col, element) {
 
     game.animating = true;
 
-    // Blocked with life: halve the life value instead of removing
+    // Blocked with life: reduce life based on area size
     if (isBlockedWithLife(tile)) {
-        const halvedLife = Math.floor(tile.lifeValue / 2);
+        const cellCount = tile.isRectangular ? (tile.rectWidth * tile.rectHeight) : 1;
+        const reducedLife = tile.lifeValue - Math.ceil(tile.lifeValue / (cellCount + 1));
 
-        if (halvedLife <= 0) {
+        if (reducedLife <= 0) {
             // Life depleted — remove tile(s)
             element.style.transition = "transform 0.3s ease, opacity 0.3s ease";
             element.style.opacity = "0";
@@ -414,8 +415,8 @@ export function usePowerUpHammer(game, row, col, element) {
                 deactivatePowerUp(game);
             }, 300);
         } else {
-            // Halve life value (mutate shared object so rectangular tiles stay consistent)
-            tile.lifeValue = halvedLife;
+            // Reduce life value (mutate shared object so rectangular tiles stay consistent)
+            tile.lifeValue = reducedLife;
 
             element.style.transform = "scale(1.2)";
             setTimeout(() => {
