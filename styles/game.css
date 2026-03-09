@@ -1386,9 +1386,9 @@
     border: 3px solid #000;
     border-radius: 12px 0 0 12px;
     padding: 0px 8px;
-    padding-right: 40%;
+    padding-right: clamp(13px, 4vw, 25px);
     margin-top: 2px;
-    margin-right: -40%;
+    margin-right: calc(-1 * clamp(13px, 4vw, 25px));
     color: #fff;
     font-family: "Nunito", sans-serif;
     font-size: clamp(10px, 3vw, 18px);
