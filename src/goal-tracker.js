@@ -123,16 +123,9 @@ export function checkLevelComplete(game) {
         game.failReason = "No moves left";
 
         // Show extra moves dialog after a delay to let final animations settle
+        // Dialog is always shown with progressively increasing prices (900, 1900, 2900, ...)
         setTimeout(() => {
-            if (game.extraMovesUsed) {
-                // Show level failed screen (heart decrease and streak reset happens in showLevelFailed)
-                game.showLevelFailed(game.failReason);
-            } else {
-                // Show extra moves dialog (first time)
-                // Note: Streak is NOT reset here - only when level fully fails
-                // Note: Hearts are NOT decreased here - only on full level loss
-                game.showExtraMovesDialog();
-            }
+            game.showExtraMovesDialog();
         }, 800);
     } else if (game.gameActive) {
         // Check if no valid moves are possible even if moves remain
