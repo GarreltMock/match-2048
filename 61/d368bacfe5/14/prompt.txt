@@ -1,0 +1,45 @@
+We implemented that the hammer halves the life value of blocked tiles.\
+
+---
+
+[Request interrupted by user]
+
+---
+
+For blocked areas I would like to make the reduction even less.\
+
+---
+
+[Request interrupted by user]
+
+---
+
+Probably depending on the size of the blocked area. Do you have a suggestion?
+
+---
+
+Ok but usually the life value is much higher. Like 128 or even 1024
+
+---
+
+[Request interrupted by user]
+
+---
+
+So maybe Option B. How would that look?
+
+---
+
+Hm but I also do not want the just have 2 hits to clear the 1x1 tile. If the life is 128 the second hit should only remove a quarter of that. So it should always use the current life value
+
+---
+
+[Request interrupted by user]
+
+---
+
+But I think I like your formula
+
+---
+
+Yes implement it
