@@ -410,6 +410,7 @@ export function usePowerUpHammer(game, row, col, element) {
                 } else {
                     game.board[row][col] = null;
                 }
+                game.updateBlockedTileGoals();
                 game.updateGoalDisplay(false);
                 game.dropGems();
                 deactivatePowerUp(game);
@@ -459,6 +460,7 @@ export function usePowerUpHammer(game, row, col, element) {
         }
 
         game.renderBoard();
+        game.updateBlockedTileGoals();
         game.updateGoalDisplay(false);
         game.animating = false;
         if (allCleared) game.dropGems();
@@ -473,6 +475,7 @@ export function usePowerUpHammer(game, row, col, element) {
 
     setTimeout(() => {
         game.board[row][col] = null;
+        game.updateBlockedTileGoals();
         game.updateGoalDisplay(false);
         game.dropGems();
         deactivatePowerUp(game);

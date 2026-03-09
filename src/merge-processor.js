@@ -670,7 +670,7 @@ export function unblockAdjacentTiles(game, matchGroups) {
     });
 
     // Decrement merge counts for affected cells
-    const processedRects = new Set(); // Track which rectangles we've checked for full removal
+    const affectedRects = new Map(); // rectId -> tile, for post-decrement allCleared check
     cellsToDecrement.forEach((rectCellKey) => {
         // Parse rectCellKey format: "rect_2_3_2_2_2_3" -> extract cell coordinates
         const parts = rectCellKey.split("_");
@@ -683,24 +683,21 @@ export function unblockAdjacentTiles(game, matchGroups) {
         if (tile && isBlockedWithMergeCount(tile)) {
             // Decrement the cell's merge count
             tile.cellMergeCounts[cellKey]--;
+            affectedRects.set(tile.rectId, tile);
+        }
+    });
 
-            // Check if ALL cells are cleared (all counts === 0) only once per rectangle
-            if (!processedRects.has(tile.rectId)) {
-                processedRects.add(tile.rectId);
-
-                const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
-
-                if (allCleared) {
-                    // Mark entire rectangular block for removal
-                    blockedTilesToRemove.push({
-                        rectId: tile.rectId,
-                        row: tile.rectAnchor.row,
-                        col: tile.rectAnchor.col,
-                        tile: tile,
-                        isFullRemoval: true,
-                    });
-                }
-            }
+    // After all decrements, check each affected rectangle for full removal
+    affectedRects.forEach((tile) => {
+        const allCleared = Object.values(tile.cellMergeCounts).every((count) => count === 0);
+        if (allCleared) {
+            blockedTilesToRemove.push({
+                rectId: tile.rectId,
+                row: tile.rectAnchor.row,
+                col: tile.rectAnchor.col,
+                tile: tile,
+                isFullRemoval: true,
+            });
         }
     });
 
