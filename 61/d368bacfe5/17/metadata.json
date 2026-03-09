@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "0fbc5ab1-4f19-4a5f-b04e-985bd78b2c66",
+  "strategy": "manual-commit",
+  "created_at": "2026-03-09T13:11:51.517422Z",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "src/merge-processor.js",
+    "src/power-ups.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "9db5e482-1848-44c4-8cdd-fc41eff57830",
+  "token_usage": {
+    "input_tokens": 19,
+    "cache_creation_tokens": 23049,
+    "cache_read_tokens": 353843,
+    "output_tokens": 4007,
+    "api_call_count": 15
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-03-09T13:11:51.418702Z",
+    "agent_lines": 18,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 18,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/0fbc5ab1-4f19-4a5f-b04e-985bd78b2c66.jsonl"
+}

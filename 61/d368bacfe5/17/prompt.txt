@@ -1,0 +1,9 @@
+I had this bug, where the blocked area was not removed after all the Xs where removed.
+
+---
+
+[Image: source: /Users/garreltmock/Downloads/IMG_4875.PNG]
+
+---
+
+Also I had a bug, where the goal progress was not updated after i used the hammer to remove a blocked tile.
