@@ -165,7 +165,7 @@ export class Match3Game {
         this.movesUsed = 0;
         this.maxMoves = 0;
         this.gameActive = true;
-        this.extraMovesUsed = false; // Track if extra moves have been used this level
+        this.extraMovesCount = 0; // Track how many times extra moves have been purchased this level
 
         // Cursed tile tracking
         this.cursedTileCreatedCount = {}; // Track how many tiles of each cursed value have been created
@@ -320,7 +320,7 @@ export class Match3Game {
 
         this.maxMoves = level.maxMoves;
         this.movesUsed = 0;
-        this.extraMovesUsed = false; // Reset extra moves flag for new level
+        this.extraMovesCount = 0; // Reset extra moves count for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
 
         // Reset transient power-up counts and buy costs for new level
@@ -777,7 +777,7 @@ export class Match3Game {
 
         if (extraMoves5Btn) {
             extraMoves5Btn.addEventListener("click", () => {
-                const EXTRA_MOVES_COST = 900;
+                const EXTRA_MOVES_COST = 900 + this.extraMovesCount * 1000;
 
                 // Check if player has enough coins
                 if (this.coins >= EXTRA_MOVES_COST) {
@@ -791,10 +791,12 @@ export class Match3Game {
                         extra_moves_count: 5,
                         included_powerups: true,
                         moves_used: this.movesUsed,
+                        cost: EXTRA_MOVES_COST,
+                        purchase_number: this.extraMovesCount + 1,
                     });
 
-                    // Mark that extra moves have been used for this level
-                    this.extraMovesUsed = true;
+                    // Increment extra moves purchase count for this level
+                    this.extraMovesCount++;
 
                     this.maxMoves += 5;
 
@@ -842,8 +844,8 @@ export class Match3Game {
                     moves_used: this.movesUsed,
                 });
 
-                // Mark that extra moves have been used for this level
-                this.extraMovesUsed = true;
+                // Increment extra moves purchase count for this level
+                this.extraMovesCount++;
 
                 this.maxMoves += 5;
                 // Add one swap power-up (persistent)
@@ -968,6 +970,12 @@ export class Match3Game {
         if (fiveExtraMovesText) {
             const newText = anyPowerUpUnlocked ? "5 Moves +" : "+5 Moves";
             fiveExtraMovesText.setAttribute("text", newText);
+        }
+
+        // Update cost display with progressive pricing (900, 1900, 2900, ...)
+        const costDisplay = document.getElementById("extraMovesCostDisplay");
+        if (costDisplay) {
+            costDisplay.textContent = (900 + this.extraMovesCount * 1000).toLocaleString();
         }
 
         // Update coins display
