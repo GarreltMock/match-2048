@@ -1027,6 +1027,7 @@ export class Match3Game {
         if (confirmGiveUpBtnDialog) {
             confirmGiveUpBtnDialog.addEventListener("click", () => {
                 giveUpDialog.classList.add("hidden");
+                this.gameActive = false;
 
                 // Go back to home screen
                 setTimeout(() => {
