@@ -19,6 +19,7 @@ import {
     savePowerUpMoveCost,
     saveSelectedPowerUps,
     saveSuperStrikeWildcardTeleport,
+    saveMovesMultiplier,
 } from "./storage.js";
 import { APP_VERSION } from "./version.js";
 import { cyrb53 } from "./tracker.js";
@@ -49,6 +50,7 @@ export function setupSettingsButton(game) {
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
     const powerUpMoveCostCheckbox = document.getElementById("powerUpMoveCost");
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
+    const movesMultiplierInput = document.getElementById("movesMultiplier");
 
     const togglePowerUpOptions = (show) => {
         const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -168,6 +170,9 @@ export function setupSettingsButton(game) {
         }
         if (superStrikeWildcardTeleportCheckbox) {
             superStrikeWildcardTeleportCheckbox.checked = game.superStrikeWildcardTeleport;
+        }
+        if (movesMultiplierInput) {
+            movesMultiplierInput.value = String(game.movesMultiplier);
         }
 
         const powerUpCheckboxes = document.querySelectorAll(".powerup-select-cb");
@@ -290,6 +295,11 @@ export function setupSettingsButton(game) {
                 if (superStrikeWildcardTeleportCheckbox) {
                     game.superStrikeWildcardTeleport = superStrikeWildcardTeleportCheckbox.checked;
                     saveSuperStrikeWildcardTeleport(game.superStrikeWildcardTeleport);
+                }
+                if (movesMultiplierInput) {
+                    const n = parseFloat(movesMultiplierInput.value);
+                    game.movesMultiplier = Number.isFinite(n) && n > 0 ? n : 1.0;
+                    saveMovesMultiplier(game.movesMultiplier);
                 }
 
                 const selectedCbs = document.querySelectorAll(".powerup-select-cb:checked");

@@ -546,3 +546,25 @@ export function loadSuperStrikeWildcardTeleport() {
 export function saveSuperStrikeWildcardTeleport(enabled) {
     localStorage.setItem("match2048_superStrikeWildcardTeleport", enabled.toString());
 }
+
+/**
+ * Load the moves multiplier setting.
+ * Values < 1.0 give fewer moves (harder), > 1.0 give more moves (easier).
+ * @returns {number} Multiplier (default: 1.0)
+ */
+export function loadMovesMultiplier() {
+    const saved = localStorage.getItem("match2048_movesMultiplier");
+    if (saved === null) return 1.0;
+    const n = parseFloat(saved);
+    return Number.isFinite(n) && n > 0 ? n : 1.0;
+}
+
+/**
+ * Save the moves multiplier setting.
+ * @param {number} multiplier
+ */
+export function saveMovesMultiplier(multiplier) {
+    const n = typeof multiplier === "number" ? multiplier : parseFloat(multiplier);
+    const safe = Number.isFinite(n) && n > 0 ? n : 1.0;
+    localStorage.setItem("match2048_movesMultiplier", String(safe));
+}

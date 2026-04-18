@@ -43,6 +43,7 @@ import {
     loadPowerUpMoveCost,
     loadSelectedPowerUps,
     loadSuperStrikeWildcardTeleport,
+    loadMovesMultiplier,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { createTile, createBlockedTile, createBlockedMovableTile } from "./tile-helpers.js";
@@ -158,6 +159,7 @@ export class Match3Game {
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpMoveCost = loadPowerUpMoveCost();
+        this.movesMultiplier = loadMovesMultiplier();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];
@@ -318,7 +320,7 @@ export class Match3Game {
         // Use level-specific spawnable tiles or default
         this.tileValues = level.spawnableTiles || this.defaultTileValues;
 
-        this.maxMoves = level.maxMoves;
+        this.maxMoves = Math.max(1, Math.round(level.maxMoves * this.movesMultiplier));
         this.movesUsed = 0;
         this.extraMovesCount = 0; // Reset extra moves count for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
