@@ -98,6 +98,10 @@ function startDrag(game, x, y) {
             return;
         }
 
+        if (isBlocked(tile) || isBlockedWithLife(tile) || isBlockedMovable(tile)) {
+            return;
+        }
+
         // Handle power-ups (but not during animations)
         if (game.activePowerUp) {
             // Prevent power-up usage during animations
