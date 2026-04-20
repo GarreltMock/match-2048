@@ -1352,8 +1352,8 @@ export class Match3Game {
             return;
         }
 
-        // Skip hints for tutorial levels (they have their own guided swaps)
-        if (this.levelConfig?.tutorialSwaps?.length > 0) {
+        // Skip hints while a tutorial step is actively shown
+        if (isTutorialActive(this)) {
             return;
         }
 
