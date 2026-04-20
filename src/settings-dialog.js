@@ -216,7 +216,9 @@ export function setupSettingsButton(game) {
         settingsDialog.classList.remove("hidden");
     };
 
-    if (homeTitle && settingsDialog) {
+    const settingsDisabled = new URLSearchParams(window.location.search).has("noSettings");
+
+    if (homeTitle && settingsDialog && !settingsDisabled) {
         homeTitle.addEventListener("click", openSettings);
 
         if (saveSettingsBtn) {
