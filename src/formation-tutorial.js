@@ -224,13 +224,11 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile gem tile-JOKER joker-tile">
-                            <span class="star-value">*</span>
-                        </div>
+                        <div class="example-tile gem teleport-tile">8</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">
-                            <span>Matches with any tile. Tap or swap it for a match.</span>
+                            <span>Swap with any tile anywhere on the board.</span>
                         </div>
                     </div>
                 </div>
