@@ -313,8 +313,6 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     // This just sets a flag and the highest value reached, doesn't execute the shift yet
     game.checkAndShiftTileLevels(newValue);
 
-    // Check if creating this value should grant a power-up reward
-    game.checkAndGrantPowerUpReward(newValue);
 }
 
 export function determineSpecialTilePosition(game, group, formationType) {

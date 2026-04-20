@@ -76,7 +76,7 @@ function createSimContext(game, board) {
         dropGems() {},
         checkAndShiftTileLevels() {},
         shiftTileLevels() { return Promise.resolve(); },
-        checkAndGrantPowerUpReward() {},
+
         grantFormationPowerUp() {},
     };
 }

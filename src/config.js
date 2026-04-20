@@ -615,7 +615,7 @@ export const TEST_LEVELS = [
             { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
-        powerUpRewards: [5, 6, 7, 8], // Grant power-up when 32 or 64 is created
+
     },
 ];
 
@@ -1205,7 +1205,6 @@ export const NEW_LEVELS = [
             { tileValue: 8, target: 1, current: 0, goalType: "created" },
         ],
         boardUpgrades: [6, 8],
-        powerUpRewards: [5, 6, 7],
     },
 ];
 

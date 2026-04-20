@@ -79,20 +79,7 @@ export function checkLevelComplete(game) {
                     wildcard: game.powerUpCounts.wildcard.persistent,
                 });
 
-                // Show the power-up reward in the UI
-                const powerUpReward = document.getElementById("powerUpReward");
-                const powerUpRewardIcon = document.getElementById("powerUpRewardIcon");
 
-                if (powerUpReward && powerUpRewardIcon) {
-                    const powerUpIcons = {
-                        hammer: "🔨",
-                        halve: "✂️",
-                        swap: "🔄",
-                    };
-
-                    powerUpRewardIcon.textContent = powerUpIcons[randomPowerUp];
-                    powerUpReward.style.display = "flex";
-                }
             }
         }
 
@@ -244,11 +231,6 @@ export function updateBlockedTileGoals(game) {
 export function nextLevel(game) {
     game.hideControls();
     game.hideLevelSolved();
-    // Hide power-up reward
-    const powerUpReward = document.getElementById("powerUpReward");
-    if (powerUpReward) {
-        powerUpReward.style.display = "none";
-    }
 
     // Clear hint and timer when leaving level
     game.clearHint();
@@ -267,11 +249,6 @@ export function nextLevel(game) {
 export function restartLevel(game) {
     game.hideLevelSolved();
     game.hideLevelFailed();
-    // Hide power-up reward
-    const powerUpReward = document.getElementById("powerUpReward");
-    if (powerUpReward) {
-        powerUpReward.style.display = "none";
-    }
     game.loadLevel(game.currentLevel);
     game.createBoard();
     game.renderBoard();

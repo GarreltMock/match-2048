@@ -63,7 +63,7 @@ import {
     renderBoard,
     renderGoals,
     renderBoardUpgrades,
-    renderPowerUpRewards,
+
     updateGoalDisplay,
     updateMovesDisplay,
     renderHintHighlight,
@@ -138,7 +138,6 @@ export class Match3Game {
         this.currentMinTileLevel = null; // Track the minimum tile level currently on board
         this.pendingTileLevelShift = false; // Flag to indicate a shift should happen after first merge
         this.completedUpgrades = []; // Track completed board upgrades for per-level system
-        this.completedPowerUpRewards = []; // Track claimed power-up rewards for per-level system
         this.selectedGem = null;
         this.isDragging = false;
         this.dragStartPos = null;
@@ -357,7 +356,6 @@ export class Match3Game {
         // Reset tile level shift flag
         this.pendingTileLevelShift = false;
         this.completedUpgrades = []; // Reset board upgrade progress for new level
-        this.completedPowerUpRewards = []; // Reset power-up rewards progress for new level
 
         // Reset match statistics for new level
         this.matchStats = {
@@ -383,7 +381,6 @@ export class Match3Game {
         this.settingsChangedDuringLevel = false; // Reset flag for new level
 
         renderBoardUpgrades(this);
-        renderPowerUpRewards(this);
         renderGoals(this);
         updateMovesDisplay(this);
 
@@ -1203,30 +1200,6 @@ export class Match3Game {
                 this.pendingTileLevelShift = true;
                 this.completedUpgrades.push(newlyCreatedValue);
             }
-        }
-    }
-
-    /**
-     * Check if creating a tile value should grant a free power-up reward
-     * This is called after tiles are merged
-     */
-    checkAndGrantPowerUpReward(newlyCreatedValue) {
-        const rewards = this.levelConfig.powerUpRewards;
-        if (!rewards) return;
-
-        // Sort rewards to ensure consistent ordering
-        const sortedRewards = [...rewards].sort((a, b) => a - b);
-        const rewardIndex = sortedRewards.indexOf(newlyCreatedValue);
-
-        if (rewardIndex !== -1 && !this.completedPowerUpRewards.includes(newlyCreatedValue)) {
-            this.completedPowerUpRewards.push(newlyCreatedValue);
-
-            // Cycle through selected power-ups
-            const powerUpTypes = this.selectedPowerUps;
-            const powerUpType = powerUpTypes[rewardIndex % powerUpTypes.length];
-
-            this.grantPowerUp(powerUpType);
-            renderPowerUpRewards(this);
         }
     }
 
