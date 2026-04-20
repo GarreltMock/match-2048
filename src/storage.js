@@ -9,7 +9,7 @@ export function loadSpecialTileConfig() {
     return {
         line_4: "freeswap_horizontal",
         block_4: "freeswap_horizontal",
-        line_5: "joker",
+        line_5: "teleport",
         t_formation: "freeswap",
         l_formation: "freeswap",
     };
@@ -362,7 +362,7 @@ export function saveHintsEnabled(enabled) {
 
 export function loadShowSwapTargets() {
     const saved = localStorage.getItem("match2048_showSwapTargets");
-    if (saved === null) return false;
+    if (saved === null) return true;
     return saved === "true";
 }
 
@@ -415,7 +415,7 @@ export function saveAllowNonMatchingSwaps(enabled) {
 
 export function loadExtendedFreeSwap() {
     const saved = localStorage.getItem("match2048_extendedFreeSwap");
-    if (saved === null) return false;
+    if (saved === null) return true;
     return saved === "true";
 }
 
@@ -465,7 +465,7 @@ export function loadFormationPowerUpRewards() {
     const saved = localStorage.getItem("match2048_formationPowerUpRewards");
     // Default to true if not set
     if (saved === null) {
-        return false;
+        return true;
     }
     return saved === "true";
 }
@@ -486,7 +486,7 @@ export function loadPersistentPowerUpsEnabled() {
     const saved = localStorage.getItem("match2048_persistentPowerUpsEnabled");
     // Default to true if not set
     if (saved === null) {
-        return true;
+        return false;
     }
     return saved === "true";
 }
