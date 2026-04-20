@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "0c154f32-9264-4fb1-8d66-d6af2294e29a",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-20T13:36:23.832858Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "src/formation-tutorial.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "57c245d8-7fc1-4bbd-81e9-569d042d2849",
+  "token_usage": {
+    "input_tokens": 12,
+    "cache_creation_tokens": 33703,
+    "cache_read_tokens": 266484,
+    "output_tokens": 2772,
+    "api_call_count": 10
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-20T13:36:23.789255Z",
+    "agent_lines": 2,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2,
+    "agent_percentage": 100
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/0c154f32-9264-4fb1-8d66-d6af2294e29a.jsonl"
+}

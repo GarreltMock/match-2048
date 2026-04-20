@@ -1,0 +1,1 @@
+Please update the trigger Tutorial for the 5-line match. Currently it explains the wildcard special tile. But now the default is the teleport
