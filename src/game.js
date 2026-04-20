@@ -63,7 +63,6 @@ import {
     renderBoard,
     renderGoals,
     renderBoardUpgrades,
-
     updateGoalDisplay,
     updateMovesDisplay,
     renderHintHighlight,
@@ -795,7 +794,7 @@ export class Match3Game {
                     // Track extra moves usage
                     track("extra_moves_used", {
                         level: this.currentLevel,
-                        extra_moves_count: 5,
+                        extra_moves_count: 10,
                         included_powerups: true,
                         moves_used: this.movesUsed,
                         cost: EXTRA_MOVES_COST,
@@ -805,7 +804,7 @@ export class Match3Game {
                     // Increment extra moves purchase count for this level
                     this.extraMovesCount++;
 
-                    this.maxMoves += 5;
+                    this.maxMoves += 10;
 
                     // Add one of each visible power-up (transient for this level only)
                     this.getVisiblePowerUpTypes().forEach((type) => {
@@ -846,7 +845,7 @@ export class Match3Game {
                 // Track extra moves usage
                 track("extra_moves_used", {
                     level: this.currentLevel,
-                    extra_moves_count: 5,
+                    extra_moves_count: 10,
                     included_swap: true,
                     moves_used: this.movesUsed,
                 });
@@ -854,7 +853,7 @@ export class Match3Game {
                 // Increment extra moves purchase count for this level
                 this.extraMovesCount++;
 
-                this.maxMoves += 5;
+                this.maxMoves += 10;
                 // Add one swap power-up (persistent)
                 this.powerUpCounts.swap.persistent++;
                 savePowerUpCounts({
@@ -975,7 +974,7 @@ export class Match3Game {
 
         // Update the text based on whether any power-ups are unlocked
         if (fiveExtraMovesText) {
-            const newText = anyPowerUpUnlocked ? "5 Moves +" : "+5 Moves";
+            const newText = anyPowerUpUnlocked ? "10 Moves +" : "+10 Moves";
             fiveExtraMovesText.setAttribute("text", newText);
         }
 
@@ -983,7 +982,7 @@ export class Match3Game {
         const costDisplay = document.getElementById("extraMovesCostDisplay");
         const coinIcon = document.querySelector("#extraMoves5 .extra-move-coin-icon");
         if (this.levelConfig?.freeExtraMoves) {
-            if (costDisplay) costDisplay.textContent = "For Free";
+            if (costDisplay) costDisplay.textContent = "for free";
             if (coinIcon) coinIcon.style.display = "none";
         } else {
             if (costDisplay) costDisplay.textContent = (900 + this.extraMovesCount * 1000).toLocaleString();
