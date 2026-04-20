@@ -773,7 +773,6 @@ export class Match3Game {
     setupExtraMovesDialog() {
         const extraMovesDialog = document.getElementById("extraMovesDialog");
         const extraMoves5Btn = document.getElementById("extraMoves5");
-        const extraMoves5WithSwapBtn = document.getElementById("extraMoves5WithSwap");
         const loseProgressBtn = document.getElementById("loseProgress");
         const showBoardBtn = document.getElementById("showBoardBtn");
         const continueBtn = document.getElementById("continueBtn");
@@ -836,44 +835,6 @@ export class Match3Game {
                         // Update shop coins display
                         this.updateCoinsDisplays();
                     }
-                }
-            });
-        }
-
-        if (extraMoves5WithSwapBtn) {
-            extraMoves5WithSwapBtn.addEventListener("click", () => {
-                // Track extra moves usage
-                track("extra_moves_used", {
-                    level: this.currentLevel,
-                    extra_moves_count: 10,
-                    included_swap: true,
-                    moves_used: this.movesUsed,
-                });
-
-                // Increment extra moves purchase count for this level
-                this.extraMovesCount++;
-
-                this.maxMoves += 10;
-                // Add one swap power-up (persistent)
-                this.powerUpCounts.swap.persistent++;
-                savePowerUpCounts({
-                    hammer: this.powerUpCounts.hammer.persistent,
-                    halve: this.powerUpCounts.halve.persistent,
-                    swap: this.powerUpCounts.swap.persistent,
-                    teleport: this.powerUpCounts.teleport.persistent,
-                    wildcard: this.powerUpCounts.wildcard.persistent,
-                });
-                this.updatePowerUpButtons();
-                this.updateMovesDisplay();
-                extraMovesDialog.classList.add("hidden");
-                this.hideControls();
-                this.gameActive = true;
-                this.showPowerUps();
-
-                // Remove level-ended opacity from game board
-                const gameBoard = document.getElementById("gameBoard");
-                if (gameBoard) {
-                    gameBoard.classList.remove("level-ended");
                 }
             });
         }
