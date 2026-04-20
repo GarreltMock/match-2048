@@ -781,13 +781,16 @@ export class Match3Game {
 
         if (extraMoves5Btn) {
             extraMoves5Btn.addEventListener("click", () => {
-                const EXTRA_MOVES_COST = 900 + this.extraMovesCount * 1000;
+                const isFree = !!this.levelConfig?.freeExtraMoves;
+                const EXTRA_MOVES_COST = isFree ? 0 : 900 + this.extraMovesCount * 1000;
 
-                // Check if player has enough coins
-                if (this.coins >= EXTRA_MOVES_COST) {
+                // Check if player has enough coins (or it's free)
+                if (isFree || this.coins >= EXTRA_MOVES_COST) {
                     // Deduct coins
-                    this.coins -= EXTRA_MOVES_COST;
-                    this.saveCoins();
+                    if (!isFree) {
+                        this.coins -= EXTRA_MOVES_COST;
+                        this.saveCoins();
+                    }
 
                     // Track extra moves usage
                     track("extra_moves_used", {
@@ -976,10 +979,15 @@ export class Match3Game {
             fiveExtraMovesText.setAttribute("text", newText);
         }
 
-        // Update cost display with progressive pricing (900, 1900, 2900, ...)
+        // Update cost display
         const costDisplay = document.getElementById("extraMovesCostDisplay");
-        if (costDisplay) {
-            costDisplay.textContent = (900 + this.extraMovesCount * 1000).toLocaleString();
+        const coinIcon = document.querySelector("#extraMoves5 .extra-move-coin-icon");
+        if (this.levelConfig?.freeExtraMoves) {
+            if (costDisplay) costDisplay.textContent = "For Free";
+            if (coinIcon) coinIcon.style.display = "none";
+        } else {
+            if (costDisplay) costDisplay.textContent = (900 + this.extraMovesCount * 1000).toLocaleString();
+            if (coinIcon) coinIcon.style.display = "";
         }
 
         // Update coins display

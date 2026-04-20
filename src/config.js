@@ -740,6 +740,7 @@ export const NEW_LEVELS = [
     {
         level: 8,
         title: "💸 PoS",
+        // freeExtraMoves: true,
         maxMoves: 30,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
