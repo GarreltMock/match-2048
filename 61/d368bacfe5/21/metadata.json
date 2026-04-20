@@ -3,29 +3,31 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "3b19f902-56bc-43f2-8681-f9ec0196d2e1",
   "strategy": "manual-commit",
-  "created_at": "2026-04-20T13:36:46.739666Z",
+  "created_at": "2026-04-20T13:45:40.650258Z",
   "branch": "main",
   "checkpoints_count": 1,
   "files_touched": [
     "src/input-handler.js"
   ],
   "agent": "Claude Code",
-  "transcript_identifier_at_start": "6695aea2-d023-42d7-833b-ef9b81008e13",
+  "transcript_identifier_at_start": "1a907972-06de-4952-9c38-29d919bd2300",
+  "checkpoint_transcript_start": 47,
+  "transcript_lines_at_start": 47,
   "token_usage": {
-    "input_tokens": 12,
-    "cache_creation_tokens": 13526,
-    "cache_read_tokens": 200098,
-    "output_tokens": 1713,
-    "api_call_count": 10
+    "input_tokens": 4,
+    "cache_creation_tokens": 850,
+    "cache_read_tokens": 48802,
+    "output_tokens": 217,
+    "api_call_count": 2
   },
   "initial_attribution": {
-    "calculated_at": "2026-04-20T13:36:46.707637Z",
-    "agent_lines": 0,
+    "calculated_at": "2026-04-20T13:45:40.616849Z",
+    "agent_lines": 4,
     "human_added": 0,
-    "human_modified": 2,
-    "human_removed": 2,
-    "total_committed": 2,
-    "agent_percentage": 0
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 4,
+    "agent_percentage": 100
   },
   "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/3b19f902-56bc-43f2-8681-f9ec0196d2e1.jsonl"
 }
