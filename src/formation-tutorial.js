@@ -27,7 +27,7 @@ export function getPendingFormationTutorials(matchGroups, swapPosition = null) {
                       (tile.row === swapPosition.row && tile.col === swapPosition.col) ||
                       (swapPosition.movedFrom &&
                           tile.row === swapPosition.movedFrom.row &&
-                          tile.col === swapPosition.movedFrom.col)
+                          tile.col === swapPosition.movedFrom.col),
               );
           })
         : matchGroups;
@@ -81,7 +81,13 @@ export function highlightBlockedTiles(game, matchGroups) {
                     if (highlighted.has(key)) return;
 
                     const adjacentTile = game.board[pos.row]?.[pos.col];
-                    if (adjacentTile && (isBlocked(adjacentTile) || isBlockedWithLife(adjacentTile) || isBlockedMovable(adjacentTile) || isBlockedWithMergeCount(adjacentTile))) {
+                    if (
+                        adjacentTile &&
+                        (isBlocked(adjacentTile) ||
+                            isBlockedWithLife(adjacentTile) ||
+                            isBlockedMovable(adjacentTile) ||
+                            isBlockedWithMergeCount(adjacentTile))
+                    ) {
                         highlighted.add(key);
                         const gem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
                         if (gem) {
@@ -127,7 +133,7 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile highlight">8</div>
+                        <div class="example-tile result highlight">8</div>
                     </div>
                 </div>
             </div>
@@ -153,8 +159,8 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile highlight gem freeswap-horizontal-tile">8</div>
-                        <div class="example-tile highlight">8</div>
+                        <div class="example-tile result highlight gem freeswap-horizontal-tile">8</div>
+                        <div class="example-tile result highlight">8</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">
@@ -190,8 +196,8 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile highlight gem freeswap-horizontal-tile">8</div>
-                        <div class="example-tile highlight">8</div>
+                        <div class="example-tile result highlight gem freeswap-horizontal-tile">8</div>
+                        <div class="example-tile result highlight">8</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">
@@ -224,7 +230,7 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile gem teleport-tile">8</div>
+                        <div class="example-tile result highlight double gem teleport-tile">16</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">
@@ -266,7 +272,7 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile highlight double gem freeswap-tile">16</div>
+                        <div class="example-tile result highlight double gem freeswap-tile">16</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">
@@ -309,7 +315,7 @@ export const FORMATION_TUTORIAL_DIALOGS = {
 
                 <div class="result-card">
                     <div class="result-tiles">
-                        <div class="example-tile highlight double gem freeswap-tile">16</div>
+                        <div class="example-tile result highlight double gem freeswap-tile">16</div>
                     </div>
                     <div class="special-tile-legend">
                         <div class="legend-item">

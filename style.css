@@ -441,12 +441,16 @@ button {
 }
 
 .example-tile.target-highlight {
-    width: 30px;
-    height: 30px;
     box-shadow:
         0px 0px 0px 3px #aee96b,
         0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
     z-index: 2;
+}
+
+.example-tile.result {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
 }
 
 .example-tile.highlight {
