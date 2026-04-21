@@ -305,6 +305,10 @@ export class Match3Game {
     }
 
     loadLevel(levelNum) {
+        // Clamp to last level if levelNum exceeds available levels (e.g. after a level count reduction)
+        if (levelNum > this.levels.length) {
+            levelNum = this.levels.length;
+        }
         const level = this.levels[levelNum - 1];
         if (!level) return;
 
