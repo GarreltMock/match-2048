@@ -791,6 +791,27 @@ button {
     display: none;
 }
 
+#tryAgainSection.hidden {
+    display: none;
+}
+
+#tryAgainSection .reward-box {
+    font-family: Nunito;
+    font-weight: 900;
+    font-size: 22px;
+    color: #fff;
+}
+
+#extraMoves5.hidden,
+.button-container .reward-box.hidden {
+    display: none;
+}
+
+.try-again-streak-icon {
+    height: 1.4em;
+    vertical-align: middle;
+}
+
 @keyframes slide-in {
     from {
         opacity: 0;

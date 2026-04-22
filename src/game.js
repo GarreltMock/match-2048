@@ -852,6 +852,28 @@ export class Match3Game {
             });
         }
 
+        const tryAgainBtn = document.getElementById("tryAgainBtn");
+        if (tryAgainBtn) {
+            tryAgainBtn.addEventListener("click", () => {
+                const TRY_AGAIN_COST = 900;
+                if (this.coins < TRY_AGAIN_COST) {
+                    const shopDialog = document.getElementById("shopDialog");
+                    if (shopDialog) {
+                        shopDialog.classList.remove("hidden");
+                        this.updateCoinsDisplays();
+                    }
+                    return;
+                }
+                this.coins -= TRY_AGAIN_COST;
+                this.saveCoins();
+                this.updateCoinsDisplays();
+                extraMovesDialog.classList.add("hidden");
+                const gameBoard = document.getElementById("gameBoard");
+                if (gameBoard) gameBoard.classList.remove("level-ended");
+                this.restartLevel();
+            });
+        }
+
         const giveUpWarning = document.getElementById("giveUpWarning");
         const giveUpWarningText = document.getElementById("giveUpWarningText");
         const confirmGiveUpBtn = document.getElementById("confirmGiveUp");
@@ -968,6 +990,15 @@ export class Match3Game {
 
         extraMovesDialog.classList.remove("hidden");
 
+        const continueBtn = document.getElementById("extraMoves5");
+        const originalRewardBox = extraMovesDialog.querySelector(".button-container:not(#tryAgainSection) .reward-box");
+        const tryAgainSection = document.getElementById("tryAgainSection");
+
+        // Reset to default state while calculating
+        if (continueBtn) continueBtn.classList.remove("hidden");
+        if (originalRewardBox) originalRewardBox.classList.remove("hidden");
+        if (tryAgainSection) tryAgainSection.classList.add("hidden");
+
         // Compute "Solvable in X moves" hint asynchronously so the dialog paints first.
         const solveHint = document.getElementById("solveHint");
         if (solveHint) {
@@ -978,10 +1009,11 @@ export class Match3Game {
                     if (result.solvable) {
                         this._lockedSeed = result.seed;
                         this._lockedSolutionPath = result.path;
-                        const label = result.moves === 1
-                            ? "Solvable in 1 move"
-                            : `Solvable in ${result.moves} moves`;
+                        const label = result.moves === 1 ? "Solvable in 1 move" : `Solvable in ${result.moves} moves`;
                         solveHint.setAttribute("text", label);
+                        if (continueBtn) continueBtn.classList.remove("hidden");
+                        if (originalRewardBox) originalRewardBox.classList.remove("hidden");
+                        if (tryAgainSection) tryAgainSection.classList.add("hidden");
                         console.log(
                             `[solver] ${label} (seed=${result.seed}):\n` +
                                 result.path
@@ -991,7 +1023,25 @@ export class Match3Game {
                     } else {
                         this._lockedSeed = null;
                         this._lockedSolutionPath = null;
-                        solveHint.setAttribute("text", "Needs more than 10 moves");
+                        solveHint.setAttribute("text", "Not solvable in 10 moves");
+                        if (continueBtn) continueBtn.classList.add("hidden");
+                        if (originalRewardBox) originalRewardBox.classList.add("hidden");
+                        if (tryAgainSection) {
+                            const keepBox = document.getElementById("tryAgainKeepBox");
+                            if (keepBox) {
+                                let parts = ["♥️"];
+                                if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
+                                    parts.push("🔥");
+                                }
+                                if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
+                                    parts.push(
+                                        `<img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" class="try-again-streak-icon" />`,
+                                    );
+                                }
+                                keepBox.innerHTML = "Keep " + parts.join(" + ");
+                            }
+                            tryAgainSection.classList.remove("hidden");
+                        }
                     }
                 } catch (err) {
                     console.error("Solver failed:", err);
@@ -1148,7 +1198,6 @@ export class Match3Game {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const failReasonText = document.getElementById("failReasonText");
         const restartBtn = document.getElementById("restartBtn");
-        const nextBtn = document.getElementById("nextBtn");
         const continueBtn = document.getElementById("continueBtn");
         const gameBoard = document.getElementById("gameBoard");
 
