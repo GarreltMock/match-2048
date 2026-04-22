@@ -8,6 +8,7 @@ import {
     isBlockedWithLife,
     isBlockedMovable,
     isBlockedWithMergeCount,
+    isRectangularBlocked,
     isJoker,
     isTileFreeSwapTile,
     isTileStickyFreeSwapTile,
@@ -98,10 +99,6 @@ function startDrag(game, x, y) {
             return;
         }
 
-        if (isBlocked(tile) || isBlockedWithLife(tile) || isBlockedMovable(tile)) {
-            return;
-        }
-
         // Handle power-ups (but not during animations)
         if (game.activePowerUp) {
             // Prevent power-up usage during animations
@@ -125,6 +122,14 @@ function startDrag(game, x, y) {
             }
             // If handlePowerUpAction returns false (swap case), continue with normal drag
         }
+
+        if (isBlockedWithLife(tile) || isBlockedMovable(tile) || isRectangularBlocked(tile)) {
+            return;
+        }
+        if (isBlocked(tile) && game.activePowerUp !== "swap") {
+            return;
+        }
+
         // Normal drag behavior (including joker)
         game.selectedGem = {
             element: element,
@@ -555,16 +560,16 @@ export function trySwap(game, row1, col1, row2, col2) {
         }
     }
 
-    // Prevent swapping if either tile is blocked or blocked with life
-    // BLOCKED_MOVABLE tiles CAN be swapped
-    if (
-        isBlocked(game.board[row1][col1]) ||
-        isBlocked(game.board[row2][col2]) ||
-        isBlockedWithLife(game.board[row1][col1]) ||
-        isBlockedWithLife(game.board[row2][col2])
-    ) {
-        return;
-    }
+    // Prevent swapping blocked/blocked-with-life tiles unless swap power-up on simple (non-rectangular) blocked
+    const isSwapPowerUp = game.activePowerUp === "swap";
+    const t1 = game.board[row1][col1];
+    const t2 = game.board[row2][col2];
+    const t1SimpleBlocked = isBlocked(t1) && !isRectangularBlocked(t1);
+    const t2SimpleBlocked = isBlocked(t2) && !isRectangularBlocked(t2);
+    if (isBlockedWithLife(t1) || isBlockedWithLife(t2)) return;
+    if (isBlocked(t1) && !t1SimpleBlocked) return;
+    if (isBlocked(t2) && !t2SimpleBlocked) return;
+    if ((t1SimpleBlocked || t2SimpleBlocked) && !isSwapPowerUp) return;
 
     const isAdjacentSwap = areAdjacent(row1, col1, row2, col2);
     const allowExtendedFreeSwap = !isAdjacentSwap && isExtendedFreeSwapAllowed(game, row1, col1, row2, col2);
