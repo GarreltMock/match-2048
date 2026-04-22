@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "ad017a35-f870-41b6-a8ad-e977eda38184",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-22T08:07:21.083211Z",
+  "branch": "feat/pos-solvable-hint",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "index.html",
+    "src/game.js",
+    "style.css"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "2776ff53-017a-4546-8a2f-932346532364",
+  "token_usage": {
+    "input_tokens": 47,
+    "cache_creation_tokens": 47336,
+    "cache_read_tokens": 1447394,
+    "output_tokens": 15683,
+    "api_call_count": 39
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-22T08:07:21.012371Z",
+    "agent_lines": 77,
+    "human_added": 0,
+    "human_modified": 5,
+    "human_removed": 0,
+    "total_committed": 82,
+    "agent_percentage": 93.90243902439023
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/ad017a35-f870-41b6-a8ad-e977eda38184.jsonl"
+}

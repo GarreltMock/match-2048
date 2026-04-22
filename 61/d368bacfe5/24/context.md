@@ -1,0 +1,28 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+We introduced a sovler in the last commit, which calculates the remaining moves needed to solve the level.
+If the level is not solvable in 10 moves it shows "Needs more than 10 moves"
+
+In this case lets also change the PoS button.
+Instead of buying 10 more moves, we show: "Keep ♥️+🔥+<superstreak icon>" and on the button say "Try again".
+So in this case, we start the level from the beginning, but the user keeps all the streaks and the heart, which he would lose if he Gives Up.
+
+### Prompt 2
+
+Oh ok, but this button should also cost 900 Coins then. Please also show this in the button
+
+### Prompt 3
+
+Ok, two things:
+Please hide th Continue button in this scenario.
+Show the Keep... text also in the reward box style.
+And also show the "Needs more than 10 moves" text
+
+### Prompt 4
+
+Ok and now you should make the "Keep .." text dynamic. Check if the user actually has an active streak or superstreak. Like in the Give Up confirm text
+
