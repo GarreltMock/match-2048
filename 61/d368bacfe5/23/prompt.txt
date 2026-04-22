@@ -1,0 +1,37 @@
+Unknown command: /effeot. Did you mean /effort?
+
+---
+
+We want to enhance the PoS (ExtraMoves) by displaying the information like "Solvable in X Moves"
+For that we need to calculate the best solution for this level.
+We already have @src/simulation.js which enables us to run the board headless.
+We also have a @src/hint-system.js already, which tries to find the best next move.
+But this is not optimal.
+
+Think about, how we can find the approx best solution to the level. Currently we give 10 moves in the PoS. So we only have to calculate max. 10 moves.
+Maybe we could explore the 3 best moves of the hint-system and then branch out? So we would have 3^10 paths to check.
+We need this to be reasonably fast.
+
+You can also think of another solution.
+Maybe even MCTS? But lets try to stay lean for now. 
+You could paint the lean and the optimal solution.
+
+---
+
+What does rng stand for?
+
+---
+
+How did you test the PoS in Level 1 and Level 5?
+
+---
+
+Amazing. Can you log the exact swaps/moves the solver did to solve the level?
+
+---
+
+The row,col start at 0 right?
+
+---
+
+Give me a more detailed implementation summary please

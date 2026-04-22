@@ -1,0 +1,36 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "138d6d5f-3b87-4929-8c63-07d0e27d60ac",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-22T06:25:16.740719Z",
+  "branch": "feat/pos-solvable-hint",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "index.html",
+    "src/board.js",
+    "src/game.js",
+    "src/hint-system.js",
+    "src/simulation.js",
+    "src/solver.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "3bba5550-fc6a-4c18-8d9c-eb1ab97bd20b",
+  "token_usage": {
+    "input_tokens": 3639,
+    "cache_creation_tokens": 190141,
+    "cache_read_tokens": 10749030,
+    "output_tokens": 74073,
+    "api_call_count": 85
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-22T06:25:16.571236Z",
+    "agent_lines": 354,
+    "human_added": 9,
+    "human_modified": 7,
+    "human_removed": 0,
+    "total_committed": 370,
+    "agent_percentage": 95.67567567567568
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/138d6d5f-3b87-4929-8c63-07d0e27d60ac.jsonl"
+}
