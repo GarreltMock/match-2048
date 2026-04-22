@@ -139,6 +139,7 @@ function startDrag(game, x, y) {
         };
         game.isDragging = true;
         game.dragStartPos = { x, y };
+        game.dragStartTime = performance.now();
         game.lastPreviewTile = null;
         element.classList.add("dragging");
         showValidSwapTargets(game, row, col);
@@ -181,9 +182,25 @@ function endDrag(game) {
         // User dragged to swap
         const targetGem = Array.from(previewGems).find((g) => g !== game.selectedGem.element);
         if (targetGem) {
-            const targetRow = parseInt(targetGem.dataset.row);
-            const targetCol = parseInt(targetGem.dataset.col);
-            trySwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
+            let targetRow = parseInt(targetGem.dataset.row);
+            let targetCol = parseInt(targetGem.dataset.col);
+
+            // Velocity gate: fast flicks >1 tile away are likely 1-tile overshoots,
+            // since users are trained on adjacent-only swaps. Snap to the adjacent
+            // tile in the direction of release.
+            const sr = game.selectedGem.row;
+            const sc = game.selectedGem.col;
+            const manhattan = Math.abs(sr - targetRow) + Math.abs(sc - targetCol);
+            const duration = performance.now() - (game.dragStartTime ?? 0);
+            if (manhattan > 1 && duration < FAST_FLICK_MS) {
+                const snapped = snapToAdjacentInDirection(game, sr, sc, targetRow, targetCol);
+                if (snapped) {
+                    targetRow = snapped.row;
+                    targetCol = snapped.col;
+                }
+            }
+
+            trySwap(game, sr, sc, targetRow, targetCol);
         }
     } else if (isJoker(game.selectedGem.tile) && !game.activePowerUp) {
         // User tapped on joker without dragging - try to activate it
@@ -219,7 +236,29 @@ function endDrag(game) {
     game.selectedGem = null;
     game.isDragging = false;
     game.dragStartPos = null;
+    game.dragStartTime = null;
     game.lastPreviewTile = null;
+}
+
+const FAST_FLICK_MS = 150;
+
+function snapToAdjacentInDirection(game, sr, sc, tr, tc) {
+    const dr = tr - sr;
+    const dc = tc - sc;
+    const useRowAxis = Math.abs(dr) >= Math.abs(dc);
+    const adjR = sr + (useRowAxis ? Math.sign(dr) : 0);
+    const adjC = sc + (useRowAxis ? 0 : Math.sign(dc));
+    if (adjR < 0 || adjR >= game.boardHeight || adjC < 0 || adjC >= game.boardWidth) return null;
+    const adjTile = game.board[adjR][adjC];
+    if (
+        isBlocked(adjTile) ||
+        isBlockedWithLife(adjTile) ||
+        isBlockedMovable(adjTile) ||
+        isRectangularBlocked(adjTile)
+    ) {
+        return null;
+    }
+    return { row: adjR, col: adjC };
 }
 
 function activateJokerByTap(game, row, col, element) {
