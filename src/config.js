@@ -699,7 +699,7 @@ export const NEW_LEVELS = [
         level: 5,
         title: "✂️",
         unlockFeature: "power_up_2",
-        maxMoves: 1,
+        maxMoves: 38,
         boardHeight: 10,
         blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
         goals: [
