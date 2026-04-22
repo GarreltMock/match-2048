@@ -141,6 +141,7 @@ function startDrag(game, x, y) {
         game.dragStartPos = { x, y };
         game.dragStartTime = performance.now();
         game.lastPreviewTile = null;
+        game.wasInAdjacentZone = true;
         element.classList.add("dragging");
         showValidSwapTargets(game, row, col);
     }
@@ -150,27 +151,61 @@ function updateDrag(game, x, y) {
     if (!game.isDragging || !game.selectedGem) return;
 
     const element = document.elementFromPoint(x, y);
-    if (element && element.classList.contains("gem")) {
-        // If user drags back to the original tile, cancel the preview
-        if (element === game.selectedGem.element) {
-            clearDragPreviews();
-            game.lastPreviewTile = null;
-            return;
-        }
+    if (!element || !element.classList.contains("gem")) return;
 
-        const targetRow = parseInt(element.dataset.row);
-        const targetCol = parseInt(element.dataset.col);
+    const sourceRow = game.selectedGem.row;
+    const sourceCol = game.selectedGem.col;
 
-        // Check if gems are adjacent or allowed by extended free swap rules
-        if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
-            const last = game.lastPreviewTile;
-            if (!last || last.row !== targetRow || last.col !== targetCol) {
-                navigator.vibrate?.(5);
-                game.lastPreviewTile = { row: targetRow, col: targetCol };
-            }
-            previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
-        }
+    // If user drags back to the original tile, cancel the preview
+    if (element === game.selectedGem.element) {
+        clearDragPreviews();
+        game.lastPreviewTile = null;
+        game.wasInAdjacentZone = true;
+        return;
     }
+
+    const targetRow = parseInt(element.dataset.row);
+    const targetCol = parseInt(element.dataset.col);
+
+    // Detent: fire once when drag crosses out of the 1-tile radius on a
+    // far-swap-capable tile. Teaches the boundary proprioceptively.
+    if (isFarSwapCapable(game.selectedGem.tile)) {
+        const manhattan = Math.abs(targetRow - sourceRow) + Math.abs(targetCol - sourceCol);
+        const inAdjacentZone = manhattan <= 1;
+        if (game.wasInAdjacentZone && !inAdjacentZone) {
+            navigator.vibrate?.(12);
+            triggerDetentPulse(game.selectedGem.element);
+        }
+        game.wasInAdjacentZone = inAdjacentZone;
+    }
+
+    // Check if gems are adjacent or allowed by extended free swap rules
+    if (canPreviewSwap(game, sourceRow, sourceCol, targetRow, targetCol)) {
+        const last = game.lastPreviewTile;
+        if (!last || last.row !== targetRow || last.col !== targetCol) {
+            navigator.vibrate?.(5);
+            game.lastPreviewTile = { row: targetRow, col: targetCol };
+        }
+        previewSwap(game, sourceRow, sourceCol, targetRow, targetCol);
+    }
+}
+
+function isFarSwapCapable(tile) {
+    return (
+        isTileTeleportTile(tile) ||
+        isWildTeleportTile(tile) ||
+        isTileFreeSwapTile(tile) ||
+        isTileStickyFreeSwapTile(tile) ||
+        isTileFreeSwapHorizontalTile(tile) ||
+        isTileFreeSwapVerticalTile(tile)
+    );
+}
+
+function triggerDetentPulse(element) {
+    element.classList.remove("detent-crossed");
+    void element.offsetWidth; // force reflow to restart animation
+    element.classList.add("detent-crossed");
+    setTimeout(() => element.classList.remove("detent-crossed"), 260);
 }
 
 function endDrag(game) {
@@ -227,7 +262,14 @@ function endDrag(game) {
 
     // Clean up
     document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview", "swap-dimmed");
+        gem.classList.remove(
+            "dragging",
+            "preview",
+            "merge-preview",
+            "unblock-preview",
+            "swap-dimmed",
+            "detent-crossed",
+        );
     });
 
     // Reset hint timer after user interaction completes
@@ -238,6 +280,7 @@ function endDrag(game) {
     game.dragStartPos = null;
     game.dragStartTime = null;
     game.lastPreviewTile = null;
+    game.wasInAdjacentZone = true;
 }
 
 const FAST_FLICK_MS = 150;

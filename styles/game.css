@@ -518,6 +518,29 @@
         0 0 14px 4px rgba(255, 255, 255, 0.55);
 }
 
+/* 1-tile boundary detent: short ring pulse when drag crosses out of the
+   adjacent zone on a teleport/freeswap tile. Trains the boundary feel. */
+.gem.detent-crossed::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 3px solid rgba(255, 220, 100, 0.9);
+    pointer-events: none;
+    animation: detent-pulse 260ms ease-out forwards;
+}
+
+@keyframes detent-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+}
+
 /* Tile colors based on internal value (1, 2, 3, 4...) */
 .gem.tile-1 {
     background: var(--tile-1-bg);
