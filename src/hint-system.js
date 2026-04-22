@@ -65,7 +65,7 @@ export function findBestSwap(game) {
  * @param {Match3Game} game - The game instance
  * @returns {Array<{row1: number, col1: number, row2: number, col2: number}>}
  */
-function findAllValidSwaps(game) {
+export function findAllValidSwaps(game) {
     const validSwaps = [];
 
     for (let row = 0; row < game.boardHeight; row++) {
@@ -245,7 +245,7 @@ function evaluateSwap(game, row1, col1, row2, col2) {
  * @param {Array} matches - Array of match objects
  * @returns {number}
  */
-function calculateSwapScore(game, matches) {
+export function calculateSwapScore(game, matches) {
     let score = 0;
 
     let maxFormationScore = 0;

@@ -238,10 +238,21 @@
 
                     <stroked-text text="Out of Moves" font-size="40" stroke-width="10"> </stroked-text>
 
-                    <stroked-text text="Want to keep going?" font-size="24"> </stroked-text>
+                    <stroked-text
+                        text="Want to keep going?"
+                        font-size="24"
+                        fill="rgba(255, 255, 255, 0.50)"
+                        stroke="#141414"
+                    ></stroked-text>
                 </div>
 
                 <div class="extra-moves-content">
+                    <stroked-text
+                        id="solveHint"
+                        text=""
+                        font-size="24"
+                        style="display: flex; justify-content: center"
+                    ></stroked-text>
                     <div class="button-container">
                         <div class="reward-box">
                             <stroked-text
@@ -277,6 +288,17 @@
                             <div class="extra-move-cost">
                                 <img src="assets/shop/coin.png" class="extra-move-coin-icon" alt="Coins" />
                                 <span id="extraMovesCostDisplay">900</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <div id="tryAgainSection" class="button-container hidden">
+                        <div class="reward-box" id="tryAgainKeepBox"></div>
+                        <button class="extra-move-option primary" id="tryAgainBtn">
+                            <div class="extra-move-text">Try again</div>
+                            <div class="extra-move-cost">
+                                <img src="assets/shop/coin.png" class="extra-move-coin-icon" alt="Coins" />
+                                <span>900</span>
                             </div>
                         </button>
                     </div>
@@ -580,6 +602,11 @@
                     <div class="setting-item setting-item-checkbox">
                         <label for="hintsEnabled">Show Hints</label>
                         <input type="checkbox" id="hintsEnabled" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="solverHintEnabled">Solver Hint in PoS</label>
+                        <input type="checkbox" id="solverHintEnabled" />
                     </div>
 
                     <div class="setting-item">

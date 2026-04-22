@@ -568,3 +568,13 @@ export function saveMovesMultiplier(multiplier) {
     const safe = Number.isFinite(n) && n > 0 ? n : 1.0;
     localStorage.setItem("match2048_movesMultiplier", String(safe));
 }
+
+export function loadSolverHintEnabled() {
+    const saved = localStorage.getItem("match2048_solverHintEnabled");
+    if (saved === null) return false;
+    return saved === "true";
+}
+
+export function saveSolverHintEnabled(enabled) {
+    localStorage.setItem("match2048_solverHintEnabled", enabled.toString());
+}

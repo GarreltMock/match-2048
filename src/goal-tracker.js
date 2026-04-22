@@ -113,7 +113,7 @@ export function checkLevelComplete(game) {
         // Dialog is always shown with progressively increasing prices (900, 1900, 2900, ...)
         setTimeout(() => {
             game.showExtraMovesDialog();
-        }, 800);
+        }, 400);
     } else if (game.gameActive) {
         // Check if no valid moves are possible even if moves remain
         // Skip check if allowNonMatchingSwaps - always have moves available
