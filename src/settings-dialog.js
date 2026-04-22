@@ -20,6 +20,7 @@ import {
     saveSelectedPowerUps,
     saveSuperStrikeWildcardTeleport,
     saveMovesMultiplier,
+    saveSolverHintEnabled,
 } from "./storage.js";
 import { APP_VERSION } from "./version.js";
 import { cyrb53 } from "./tracker.js";
@@ -51,6 +52,7 @@ export function setupSettingsButton(game) {
     const powerUpMoveCostCheckbox = document.getElementById("powerUpMoveCost");
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
     const movesMultiplierInput = document.getElementById("movesMultiplier");
+    const solverHintEnabledCheckbox = document.getElementById("solverHintEnabled");
 
     const togglePowerUpOptions = (show) => {
         const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -173,6 +175,9 @@ export function setupSettingsButton(game) {
         }
         if (movesMultiplierInput) {
             movesMultiplierInput.value = String(game.movesMultiplier);
+        }
+        if (solverHintEnabledCheckbox) {
+            solverHintEnabledCheckbox.checked = game.solverHintEnabled;
         }
 
         const powerUpCheckboxes = document.querySelectorAll(".powerup-select-cb");
@@ -302,6 +307,10 @@ export function setupSettingsButton(game) {
                     const n = parseFloat(movesMultiplierInput.value);
                     game.movesMultiplier = Number.isFinite(n) && n > 0 ? n : 1.0;
                     saveMovesMultiplier(game.movesMultiplier);
+                }
+                if (solverHintEnabledCheckbox) {
+                    game.solverHintEnabled = solverHintEnabledCheckbox.checked;
+                    saveSolverHintEnabled(game.solverHintEnabled);
                 }
 
                 const selectedCbs = document.querySelectorAll(".powerup-select-cb:checked");

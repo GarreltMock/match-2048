@@ -44,6 +44,7 @@ import {
     loadSelectedPowerUps,
     loadSuperStrikeWildcardTeleport,
     loadMovesMultiplier,
+    loadSolverHintEnabled,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { createTile, createBlockedTile, createBlockedMovableTile } from "./tile-helpers.js";
@@ -152,6 +153,7 @@ export class Match3Game {
         this.hintTimer = null; // setTimeout reference
         this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
+        this.solverHintEnabled = loadSolverHintEnabled();
         this.showSwapTargets = loadShowSwapTargets();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.extendedFreeSwap = loadExtendedFreeSwap();
@@ -988,22 +990,19 @@ export class Match3Game {
         // Update coins display
         this.updateCoinsDisplays();
 
-        extraMovesDialog.classList.remove("hidden");
-
         const continueBtn = document.getElementById("extraMoves5");
         const originalRewardBox = extraMovesDialog.querySelector(".button-container:not(#tryAgainSection) .reward-box");
         const tryAgainSection = document.getElementById("tryAgainSection");
 
-        // Reset to default state while calculating
         if (continueBtn) continueBtn.classList.remove("hidden");
         if (originalRewardBox) originalRewardBox.classList.remove("hidden");
         if (tryAgainSection) tryAgainSection.classList.add("hidden");
 
-        // Compute "Solvable in X moves" hint asynchronously so the dialog paints first.
         const solveHint = document.getElementById("solveHint");
         if (solveHint) {
-            solveHint.setAttribute("text", "Calculating…");
-            setTimeout(() => {
+            if (!this.solverHintEnabled) {
+                solveHint.setAttribute("text", "");
+            } else {
                 try {
                     const result = findSolutionPath(this, { maxDepth: 10, beamWidth: 3 });
                     if (result.solvable) {
@@ -1047,8 +1046,10 @@ export class Match3Game {
                     console.error("Solver failed:", err);
                     solveHint.setAttribute("text", "");
                 }
-            }, 0);
+            }
         }
+
+        extraMovesDialog.classList.remove("hidden");
     }
 
     showGiveUpDialog() {
