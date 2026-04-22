@@ -139,6 +139,7 @@ function startDrag(game, x, y) {
         };
         game.isDragging = true;
         game.dragStartPos = { x, y };
+        game.lastPreviewTile = null;
         element.classList.add("dragging");
         showValidSwapTargets(game, row, col);
     }
@@ -152,6 +153,7 @@ function updateDrag(game, x, y) {
         // If user drags back to the original tile, cancel the preview
         if (element === game.selectedGem.element) {
             clearDragPreviews();
+            game.lastPreviewTile = null;
             return;
         }
 
@@ -160,6 +162,11 @@ function updateDrag(game, x, y) {
 
         // Check if gems are adjacent or allowed by extended free swap rules
         if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
+            const last = game.lastPreviewTile;
+            if (!last || last.row !== targetRow || last.col !== targetCol) {
+                navigator.vibrate?.(5);
+                game.lastPreviewTile = { row: targetRow, col: targetCol };
+            }
             previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
         }
     }
@@ -212,6 +219,7 @@ function endDrag(game) {
     game.selectedGem = null;
     game.isDragging = false;
     game.dragStartPos = null;
+    game.lastPreviewTile = null;
 }
 
 function activateJokerByTap(game, row, col, element) {
