@@ -13,6 +13,7 @@
     "src/game.js",
     "src/goal-dialogs.js",
     "src/goal-tracker.js",
+    "src/haptics.js",
     "src/home-screen.js",
     "src/input-handler.js",
     "src/main.js",
@@ -220,10 +221,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 849,
-    "cache_creation_tokens": 1108268,
-    "cache_read_tokens": 34524487,
-    "output_tokens": 202758,
-    "api_call_count": 676
+    "input_tokens": 792,
+    "cache_creation_tokens": 1079206,
+    "cache_read_tokens": 32276282,
+    "output_tokens": 177664,
+    "api_call_count": 634
   }
 }

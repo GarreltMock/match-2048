@@ -32,3 +32,11 @@ Ok I like all your ideas. Lets do #1, #5 plus velocity-gated thing + your suppor
 Please put them in 4 sepearte commits.
 Go for it
 
+### Prompt 5
+
+Vibrations do not seem to work on my iPhone 13 mini in Safari
+
+### Prompt 6
+
+yeah do the hack
+

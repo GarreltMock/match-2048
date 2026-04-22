@@ -25,3 +25,11 @@ Please explain the Optional supporting tweak a little more
 Ok I like all your ideas. Lets do #1, #5 plus velocity-gated thing + your supporting tweak you just described.
 Please put them in 4 sepearte commits.
 Go for it
+
+---
+
+Vibrations do not seem to work on my iPhone 13 mini in Safari
+
+---
+
+yeah do the hack
