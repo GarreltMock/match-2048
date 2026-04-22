@@ -68,6 +68,7 @@ import {
     renderHintHighlight,
 } from "./renderer.js";
 import { findBestSwap } from "./hint-system.js";
+import { findSolutionPath, mulberry32 } from "./solver.js";
 import {
     checkLevelComplete,
     updateTileCounts,
@@ -322,6 +323,11 @@ export class Match3Game {
         this.movesUsed = 0;
         this.extraMovesCount = 0; // Reset extra moves count for new level
         this.heartDecreasedThisAttempt = false; // Reset heart decrease flag for new level
+
+        // Reset solver seed so tile spawning returns to Math.random for a fresh level
+        this._rng = null;
+        this._lockedSeed = null;
+        this._lockedSolutionPath = null;
 
         // Reset transient power-up counts and buy costs for new level
         this.powerUpCounts.hammer.transient = 0;
@@ -805,6 +811,13 @@ export class Match3Game {
 
                     this.maxMoves += 10;
 
+                    // Lock in the seed the solver used so tile drops match the displayed
+                    // "Solvable in N moves" claim. If the user replays the solver's path,
+                    // cascades/spawns will line up with the simulation.
+                    if (this._lockedSeed != null) {
+                        this._rng = mulberry32(this._lockedSeed);
+                    }
+
                     // Add one of each visible power-up (transient for this level only)
                     this.getVisiblePowerUpTypes().forEach((type) => {
                         this.powerUpCounts[type].transient++;
@@ -954,6 +967,38 @@ export class Match3Game {
         this.updateCoinsDisplays();
 
         extraMovesDialog.classList.remove("hidden");
+
+        // Compute "Solvable in X moves" hint asynchronously so the dialog paints first.
+        const solveHint = document.getElementById("solveHint");
+        if (solveHint) {
+            solveHint.setAttribute("text", "Calculating…");
+            setTimeout(() => {
+                try {
+                    const result = findSolutionPath(this, { maxDepth: 10, beamWidth: 3 });
+                    if (result.solvable) {
+                        this._lockedSeed = result.seed;
+                        this._lockedSolutionPath = result.path;
+                        const label = result.moves === 1
+                            ? "Solvable in 1 move"
+                            : `Solvable in ${result.moves} moves`;
+                        solveHint.setAttribute("text", label);
+                        console.log(
+                            `[solver] ${label} (seed=${result.seed}):\n` +
+                                result.path
+                                    .map((s, i) => `  ${i + 1}. (${s.row1},${s.col1}) <-> (${s.row2},${s.col2})`)
+                                    .join("\n"),
+                        );
+                    } else {
+                        this._lockedSeed = null;
+                        this._lockedSolutionPath = null;
+                        solveHint.setAttribute("text", "Needs more than 10 moves");
+                    }
+                } catch (err) {
+                    console.error("Solver failed:", err);
+                    solveHint.setAttribute("text", "");
+                }
+            }, 0);
+        }
     }
 
     showGiveUpDialog() {

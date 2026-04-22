@@ -128,7 +128,8 @@ export function createBoard(game) {
 }
 
 export function getRandomTileValue(game) {
-    return game.tileValues[Math.floor(Math.random() * game.tileValues.length)];
+    const rand = game._rng ? game._rng() : Math.random();
+    return game.tileValues[Math.floor(rand * game.tileValues.length)];
 }
 
 export function canMatch(tile1, tile2, game) {
