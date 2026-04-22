@@ -8,13 +8,11 @@
     "CLAUDE.md",
     "index.html",
     "src/animator.js",
-    "src/board.js",
     "src/config.js",
     "src/formation-tutorial.js",
     "src/game.js",
     "src/goal-dialogs.js",
     "src/goal-tracker.js",
-    "src/hint-system.js",
     "src/home-screen.js",
     "src/input-handler.js",
     "src/main.js",
@@ -24,7 +22,6 @@
     "src/renderer.js",
     "src/settings-dialog.js",
     "src/simulation.js",
-    "src/solver.js",
     "src/storage.js",
     "src/tile-helpers.js",
     "style.css",
@@ -209,10 +206,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 4331,
-    "cache_creation_tokens": 1087807,
-    "cache_read_tokens": 39051830,
-    "output_tokens": 225134,
-    "api_call_count": 643
+    "input_tokens": 742,
+    "cache_creation_tokens": 971904,
+    "cache_read_tokens": 30850969,
+    "output_tokens": 163025,
+    "api_call_count": 598
   }
 }

@@ -35,3 +35,146 @@ The row,col start at 0 right?
 ---
 
 Give me a more detailed implementation summary please
+
+---
+
+Can you put this whole feature behind a setting?
+So if the settings is disabled it does not calculate the needed moves and just shows the ExtraMoves button as before
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Summary:
+1. Primary Request and Intent:
+   - Primary: Add a "Solvable in X Moves" label to the ExtraMoves PoS dialog that appears when the user runs out of moves. The solver must find an approximate best solution within 10 moves using beam search.
+   - Key constraint from user: The RNG seed used by the solver must persist into live gameplay after purchase so the claim is truthful — if the user follows the solver's path exactly, they will solve the level in N moves.
+   - Most recent request: **Put the entire feature behind a setting. When disabled, no solver calculation runs and the dialog shows as before (no label).**
+
+2. Key Technical Concepts:
+   - Beam search (width=3, depth=10) over headless game simulations for short-horizon planning
+   - Mulberry32 PRNG with cloneable state for deterministic branching and truthful UX guarantees
+   - Headless game simulation (`simulateMove`) — extends existing `simulation.js`
+   - 5 goal types: "created", "current", "blocked", "cursed", "score"
+   - `processMerges` (sync, headless) vs `processMatches` (async, DOM-bound) — score goals only updated in `processMatches`, requiring manual inline handling in the sim
+   - Internal tile values (1, 2, 3…) map to display values (2, 4, 8…) via `getDisplayValue = Math.pow(2, v)`
+   - RNG clone invariant: beam branches diverge from parent state independently; winning path's sequence matches single live RNG starting at same seed
+   - `stroked-text` custom element for dialog labels
+   - `isFeatureUnlocked(FEATURE_KEYS.*)` pattern for feature flagging in the codebase
+   - `setTimeout(0)` to yield before solver runs so dialog paints first
+
+3. Files and Code Sections:
+
+   - **`src/board.js` (line 130-133)**
+     - Makes `getRandomTileValue` use an optional `game._rng` PRNG before falling back to `Math.random()`.
+     ```js
+     export function getRandomTileValue(game) {
+         const rand = game._rng ? game._rng() : Math.random();
+         return game.tileValues[Math.floor(rand * game.tileValues.length)];
+     }
+     ```
+
+   - **`src/hint-system.js` (lines 68, 248)**
+     - Added `export` to `findAllValidSwaps` and `calculateSwapScore` so solver can reuse them.
+
+   - **`src/simulation.js` (full rewrite)**
+     - New signature: `simulateMove(game, swap, options = { rng, levelGoals, initialBlockedTileCount })`
+     - Returns: `{ valid, newBoard, scoreDelta, cascades, levelGoals, allGoalsSatisfied }`
+     - Exports `areGoalsSatisfied(levelGoals)`
+     - Key addition — score goal update (since `processMatches` is async/DOM-bound):
+     ```js
+     let cascadeScore = 0;
+     matchGroups.forEach((group) => {
+         cascadeScore += getDisplayValue(group.value) * group.tiles.length;
+     });
+     scoreDelta += cascadeScore;
+     ctx.levelGoals.forEach((goal) => {
+         if (goal.goalType === "score") goal.current += cascadeScore;
+     });
+     ```
+     - Post-cascade board scan updates `current` (tile count) and `blocked` (cleared count) goals.
+
+   - **`src/solver.js` (new file, ~170 lines)**
+     - `mulberry32(seed)`: PRNG with `fn.state = {s}` and `fn.clone()`.
+     - `deriveSeed(game)`: FNV-style board hash XOR'd with movesUsed.
+     - `findSolutionPath(game, {maxDepth=10, beamWidth=3})`:
+       - Beam search nodes: `{ board, goals, path, rng, heuristic }`
+       - Cheap ranking via `rankSwap` (temp swap + findMatches + calculateSwapScore)
+       - Full simulation of top-K per node via `simulateMove`
+       - Returns `{ solvable: boolean, moves: number|null, path: Swap[], seed: number }`
+
+   - **`index.html` (line 241)**
+     - Added `#solveHint` element under "Want to keep going?":
+     ```html
+     <stroked-text id="solveHint" text="" font-size="18"> </stroked-text>
+     ```
+
+   - **`src/game.js`**
+     - Import added: `import { findSolutionPath, mulberry32 } from "./solver.js";`
+     - `showExtraMovesDialog`: After dialog shows, `setTimeout(0)` runs solver, sets `_lockedSeed`, `_lockedSolutionPath`, updates `#solveHint` text, logs swap path to console.
+     - `extraMoves5` click handler: After `maxMoves += 10`, applies locked seed: `if (this._lockedSeed != null) { this._rng = mulberry32(this._lockedSeed); }`
+     - `loadLevel`: Clears `this._rng = null`, `this._lockedSeed = null`, `this._lockedSolutionPath = null`.
+
+4. Errors and Fixes:
+   - **Wrong tile values in tests**: Used display values (2, 4, 8) instead of internal values (1, 2, 3). Match detection returned no matches. Fixed by using `type: "normal", value: 1` etc. in test boards.
+   - **Score goals not updating in simulation**: `processMerges` only updates cursed/created goals. Score goal updates live in async `processMatches` which is DOM-bound. Fixed by adding manual `cascadeScore` accumulation and `goal.current += cascadeScore` inside `simulateMove`'s cascade loop.
+   - **Solver returning solvable:false on obvious boards**: Caused by both bugs above. Resolved after fixes — verified "Solvable in 1 move" for score-target=1 board.
+
+5. Problem Solving:
+   - Established that `processMerges` (sync, used in sim) handles `created` and `cursed` goals via `trackGoalProgress` and merge-processor loop, but NOT `score` goals (those are in async `processMatches`). Custom handling added.
+   - RNG cloneability: used `{ s: uint32 }` state object exposed on the function so beam branches can snapshot and diverge independently while live replay from the same starting seed reproduces the winning path.
+   - Stochasticity: with seeded RNG, same board + same swap sequence → same tile drops, making the "Solvable in N moves" claim truthful.
+
+6. All User Messages:
+   - "We want to enhance the PoS (ExtraMoves) by displaying the information like 'Solvable in X Moves' [...] Think about, how we can find the approx best solution to the level. Currently we give 10 moves in the PoS. So we only have to calculate max. 10 moves. Maybe we could explore the 3 best moves of the hint-system and then branch out? [...] You could paint the lean and the optimal solution."
+   - (In plan mode, answered clarifying questions): Seeded RNG single run / "Needs more than 10 moves" / Lean only (beam search)
+   - "The plan seems good to me. Can we add, that the seed which is used for the Beam Search to have deterministic tile drops should also be used if the user buys the 10Moves. So that it is actually solvable in this way with the exact shown moves."
+   - "What does rng stand for?"
+   - "How did you test the PoS in Level 1 and Level 5?"
+   - "Amazing. Can you log the exact swaps/moves the solver did to solve the level?"
+   - "Give me a more detailed implementation summary please"
+   - "Can you put this whole feature behind a setting? So if the settings is disabled it does not calculate the needed moves and just shows the ExtraMoves button as before"
+
+7. Pending Tasks:
+   - **Put the solver feature behind a setting.** When disabled: no solver calculation, `#solveHint` not shown (or empty), dialog behaves exactly as before implementation.
+
+8. Current Work:
+   All implementation tasks (1-9) were completed. The last work was adding console logging of the solver path in `showExtraMovesDialog`:
+   ```js
+   console.log(
+       `[solver] ${label} (seed=${result.seed}):\n` +
+       result.path
+           .map((s, i) => `  ${i + 1}. (${s.row1},${s.col1}) <-> (${s.row2},${s.col2})`)
+           .join("\n"),
+   );
+   ```
+   Then the user asked for a detailed summary, followed immediately by the request to put the feature behind a setting.
+
+9. Optional Next Step:
+   Add a feature flag / setting for the solver. Based on the user's request: "if the settings is disabled it does not calculate the needed moves and just shows the ExtraMoves button as before."
+
+   Approach based on existing codebase patterns:
+   - Add `SOLVER_HINT` to `FEATURE_KEYS` in `src/config.js`
+   - Add a toggle in the settings dialog UI (`src/settings-dialog.js` / `index.html` settings area) with persistence via `src/storage.js`
+   - Guard the solver block in `showExtraMovesDialog`: `if (isFeatureUnlocked(FEATURE_KEYS.SOLVER_HINT)) { ... run solver ... }`
+   - When feature is off: `#solveHint` remains hidden or empty, no `_lockedSeed` set, `game._rng` never applied on purchase
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
+Continue the conversation from where it left off without asking the user any further questions. Resume directly — do not acknowledge the summary, do not recap what was happening, do not preface with "I'll continue" or similar. Pick up the last task as if the break never happened.
+
+---
+
+Ok, but it is always calculated and logged to the console? This if fine
+
+---
+
+Why do we have the setTimeout? Would it otherwise wait for the calculation before showing the screen?
+
+---
+
+Do we have set a timeout before showing this dialog? Because after I did the last swap it waits for around 1-2s before showing the PoS
+
+---
+
+Yeah reduce that, but also remove the setTimeout for the solver calculation.
+I think the solver is faster and this way we do not have jumping UI. Because I saw the text changes then
