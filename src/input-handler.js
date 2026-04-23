@@ -439,19 +439,18 @@ function updatePreviewState(game, sourceRow, sourceCol, targetRow, targetCol) {
         const key = `${r},${c}`;
 
         const isPreview = previewKeys.has(key);
-        const isMerge = mergeKeys.has(key);
-        const isUnblock = unblockKeys.has(key);
         const isSource = r === sourceRow && c === sourceCol;
 
         gem.classList.toggle("preview", isPreview);
-        gem.classList.toggle("merge-preview", isMerge);
-        gem.classList.toggle("unblock-preview", isUnblock);
+        gem.classList.toggle("merge-preview", mergeKeys.has(key));
+        gem.classList.toggle("unblock-preview", unblockKeys.has(key));
 
         let shouldDim = false;
-        if (dimEnabled && !isPreview && !isMerge && !isUnblock && !isSource) {
-            // Dim only tiles that can't be swapped with the source. Don't dim
-            // other valid targets during preview — they must stay interactive
-            // (free-swap-line tiles need to be reachable via drag).
+        if (dimEnabled && !isPreview && !isSource) {
+            // Dim any tile that isn't a valid swap target. Merge/unblock-preview
+            // tiles keep their dashed highlight (opacity: 1 !important in CSS)
+            // but still get pointer-events: none so the finger passes through
+            // instead of freezing the drag on a stale previewed target.
             shouldDim = !canPreviewSwap(game, sourceRow, sourceCol, r, c);
         }
         gem.classList.toggle("swap-dimmed", shouldDim);

@@ -1377,11 +1377,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* border: 2px solid #902009; */
     z-index: 10;
 
     color: #fff;
-    /* text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black; */
     font-family: Nunito;
     font-size: 16px;
     font-weight: 900;
@@ -1606,13 +1604,9 @@
 /* Merge Preview Styles - for hints */
 .hint-merge-preview,
 .merge-preview {
-    /* filter: brightness(0.7); */
-    /* outline: 2px dashed rgba(255, 255, 255, 1); */
     outline: 2px dashed rgba(0, 0, 0, 0.4);
     outline-offset: -4px;
     z-index: 100;
-    opacity: 1 !important;
-    filter: none !important;
 }
 
 /* Unblock Preview - blocked tiles that will be removed */
@@ -1620,8 +1614,6 @@
     outline: 2px dashed rgba(255, 100, 100, 0.8);
     outline-offset: -4px;
     z-index: 100;
-    opacity: 1 !important;
-    filter: none !important;
 }
 
 /* Formation Power-Up Reward Animation */
@@ -1641,7 +1633,6 @@
 
 .formation-powerup-headline {
     animation: formationPowerUpPop 0.3s ease-out;
-    /* filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); */
 }
 
 .formation-powerup-subtitle {
@@ -1649,7 +1640,6 @@
     align-items: center;
     gap: 4px;
     animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
-    /* filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8)); */
 }
 
 @keyframes formationPowerUpFloat {
