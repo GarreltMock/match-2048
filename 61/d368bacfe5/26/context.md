@@ -53,3 +53,25 @@ In which scenario should it have haptic feedback?
 
 No, you fixed our implementation, but I want to use the implementation from the lib I just showed you.
 
+### Prompt 10
+
+Weird. It seemed to me that the first press down on a tile had a vibration, but everything after not. But after a refresh it does not work either.
+On the test page of web-haptics it works for me.
+
+### Prompt 11
+
+I do not see a switch
+
+### Prompt 12
+
+[Request interrupted by user]
+
+### Prompt 13
+
+No. Do not change the sw.js
+Its not active
+
+### Prompt 14
+
+Ok I see the switch and it also changes on the preview change. But not haptic. But pressing the switch itself does vibrate :D
+

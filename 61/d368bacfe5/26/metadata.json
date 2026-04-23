@@ -3,31 +3,31 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "1259c086-8787-4ab6-a887-acc15d8454a5",
   "strategy": "manual-commit",
-  "created_at": "2026-04-23T07:19:54.515921Z",
+  "created_at": "2026-04-23T07:45:05.747978Z",
   "branch": "feat/better-drag-ux",
-  "checkpoints_count": 1,
+  "checkpoints_count": 3,
   "files_touched": [
     "src/haptics.js",
-    "src/input-handler.js"
+    "sw.js"
   ],
   "agent": "Claude Code",
-  "transcript_identifier_at_start": "a379c701-2204-43ce-9b8a-5d56dac75f5a",
-  "checkpoint_transcript_start": 272,
-  "transcript_lines_at_start": 272,
+  "transcript_identifier_at_start": "ed7c3860-2455-416d-a30c-c0fb31ee0551",
+  "checkpoint_transcript_start": 337,
+  "transcript_lines_at_start": 337,
   "token_usage": {
-    "input_tokens": 28,
-    "cache_creation_tokens": 12530,
-    "cache_read_tokens": 2001344,
-    "output_tokens": 5497,
-    "api_call_count": 18
+    "input_tokens": 49,
+    "cache_creation_tokens": 27737,
+    "cache_read_tokens": 3768834,
+    "output_tokens": 21709,
+    "api_call_count": 29
   },
   "initial_attribution": {
-    "calculated_at": "2026-04-23T07:19:54.413352Z",
+    "calculated_at": "2026-04-23T07:45:05.622847Z",
     "agent_lines": 0,
-    "human_added": 119,
-    "human_modified": 29,
-    "human_removed": 0,
-    "total_committed": 148,
+    "human_added": 0,
+    "human_modified": 13,
+    "human_removed": 6,
+    "total_committed": 0,
     "agent_percentage": 0
   },
   "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/1259c086-8787-4ab6-a887-acc15d8454a5.jsonl"
