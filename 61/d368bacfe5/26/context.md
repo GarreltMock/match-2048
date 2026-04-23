@@ -40,3 +40,8 @@ Vibrations do not seem to work on my iPhone 13 mini in Safari
 
 yeah do the hack
 
+### Prompt 7
+
+Our haptics do not really work.
+Look at this package and probably copy the relevant code you need for our app: https://github.com/lochie/web-haptics
+
