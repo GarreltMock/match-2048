@@ -158,7 +158,7 @@ function updateDrag(game, x, y) {
 
     // If user drags back to the original tile, cancel the preview
     if (element === game.selectedGem.element) {
-        clearDragPreviews();
+        updatePreviewState(game, sourceRow, sourceCol, null, null);
         game.lastPreviewTile = null;
         game.wasInAdjacentZone = true;
         return;
@@ -184,7 +184,7 @@ function updateDrag(game, x, y) {
         if (!last || last.row !== targetRow || last.col !== targetCol) {
             game.lastPreviewTile = { row: targetRow, col: targetCol };
         }
-        previewSwap(game, sourceRow, sourceCol, targetRow, targetCol);
+        updatePreviewState(game, sourceRow, sourceCol, targetRow, targetCol);
     }
 }
 
@@ -403,33 +403,73 @@ function areAdjacent(row1, col1, row2, col2) {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
 }
 
-function clearDragPreviews() {
-    document.querySelectorAll(".gem.preview").forEach((gem) => {
-        gem.classList.remove("preview");
-    });
-    document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
-        gem.classList.remove("merge-preview");
-    });
-    document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
-        gem.classList.remove("unblock-preview");
-    });
-}
+// Single-pass update of all drag-related state classes (preview, merge-preview,
+// unblock-preview, swap-dimmed). One DOM traversal keeps class changes atomic
+// so the dim transition doesn't visibly stagger across tiles.
+// Pass targetRow/targetCol = null to clear preview state (drag active, no target).
+function updatePreviewState(game, sourceRow, sourceCol, targetRow, targetCol) {
+    const hasTarget = targetRow != null && targetCol != null;
 
-function showValidSwapTargets(game, row, col) {
-    if (!game.showSwapTargets) return;
+    const previewKeys = new Set();
+    let mergeKeys = new Set();
+    let unblockKeys = new Set();
+
+    if (hasTarget) {
+        previewKeys.add(`${sourceRow},${sourceCol}`);
+        previewKeys.add(`${targetRow},${targetCol}`);
+        const matchTiles = getMatchTilesForSwap(game, sourceRow, sourceCol, targetRow, targetCol);
+        mergeKeys = new Set(matchTiles.map((t) => `${t.row},${t.col}`));
+        const blockedToUnblock = getBlockedTilesForMatch(
+            game,
+            matchTiles,
+            sourceRow,
+            sourceCol,
+            targetRow,
+            targetCol,
+        );
+        unblockKeys = new Set(blockedToUnblock.map((p) => `${p.row},${p.col}`));
+    }
+
+    const dimEnabled = !!game.showSwapTargets;
     const gems = document.querySelectorAll(".gem");
     for (const gem of gems) {
         const r = parseInt(gem.dataset.row);
         const c = parseInt(gem.dataset.col);
         if (isNaN(r) || isNaN(c)) continue;
-        if (r === row && c === col) continue;
-        if (!canPreviewSwap(game, row, col, r, c)) {
-            gem.classList.add("swap-dimmed");
+        const key = `${r},${c}`;
+
+        const isPreview = previewKeys.has(key);
+        const isMerge = mergeKeys.has(key);
+        const isUnblock = unblockKeys.has(key);
+        const isSource = r === sourceRow && c === sourceCol;
+
+        gem.classList.toggle("preview", isPreview);
+        gem.classList.toggle("merge-preview", isMerge);
+        gem.classList.toggle("unblock-preview", isUnblock);
+
+        let shouldDim = false;
+        if (dimEnabled && !isPreview && !isMerge && !isUnblock && !isSource) {
+            // Dim only tiles that can't be swapped with the source. Don't dim
+            // other valid targets during preview — they must stay interactive
+            // (free-swap-line tiles need to be reachable via drag).
+            shouldDim = !canPreviewSwap(game, sourceRow, sourceCol, r, c);
         }
+        gem.classList.toggle("swap-dimmed", shouldDim);
     }
 }
 
+function showValidSwapTargets(game, row, col) {
+    updatePreviewState(game, row, col, null, null);
+}
+
 function canPreviewSwap(game, row1, col1, row2, col2) {
+    const tile2 = game.board[row2][col2];
+    // Blocked tiles are not valid swap targets (mirrors trySwap's guards).
+    // Simple blocked is swappable only with the swap power-up.
+    if (isBlockedWithLife(tile2)) return false;
+    if (isRectangularBlocked(tile2)) return false;
+    if (isBlocked(tile2) && game.activePowerUp !== "swap") return false;
+
     if (areAdjacent(row1, col1, row2, col2)) {
         return true;
     }
@@ -481,37 +521,6 @@ function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
             (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
 
     return isFreeSwap1 || isDirectionalFreeSwap1;
-}
-
-function previewSwap(game, row1, col1, row2, col2) {
-    // Clear previous previews
-    clearDragPreviews();
-
-    // Add preview to both gems
-    const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
-    const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
-
-    if (gem1 && gem2) {
-        gem1.classList.add("preview");
-        gem2.classList.add("preview");
-
-        // Get tiles that would merge if swap completes
-        const matchTiles = getMatchTilesForSwap(game, row1, col1, row2, col2);
-
-        // Highlight merge tiles
-        for (const tile of matchTiles) {
-            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
-            matchGem?.classList.add("merge-preview");
-        }
-
-        // Highlight blocked tiles that would be unblocked
-        // matchTiles are in PRE-SWAP coords, convert to POST-SWAP for adjacency check
-        const blockedToUnblock = getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2);
-        for (const pos of blockedToUnblock) {
-            const blockedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
-            blockedGem?.classList.add("unblock-preview");
-        }
-    }
 }
 
 function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
