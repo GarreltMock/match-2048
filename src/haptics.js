@@ -7,6 +7,13 @@
 
 import { WebHaptics } from "./vendor/web-haptics.mjs";
 
+// iOS Safari caveat: navigator.vibrate is unimplemented, so the lib
+// falls back to clicking a hidden <input type="checkbox" switch>. iOS
+// only fires Taptic Engine for programmatic clicks inside discrete
+// user gestures (click/tap/pointerup), NOT during `touchmove`. We call
+// haptic() from inside touchmove (drag), so iOS silently drops them.
+// Android Chrome/Firefox remain fully functional via navigator.vibrate.
+
 let instance = null;
 
 function getInstance() {
