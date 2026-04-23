@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/better-drag-ux",
-  "checkpoints_count": 47,
+  "checkpoints_count": 57,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -26,7 +26,8 @@
     "src/tile-helpers.js",
     "style.css",
     "styles/game.css",
-    "styles/home.css"
+    "styles/home.css",
+    "sw.js"
   ],
   "sessions": [
     {
@@ -217,13 +218,20 @@
       "context": "/61/d368bacfe5/26/context.md",
       "content_hash": "/61/d368bacfe5/26/content_hash.txt",
       "prompt": "/61/d368bacfe5/26/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/27/metadata.json",
+      "transcript": "/61/d368bacfe5/27/full.jsonl",
+      "context": "/61/d368bacfe5/27/context.md",
+      "content_hash": "/61/d368bacfe5/27/content_hash.txt",
+      "prompt": "/61/d368bacfe5/27/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 783,
-    "cache_creation_tokens": 1007104,
-    "cache_read_tokens": 32284044,
-    "output_tokens": 174857,
-    "api_call_count": 630
+    "input_tokens": 1011,
+    "cache_creation_tokens": 1178959,
+    "cache_read_tokens": 44891761,
+    "output_tokens": 264195,
+    "api_call_count": 758
   }
 }

@@ -1,0 +1,33 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "59131530-b95b-4180-8cd3-d062dec93158",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-23T11:53:57.485055Z",
+  "branch": "feat/better-drag-ux",
+  "checkpoints_count": 10,
+  "files_touched": [
+    "src/input-handler.js",
+    "styles/game.css",
+    "sw.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "315db808-8c12-456e-964c-9a4b8457e4c7",
+  "token_usage": {
+    "input_tokens": 228,
+    "cache_creation_tokens": 171855,
+    "cache_read_tokens": 12607717,
+    "output_tokens": 89338,
+    "api_call_count": 128
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-23T11:53:57.373696Z",
+    "agent_lines": 19,
+    "human_added": 27,
+    "human_modified": 9,
+    "human_removed": 0,
+    "total_committed": 54,
+    "agent_percentage": 35.18518518518518
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/59131530-b95b-4180-8cd3-d062dec93158.jsonl"
+}
