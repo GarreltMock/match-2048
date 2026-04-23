@@ -45,3 +45,11 @@ yeah do the hack
 Our haptics do not really work.
 Look at this package and probably copy the relevant code you need for our app: https://github.com/lochie/web-haptics
 
+### Prompt 8
+
+In which scenario should it have haptic feedback?
+
+### Prompt 9
+
+No, you fixed our implementation, but I want to use the implementation from the lib I just showed you.
+
