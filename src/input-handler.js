@@ -174,7 +174,7 @@ function updateDrag(game, x, y) {
         const manhattan = Math.abs(targetRow - sourceRow) + Math.abs(targetCol - sourceCol);
         const inAdjacentZone = manhattan <= 1;
         if (game.wasInAdjacentZone && !inAdjacentZone) {
-            haptic(12);
+            haptic("medium");
             triggerDetentPulse(game.selectedGem.element);
         }
         game.wasInAdjacentZone = inAdjacentZone;
@@ -184,7 +184,7 @@ function updateDrag(game, x, y) {
     if (canPreviewSwap(game, sourceRow, sourceCol, targetRow, targetCol)) {
         const last = game.lastPreviewTile;
         if (!last || last.row !== targetRow || last.col !== targetCol) {
-            haptic(5);
+            haptic("light");
             game.lastPreviewTile = { row: targetRow, col: targetCol };
         }
         previewSwap(game, sourceRow, sourceCol, targetRow, targetCol);
