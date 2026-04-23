@@ -173,7 +173,7 @@ function updateDrag(game, x, y) {
         const manhattan = Math.abs(targetRow - sourceRow) + Math.abs(targetCol - sourceCol);
         const inAdjacentZone = manhattan <= 1;
         if (game.wasInAdjacentZone && !inAdjacentZone) {
-            triggerDetentPulse(game.selectedGem.element);
+            triggerDetentPulse(element);
         }
         game.wasInAdjacentZone = inAdjacentZone;
     }
