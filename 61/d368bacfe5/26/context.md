@@ -75,3 +75,7 @@ Its not active
 
 Ok I see the switch and it also changes on the preview change. But not haptic. But pressing the switch itself does vibrate :D
 
+### Prompt 15
+
+Ok but then remove the haptic altogether please
+

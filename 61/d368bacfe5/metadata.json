@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/better-drag-ux",
-  "checkpoints_count": 49,
+  "checkpoints_count": 47,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -13,7 +13,6 @@
     "src/game.js",
     "src/goal-dialogs.js",
     "src/goal-tracker.js",
-    "src/haptics.js",
     "src/home-screen.js",
     "src/input-handler.js",
     "src/main.js",
@@ -27,8 +26,7 @@
     "src/tile-helpers.js",
     "style.css",
     "styles/game.css",
-    "styles/home.css",
-    "sw.js"
+    "styles/home.css"
   ],
   "sessions": [
     {
@@ -222,10 +220,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 823,
-    "cache_creation_tokens": 1031612,
-    "cache_read_tokens": 35419959,
-    "output_tokens": 193894,
-    "api_call_count": 655
+    "input_tokens": 787,
+    "cache_creation_tokens": 1008355,
+    "cache_read_tokens": 32832202,
+    "output_tokens": 174923,
+    "api_call_count": 634
   }
 }
