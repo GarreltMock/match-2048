@@ -79,3 +79,12 @@ Ok I see the switch and it also changes on the preview change. But not haptic. B
 
 Ok but then remove the haptic altogether please
 
+### Prompt 16
+
+The visual halo you added is on the source tile, but I think we should put it on the swap target
+
+### Prompt 17
+
+The visual halo you added is on the source tile, but I think we should put it on the swap target.
+Also lets adjust the preview highlight. Only but the white border on the target tile + make sure to add the correct z-index. Often the target is under the neighbor tiles
+
