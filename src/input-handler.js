@@ -24,7 +24,6 @@ import {
 } from "./tile-helpers.js";
 import { track } from "./tracker.js";
 import { getMatchTilesForSwap } from "./hint-system.js";
-import { haptic } from "./haptics.js";
 import {
     isTutorialActive,
     isValidTutorialSwap,
@@ -174,7 +173,6 @@ function updateDrag(game, x, y) {
         const manhattan = Math.abs(targetRow - sourceRow) + Math.abs(targetCol - sourceCol);
         const inAdjacentZone = manhattan <= 1;
         if (game.wasInAdjacentZone && !inAdjacentZone) {
-            haptic("medium");
             triggerDetentPulse(game.selectedGem.element);
         }
         game.wasInAdjacentZone = inAdjacentZone;
@@ -184,7 +182,6 @@ function updateDrag(game, x, y) {
     if (canPreviewSwap(game, sourceRow, sourceCol, targetRow, targetCol)) {
         const last = game.lastPreviewTile;
         if (!last || last.row !== targetRow || last.col !== targetCol) {
-            haptic("light");
             game.lastPreviewTile = { row: targetRow, col: targetCol };
         }
         previewSwap(game, sourceRow, sourceCol, targetRow, targetCol);
