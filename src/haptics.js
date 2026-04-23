@@ -1,27 +1,36 @@
 // Mobile haptic feedback.
 // navigator.vibrate works on Android Chrome/Firefox. iOS Safari does not
-// implement it. On iOS 17.4+ a native <input type="checkbox" switch>
-// toggled programmatically fires Taptic Engine feedback — the cheapest
-// web-accessible haptic on iOS. Must run inside a user-gesture handler.
+// implement it. iOS 17.4+ renders <input type="checkbox" switch> as a
+// native Taptic-enabled control: clicking the wrapping <label> fires a
+// brief haptic. Must run inside a user-gesture handler.
+//
+// Structure and `all:initial / appearance:auto` trick cribbed from
+// https://github.com/lochie/web-haptics — directly clicking the input
+// or omitting the native rendering reset does not reliably fire Taptic.
 
-let hapticSwitch = null;
+let hapticLabel = null;
 
-function ensureSwitch() {
-    if (hapticSwitch) return hapticSwitch;
-    const el = document.createElement("input");
-    el.type = "checkbox";
-    el.setAttribute("switch", "");
-    el.setAttribute("aria-hidden", "true");
-    el.tabIndex = -1;
-    el.style.position = "absolute";
-    el.style.opacity = "0";
-    el.style.pointerEvents = "none";
-    el.style.width = "1px";
-    el.style.height = "1px";
-    el.style.left = "-9999px";
-    document.body.appendChild(el);
-    hapticSwitch = el;
-    return el;
+function ensureLabel() {
+    if (hapticLabel) return hapticLabel;
+    if (typeof document === "undefined") return null;
+
+    const id = "web-haptics-switch";
+    const label = document.createElement("label");
+    label.setAttribute("for", id);
+    label.style.display = "none";
+
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.setAttribute("switch", "");
+    input.id = id;
+    input.style.all = "initial";
+    input.style.appearance = "auto";
+    input.style.display = "none";
+
+    label.appendChild(input);
+    document.body.appendChild(label);
+    hapticLabel = label;
+    return label;
 }
 
 export function haptic(ms = 5) {
@@ -29,9 +38,5 @@ export function haptic(ms = 5) {
         navigator.vibrate(ms);
         return;
     }
-    try {
-        ensureSwitch().click();
-    } catch {
-        /* ignore */
-    }
+    ensureLabel()?.click();
 }
