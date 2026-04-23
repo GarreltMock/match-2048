@@ -81,3 +81,7 @@ The visual halo you added is on the source tile, but I think we should put it on
 
 The visual halo you added is on the source tile, but I think we should put it on the swap target.
 Also lets adjust the preview highlight. Only but the white border on the target tile + make sure to add the correct z-index. Often the target is under the neighbor tiles
+
+---
+
+Ok lets tweak that. For the source tile, lets change this preview. Now it only scales up a little. Instead lets add the white border. For the target tile, keep it as is

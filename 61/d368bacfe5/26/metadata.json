@@ -3,31 +3,30 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "1259c086-8787-4ab6-a887-acc15d8454a5",
   "strategy": "manual-commit",
-  "created_at": "2026-04-23T07:59:51.636705Z",
+  "created_at": "2026-04-23T08:08:22.913685Z",
   "branch": "feat/better-drag-ux",
   "checkpoints_count": 1,
   "files_touched": [
-    "src/input-handler.js",
     "styles/game.css"
   ],
   "agent": "Claude Code",
-  "transcript_identifier_at_start": "053ec102-15cf-42a1-b823-6ae578d677ce",
-  "checkpoint_transcript_start": 474,
-  "transcript_lines_at_start": 474,
+  "transcript_identifier_at_start": "1a474b77-3012-474d-96cb-835e244277a3",
+  "checkpoint_transcript_start": 498,
+  "transcript_lines_at_start": 498,
   "token_usage": {
-    "input_tokens": 10,
-    "cache_creation_tokens": 6116,
-    "cache_read_tokens": 767598,
-    "output_tokens": 5029,
-    "api_call_count": 5
+    "input_tokens": 9,
+    "cache_creation_tokens": 3229,
+    "cache_read_tokens": 632919,
+    "output_tokens": 2672,
+    "api_call_count": 4
   },
   "initial_attribution": {
-    "calculated_at": "2026-04-23T07:59:51.511979Z",
+    "calculated_at": "2026-04-23T08:08:22.781815Z",
     "agent_lines": 0,
-    "human_added": 122,
-    "human_modified": 33,
+    "human_added": 28,
+    "human_modified": 7,
     "human_removed": 0,
-    "total_committed": 153,
+    "total_committed": 32,
     "agent_percentage": 0
   },
   "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/1259c086-8787-4ab6-a887-acc15d8454a5.jsonl"
