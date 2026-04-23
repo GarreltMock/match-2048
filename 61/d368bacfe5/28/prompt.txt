@@ -1,0 +1,35 @@
+What do you think about those two comments:
+P1
+Fast far-swaps are silently rewritten to adjacent moves
+Verwerfen
+endDrag now snaps any previewed target more than one tile away to an adjacent tile whenever the drag finishes within 150ms. That changes the actual move after the user has already targeted a valid distant destination, so teleport/free-swap tiles can no longer be used reliably with a quick flick. This is a gameplay regression, not just a UX hint, because the committed swap can differ from the previewed tile.
+
+
+/Users/garreltmock/Projects/match-2048/src/input-handler.js:221-234
+P2
+Highlighted non-target tiles become interactive during drag
+Verwerfen
+updatePreviewState skips swap-dimmed for every merge-preview and unblock-preview tile, even when canPreviewSwap is false for that tile. Those tiles therefore regain pointer events during a drag. If the user moves onto one of these highlighted-but-invalid cells, the old valid preview stays active and releasing can execute that stale swap instead of cancelling or following the finger.
+
+
+/Users/garreltmock/Projects/match-2048/src/input-handler.js:450-457
+
+
+---
+
+I think the first is fine right? This only happens if the target is 2 tiles away from the origin right? If it is further it does not snap back right.
+I do not really understand P2
+
+---
+
+Hm ok. Lets try P2.
+Thinking about P1: I think it is very unlikely that a user would do a far distance flick. 150ms are very fast. I think now user would do the flick this fast really. What do you think?
+
+---
+
+No. Only do P2
+
+---
+
+We did break something. In the swap animation both tiles have a weird offset. One is like top-left off positioned, the other is then bottom-right off. 
+You can probably look at all the changes in this branch to find the fix.
