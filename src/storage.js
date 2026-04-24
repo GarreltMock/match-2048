@@ -534,7 +534,7 @@ export function saveSelectedPowerUps(selected) {
 export function loadSuperStrikeWildcardTeleport() {
     const saved = localStorage.getItem("match2048_superStrikeWildcardTeleport");
     if (saved === null) {
-        return true;
+        return false;
     }
     return saved === "true";
 }
