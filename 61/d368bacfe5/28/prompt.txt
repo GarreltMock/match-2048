@@ -33,3 +33,7 @@ No. Only do P2
 
 We did break something. In the swap animation both tiles have a weird offset. One is like top-left off positioned, the other is then bottom-right off. 
 You can probably look at all the changes in this branch to find the fix.
+
+---
+
+We also need to do that for the invalid-swap animation.

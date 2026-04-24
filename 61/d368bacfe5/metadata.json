@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/better-drag-ux",
-  "checkpoints_count": 59,
+  "checkpoints_count": 58,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -235,10 +235,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 1049,
-    "cache_creation_tokens": 1231943,
-    "cache_read_tokens": 45727337,
-    "output_tokens": 285924,
-    "api_call_count": 776
+    "input_tokens": 1015,
+    "cache_creation_tokens": 1221525,
+    "cache_read_tokens": 44955119,
+    "output_tokens": 264486,
+    "api_call_count": 760
   }
 }
