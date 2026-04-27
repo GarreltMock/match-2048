@@ -469,7 +469,7 @@
     position: relative;
     transition:
         transform 0.3s ease,
-        opacity 0.3s ease,
+        opacity 150ms ease,
         background-color 0.3s ease,
         box-shadow 0.3s ease,
         filter 0.3s ease,
@@ -496,22 +496,48 @@
 
 .gem.swap-dimmed {
     opacity: 0.6;
-    filter: grayscale(0.2);
     pointer-events: none;
 }
 
 .gem.dragging {
     z-index: 10;
-    /* opacity: 0.7; */
-    /* transform: scale(0.95); */
-    transform: scale(1.1);
-    /* box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3); */
+    scale: 0.95;
+    opacity: 0.8 !important;
 }
 
-.gem.preview,
-.gem.pending-preview {
-    opacity: 0.7;
-    transform: scale(0.95);
+/* Target tile during drag preview — not the source being dragged.
+   Higher z-index so the scaled-up ring peeks above neighbor tiles. */
+.gem.preview:not(.dragging),
+.gem.pending-preview:not(.dragging) {
+    scale: 1.1;
+    z-index: 500;
+    box-shadow:
+        0 -3px 0 0 rgba(0, 0, 0, 0.25) inset,
+        0 0 0 3px rgba(255, 255, 255, 0.95),
+        0 0 14px 4px rgba(255, 255, 255, 0.55);
+}
+
+/* 1-tile boundary detent: short ring pulse when drag crosses out of the
+   adjacent zone on a teleport/freeswap tile. Trains the boundary feel. */
+.gem.detent-crossed::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    border: 3px solid rgba(255, 220, 100, 0.9);
+    pointer-events: none;
+    animation: detent-pulse 260ms ease-out forwards;
+}
+
+@keyframes detent-pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
 }
 
 /* Tile colors based on internal value (1, 2, 3, 4...) */
@@ -1351,11 +1377,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* border: 2px solid #902009; */
     z-index: 10;
 
     color: #fff;
-    /* text-shadow: -2px -2px 0 black, 2px -2px 0 black, -2px 2px 0 black, 2px 2px 0 black; */
     font-family: Nunito;
     font-size: 16px;
     font-weight: 900;
@@ -1580,13 +1604,9 @@
 /* Merge Preview Styles - for hints */
 .hint-merge-preview,
 .merge-preview {
-    /* filter: brightness(0.7); */
-    /* outline: 2px dashed rgba(255, 255, 255, 1); */
     outline: 2px dashed rgba(0, 0, 0, 0.4);
     outline-offset: -4px;
     z-index: 100;
-    opacity: 1 !important;
-    filter: none !important;
 }
 
 /* Unblock Preview - blocked tiles that will be removed */
@@ -1594,8 +1614,6 @@
     outline: 2px dashed rgba(255, 100, 100, 0.8);
     outline-offset: -4px;
     z-index: 100;
-    opacity: 1 !important;
-    filter: none !important;
 }
 
 /* Formation Power-Up Reward Animation */
@@ -1615,7 +1633,6 @@
 
 .formation-powerup-headline {
     animation: formationPowerUpPop 0.3s ease-out;
-    /* filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); */
 }
 
 .formation-powerup-subtitle {
@@ -1623,7 +1640,6 @@
     align-items: center;
     gap: 4px;
     animation: formationPowerUpPop 0.3s ease-out 0.1s backwards;
-    /* filter: drop-shadow(0 0 15px rgba(100, 200, 255, 0.8)); */
 }
 
 @keyframes formationPowerUpFloat {

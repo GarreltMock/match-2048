@@ -12,6 +12,12 @@ export function animateSwap(game, row1, col1, row2, col2, callback) {
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
 
     if (gem1 && gem2) {
+        // Drag/preview classes apply CSS `scale` (independent of `transform`),
+        // which would skew getBoundingClientRect and leave the tiles scaled
+        // during the translate animation. Drop them before measuring.
+        gem1.classList.remove("dragging", "preview", "pending-preview");
+        gem2.classList.remove("dragging", "preview", "pending-preview");
+
         const rect1 = gem1.getBoundingClientRect();
         const rect2 = gem2.getBoundingClientRect();
 
@@ -52,6 +58,9 @@ export function animateRevert(game, row1, col1, row2, col2) {
     const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
 
     if (gem1 && gem2) {
+        gem1.classList.remove("dragging", "preview", "pending-preview");
+        gem2.classList.remove("dragging", "preview", "pending-preview");
+
         const gem1Rect = gem1.getBoundingClientRect();
         const gem2Rect = gem2.getBoundingClientRect();
 

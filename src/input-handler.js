@@ -139,6 +139,9 @@ function startDrag(game, x, y) {
         };
         game.isDragging = true;
         game.dragStartPos = { x, y };
+        game.dragStartTime = performance.now();
+        game.lastPreviewTile = null;
+        game.wasInAdjacentZone = true;
         element.classList.add("dragging");
         showValidSwapTargets(game, row, col);
     }
@@ -148,21 +151,59 @@ function updateDrag(game, x, y) {
     if (!game.isDragging || !game.selectedGem) return;
 
     const element = document.elementFromPoint(x, y);
-    if (element && element.classList.contains("gem")) {
-        // If user drags back to the original tile, cancel the preview
-        if (element === game.selectedGem.element) {
-            clearDragPreviews();
-            return;
-        }
+    if (!element || !element.classList.contains("gem")) return;
 
-        const targetRow = parseInt(element.dataset.row);
-        const targetCol = parseInt(element.dataset.col);
+    const sourceRow = game.selectedGem.row;
+    const sourceCol = game.selectedGem.col;
 
-        // Check if gems are adjacent or allowed by extended free swap rules
-        if (canPreviewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol)) {
-            previewSwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
-        }
+    // If user drags back to the original tile, cancel the preview
+    if (element === game.selectedGem.element) {
+        updatePreviewState(game, sourceRow, sourceCol, null, null);
+        game.lastPreviewTile = null;
+        game.wasInAdjacentZone = true;
+        return;
     }
+
+    const targetRow = parseInt(element.dataset.row);
+    const targetCol = parseInt(element.dataset.col);
+
+    // Detent: fire once when drag crosses out of the 1-tile radius on a
+    // far-swap-capable tile. Teaches the boundary proprioceptively.
+    if (isFarSwapCapable(game.selectedGem.tile)) {
+        const manhattan = Math.abs(targetRow - sourceRow) + Math.abs(targetCol - sourceCol);
+        const inAdjacentZone = manhattan <= 1;
+        if (game.wasInAdjacentZone && !inAdjacentZone) {
+            triggerDetentPulse(element);
+        }
+        game.wasInAdjacentZone = inAdjacentZone;
+    }
+
+    // Check if gems are adjacent or allowed by extended free swap rules
+    if (canPreviewSwap(game, sourceRow, sourceCol, targetRow, targetCol)) {
+        const last = game.lastPreviewTile;
+        if (!last || last.row !== targetRow || last.col !== targetCol) {
+            game.lastPreviewTile = { row: targetRow, col: targetCol };
+        }
+        updatePreviewState(game, sourceRow, sourceCol, targetRow, targetCol);
+    }
+}
+
+function isFarSwapCapable(tile) {
+    return (
+        isTileTeleportTile(tile) ||
+        isWildTeleportTile(tile) ||
+        isTileFreeSwapTile(tile) ||
+        isTileStickyFreeSwapTile(tile) ||
+        isTileFreeSwapHorizontalTile(tile) ||
+        isTileFreeSwapVerticalTile(tile)
+    );
+}
+
+function triggerDetentPulse(element) {
+    element.classList.remove("detent-crossed");
+    void element.offsetWidth; // force reflow to restart animation
+    element.classList.add("detent-crossed");
+    setTimeout(() => element.classList.remove("detent-crossed"), 260);
 }
 
 function endDrag(game) {
@@ -174,9 +215,25 @@ function endDrag(game) {
         // User dragged to swap
         const targetGem = Array.from(previewGems).find((g) => g !== game.selectedGem.element);
         if (targetGem) {
-            const targetRow = parseInt(targetGem.dataset.row);
-            const targetCol = parseInt(targetGem.dataset.col);
-            trySwap(game, game.selectedGem.row, game.selectedGem.col, targetRow, targetCol);
+            let targetRow = parseInt(targetGem.dataset.row);
+            let targetCol = parseInt(targetGem.dataset.col);
+
+            // Velocity gate: fast flicks >1 tile away are likely 1-tile overshoots,
+            // since users are trained on adjacent-only swaps. Snap to the adjacent
+            // tile in the direction of release.
+            const sr = game.selectedGem.row;
+            const sc = game.selectedGem.col;
+            const manhattan = Math.abs(sr - targetRow) + Math.abs(sc - targetCol);
+            const duration = performance.now() - (game.dragStartTime ?? 0);
+            if (manhattan > 1 && duration < FAST_FLICK_MS) {
+                const snapped = snapToAdjacentInDirection(game, sr, sc, targetRow, targetCol);
+                if (snapped) {
+                    targetRow = snapped.row;
+                    targetCol = snapped.col;
+                }
+            }
+
+            trySwap(game, sr, sc, targetRow, targetCol);
         }
     } else if (isJoker(game.selectedGem.tile) && !game.activePowerUp) {
         // User tapped on joker without dragging - try to activate it
@@ -203,7 +260,14 @@ function endDrag(game) {
 
     // Clean up
     document.querySelectorAll(".gem").forEach((gem) => {
-        gem.classList.remove("dragging", "preview", "merge-preview", "unblock-preview", "swap-dimmed");
+        gem.classList.remove(
+            "dragging",
+            "preview",
+            "merge-preview",
+            "unblock-preview",
+            "swap-dimmed",
+            "detent-crossed",
+        );
     });
 
     // Reset hint timer after user interaction completes
@@ -212,6 +276,30 @@ function endDrag(game) {
     game.selectedGem = null;
     game.isDragging = false;
     game.dragStartPos = null;
+    game.dragStartTime = null;
+    game.lastPreviewTile = null;
+    game.wasInAdjacentZone = true;
+}
+
+const FAST_FLICK_MS = 150;
+
+function snapToAdjacentInDirection(game, sr, sc, tr, tc) {
+    const dr = tr - sr;
+    const dc = tc - sc;
+    const useRowAxis = Math.abs(dr) >= Math.abs(dc);
+    const adjR = sr + (useRowAxis ? Math.sign(dr) : 0);
+    const adjC = sc + (useRowAxis ? 0 : Math.sign(dc));
+    if (adjR < 0 || adjR >= game.boardHeight || adjC < 0 || adjC >= game.boardWidth) return null;
+    const adjTile = game.board[adjR][adjC];
+    if (
+        isBlocked(adjTile) ||
+        isBlockedWithLife(adjTile) ||
+        isBlockedMovable(adjTile) ||
+        isRectangularBlocked(adjTile)
+    ) {
+        return null;
+    }
+    return { row: adjR, col: adjC };
 }
 
 function activateJokerByTap(game, row, col, element) {
@@ -315,33 +403,72 @@ function areAdjacent(row1, col1, row2, col2) {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
 }
 
-function clearDragPreviews() {
-    document.querySelectorAll(".gem.preview").forEach((gem) => {
-        gem.classList.remove("preview");
-    });
-    document.querySelectorAll(".gem.merge-preview").forEach((gem) => {
-        gem.classList.remove("merge-preview");
-    });
-    document.querySelectorAll(".gem.unblock-preview").forEach((gem) => {
-        gem.classList.remove("unblock-preview");
-    });
-}
+// Single-pass update of all drag-related state classes (preview, merge-preview,
+// unblock-preview, swap-dimmed). One DOM traversal keeps class changes atomic
+// so the dim transition doesn't visibly stagger across tiles.
+// Pass targetRow/targetCol = null to clear preview state (drag active, no target).
+function updatePreviewState(game, sourceRow, sourceCol, targetRow, targetCol) {
+    const hasTarget = targetRow != null && targetCol != null;
 
-function showValidSwapTargets(game, row, col) {
-    if (!game.showSwapTargets) return;
+    const previewKeys = new Set();
+    let mergeKeys = new Set();
+    let unblockKeys = new Set();
+
+    if (hasTarget) {
+        previewKeys.add(`${sourceRow},${sourceCol}`);
+        previewKeys.add(`${targetRow},${targetCol}`);
+        const matchTiles = getMatchTilesForSwap(game, sourceRow, sourceCol, targetRow, targetCol);
+        mergeKeys = new Set(matchTiles.map((t) => `${t.row},${t.col}`));
+        const blockedToUnblock = getBlockedTilesForMatch(
+            game,
+            matchTiles,
+            sourceRow,
+            sourceCol,
+            targetRow,
+            targetCol,
+        );
+        unblockKeys = new Set(blockedToUnblock.map((p) => `${p.row},${p.col}`));
+    }
+
+    const dimEnabled = !!game.showSwapTargets;
     const gems = document.querySelectorAll(".gem");
     for (const gem of gems) {
         const r = parseInt(gem.dataset.row);
         const c = parseInt(gem.dataset.col);
         if (isNaN(r) || isNaN(c)) continue;
-        if (r === row && c === col) continue;
-        if (!canPreviewSwap(game, row, col, r, c)) {
-            gem.classList.add("swap-dimmed");
+        const key = `${r},${c}`;
+
+        const isPreview = previewKeys.has(key);
+        const isSource = r === sourceRow && c === sourceCol;
+
+        gem.classList.toggle("preview", isPreview);
+        gem.classList.toggle("merge-preview", mergeKeys.has(key));
+        gem.classList.toggle("unblock-preview", unblockKeys.has(key));
+
+        let shouldDim = false;
+        if (dimEnabled && !isPreview && !isSource) {
+            // Dim any tile that isn't a valid swap target. Merge/unblock-preview
+            // tiles keep their dashed highlight (opacity: 1 !important in CSS)
+            // but still get pointer-events: none so the finger passes through
+            // instead of freezing the drag on a stale previewed target.
+            shouldDim = !canPreviewSwap(game, sourceRow, sourceCol, r, c);
         }
+        gem.classList.toggle("swap-dimmed", shouldDim);
     }
 }
 
+function showValidSwapTargets(game, row, col) {
+    updatePreviewState(game, row, col, null, null);
+}
+
 function canPreviewSwap(game, row1, col1, row2, col2) {
+    const tile2 = game.board[row2][col2];
+    // Blocked tiles are not valid swap targets (mirrors trySwap's guards).
+    // Simple blocked is swappable only with the swap power-up.
+    if (isBlockedWithLife(tile2)) return false;
+    if (isRectangularBlocked(tile2)) return false;
+    if (isBlocked(tile2) && game.activePowerUp !== "swap") return false;
+
     if (areAdjacent(row1, col1, row2, col2)) {
         return true;
     }
@@ -393,37 +520,6 @@ function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
             (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
 
     return isFreeSwap1 || isDirectionalFreeSwap1;
-}
-
-function previewSwap(game, row1, col1, row2, col2) {
-    // Clear previous previews
-    clearDragPreviews();
-
-    // Add preview to both gems
-    const gem1 = document.querySelector(`[data-row="${row1}"][data-col="${col1}"]`);
-    const gem2 = document.querySelector(`[data-row="${row2}"][data-col="${col2}"]`);
-
-    if (gem1 && gem2) {
-        gem1.classList.add("preview");
-        gem2.classList.add("preview");
-
-        // Get tiles that would merge if swap completes
-        const matchTiles = getMatchTilesForSwap(game, row1, col1, row2, col2);
-
-        // Highlight merge tiles
-        for (const tile of matchTiles) {
-            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
-            matchGem?.classList.add("merge-preview");
-        }
-
-        // Highlight blocked tiles that would be unblocked
-        // matchTiles are in PRE-SWAP coords, convert to POST-SWAP for adjacency check
-        const blockedToUnblock = getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2);
-        for (const pos of blockedToUnblock) {
-            const blockedGem = document.querySelector(`[data-row="${pos.row}"][data-col="${pos.col}"]`);
-            blockedGem?.classList.add("unblock-preview");
-        }
-    }
 }
 
 function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
