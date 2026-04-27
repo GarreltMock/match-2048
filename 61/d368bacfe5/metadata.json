@@ -2,8 +2,8 @@
   "cli_version": "0.4.4",
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
-  "branch": "feat/better-drag-ux",
-  "checkpoints_count": 58,
+  "branch": "feat/dynamic-formation-tutorials",
+  "checkpoints_count": 60,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -232,13 +232,20 @@
       "context": "/61/d368bacfe5/28/context.md",
       "content_hash": "/61/d368bacfe5/28/content_hash.txt",
       "prompt": "/61/d368bacfe5/28/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/29/metadata.json",
+      "transcript": "/61/d368bacfe5/29/full.jsonl",
+      "context": "/61/d368bacfe5/29/context.md",
+      "content_hash": "/61/d368bacfe5/29/content_hash.txt",
+      "prompt": "/61/d368bacfe5/29/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 1015,
-    "cache_creation_tokens": 1221525,
-    "cache_read_tokens": 44955119,
-    "output_tokens": 264486,
-    "api_call_count": 760
+    "input_tokens": 1065,
+    "cache_creation_tokens": 1332578,
+    "cache_read_tokens": 47020954,
+    "output_tokens": 283948,
+    "api_call_count": 804
   }
 }
