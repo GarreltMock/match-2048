@@ -232,9 +232,15 @@ export function isBlockedWithMergeCount(tile) {
     return tile && tile.type === TILE_TYPE.BLOCKED && tile.cellMergeCounts !== undefined;
 }
 
-// Convert internal value (1, 2, 3...) to display value (powers of 2)
+let _displayBase = 2;
+
+export function setDisplayBase(base) {
+    _displayBase = base;
+}
+
+
 export function getDisplayValue(internalValue) {
-    // Powers of 2: 2^1=2, 2^2=4, 2^3=8, 2^4=16, etc.
+    if (_displayBase === 1) return internalValue;
     return Math.pow(2, internalValue);
 }
 

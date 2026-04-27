@@ -45,9 +45,10 @@ import {
     loadSuperStrikeWildcardTeleport,
     loadMovesMultiplier,
     loadSolverHintEnabled,
+    loadDisplayBase,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
-import { createTile, createBlockedTile, createBlockedMovableTile } from "./tile-helpers.js";
+import { createTile, createBlockedTile, createBlockedMovableTile, setDisplayBase } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import {
@@ -161,6 +162,8 @@ export class Match3Game {
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
         this.powerUpMoveCost = loadPowerUpMoveCost();
         this.movesMultiplier = loadMovesMultiplier();
+        this.displayBase = loadDisplayBase();
+        setDisplayBase(this.displayBase);
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];

@@ -578,3 +578,13 @@ export function loadSolverHintEnabled() {
 export function saveSolverHintEnabled(enabled) {
     localStorage.setItem("match2048_solverHintEnabled", enabled.toString());
 }
+
+export function loadDisplayBase() {
+    const saved = localStorage.getItem("match2048_displayBase");
+    const n = saved ? parseInt(saved, 10) : 2;
+    return n === 1 ? 1 : 2;
+}
+
+export function saveDisplayBase(base) {
+    localStorage.setItem("match2048_displayBase", String(base));
+}

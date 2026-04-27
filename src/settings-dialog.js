@@ -21,7 +21,9 @@ import {
     saveSuperStrikeWildcardTeleport,
     saveMovesMultiplier,
     saveSolverHintEnabled,
+    saveDisplayBase,
 } from "./storage.js";
+import { setDisplayBase } from "./tile-helpers.js";
 import { APP_VERSION } from "./version.js";
 import { cyrb53 } from "./tracker.js";
 import { updateIntroDialogPowerupsList } from "./goal-dialogs.js";
@@ -53,6 +55,7 @@ export function setupSettingsButton(game) {
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
     const movesMultiplierInput = document.getElementById("movesMultiplier");
     const solverHintEnabledCheckbox = document.getElementById("solverHintEnabled");
+    const displayBaseSelect = document.getElementById("displayBase");
 
     const togglePowerUpOptions = (show) => {
         const powerupOptions = document.querySelectorAll(".powerup-option");
@@ -178,6 +181,9 @@ export function setupSettingsButton(game) {
         }
         if (solverHintEnabledCheckbox) {
             solverHintEnabledCheckbox.checked = game.solverHintEnabled;
+        }
+        if (displayBaseSelect) {
+            displayBaseSelect.value = String(game.displayBase);
         }
 
         const powerUpCheckboxes = document.querySelectorAll(".powerup-select-cb");
@@ -312,6 +318,12 @@ export function setupSettingsButton(game) {
                     game.solverHintEnabled = solverHintEnabledCheckbox.checked;
                     saveSolverHintEnabled(game.solverHintEnabled);
                 }
+                if (displayBaseSelect) {
+                    const base = parseInt(displayBaseSelect.value, 10);
+                    game.displayBase = base;
+                    saveDisplayBase(base);
+                    setDisplayBase(base);
+                }
 
                 const selectedCbs = document.querySelectorAll(".powerup-select-cb:checked");
                 const selected = Array.from(selectedCbs).map((cb) => cb.value);
@@ -329,6 +341,7 @@ export function setupSettingsButton(game) {
                 if (levelChanged) {
                     location.reload();
                 } else {
+                    game.renderBoard();
                     settingsDialog.classList.add("hidden");
                 }
             });
