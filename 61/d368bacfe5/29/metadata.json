@@ -3,29 +3,31 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "119e262d-bc12-45df-9618-54dd9c53a194",
   "strategy": "manual-commit",
-  "created_at": "2026-04-27T13:03:17.457673Z",
+  "created_at": "2026-04-27T13:18:43.756531Z",
   "branch": "feat/dynamic-formation-tutorials",
-  "checkpoints_count": 2,
+  "checkpoints_count": 1,
   "files_touched": [
     "src/formation-tutorial.js",
-    "src/merge-processor.js",
-    "style.css"
+    "src/merge-processor.js"
   ],
   "agent": "Claude Code",
+  "transcript_identifier_at_start": "566fa2a8-dc24-413a-9b43-e9f4ffb7abbf",
+  "checkpoint_transcript_start": 170,
+  "transcript_lines_at_start": 170,
   "token_usage": {
-    "input_tokens": 50,
-    "cache_creation_tokens": 111053,
-    "cache_read_tokens": 2065835,
-    "output_tokens": 19462,
-    "api_call_count": 44
+    "input_tokens": 24,
+    "cache_creation_tokens": 20775,
+    "cache_read_tokens": 1613163,
+    "output_tokens": 10013,
+    "api_call_count": 20
   },
   "initial_attribution": {
-    "calculated_at": "2026-04-27T13:03:17.356568Z",
-    "agent_lines": 138,
+    "calculated_at": "2026-04-27T13:18:43.613567Z",
+    "agent_lines": 11,
     "human_added": 0,
     "human_modified": 0,
     "human_removed": 0,
-    "total_committed": 138,
+    "total_committed": 11,
     "agent_percentage": 100
   },
   "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/119e262d-bc12-45df-9618-54dd9c53a194.jsonl"

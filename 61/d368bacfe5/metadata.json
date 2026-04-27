@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/dynamic-formation-tutorials",
-  "checkpoints_count": 60,
+  "checkpoints_count": 59,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -242,10 +242,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 1065,
-    "cache_creation_tokens": 1332578,
-    "cache_read_tokens": 47020954,
-    "output_tokens": 283948,
-    "api_call_count": 804
+    "input_tokens": 1039,
+    "cache_creation_tokens": 1242300,
+    "cache_read_tokens": 46568282,
+    "output_tokens": 274499,
+    "api_call_count": 780
   }
 }

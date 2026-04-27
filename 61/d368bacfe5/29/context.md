@@ -27,3 +27,13 @@ Create a pull request for the changes in this session.
 3. Open a PR with `gh pr create`. Write a title that summarizes the change and a body that covers what changed, why, and anything a reviewer should know. If the repo has a PR template, follow it.
 4. Report the PR URL when done. Wrap the URL in a...
 
+### Prompt 4
+
+Kannst du bitte mal nachprüfen welche Styles in Tiles im Tutorial Dialog nutzen?
+Hier würde ich auch gerne vorhandene gem styles nehmen
+
+### Prompt 5
+
+Adressieren mal diesen Kommentar:
+The tutorial derives the directional free-swap badge from matchGroup.direction, but the merge code creates directional free-swap tiles from game.lastSwapPosition in src/merge-processor.js. A horizontal swap that completes a vertical 4-line will show a vertical badge here while creating a horizontal free-swap tile, and vice versa.
+

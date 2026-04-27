@@ -29,3 +29,13 @@ Repository: GarreltMock/match-2048
 Branch: main
 Working directory: /Users/garreltmock/Projects/match-2048
 </create-pr-command>
+
+---
+
+Kannst du bitte mal nachprüfen welche Styles in Tiles im Tutorial Dialog nutzen?
+Hier würde ich auch gerne vorhandene gem styles nehmen
+
+---
+
+Adressieren mal diesen Kommentar:
+The tutorial derives the directional free-swap badge from matchGroup.direction, but the merge code creates directional free-swap tiles from game.lastSwapPosition in src/merge-processor.js. A horizontal swap that completes a vertical 4-line will show a vertical badge here while creating a horizontal free-swap tile, and vice versa.
