@@ -292,11 +292,6 @@ button {
     /* margin: 10px 0px; */
 }
 
-.example-result-row {
-    display: flex;
-    align-items: center;
-}
-
 .merge-indicator {
     display: flex;
     justify-content: center;
@@ -424,56 +419,31 @@ button {
     margin-bottom: 2px;
 }
 
-.example-tile {
+.formation-example .gem {
     width: 30px;
     height: 30px;
-    background: var(--tile-2-bg);
-    color: var(--tile-2-color);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 20%;
-    font-family: Nunito;
-    font-weight: 900;
     font-size: 14px;
-    box-shadow: 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
-    padding-bottom: 2px;
+    cursor: default;
+    transition: none;
 }
 
-.example-tile.target-highlight {
+.formation-example .gem.result {
+    width: 42px;
+    height: 42px;
+    font-size: 18px;
+}
+
+.formation-example .gem.target-highlight {
     box-shadow:
         0px 0px 0px 3px #aee96b,
         0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
     z-index: 2;
 }
 
-.example-tile.result {
-    width: 42px;
-    height: 42px;
-    font-size: 18px;
-}
-
-.example-tile.highlight {
-    background: var(--tile-3-bg);
-    color: var(--tile-3-color);
-    box-shadow: 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
-}
-
-.example-tile.highlight.double {
-    background: var(--tile-4-bg);
-    color: var(--tile-4-color);
-    box-shadow: 0 -3px 0 0 rgba(0, 0, 0, 0.25) inset;
-}
-
 .grid-row span:empty {
     width: 30px;
     height: 30px;
     display: inline-block;
-}
-
-.example-result {
-    display: inline-block;
-    margin: 10px;
 }
 
 .arrow {

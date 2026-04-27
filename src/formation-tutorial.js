@@ -6,7 +6,7 @@
  */
 
 import { loadShownFormationTutorials, saveShownFormationTutorial } from "./storage.js";
-import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount } from "./tile-helpers.js";
+import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount, getDisplayValue } from "./tile-helpers.js";
 
 /**
  * Get pending formation tutorials for match groups
@@ -112,222 +112,157 @@ export function clearMergeHighlight() {
     });
 }
 
-// Dialog content for each formation type
+// Static metadata for each formation type (keys used externally to track shown tutorials)
 export const FORMATION_TUTORIAL_DIALOGS = {
-    line_3: {
-        subtitle: "3-Tile Match",
-        title: "Line",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row">
-                    <div class="example-grid example-tiles">
-                        <div class="example-tile">4</div>
-                        <div class="example-tile target-highlight">4</div>
-                        <div class="example-tile">4</div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight">8</div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
-    line_4: {
-        subtitle: "4-Tile Match",
-        title: "Line",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row">
-                    <div class="example-grid example-tiles">
-                        <div class="example-tile">4</div>
-                        <div class="example-tile target-highlight">4</div>
-                        <div class="example-tile target-highlight">4</div>
-                        <div class="example-tile">4</div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight gem freeswap-horizontal-tile">8</div>
-                        <div class="example-tile result highlight">8</div>
-                    </div>
-                    <div class="special-tile-legend">
-                        <div class="legend-item">
-                            <div class="legend-icon gem freeswap-horizontal-tile"></div>
-                            <span>Allows one free invalid swap in that direction</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
-    block_4: {
-        subtitle: "4-Tile Match",
-        title: "Block",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row">
-                    <div class="example-grid">
-                        <div class="grid-row">
-                            <div class="example-tile">4</div>
-                            <div class="example-tile">4</div>
-                        </div>
-                        <div class="grid-row">
-                            <div class="example-tile target-highlight">4</div>
-                            <div class="example-tile target-highlight">4</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight gem freeswap-horizontal-tile">8</div>
-                        <div class="example-tile result highlight">8</div>
-                    </div>
-                    <div class="special-tile-legend">
-                        <div class="legend-item">
-                            <div class="legend-icon gem freeswap-horizontal-tile"></div>
-                            <span>Allows one free invalid swap in that direction</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
-    line_5: {
-        subtitle: "5-Tile Match",
-        title: "Line",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row" style="margin-top: 24px">
-                    <div class="example-grid example-tiles">
-                        <div class="example-tile">4</div>
-                        <div class="example-tile">4</div>
-                        <div class="example-tile target-highlight">4</div>
-                        <div class="example-tile">4</div>
-                        <div class="example-tile">4</div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight double gem teleport-tile">16</div>
-                    </div>
-                    <div class="special-tile-legend">
-                        <div class="legend-item">
-                            <span>Swap with any tile anywhere on the board.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
-    t_formation: {
-        subtitle: "5-Tile Match",
-        title: "T-Formation",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row">
-                    <div class="example-grid">
-                        <div class="grid-row">
-                            <div class="example-tile">4</div>
-                            <span></span>
-                            <span></span>
-                        </div>
-                        <div class="grid-row">
-                            <div class="example-tile target-highlight">4</div>
-                            <div class="example-tile">4</div>
-                            <div class="example-tile">4</div>
-                        </div>
-                        <div class="grid-row">
-                            <div class="example-tile">4</div>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight double gem freeswap-tile">16</div>
-                    </div>
-                    <div class="special-tile-legend">
-                        <div class="legend-item">
-                            <div class="legend-icon gem freeswap-tile"></div>
-                            <span>Allows one free invalid swap</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
-    l_formation: {
-        subtitle: "5-Tile Match",
-        title: "L-Formation",
-        content: `
-            <div class="formation-example">
-                <div class="example-formations-row">
-                    <div class="example-grid">
-                        <div class="grid-row">
-                            <div class="example-tile target-highlight">4</div>
-                            <div class="example-tile">4</div>
-                            <div class="example-tile">4</div>
-                        </div>
-                        <div class="grid-row">
-                            <div class="example-tile">4</div>
-                            <span></span>
-                            <span></span>
-                        </div>
-                        <div class="grid-row">
-                            <div class="example-tile">4</div>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="merge-indicator">
-                    <div class="merge-arrow">↓</div>
-                </div>
-
-                <div class="result-card">
-                    <div class="result-tiles">
-                        <div class="example-tile result highlight double gem freeswap-tile">16</div>
-                    </div>
-                    <div class="special-tile-legend">
-                        <div class="legend-item">
-                            <div class="legend-icon gem freeswap-tile"></div>
-                            <span>Allows one free invalid swap</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `,
-    },
+    line_3:      { subtitle: "3-Tile Match",  title: "Line" },
+    line_4:      { subtitle: "4-Tile Match",  title: "Line" },
+    block_4:     { subtitle: "4-Tile Match",  title: "Block" },
+    line_5:      { subtitle: "5-Tile Match",  title: "Line" },
+    t_formation: { subtitle: "5-Tile Match",  title: "T-Formation" },
+    l_formation: { subtitle: "5-Tile Match",  title: "L-Formation" },
 };
+
+function t(value, extra = "", highlight = false) {
+    const cls = ["gem", `tile-${value}`, extra, highlight ? "target-highlight" : ""].filter(Boolean).join(" ");
+    return `<div class="${cls}">${getDisplayValue(value)}</div>`;
+}
+
+function buildFormationContent(formationType, matchGroup, isHorizontalSwap = false) {
+    const v = matchGroup.value;
+    const is5 = formationType === "line_5" || formationType === "t_formation" || formationType === "l_formation";
+    const rv = v + (is5 ? 2 : 1);
+
+    const freeswapDir = isHorizontalSwap ? "freeswap-horizontal-tile" : "freeswap-vertical-tile";
+
+    switch (formationType) {
+        case "line_3":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row">
+                        <div class="example-grid example-tiles">
+                            ${t(v)} ${t(v, "", true)} ${t(v)}
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">${t(rv, "result")}</div>
+                    </div>
+                </div>`;
+
+        case "line_4":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row">
+                        <div class="example-grid example-tiles">
+                            ${t(v)} ${t(v, "", true)} ${t(v, "", true)} ${t(v)}
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">
+                            ${t(rv, `result ${freeswapDir}`)}
+                            ${t(rv, "result")}
+                        </div>
+                        <div class="special-tile-legend">
+                            <div class="legend-item">
+                                <div class="legend-icon gem ${freeswapDir}"></div>
+                                <span>Allows one free invalid swap in that direction</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+        case "block_4":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row">
+                        <div class="example-grid">
+                            <div class="grid-row">${t(v)} ${t(v)}</div>
+                            <div class="grid-row">${t(v, "", true)} ${t(v, "", true)}</div>
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">
+                            ${t(rv, "result freeswap-horizontal-tile")}
+                            ${t(rv, "result")}
+                        </div>
+                        <div class="special-tile-legend">
+                            <div class="legend-item">
+                                <div class="legend-icon gem freeswap-horizontal-tile"></div>
+                                <span>Allows one free invalid swap in that direction</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+        case "line_5":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row" style="margin-top: 24px">
+                        <div class="example-grid example-tiles">
+                            ${t(v)} ${t(v)} ${t(v, "", true)} ${t(v)} ${t(v)}
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">${t(rv, "result teleport-tile")}</div>
+                        <div class="special-tile-legend">
+                            <div class="legend-item">
+                                <span>Swap with any tile anywhere on the board.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+        case "t_formation":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row">
+                        <div class="example-grid">
+                            <div class="grid-row">${t(v)}<span></span><span></span></div>
+                            <div class="grid-row">${t(v, "", true)} ${t(v)} ${t(v)}</div>
+                            <div class="grid-row">${t(v)}<span></span><span></span></div>
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">${t(rv, "result freeswap-tile")}</div>
+                        <div class="special-tile-legend">
+                            <div class="legend-item">
+                                <div class="legend-icon gem freeswap-tile"></div>
+                                <span>Allows one free invalid swap</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+        case "l_formation":
+            return `
+                <div class="formation-example">
+                    <div class="example-formations-row">
+                        <div class="example-grid">
+                            <div class="grid-row">${t(v, "", true)} ${t(v)} ${t(v)}</div>
+                            <div class="grid-row">${t(v)}<span></span><span></span></div>
+                            <div class="grid-row">${t(v)}<span></span><span></span></div>
+                        </div>
+                    </div>
+                    <div class="merge-indicator"><div class="merge-arrow">↓</div></div>
+                    <div class="result-card">
+                        <div class="result-tiles">${t(rv, "result freeswap-tile")}</div>
+                        <div class="special-tile-legend">
+                            <div class="legend-item">
+                                <div class="legend-icon gem freeswap-tile"></div>
+                                <span>Allows one free invalid swap</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+
+        default:
+            return "";
+    }
+}
 
 /**
  * Check if a formation tutorial has been shown before
@@ -363,9 +298,11 @@ export function getFormationTypeFromDirection(direction) {
 /**
  * Show formation tutorial dialog
  * @param {string} formationType - The formation type to show
+ * @param {object} matchGroup - The match group that triggered this tutorial (provides actual tile value)
+ * @param {boolean} isHorizontalSwap - Whether the triggering swap was horizontal (same row), used for freeswap badge direction
  * @returns {Promise<boolean>} Resolves to true if dialog was shown, false if already shown or invalid
  */
-export function showFormationTutorialDialog(formationType) {
+export function showFormationTutorialDialog(formationType, matchGroup, isHorizontalSwap = false) {
     return new Promise((resolve) => {
         // Check if already shown
         if (hasFormationTutorialBeenShown(formationType)) {
@@ -396,7 +333,7 @@ export function showFormationTutorialDialog(formationType) {
                 <h2>${dialog.title}</h2>
             </div>
             <div class="goal-dialog-content">
-                ${dialog.content}
+                ${buildFormationContent(formationType, matchGroup, isHorizontalSwap)}
             </div>
             <div class="goal-dialog-footer">
                 <button class="goal-dialog-button">Got it!</button>
