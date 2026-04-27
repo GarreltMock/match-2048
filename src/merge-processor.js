@@ -72,8 +72,8 @@ export async function processMatches(game, { animateMerges, animateUnblocking } 
             await new Promise((resolve) => setTimeout(resolve, 500));
 
             // Show each tutorial dialog and wait for user to close it
-            for (const { formationType } of pendingTutorials) {
-                await showFormationTutorialDialog(formationType);
+            for (const { formationType, matchGroup } of pendingTutorials) {
+                await showFormationTutorialDialog(formationType, matchGroup);
             }
 
             // Wait 800ms after dialog closes before continuing
