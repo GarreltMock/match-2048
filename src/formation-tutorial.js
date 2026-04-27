@@ -114,17 +114,54 @@ export function clearMergeHighlight() {
 
 // Static metadata for each formation type (keys used externally to track shown tutorials)
 export const FORMATION_TUTORIAL_DIALOGS = {
-    line_3:      { subtitle: "3-Tile Match",  title: "Line" },
-    line_4:      { subtitle: "4-Tile Match",  title: "Line" },
-    block_4:     { subtitle: "4-Tile Match",  title: "Block" },
-    line_5:      { subtitle: "5-Tile Match",  title: "Line" },
-    t_formation: { subtitle: "5-Tile Match",  title: "T-Formation" },
-    l_formation: { subtitle: "5-Tile Match",  title: "L-Formation" },
+    line_3:      { count: "3-Tile", name: "Line Match" },
+    line_4:      { count: "4-Tile", name: "Line Match" },
+    block_4:     { count: "4-Tile", name: "Block Match" },
+    line_5:      { count: "5-Tile", name: "Line Match" },
+    t_formation: { count: "5-Tile", name: "T-Formation" },
+    l_formation: { count: "5-Tile", name: "L-Formation" },
 };
 
 function t(value, extra = "", highlight = false) {
     const cls = ["gem", `tile-${value}`, extra, highlight ? "target-highlight" : ""].filter(Boolean).join(" ");
     return `<div class="${cls}">${getDisplayValue(value)}</div>`;
+}
+
+
+const MERGE_DESCRIPTIONS = {
+    line_3:      "3 matching tiles merge into the next tier",
+    line_4:      "4 matching tiles merge into the next tier",
+    block_4:     "4 matching tiles merge into the next tier",
+    line_5:      "5 matching tiles skip to a higher tier",
+    t_formation: "5 matching tiles skip to a higher tier",
+    l_formation: "5 matching tiles skip to a higher tier",
+};
+
+function buildTierChain(rv, boxStart) {
+    const start = Math.max(1, rv - 2);
+    const end = start + 3;
+    let html = '<div class="tier-chain"><div class="tier-chain-tiles">';
+    if (start > 1) html += '<span class="tier-chain-ellipsis">···</span><span class="tier-chain-arrow">→</span>';
+    let boxOpen = false;
+    for (let i = start; i <= end; i++) {
+        if (i === boxStart) {
+            if (i > start) html += '<span class="tier-chain-arrow">→</span>';
+            html += '<div class="tier-chain-box">';
+            boxOpen = true;
+            html += `<div class="gem tile-${i} tier-chain-tile${i === rv ? " tier-chain-result" : ""}">${getDisplayValue(i)}</div>`;
+        } else if (i === rv && boxOpen) {
+            html += '<span class="tier-chain-arrow">→</span>';
+            html += `<div class="gem tile-${i} tier-chain-tile tier-chain-result">${getDisplayValue(i)}</div>`;
+            html += '</div>';
+            boxOpen = false;
+        } else {
+            if (i > start) html += '<span class="tier-chain-arrow">→</span>';
+            html += `<div class="gem tile-${i} tier-chain-tile">${getDisplayValue(i)}</div>`;
+        }
+    }
+    html += '<span class="tier-chain-arrow">→</span><span class="tier-chain-ellipsis">···</span>';
+    html += '</div></div>';
+    return html;
 }
 
 function buildFormationContent(formationType, matchGroup, isHorizontalSwap = false) {
@@ -134,9 +171,12 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
 
     const freeswapDir = isHorizontalSwap ? "freeswap-horizontal-tile" : "freeswap-vertical-tile";
 
+    const description = MERGE_DESCRIPTIONS[formationType] ?? "";
+
     switch (formationType) {
         case "line_3":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row">
                         <div class="example-grid example-tiles">
@@ -147,10 +187,14 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                     <div class="result-card">
                         <div class="result-tiles">${t(rv, "result")}</div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         case "line_4":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row">
                         <div class="example-grid example-tiles">
@@ -170,10 +214,14 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         case "block_4":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row">
                         <div class="example-grid">
@@ -194,10 +242,14 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         case "line_5":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row" style="margin-top: 24px">
                         <div class="example-grid example-tiles">
@@ -213,10 +265,14 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         case "t_formation":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row">
                         <div class="example-grid">
@@ -235,10 +291,14 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         case "l_formation":
             return `
+                <div class="formation-tutorial-content">
                 <div class="formation-example">
                     <div class="example-formations-row">
                         <div class="example-grid">
@@ -257,6 +317,9 @@ function buildFormationContent(formationType, matchGroup, isHorizontalSwap = fal
                             </div>
                         </div>
                     </div>
+                </div>
+                <div class="merge-description">${description}</div>
+                ${buildTierChain(rv, is5 ? rv - 2 : rv - 1)}
                 </div>`;
 
         default:
@@ -329,8 +392,8 @@ export function showFormationTutorialDialog(formationType, matchGroup, isHorizon
         dialogElement.className = "goal-dialog";
         dialogElement.innerHTML = `
             <div class="goal-dialog-header">
-                <h3>${dialog.subtitle}</h3>
-                <h2>${dialog.title}</h2>
+                <h2>Level Up!</h2>
+                <h3><span class="formation-count-label">${dialog.count}</span> · ${dialog.name}</h3>
             </div>
             <div class="goal-dialog-content">
                 ${buildFormationContent(formationType, matchGroup, isHorizontalSwap)}

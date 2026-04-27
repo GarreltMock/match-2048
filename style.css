@@ -440,6 +440,78 @@ button {
     z-index: 2;
 }
 
+.formation-tutorial-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.merge-description {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-align: center;
+    margin: 0;
+}
+
+.tier-chain {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 4px;
+}
+
+.tier-chain-tiles {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tier-chain-box {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tier-chain-tile {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+    cursor: default;
+    transition: none;
+}
+
+.tier-chain-arrow {
+    font-size: 18px;
+    font-weight: bolder;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1;
+}
+
+.tier-chain .tier-chain-result {
+    box-shadow:
+        0 -3px 0 0 rgba(0, 0, 0, 0.25) inset,
+        0 0 0 3px rgba(255, 255, 255, 0.95),
+        0 0 14px 4px rgba(255, 255, 255, 0.55);
+    z-index: 2;
+}
+
+.tier-chain-ellipsis {
+    font-size: 22px;
+    font-weight: bolder;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: -1px;
+    line-height: 1;
+}
+
+.formation-count-label {
+    color: #aee96b;
+    font-weight: 700;
+}
+
 .grid-row span:empty {
     width: 30px;
     height: 30px;
