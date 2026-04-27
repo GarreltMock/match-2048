@@ -71,9 +71,14 @@ export async function processMatches(game, { animateMerges, animateUnblocking } 
             // Wait 500ms so user can see the highlighted tiles before dialog opens
             await new Promise((resolve) => setTimeout(resolve, 500));
 
+            // Determine swap direction the same way merge-processor does for freeswap tiles
+            const swapPos = game.lastSwapPosition;
+            const isHorizontalSwap =
+                swapPos && swapPos.movedFrom ? swapPos.movedFrom.row === swapPos.row : false;
+
             // Show each tutorial dialog and wait for user to close it
             for (const { formationType, matchGroup } of pendingTutorials) {
-                await showFormationTutorialDialog(formationType, matchGroup);
+                await showFormationTutorialDialog(formationType, matchGroup, isHorizontalSwap);
             }
 
             // Wait 800ms after dialog closes before continuing

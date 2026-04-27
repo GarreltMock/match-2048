@@ -127,13 +127,12 @@ function t(value, extra = "", highlight = false) {
     return `<div class="${cls}">${getDisplayValue(value)}</div>`;
 }
 
-function buildFormationContent(formationType, matchGroup) {
+function buildFormationContent(formationType, matchGroup, isHorizontalSwap = false) {
     const v = matchGroup.value;
     const is5 = formationType === "line_5" || formationType === "t_formation" || formationType === "l_formation";
     const rv = v + (is5 ? 2 : 1);
 
-    const freeswapDir =
-        matchGroup.direction === "line_4_vertical" ? "freeswap-vertical-tile" : "freeswap-horizontal-tile";
+    const freeswapDir = isHorizontalSwap ? "freeswap-horizontal-tile" : "freeswap-vertical-tile";
 
     switch (formationType) {
         case "line_3":
@@ -300,9 +299,10 @@ export function getFormationTypeFromDirection(direction) {
  * Show formation tutorial dialog
  * @param {string} formationType - The formation type to show
  * @param {object} matchGroup - The match group that triggered this tutorial (provides actual tile value)
+ * @param {boolean} isHorizontalSwap - Whether the triggering swap was horizontal (same row), used for freeswap badge direction
  * @returns {Promise<boolean>} Resolves to true if dialog was shown, false if already shown or invalid
  */
-export function showFormationTutorialDialog(formationType, matchGroup) {
+export function showFormationTutorialDialog(formationType, matchGroup, isHorizontalSwap = false) {
     return new Promise((resolve) => {
         // Check if already shown
         if (hasFormationTutorialBeenShown(formationType)) {
@@ -333,7 +333,7 @@ export function showFormationTutorialDialog(formationType, matchGroup) {
                 <h2>${dialog.title}</h2>
             </div>
             <div class="goal-dialog-content">
-                ${buildFormationContent(formationType, matchGroup)}
+                ${buildFormationContent(formationType, matchGroup, isHorizontalSwap)}
             </div>
             <div class="goal-dialog-footer">
                 <button class="goal-dialog-button">Got it!</button>
