@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "6126a6c5-2359-4955-9457-83e02f471eb1",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-27T14:07:55.664628Z",
+  "branch": "feat/formation-tutorial-redesign",
+  "checkpoints_count": 6,
+  "files_touched": [
+    "src/formation-tutorial.js",
+    "style.css"
+  ],
+  "agent": "Claude Code",
+  "token_usage": {
+    "input_tokens": 79,
+    "cache_creation_tokens": 71471,
+    "cache_read_tokens": 3377878,
+    "output_tokens": 25096,
+    "api_call_count": 65
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-27T14:07:55.570842Z",
+    "agent_lines": 122,
+    "human_added": 1,
+    "human_modified": 15,
+    "human_removed": 0,
+    "total_committed": 133,
+    "agent_percentage": 91.72932330827066
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/6126a6c5-2359-4955-9457-83e02f471eb1.jsonl"
+}
