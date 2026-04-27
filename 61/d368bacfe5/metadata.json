@@ -2,8 +2,8 @@
   "cli_version": "0.4.4",
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
-  "branch": "feat/formation-tutorial-redesign",
-  "checkpoints_count": 65,
+  "branch": "main",
+  "checkpoints_count": 66,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -246,13 +246,20 @@
       "context": "/61/d368bacfe5/30/context.md",
       "content_hash": "/61/d368bacfe5/30/content_hash.txt",
       "prompt": "/61/d368bacfe5/30/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/31/metadata.json",
+      "transcript": "/61/d368bacfe5/31/full.jsonl",
+      "context": "/61/d368bacfe5/31/context.md",
+      "content_hash": "/61/d368bacfe5/31/content_hash.txt",
+      "prompt": "/61/d368bacfe5/31/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 1118,
-    "cache_creation_tokens": 1313771,
-    "cache_read_tokens": 49946160,
-    "output_tokens": 299595,
-    "api_call_count": 845
+    "input_tokens": 1148,
+    "cache_creation_tokens": 1350486,
+    "cache_read_tokens": 50957638,
+    "output_tokens": 306413,
+    "api_call_count": 873
   }
 }

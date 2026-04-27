@@ -1,0 +1,11 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+Can you add a dropdown setting at the top somewhere, which changes the value base.
+So we change the implementation of getDisplayValue.
+Currently we have the base 2 (2,4,8,16,etc.)
+Add the option to have base 1 (1,2,3,4,5)
+
