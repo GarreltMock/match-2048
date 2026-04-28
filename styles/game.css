@@ -791,7 +791,7 @@
     position: absolute;
     top: -3px;
     right: -3px;
-    font-size: clamp(8px, 2vw, 16px);
+    font-size: 30cqw;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -813,7 +813,7 @@
     position: absolute;
     top: -3px;
     right: -3px;
-    font-size: clamp(8px, 2vw, 16px);
+    font-size: 30cqw;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -835,7 +835,7 @@
     position: absolute;
     top: -3px;
     right: -3px;
-    font-size: clamp(8px, 2vw, 16px);
+    font-size: 30cqw;
     width: 40%;
     height: 40%;
     border-radius: 35%;
@@ -867,7 +867,7 @@
     position: absolute;
     top: -3px;
     right: -3px;
-    font-size: clamp(8px, 2vw, 16px);
+    font-size: 30cqw;
     width: 40%;
     height: 40%;
     border-radius: 35%;
