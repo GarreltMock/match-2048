@@ -18,3 +18,8 @@ Looks to me, that we have duplicated code for tile1 and tile1
 Do you think we can refactor the exectueSwap a little?
 Looks to me, that we have duplicated code for tile1 and tile2
 
+### Prompt 4
+
+Ok perfect. Next bug is, that the teleport icon in the special tile ::after is to big on desktop. Because the font-size is 8px, 2vw, 16px @styles/game.css 
+Can we maybe size that with cqw based on the .gem container?
+
