@@ -2,11 +2,20 @@
 
 import { TILE_TYPE } from "./config.js";
 
+const SUPPORTED_NORMAL_SPECIAL_TYPES = new Set([
+    "freeswap",
+    "sticky_freeswap",
+    "freeswap_horizontal",
+    "freeswap_vertical",
+    "teleport",
+    "plus",
+]);
+
 /**
  * Create a normal tile with optional special properties
  * @param {number} value - The tile's internal value
  * @param {string|null} specialType - Special tile type: "freeswap", "sticky_freeswap",
- *                                     "freeswap_horizontal", "freeswap_vertical", "hammer", "halver", or null
+ *                                     "freeswap_horizontal", "freeswap_vertical", "teleport", "plus", or null
  * @param {Object} options - Additional options
  * @param {boolean} options.transferStickyFreeSwap - Whether to transfer sticky free swap ability
  * @param {boolean|null} options.isHorizontal - For directional free swaps: true=horizontal, false=vertical, null=use config
@@ -24,7 +33,7 @@ export function createTile(value, specialType = null, options = {}) {
     };
 
     // Apply special type
-    if (specialType) {
+    if (SUPPORTED_NORMAL_SPECIAL_TYPES.has(specialType)) {
         tile.specialType = specialType;
 
         // For directional free swaps, override with isHorizontal option if provided
@@ -198,14 +207,6 @@ export function isTileFreeSwapHorizontalTile(tile) {
 
 export function isTileFreeSwapVerticalTile(tile) {
     return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "freeswap_vertical";
-}
-
-export function isTileHammerTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "hammer";
-}
-
-export function isTileHalverTile(tile) {
-    return tile && tile.type === TILE_TYPE.NORMAL && tile.specialType === "halver";
 }
 
 export function isTileTeleportTile(tile) {

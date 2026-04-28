@@ -12,8 +12,6 @@ import {
     isTileStickyFreeSwapTile,
     isTileFreeSwapHorizontalTile,
     isTileFreeSwapVerticalTile,
-    isTileHammerTile,
-    isTileHalverTile,
     isTileTeleportTile,
     isTilePlusTile,
     isWildTeleportTile,
@@ -207,16 +205,6 @@ export function renderBoard(game) {
 
                 if (isTileFreeSwapVerticalTile(tile) && !tile.hasBeenSwapped) {
                     gem.classList.add("freeswap-vertical-tile");
-                }
-
-                // Add hammer-tile class if this is a hammer tile
-                if (isTileHammerTile(tile)) {
-                    gem.classList.add("hammer-tile");
-                }
-
-                // Add halver-tile class if this is a halver tile
-                if (isTileHalverTile(tile)) {
-                    gem.classList.add("halver-tile");
                 }
 
                 // Add teleport-tile class if this is a teleport tile

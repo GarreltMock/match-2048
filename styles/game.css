@@ -781,50 +781,6 @@
     justify-content: center;
 }
 
-.gem.hammer-tile {
-    border: 3px solid var(--tile-hammer-border);
-    position: relative;
-}
-
-.gem.hammer-tile::after {
-    content: "🔨";
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    font-size: 30cqw;
-    width: 40%;
-    height: 40%;
-    border-radius: 35%;
-    background-color: var(--tile-hammer-badge-bg);
-    color: var(--tile-hammer-badge-color);
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.gem.halver-tile {
-    border: 3px solid var(--tile-halver-border);
-    position: relative;
-}
-
-.gem.halver-tile::after {
-    content: "✂️";
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    font-size: 30cqw;
-    width: 40%;
-    height: 40%;
-    border-radius: 35%;
-    background-color: var(--tile-halver-badge-bg);
-    color: var(--tile-halver-badge-color);
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
 .gem.teleport-tile {
     border: 3px solid var(--tile-teleport-border);
     position: relative;
