@@ -8,6 +8,7 @@ import { isRectangularBlocked } from "./tile-helpers.js";
 import {
     isNormal, getTileValue, getDisplayValue,
     isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount,
+    isCursed,
 } from "./tile-helpers.js";
 
 function cloneTile(tile) {
@@ -39,7 +40,6 @@ function createSimContext(game, board, levelGoals) {
         boardWidth: game.boardWidth,
         boardHeight: game.boardHeight,
         tileValues: game.tileValues,
-        spawnableTileValues: game.spawnableTileValues,
         specialTileConfig: game.specialTileConfig,
         levelGoals,
         allowNonMatchingSwaps: false,
@@ -138,6 +138,103 @@ function updateBoardScanGoals(ctx, initialBlockedTileCount) {
 }
 
 /**
+ * Decrement cursed tile timers and remove expired tiles from the board.
+ * Mirrors decrementCursedTileTimers in goal-tracker.js (without DOM/animation).
+ * Returns the number of tiles removed.
+ */
+function decrementCursedTimers(ctx) {
+    const toRemove = [];
+    const toImplode = [];
+
+    for (let row = 0; row < ctx.boardHeight; row++) {
+        for (let col = 0; col < ctx.boardWidth; col++) {
+            const tile = ctx.board[row][col];
+            if (!tile || !isCursed(tile)) continue;
+            if (tile.createdThisTurn) {
+                tile.createdThisTurn = false;
+                continue;
+            }
+            tile.cursedMovesRemaining--;
+            if (tile.cursedMovesRemaining <= 0) {
+                const goal = ctx.levelGoals.find(
+                    (g) => g.goalType === "cursed" && g.tileValue === getTileValue(tile)
+                );
+                if (goal?.implode) {
+                    toImplode.push({ row, col });
+                } else {
+                    toRemove.push({ row, col });
+                }
+            }
+        }
+    }
+
+    toRemove.forEach((pos) => { ctx.board[pos.row][pos.col] = null; });
+
+    toImplode.forEach((pos) => {
+        const adjacent = [
+            { row: pos.row - 1, col: pos.col },
+            { row: pos.row + 1, col: pos.col },
+            { row: pos.row, col: pos.col - 1 },
+            { row: pos.row, col: pos.col + 1 },
+        ];
+        adjacent.forEach((a) => {
+            if (a.row >= 0 && a.row < ctx.boardHeight && a.col >= 0 && a.col < ctx.boardWidth) {
+                const t = ctx.board[a.row][a.col];
+                if (t && (isNormal(t) || isCursed(t))) ctx.board[a.row][a.col] = null;
+            }
+        });
+        ctx.board[pos.row][pos.col] = null;
+    });
+
+    return toRemove.length + toImplode.length;
+}
+
+/**
+ * Run one cascade step: find matches, score, merge, unblock, gravity.
+ * Returns scoreDelta for this step, or 0 if no matches.
+ */
+function runCascadeStep(ctx, isUserSwap) {
+    ctx.isUserSwap = isUserSwap;
+
+    const matchGroups = findMatches(ctx);
+    if (matchGroups.length === 0) return 0;
+
+    let cascadeScore = 0;
+    matchGroups.forEach((group) => {
+        cascadeScore += getDisplayValue(group.value) * group.tiles.length;
+    });
+    ctx.levelGoals.forEach((goal) => {
+        if (goal.goalType === "score") goal.current += cascadeScore;
+    });
+
+    processMerges(ctx, matchGroups, isUserSwap);
+
+    // Mirror processMatches: clear adjacent blocked tiles from the board
+    const blockedTilesToRemove = unblockAdjacentTiles(ctx, matchGroups);
+    blockedTilesToRemove.forEach((entry) => {
+        if (entry.isMergeCount && !entry.isFullRemoval) return;
+        const tile = entry.tile || ctx.board[entry.row]?.[entry.col];
+        if (!tile) return;
+        if (isRectangularBlocked(tile)) {
+            for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                    if (ctx.board[r]?.[c]?.rectId === tile.rectId) ctx.board[r][c] = null;
+                }
+            }
+            return;
+        }
+        ctx.board[entry.row][entry.col] = null;
+    });
+
+    applyGravity(ctx);
+
+    ctx.isUserSwap = false;
+    ctx.lastSwapPosition = null;
+
+    return cascadeScore;
+}
+
+/**
  * Return true iff every goal is satisfied.
  * Mirrors goal-tracker.js:30-42 logic.
  */
@@ -159,7 +256,6 @@ export function areGoalsSatisfied(levelGoals) {
  * @param {Object} [options]
  * @param {Function} [options.rng] - Optional deterministic PRNG
  * @param {Array}    [options.levelGoals] - Cumulative goal state (cloned before use)
- * @param {number}   [options.initialBlockedTileCount] - For blocked goal tracking
  */
 export function simulateMove(game, swap, options = {}) {
     const { row1, col1, row2, col2 } = swap;
@@ -205,51 +301,28 @@ export function simulateMove(game, swap, options = {}) {
     let cascades = 0;
     const maxCascades = 20;
 
+    // Main cascade loop (first iteration is the user's swap)
     let isFirstIteration = true;
     while (cascades < maxCascades) {
-        ctx.isUserSwap = isFirstIteration;
-
-        const matchGroups = findMatches(ctx);
-        if (matchGroups.length === 0) break;
-
-        // Score accumulation (mirrors processMatches in merge-processor.js, which is
-        // DOM-bound and not used headless). Score-type goals also increment here.
-        let cascadeScore = 0;
-        matchGroups.forEach((group) => {
-            cascadeScore += getDisplayValue(group.value) * group.tiles.length;
-        });
-        scoreDelta += cascadeScore;
-        ctx.levelGoals.forEach((goal) => {
-            if (goal.goalType === "score") {
-                goal.current += cascadeScore;
-            }
-        });
-
-        processMerges(ctx, matchGroups, ctx.isUserSwap);
-
-        // Mirror processMatches: clear adjacent blocked tiles from the board
-        const blockedTilesToRemove = unblockAdjacentTiles(ctx, matchGroups);
-        blockedTilesToRemove.forEach((entry) => {
-            if (entry.isMergeCount && !entry.isFullRemoval) return;
-            const tile = entry.tile || ctx.board[entry.row]?.[entry.col];
-            if (!tile) return;
-            if (isRectangularBlocked(tile)) {
-                for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
-                    for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
-                        if (ctx.board[r]?.[c]?.rectId === tile.rectId) ctx.board[r][c] = null;
-                    }
-                }
-                return;
-            }
-            ctx.board[entry.row][entry.col] = null;
-        });
-
-        applyGravity(ctx);
-
+        const step = runCascadeStep(ctx, isFirstIteration);
+        if (step === 0) break;
+        scoreDelta += step;
         cascades++;
         isFirstIteration = false;
-        ctx.isUserSwap = false;
-        ctx.lastSwapPosition = null;
+    }
+
+    // Decrement cursed tile timers after all cascades complete, then run any
+    // follow-up cascades that may form (mirrors real game: decrementCursedTileTimers
+    // → dropGems in animator.js).
+    const expiredCount = decrementCursedTimers(ctx);
+    if (expiredCount > 0) {
+        applyGravity(ctx);
+        while (cascades < maxCascades) {
+            const step = runCascadeStep(ctx, false);
+            if (step === 0) break;
+            scoreDelta += step;
+            cascades++;
+        }
     }
 
     updateBoardScanGoals(ctx, initialBlockedTileCount);
