@@ -350,7 +350,7 @@ export function setupSettingsButton(game) {
                 if (levelChanged) {
                     location.reload();
                 } else {
-                    game.renderBoard();
+                    if (game.board && game.board.length > 0) game.renderBoard();
                     settingsDialog.classList.add("hidden");
                 }
             });

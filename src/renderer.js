@@ -27,6 +27,7 @@ import { SUPER_STREAK_THRESHOLD, TILE_TYPE, FEATURE_KEYS } from "./config.js";
 
 // Helper function to update target values for all joker tiles
 function updateJokerTargetValues(game) {
+    if (!game.board || game.board.length === 0) return;
     for (let row = 0; row < game.boardHeight; row++) {
         for (let col = 0; col < game.boardWidth; col++) {
             const tile = game.board[row][col];
