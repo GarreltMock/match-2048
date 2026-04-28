@@ -511,15 +511,7 @@ function isExtendedFreeSwapAllowed(game, row1, col1, row2, col2) {
     }
 
     const tile1 = game.board[row1][col1];
-
-    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
-
-    const isDirectionalFreeSwap1 =
-        !tile1.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
-
-    return isFreeSwap1 || isDirectionalFreeSwap1;
+    return tileHasFreeSwap(tile1, isHorizontalSwap, isVerticalSwap);
 }
 
 function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
@@ -574,18 +566,26 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
  *             isSwapPowerUp: boolean, isTeleportPowerUp: boolean, allowNonMatchingSwap: boolean }}
  *   An invalid or disallowed swap is indicated by `valid: false`.
  */
+function tileHasFreeSwap(tile, isHorizontalSwap, isVerticalSwap) {
+    if (tile.hasBeenSwapped) return false;
+    if (isTileFreeSwapTile(tile) || isTileStickyFreeSwapTile(tile)) return true;
+    return (
+        (isTileFreeSwapHorizontalTile(tile) && isHorizontalSwap) ||
+        (isTileFreeSwapVerticalTile(tile) && isVerticalSwap)
+    );
+}
+
 export function executeSwap(game, row1, col1, row2, col2) {
     const tile1 = game.board[row1][col1];
+    const tile2 = game.board[row2][col2];
 
     const isHorizontalSwap = row1 === row2;
     const isVerticalSwap = col1 === col2;
 
-    const isFreeSwap1 = (isTileFreeSwapTile(tile1) || isTileStickyFreeSwapTile(tile1)) && !tile1.hasBeenSwapped;
-    const isDirectionalFreeSwap1 =
-        !tile1.hasBeenSwapped &&
-        ((isTileFreeSwapHorizontalTile(tile1) && isHorizontalSwap) ||
-            (isTileFreeSwapVerticalTile(tile1) && isVerticalSwap));
-    const hasFreeSwap = isFreeSwap1 || isDirectionalFreeSwap1;
+    const hasFreeSwap = tileHasFreeSwap(tile1, isHorizontalSwap, isVerticalSwap);
+    // tile2's free swap only activates when the swap would otherwise be invalid
+    const hasFreeSwap2 = tileHasFreeSwap(tile2, isHorizontalSwap, isVerticalSwap);
+
     const hasTeleport = (isTileTeleportTile(tile1) || isWildTeleportTile(tile1)) && !tile1.hasBeenSwapped;
     const isSwapPowerUp = game.activePowerUp === "swap";
     const isTeleportPowerUp = game.activePowerUp === "teleport";
@@ -601,9 +601,13 @@ export function executeSwap(game, row1, col1, row2, col2) {
 
     const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
 
-    if (hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap) {
+    const validWithoutTile2FreeSwap =
+        hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || allowNonMatchingSwap;
+    const useTile2FreeSwap = !validWithoutTile2FreeSwap && hasFreeSwap2;
+
+    if (validWithoutTile2FreeSwap || useTile2FreeSwap) {
         // Count the move
-        if (!isSwapPowerUp && !isTeleportPowerUp && !hasFreeSwap && !hasTeleport) {
+        if (!isSwapPowerUp && !isTeleportPowerUp && !hasFreeSwap && !hasTeleport && !useTile2FreeSwap) {
             game.movesUsed++;
         }
 
@@ -617,11 +621,15 @@ export function executeSwap(game, row1, col1, row2, col2) {
         if (hasTeleport) {
             game.board[row2][col2].hasBeenSwapped = true;
         }
+        // Mark tile2's free swap as used (tile2 is now at row1/col1 after swap)
+        if (useTile2FreeSwap) {
+            game.board[row1][col1].hasBeenSwapped = true;
+        }
 
         return {
             valid: true,
             hasMatch,
-            hasFreeSwap,
+            hasFreeSwap: hasFreeSwap || useTile2FreeSwap,
             hasTeleport,
             isSwapPowerUp,
             isTeleportPowerUp,
