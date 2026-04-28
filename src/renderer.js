@@ -344,14 +344,18 @@ export function createGoalCard(game, goal) {
 
     goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
 
-    const goalProgress = goal.target - currentProgress;
+    const isRatioGoal = goal.goalType !== "blocked";
+    const goalProgressText = isRatioGoal
+        ? `${currentProgress}/${goal.target}`
+        : `${goal.target - currentProgress}`;
     const goalProgressElement = `
         <stroked-text
-            text="${goalProgress}"
+            text="${goalProgressText}"
             font-size="20"
             stroke-width="8"
-            width="100"
+            width="${isRatioGoal ? 150 : 100}"
             height="24"
+            letter-spacing="${isRatioGoal ? 1 : 0}"
             svg-style="height: 100%;">
         </stroked-text>
         `;

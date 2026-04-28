@@ -25,7 +25,7 @@ class StrokedText extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ["text", "font-size", "fill", "stroke", "stroke-width", "width", "height", "font-weight", "text-anchor"];
+        return ["text", "font-size", "fill", "stroke", "stroke-width", "width", "height", "font-weight", "text-anchor", "letter-spacing"];
     }
 
     attributeChangedCallback() {
@@ -49,6 +49,7 @@ class StrokedText extends HTMLElement {
         const strokeWidth = Number(this.getAttribute("stroke-width") || "6");
         const fontWeight = this.getAttribute("font-weight") || "900";
         const textAnchor = this.getAttribute("text-anchor") || "middle";
+        const letterSpacing = this.getAttribute("letter-spacing") || "0";
         const svgStyle = this.getAttribute("svg-style") || "";
 
         // Check if text contains emojis - use canvas-based approach for emojis
@@ -97,6 +98,7 @@ class StrokedText extends HTMLElement {
                     paint-order="stroke fill"
                     stroke-linejoin="round"
                     text-anchor="${textAnchor}"
+                    letter-spacing="${letterSpacing}"
                 >
                     ${text}
                 </text>
