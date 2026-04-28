@@ -16,3 +16,16 @@ This solver hint also changes the +10 Moves Button to a try again button, if the
 Lets put that also behind a setting.
 If this is disabled we just do not show the solver hint text if it is not solvable in 10 moves, but keep the +10 Moves button
 
+### Prompt 3
+
+2renderer.js:32 Uncaught TypeError: Cannot read properties of undefined (reading '0')
+    at updateJokerTargetValues (renderer.js:32:41)
+    at renderBoard (renderer.js:119:5)
+    at Match3Game.renderBoard (game.js:568:9)
+    at HTMLButtonElement.<anonymous> (settings-dialog.js:353:26)
+
+### Prompt 4
+
+We have a bug if we have a boardPreset.
+The blocked tile goal is not counted correctly. It always shows already solved.
+
