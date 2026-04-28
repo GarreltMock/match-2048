@@ -286,17 +286,34 @@ export function calculateSwapScore(game, matches) {
         }
     }
 
-    // Calculate goal progress
+    // Calculate goal progress and detect goal-completing moves.
+    // Tile values are internal log-scale (e.g. 4 = "16", 5 = "32").
+    // Merging tiles of value V produces a tile of value V+1 (normal) or V+2 (T/L/5-line).
+    let goalsCompleted = 0;
     if (game.levelGoals && game.levelGoals.length > 0) {
-        for (const match of matches) {
-            for (const goal of game.levelGoals) {
-                // Check if this match contributes to any goals
-                if (goal.tileValue === match.value) {
-                    if (goal.goalType === "created") {
-                        goalProgress += match.tiles.length;
-                    } else if (goal.goalType === "current") {
-                        goalProgress += 1;
-                    }
+        for (const goal of game.levelGoals) {
+            let progressForGoal = 0;
+            for (const match of matches) {
+                const isBigFormation =
+                    match.direction === "T-formation" ||
+                    match.direction === "L-formation" ||
+                    match.direction === "line_5_horizontal" ||
+                    match.direction === "line_5_vertical";
+                const producedValue = match.value + (isBigFormation ? 2 : 1);
+
+                if (goal.goalType === "created" && producedValue === goal.tileValue) {
+                    // Each merge group produces one tile of producedValue
+                    progressForGoal += 1;
+                } else if (goal.goalType === "current" && producedValue === goal.tileValue) {
+                    progressForGoal += 1;
+                }
+            }
+            goalProgress += progressForGoal;
+
+            if (progressForGoal > 0) {
+                const currentProgress = goal.goalType === "created" ? goal.created : goal.current;
+                if (currentProgress + progressForGoal >= goal.target) {
+                    goalsCompleted += 1;
                 }
             }
         }
@@ -359,6 +376,8 @@ export function calculateSwapScore(game, matches) {
     score += maxFormationScore;
     score += totalTilesCleared * 50;
     score += goalProgress * 100;
+    // Moves that complete a goal dominate all other factors except blocked tiles
+    score += goalsCompleted * 8000;
 
     // Blocked tile scoring
     // If a swap clears blocked tiles, heavily prefer it.
