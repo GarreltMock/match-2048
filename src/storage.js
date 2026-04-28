@@ -579,6 +579,16 @@ export function saveSolverHintEnabled(enabled) {
     localStorage.setItem("match2048_solverHintEnabled", enabled.toString());
 }
 
+export function loadTryAgainEnabled() {
+    const saved = localStorage.getItem("match2048_tryAgainEnabled");
+    if (saved === null) return false;
+    return saved === "true";
+}
+
+export function saveTryAgainEnabled(enabled) {
+    localStorage.setItem("match2048_tryAgainEnabled", enabled.toString());
+}
+
 export function loadDisplayBase() {
     const saved = localStorage.getItem("match2048_displayBase");
     const n = saved ? parseInt(saved, 10) : 2;

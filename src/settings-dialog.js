@@ -21,6 +21,7 @@ import {
     saveSuperStrikeWildcardTeleport,
     saveMovesMultiplier,
     saveSolverHintEnabled,
+    saveTryAgainEnabled,
     saveDisplayBase,
 } from "./storage.js";
 import { setDisplayBase } from "./tile-helpers.js";
@@ -55,6 +56,7 @@ export function setupSettingsButton(game) {
     const superStrikeWildcardTeleportCheckbox = document.getElementById("superStrikeWildcardTeleport");
     const movesMultiplierInput = document.getElementById("movesMultiplier");
     const solverHintEnabledCheckbox = document.getElementById("solverHintEnabled");
+    const tryAgainEnabledCheckbox = document.getElementById("tryAgainEnabled");
     const displayBaseSelect = document.getElementById("displayBase");
 
     const togglePowerUpOptions = (show) => {
@@ -181,6 +183,9 @@ export function setupSettingsButton(game) {
         }
         if (solverHintEnabledCheckbox) {
             solverHintEnabledCheckbox.checked = game.solverHintEnabled;
+        }
+        if (tryAgainEnabledCheckbox) {
+            tryAgainEnabledCheckbox.checked = game.tryAgainEnabled;
         }
         if (displayBaseSelect) {
             displayBaseSelect.value = String(game.displayBase);
@@ -317,6 +322,10 @@ export function setupSettingsButton(game) {
                 if (solverHintEnabledCheckbox) {
                     game.solverHintEnabled = solverHintEnabledCheckbox.checked;
                     saveSolverHintEnabled(game.solverHintEnabled);
+                }
+                if (tryAgainEnabledCheckbox) {
+                    game.tryAgainEnabled = tryAgainEnabledCheckbox.checked;
+                    saveTryAgainEnabled(game.tryAgainEnabled);
                 }
                 if (displayBaseSelect) {
                     const base = parseInt(displayBaseSelect.value, 10);

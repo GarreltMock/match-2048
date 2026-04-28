@@ -612,11 +612,6 @@
                         <input type="checkbox" id="hintsEnabled" />
                     </div>
 
-                    <div class="setting-item setting-item-checkbox">
-                        <label for="solverHintEnabled">Solver Hint in PoS</label>
-                        <input type="checkbox" id="solverHintEnabled" />
-                    </div>
-
                     <div class="setting-item">
                         <label for="hintTimeoutMs">Hint Delay (ms)</label>
                         <input type="number" id="hintTimeoutMs" min="0" step="100" />
@@ -625,6 +620,25 @@
                     <div class="setting-item">
                         <label for="movesMultiplier">Moves Multiplier</label>
                         <input type="number" id="movesMultiplier" min="0.1" max="10" step="0.05" />
+                    </div>
+
+                    <div class="settings-section-title">PoS Extra Moves</div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="solverHintEnabled">Solver Hint</label>
+                        <input type="checkbox" id="solverHintEnabled" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <details class="setting-help inline">
+                            <summary>ⓘ</summary>
+                            <div class="special-tile-help">
+                                Ändert den PoS zu "Behalte deine Streak und versuchs nochmal", wenn der Solver denkt es
+                                ist nicht lösbar in 10 Moves.
+                            </div>
+                        </details>
+                        <label for="tryAgainEnabled">Try Again Button</label>
+                        <input type="checkbox" id="tryAgainEnabled" />
                     </div>
 
                     <div class="user-id-display">

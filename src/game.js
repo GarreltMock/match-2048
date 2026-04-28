@@ -45,6 +45,7 @@ import {
     loadSuperStrikeWildcardTeleport,
     loadMovesMultiplier,
     loadSolverHintEnabled,
+    loadTryAgainEnabled,
     loadDisplayBase,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
@@ -155,6 +156,7 @@ export class Match3Game {
         this.hintTimeout = loadHintTimeoutMs();
         this.hintsEnabled = loadHintsEnabled();
         this.solverHintEnabled = loadSolverHintEnabled();
+        this.tryAgainEnabled = loadTryAgainEnabled();
         this.showSwapTargets = loadShowSwapTargets();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.extendedFreeSwap = loadExtendedFreeSwap();
@@ -1029,24 +1031,28 @@ export class Match3Game {
                     } else {
                         this._lockedSeed = null;
                         this._lockedSolutionPath = null;
-                        solveHint.setAttribute("text", "Not solvable in 10 moves");
-                        if (continueBtn) continueBtn.classList.add("hidden");
-                        if (originalRewardBox) originalRewardBox.classList.add("hidden");
-                        if (tryAgainSection) {
-                            const keepBox = document.getElementById("tryAgainKeepBox");
-                            if (keepBox) {
-                                let parts = ["♥️"];
-                                if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
-                                    parts.push("🔥");
+                        if (this.tryAgainEnabled) {
+                            solveHint.setAttribute("text", "Not solvable in 10 moves");
+                            if (continueBtn) continueBtn.classList.add("hidden");
+                            if (originalRewardBox) originalRewardBox.classList.add("hidden");
+                            if (tryAgainSection) {
+                                const keepBox = document.getElementById("tryAgainKeepBox");
+                                if (keepBox) {
+                                    let parts = ["♥️"];
+                                    if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
+                                        parts.push("🔥");
+                                    }
+                                    if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
+                                        parts.push(
+                                            `<img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" class="try-again-streak-icon" />`,
+                                        );
+                                    }
+                                    keepBox.innerHTML = "Keep " + parts.join(" + ");
                                 }
-                                if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
-                                    parts.push(
-                                        `<img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" class="try-again-streak-icon" />`,
-                                    );
-                                }
-                                keepBox.innerHTML = "Keep " + parts.join(" + ");
+                                tryAgainSection.classList.remove("hidden");
                             }
-                            tryAgainSection.classList.remove("hidden");
+                        } else {
+                            solveHint.setAttribute("text", "");
                         }
                     }
                 } catch (err) {
