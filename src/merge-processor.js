@@ -22,7 +22,7 @@ import {
     highlightMergeTiles,
     highlightBlockedTiles,
     clearMergeHighlight,
-} from "./formation-tutorial.js";
+} from "./dialogs/formation-tutorial.js";
 
 export async function processMatches(game, { animateMerges, animateUnblocking } = {}) {
     const matchGroups = game.findMatches();

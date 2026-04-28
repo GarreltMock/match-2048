@@ -1,7 +1,7 @@
 // Goal type introduction dialogs
 
-import { loadShownGoalDialogs, saveShownGoalDialog, isFeatureUnlocked, saveUnlockedFeature } from "./storage.js";
-import { createGoalCard } from "./renderer.js";
+import { loadShownGoalDialogs, saveShownGoalDialog, isFeatureUnlocked, saveUnlockedFeature } from "../storage.js";
+import { createGoalCard } from "../renderer.js";
 
 // Short descriptions for intro dialog
 export const GOAL_TYPE_DESCRIPTIONS = {

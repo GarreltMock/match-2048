@@ -1,6 +1,6 @@
 // Settings and info dialog setup - extracted from game.js
 
-import { LEVEL_CONFIGS, DEFAULT_LEVEL } from "./config.js";
+import { LEVEL_CONFIGS, DEFAULT_LEVEL } from "../config.js";
 import {
     saveCurrentLevel,
     saveLevelConfigKey,
@@ -23,10 +23,10 @@ import {
     saveSolverHintEnabled,
     saveTryAgainEnabled,
     saveDisplayBase,
-} from "./storage.js";
-import { setDisplayBase } from "./tile-helpers.js";
-import { APP_VERSION } from "./version.js";
-import { cyrb53 } from "./tracker.js";
+} from "../storage.js";
+import { setDisplayBase } from "../tile-helpers.js";
+import { APP_VERSION } from "../version.js";
+import { cyrb53 } from "../tracker.js";
 import { updateIntroDialogPowerupsList } from "./goal-dialogs.js";
 
 export function setupSettingsButton(game) {

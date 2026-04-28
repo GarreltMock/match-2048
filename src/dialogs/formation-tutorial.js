@@ -5,8 +5,14 @@
  * Shows a dialog when user creates a specific formation type for the first time
  */
 
-import { loadShownFormationTutorials, saveShownFormationTutorial } from "./storage.js";
-import { isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount, getDisplayValue } from "./tile-helpers.js";
+import { loadShownFormationTutorials, saveShownFormationTutorial } from "../storage.js";
+import {
+    isBlocked,
+    isBlockedWithLife,
+    isBlockedMovable,
+    isBlockedWithMergeCount,
+    getDisplayValue,
+} from "../tile-helpers.js";
 
 /**
  * Get pending formation tutorials for match groups

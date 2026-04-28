@@ -49,7 +49,7 @@ import {
     loadDisplayBase,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
-import { createTile, createBlockedTile, createBlockedMovableTile, setDisplayBase } from "./tile-helpers.js";
+import { setDisplayBase } from "./tile-helpers.js";
 import { createBoard } from "./board.js";
 import { setupEventListeners } from "./input-handler.js";
 import {
@@ -71,7 +71,6 @@ import {
     renderHintHighlight,
 } from "./renderer.js";
 import { findBestSwap } from "./hint-system.js";
-import { findSolutionPath, mulberry32 } from "./solver.js";
 import {
     checkLevelComplete,
     updateTileCounts,
@@ -81,11 +80,13 @@ import {
     restartLevel,
     decrementCursedTileTimers,
 } from "./goal-tracker.js";
-import { showGoalDialog, hasDialogBeenShown, showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
-import { hasFormationTutorialBeenShown, FORMATION_TUTORIAL_DIALOGS } from "./formation-tutorial.js";
-import { showHomeScreen } from "./home-screen.js";
+import { showGoalDialog, hasDialogBeenShown, showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./dialogs/goal-dialogs.js";
+import { hasFormationTutorialBeenShown, FORMATION_TUTORIAL_DIALOGS } from "./dialogs/formation-tutorial.js";
 import { initTutorial, isTutorialActive, showTutorialUI } from "./tutorial.js";
-import { setupSettingsButton, setupInfoButton } from "./settings-dialog.js";
+import { setupExtraMovesDialog, showExtraMovesDialog } from "./dialogs/extra-moves-dialog.js";
+import { setupGiveUpDialog, showGiveUpDialog } from "./dialogs/give-up-dialog.js";
+import { setupSettingsButton, setupInfoButton } from "./dialogs/settings-dialog.js";
+import { checkAndShiftTileLevels, shiftTileLevels } from "./board-upgrade.js";
 import {
     setupPowerUps,
     activatePowerUp,
@@ -788,364 +789,19 @@ export class Match3Game {
     }
 
     setupExtraMovesDialog() {
-        const extraMovesDialog = document.getElementById("extraMovesDialog");
-        const extraMoves5Btn = document.getElementById("extraMoves5");
-        const loseProgressBtn = document.getElementById("loseProgress");
-        const showBoardBtn = document.getElementById("showBoardBtn");
-        const continueBtn = document.getElementById("continueBtn");
-
-        if (extraMoves5Btn) {
-            extraMoves5Btn.addEventListener("click", () => {
-                const isFree = !!this.levelConfig?.freeExtraMoves;
-                const EXTRA_MOVES_COST = isFree ? 0 : 900 + this.extraMovesCount * 1000;
-
-                // Check if player has enough coins (or it's free)
-                if (isFree || this.coins >= EXTRA_MOVES_COST) {
-                    // Deduct coins
-                    if (!isFree) {
-                        this.coins -= EXTRA_MOVES_COST;
-                        this.saveCoins();
-                    }
-
-                    // Track extra moves usage
-                    track("extra_moves_used", {
-                        level: this.currentLevel,
-                        extra_moves_count: 10,
-                        included_powerups: true,
-                        moves_used: this.movesUsed,
-                        cost: EXTRA_MOVES_COST,
-                        purchase_number: this.extraMovesCount + 1,
-                    });
-
-                    // Increment extra moves purchase count for this level
-                    this.extraMovesCount++;
-
-                    this.maxMoves += 10;
-
-                    // Lock in the seed the solver used so tile drops match the displayed
-                    // "Solvable in N moves" claim. If the user replays the solver's path,
-                    // cascades/spawns will line up with the simulation.
-                    if (this._lockedSeed != null) {
-                        this._rng = mulberry32(this._lockedSeed);
-                    }
-
-                    // Add one of each visible power-up (transient for this level only)
-                    this.getVisiblePowerUpTypes().forEach((type) => {
-                        this.powerUpCounts[type].transient++;
-                    });
-
-                    this.updatePowerUpButtons();
-
-                    this.updateMovesDisplay();
-                    extraMovesDialog.classList.add("hidden");
-                    this.hideControls();
-                    this.gameActive = true;
-                    this.showPowerUps();
-
-                    // Remove level-ended opacity from game board
-                    const gameBoard = document.getElementById("gameBoard");
-                    if (gameBoard) {
-                        gameBoard.classList.remove("level-ended");
-                    }
-
-                    // Update coins display
-                    this.updateCoinsDisplays();
-                } else {
-                    // Not enough coins - open shop instead
-                    // extraMovesDialog.classList.add("hidden");
-                    const shopDialog = document.getElementById("shopDialog");
-                    if (shopDialog) {
-                        shopDialog.classList.remove("hidden");
-                        // Update shop coins display
-                        this.updateCoinsDisplays();
-                    }
-                }
-            });
-        }
-
-        const tryAgainBtn = document.getElementById("tryAgainBtn");
-        if (tryAgainBtn) {
-            tryAgainBtn.addEventListener("click", () => {
-                const TRY_AGAIN_COST = 900;
-                if (this.coins < TRY_AGAIN_COST) {
-                    const shopDialog = document.getElementById("shopDialog");
-                    if (shopDialog) {
-                        shopDialog.classList.remove("hidden");
-                        this.updateCoinsDisplays();
-                    }
-                    return;
-                }
-                this.coins -= TRY_AGAIN_COST;
-                this.saveCoins();
-                this.updateCoinsDisplays();
-                extraMovesDialog.classList.add("hidden");
-                const gameBoard = document.getElementById("gameBoard");
-                if (gameBoard) gameBoard.classList.remove("level-ended");
-                this.restartLevel();
-            });
-        }
-
-        const giveUpWarning = document.getElementById("giveUpWarning");
-        const giveUpWarningText = document.getElementById("giveUpWarningText");
-        const confirmGiveUpBtn = document.getElementById("confirmGiveUp");
-        const cancelGiveUpBtn = document.getElementById("cancelGiveUp");
-
-        if (loseProgressBtn) {
-            loseProgressBtn.addEventListener("click", () => {
-                // Build warning message
-                let warningText = "<h2>You will lose:</h2>";
-                warningText += "<p>1 ♥️ Heart</p>";
-                if (this.currentStreak > 0) {
-                    warningText += `<p>+ 🔥 Your Streak</p>`;
-                }
-                if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
-                    warningText += `<p>+ <img style="display: inline-block; height: 1.3rem; vertical-align: sub" src="assets/upgrade-icon_streak.png" alt="Super Upgrade" /> Super Upgrade</p>`;
-                }
-
-                // Show warning box
-                giveUpWarningText.innerHTML = warningText;
-                giveUpWarning.classList.remove("hidden");
-                loseProgressBtn.style.display = "none";
-            });
-        }
-
-        if (confirmGiveUpBtn) {
-            confirmGiveUpBtn.addEventListener("click", () => {
-                // Hide warning and dialog
-                giveUpWarning.classList.add("hidden");
-                loseProgressBtn.style.display = "block";
-                extraMovesDialog.classList.add("hidden");
-                this.hideControls();
-
-                // Show level failed state with the stored fail reason
-                setTimeout(() => {
-                    this.showLevelFailed(this.failReason || "No moves left");
-                }, 300);
-            });
-        }
-
-        if (cancelGiveUpBtn) {
-            cancelGiveUpBtn.addEventListener("click", () => {
-                // Hide warning, show give up button again
-                giveUpWarning.classList.add("hidden");
-                loseProgressBtn.style.display = "block";
-            });
-        }
-
-        if (showBoardBtn) {
-            showBoardBtn.addEventListener("click", () => {
-                extraMovesDialog.classList.add("hidden");
-                this.showControls();
-
-                // Show only continue button
-                const continueBtn = document.getElementById("continueBtn");
-                const nextLevelContainer = document.getElementById("nextLevelContainer");
-                const restartBtn = document.getElementById("restartBtn");
-                if (continueBtn) continueBtn.style.display = "inline-block";
-                if (nextLevelContainer) nextLevelContainer.style.display = "none";
-                if (restartBtn) restartBtn.style.display = "none";
-            });
-        }
-
-        if (continueBtn) {
-            continueBtn.addEventListener("click", () => {
-                this.showExtraMovesDialog();
-            });
-        }
+        setupExtraMovesDialog(this);
     }
 
     showExtraMovesDialog() {
-        const extraMovesDialog = document.getElementById("extraMovesDialog");
-        const showBoardBtn = document.getElementById("showBoardBtn");
-        const fiveExtraMovesText = document.getElementById("fiveExtraMovesText");
-        const gameBoard = document.getElementById("gameBoard");
-
-        if (gameBoard) {
-            gameBoard.classList.add("level-ended");
-        }
-
-        // Always show the review board button
-        if (showBoardBtn) {
-            showBoardBtn.classList.remove("hidden");
-        }
-
-        // Check how many power-up slots are unlocked
-        const anyPowerUpUnlocked = isFeatureUnlocked(FEATURE_KEYS.POWER_UP_1);
-
-        // Show/hide extra-moves power-up buttons based on unlock status
-        const extraMovesPowerUps = document.querySelectorAll("#extraMovesDialog .power-up-btn");
-        extraMovesPowerUps.forEach((btn) => {
-            const powerUpType = btn.dataset.powerup;
-            btn.style.display = this.isPowerUpButtonVisible(powerUpType) ? "" : "none";
-        });
-
-        // Update the text based on whether any power-ups are unlocked
-        if (fiveExtraMovesText) {
-            const newText = anyPowerUpUnlocked ? "10 Moves +" : "+10 Moves";
-            fiveExtraMovesText.setAttribute("text", newText);
-        }
-
-        // Update cost display
-        const costDisplay = document.getElementById("extraMovesCostDisplay");
-        const coinIcon = document.querySelector("#extraMoves5 .extra-move-coin-icon");
-        if (this.levelConfig?.freeExtraMoves) {
-            if (costDisplay) costDisplay.textContent = "for free";
-            if (coinIcon) coinIcon.style.display = "none";
-        } else {
-            if (costDisplay) costDisplay.textContent = (900 + this.extraMovesCount * 1000).toLocaleString();
-            if (coinIcon) coinIcon.style.display = "";
-        }
-
-        // Update coins display
-        this.updateCoinsDisplays();
-
-        const continueBtn = document.getElementById("extraMoves5");
-        const originalRewardBox = extraMovesDialog.querySelector(".button-container:not(#tryAgainSection) .reward-box");
-        const tryAgainSection = document.getElementById("tryAgainSection");
-
-        if (continueBtn) continueBtn.classList.remove("hidden");
-        if (originalRewardBox) originalRewardBox.classList.remove("hidden");
-        if (tryAgainSection) tryAgainSection.classList.add("hidden");
-
-        const solveHint = document.getElementById("solveHint");
-        if (solveHint) {
-            if (!this.solverHintEnabled) {
-                solveHint.setAttribute("text", "");
-            } else {
-                try {
-                    const result = findSolutionPath(this, { maxDepth: 10, beamWidth: 3 });
-                    if (result.solvable) {
-                        this._lockedSeed = result.seed;
-                        this._lockedSolutionPath = result.path;
-                        const label = result.moves === 1 ? "Solvable in 1 move" : `Solvable in ${result.moves} moves`;
-                        solveHint.setAttribute("text", label);
-                        if (continueBtn) continueBtn.classList.remove("hidden");
-                        if (originalRewardBox) originalRewardBox.classList.remove("hidden");
-                        if (tryAgainSection) tryAgainSection.classList.add("hidden");
-                        console.log(
-                            `[solver] ${label} (seed=${result.seed}):\n` +
-                                result.path
-                                    .map((s, i) => `  ${i + 1}. (${s.row1},${s.col1}) <-> (${s.row2},${s.col2})`)
-                                    .join("\n"),
-                        );
-                    } else {
-                        this._lockedSeed = null;
-                        this._lockedSolutionPath = null;
-                        if (this.tryAgainEnabled) {
-                            solveHint.setAttribute("text", "Not solvable in 10 moves");
-                            if (continueBtn) continueBtn.classList.add("hidden");
-                            if (originalRewardBox) originalRewardBox.classList.add("hidden");
-                            if (tryAgainSection) {
-                                const keepBox = document.getElementById("tryAgainKeepBox");
-                                if (keepBox) {
-                                    let parts = ["♥️"];
-                                    if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
-                                        parts.push("🔥");
-                                    }
-                                    if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
-                                        parts.push(
-                                            `<img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" class="try-again-streak-icon" />`,
-                                        );
-                                    }
-                                    keepBox.innerHTML = "Keep " + parts.join(" + ");
-                                }
-                                tryAgainSection.classList.remove("hidden");
-                            }
-                        } else {
-                            solveHint.setAttribute("text", "");
-                        }
-                    }
-                } catch (err) {
-                    console.error("Solver failed:", err);
-                    solveHint.setAttribute("text", "");
-                }
-            }
-        }
-
-        extraMovesDialog.classList.remove("hidden");
+        showExtraMovesDialog(this);
     }
 
     showGiveUpDialog() {
-        const giveUpDialog = document.getElementById("giveUpDialog");
-        const streakDisplay = document.getElementById("giveUpStreakDisplay");
-
-        // Build streak display
-        let streaksHTML = "";
-
-        if (isFeatureUnlocked(FEATURE_KEYS.STREAK) && this.currentStreak > 0) {
-            streaksHTML += `<div class="streak-item"><span>🔥</span><span>Your ${this.currentStreak}-win streak</span></div>`;
-        }
-
-        if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
-            streaksHTML += `<div class="streak-item"><img src="assets/upgrade-icon_streak.png" alt="Super Upgrade" /><span>Super Upgrade</span></div>`;
-        }
-
-        if (streakDisplay) {
-            streakDisplay.innerHTML = streaksHTML;
-        }
-
-        if (giveUpDialog) {
-            giveUpDialog.classList.remove("hidden");
-        }
+        showGiveUpDialog(this);
     }
 
     setupGiveUpDialog() {
-        const giveUpDialog = document.getElementById("giveUpDialog");
-        const cancelGiveUpBtn = document.getElementById("cancelGiveUpBtn");
-        const confirmGiveUpBtnDialog = document.getElementById("confirmGiveUpBtnDialog");
-
-        if (cancelGiveUpBtn) {
-            cancelGiveUpBtn.addEventListener("click", () => {
-                giveUpDialog.classList.add("hidden");
-            });
-        }
-
-        if (confirmGiveUpBtnDialog) {
-            confirmGiveUpBtnDialog.addEventListener("click", () => {
-                giveUpDialog.classList.add("hidden");
-                this.gameActive = false;
-
-                // Go back to home screen
-                setTimeout(() => {
-                    // Decrease heart
-                    if (!this.heartDecreasedThisAttempt) {
-                        this.decreaseHeart();
-                        this.heartDecreasedThisAttempt = true;
-                    }
-
-                    // Reset streak on give up - only if streak feature is unlocked
-                    if (isFeatureUnlocked(FEATURE_KEYS.STREAK)) {
-                        this.currentStreak = 0;
-                        saveStreak(this.currentStreak);
-                    }
-
-                    if (this.superStreak >= SUPER_STREAK_THRESHOLD) {
-                        // Reset super streak on give up
-                        this.superStreak = 0;
-                        saveSuperStreak(this.superStreak);
-                    }
-
-                    // Track that player gave up
-                    track("level_gave_up", {
-                        level: this.currentLevel,
-                        moves_used: this.movesUsed,
-                        max_moves: this.maxMoves,
-                    });
-
-                    // Show home screen with updated displays (hearts, streaks, etc.)
-                    showHomeScreen(this);
-                }, 100);
-            });
-        }
-
-        // Click outside to close
-        if (giveUpDialog) {
-            giveUpDialog.addEventListener("click", (e) => {
-                if (e.target === giveUpDialog) {
-                    giveUpDialog.classList.add("hidden");
-                }
-            });
-        }
+        setupGiveUpDialog(this);
     }
 
     showLevelSolved() {
@@ -1260,158 +916,12 @@ export class Match3Game {
         }
     }
 
-    /**
-     * Check if we need to shift tile levels based on per-level board upgrades
-     * This is called after tiles are merged - it just sets a flag
-     */
     checkAndShiftTileLevels(newlyCreatedValue) {
-        const currentLevelConfig = this.levels[this.currentLevel - 1];
-
-        // Check for per-level board upgrades
-        if (currentLevelConfig.boardUpgrades) {
-            const upgrades = currentLevelConfig.boardUpgrades;
-
-            // Check if this value triggers an upgrade that hasn't been completed yet
-            if (upgrades.includes(newlyCreatedValue) && !this.completedUpgrades.includes(newlyCreatedValue)) {
-                this.pendingTileLevelShift = true;
-                this.completedUpgrades.push(newlyCreatedValue);
-            }
-        }
+        checkAndShiftTileLevels(this, newlyCreatedValue);
     }
 
-    /**
-     * Execute tile level shift with animation
-     * Returns a promise that resolves when animation completes
-     */
     shiftTileLevels() {
-        return new Promise((resolve) => {
-            const currentLevelConfig = this.levels[this.currentLevel - 1];
-            const hasPerLevelUpgrades = currentLevelConfig?.boardUpgrades?.length > 0;
-
-            // Check if we should proceed with shift
-            if (!this.pendingTileLevelShift) {
-                resolve();
-                return;
-            }
-
-            // If no per-level upgrades, return
-            if (!hasPerLevelUpgrades) {
-                resolve();
-                return;
-            }
-
-            // Clear the flag
-            this.pendingTileLevelShift = false;
-
-            const minValue = Math.min(...this.tileValues);
-            const maxValue = Math.max(...this.tileValues);
-
-            // Find all tiles that need to be removed/transformed
-            const tilesToRemove = [];
-            for (let row = 0; row < this.boardHeight; row++) {
-                for (let col = 0; col < this.boardWidth; col++) {
-                    const tile = this.board[row][col];
-                    if (tile && tile.type === this.TILE_TYPE.NORMAL && tile.value === minValue) {
-                        tilesToRemove.push({ row, col });
-                    }
-                }
-            }
-
-            if (tilesToRemove.length === 0) {
-                resolve();
-                return;
-            }
-
-            // Determine which action to use (super streak uses superUpgradeAction, otherwise boardUpgradeAction)
-            const effectiveAction =
-                this.superStreak >= SUPER_STREAK_THRESHOLD ? this.superUpgradeAction : this.boardUpgradeAction;
-
-            // Animate tiles based on action type
-            tilesToRemove.forEach(({ row, col }) => {
-                const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                if (element && !element.classList.contains("sliding") && !element.classList.contains("merge-target")) {
-                    if (effectiveAction === "blocked" || effectiveAction === "blocked_movable") {
-                        // Bump animation for blocked transformation
-                        element.classList.add("tile-to-blocked");
-                    } else if (effectiveAction === "double") {
-                        // Pulse animation for doubling
-                        element.style.transition = "transform 0.4s ease";
-                        element.style.transform = "scale(1.2)";
-                        setTimeout(() => {
-                            element.style.transform = "scale(1)";
-                        }, 200);
-                    } else {
-                        // Disappear animation
-                        element.style.transition = "transform 0.4s ease, opacity 0.4s ease";
-                        element.style.opacity = "0";
-                        element.style.transform = "scale(0.5)";
-                        element.classList.add("tile-removing");
-                    }
-                }
-            });
-
-            // After animation, update board state
-            setTimeout(() => {
-                tilesToRemove.forEach(({ row, col }) => {
-                    const element = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-
-                    if (effectiveAction === "blocked") {
-                        // Transform to blocked tile
-                        this.board[row][col] = createBlockedTile();
-                        // Note: element will be recreated by dropGems' renderBoard
-                    } else if (effectiveAction === "blocked_movable") {
-                        // Transform to blocked movable tile
-                        this.board[row][col] = createBlockedMovableTile();
-                        // Note: element will be recreated by dropGems' renderBoard
-                    } else if (effectiveAction === "double") {
-                        // Double the value (add 1 to internal value: 2→3, 3→4, etc.)
-                        const currentTile = this.board[row][col];
-                        if (currentTile && currentTile.value === minValue) {
-                            this.board[row][col] = createTile(minValue + 1, currentTile.specialType);
-                        }
-                        // Element will be updated by renderBoard below
-                    } else {
-                        // Disappear - remove from board state
-                        this.board[row][col] = null;
-                    }
-
-                    // Remove the element so renderBoard can start fresh (except for double action)
-                    if (element && effectiveAction !== "double") {
-                        element.remove();
-                    }
-                });
-
-                // Update spawnableTiles: remove smallest, add next
-                this.tileValues = this.tileValues.filter((v) => v !== minValue);
-                this.tileValues.push(maxValue + 1);
-                this.tileValues.sort((a, b) => a - b);
-
-                // Re-render board for double action to show updated values
-                if (effectiveAction === "double") {
-                    this.renderBoard();
-                }
-
-                // Update board upgrades display to show completion
-                renderBoardUpgrades(this);
-
-                // If blocked tiles were added, update the blocked goal target
-                if (effectiveAction === "blocked" || effectiveAction === "blocked_movable") {
-                    const blockedTilesAdded = tilesToRemove.length;
-                    this.levelGoals.forEach((goal) => {
-                        if (goal.goalType === "blocked") {
-                            goal.target += blockedTilesAdded;
-                            // Update initialBlockedTileCount to reflect new total
-                            this.initialBlockedTileCount += blockedTilesAdded;
-                        }
-                    });
-                    // Update the goal display to reflect new target
-                    updateGoalDisplay(this);
-                }
-
-                // Continue with the cascade - dropGems will handle rendering and animation
-                resolve();
-            }, 400);
-        });
+        return shiftTileLevels(this);
     }
 
     // ===== Hint System Methods =====

@@ -9,7 +9,7 @@ import {
     saveSuperStreak,
 } from "./storage.js";
 import { SUPER_STREAK_THRESHOLD, FEATURE_KEYS } from "./config.js";
-import { showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./goal-dialogs.js";
+import { showFeatureUnlockDialog, hasFeatureBeenUnlocked } from "./dialogs/goal-dialogs.js";
 
 /**
  * Shows the home screen with current level information
