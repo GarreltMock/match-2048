@@ -3,7 +3,8 @@
 
 import { applyGravity } from "./gravity.js";
 import { findMatches } from "./match-detector.js";
-import { processMerges } from "./merge-processor.js";
+import { processMerges, unblockAdjacentTiles } from "./merge-processor.js";
+import { isRectangularBlocked } from "./tile-helpers.js";
 import {
     isNormal, getTileValue, getDisplayValue,
     isBlocked, isBlockedWithLife, isBlockedMovable, isBlockedWithMergeCount,
@@ -163,12 +164,15 @@ export function areGoalsSatisfied(levelGoals) {
 export function simulateMove(game, swap, options = {}) {
     const { row1, col1, row2, col2 } = swap;
     const rng = options.rng || null;
-    const initialBlockedTileCount = options.initialBlockedTileCount ?? game.initialBlockedTileCount ?? 0;
     const goals = options.levelGoals ? cloneGoals(options.levelGoals) : cloneGoals(game.levelGoals);
 
     const board = cloneBoard(game.board);
     const ctx = createSimContext(game, board, goals);
     ctx._rng = rng;
+
+    // Count blocked tiles from the simulation's own starting board so goal tracking
+    // is correct regardless of whether game.initialBlockedTileCount is stale/wrong.
+    const initialBlockedTileCount = countBoardBlockedTiles(ctx);
 
     const temp = ctx.board[row1][col1];
     ctx.board[row1][col1] = ctx.board[row2][col2];
@@ -222,6 +226,24 @@ export function simulateMove(game, swap, options = {}) {
         });
 
         processMerges(ctx, matchGroups, ctx.isUserSwap);
+
+        // Mirror processMatches: clear adjacent blocked tiles from the board
+        const blockedTilesToRemove = unblockAdjacentTiles(ctx, matchGroups);
+        blockedTilesToRemove.forEach((entry) => {
+            if (entry.isMergeCount && !entry.isFullRemoval) return;
+            const tile = entry.tile || ctx.board[entry.row]?.[entry.col];
+            if (!tile) return;
+            if (isRectangularBlocked(tile)) {
+                for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                    for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                        if (ctx.board[r]?.[c]?.rectId === tile.rectId) ctx.board[r][c] = null;
+                    }
+                }
+                return;
+            }
+            ctx.board[entry.row][entry.col] = null;
+        });
+
         applyGravity(ctx);
 
         cascades++;

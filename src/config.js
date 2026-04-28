@@ -604,7 +604,7 @@ export const TEST_LEVELS = [
         spawnableTiles: [1, 2, 3, 4, 5, 6, 7],
     },
     {
-        level: 11,
+        level: 35,
         title: "Power Up Rewards",
         boardWidth: 6,
         boardHeight: 7,
@@ -615,6 +615,22 @@ export const TEST_LEVELS = [
             { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { tileValue: 7, target: 1, current: 0, goalType: "created" },
         ],
+    },
+    {
+        level: 36,
+        title: "Solver Hint Test",
+        boardPreset: [
+            [1, 2, 1, 3, 4, 4, 3, 4],
+            [4, 1, 3, 1, 1, 3, 4, 3],
+            [3, 5, 4, 2, 4, 2, 4, 1],
+            [1, 1, 2, 1, 2, 3, 3, 2],
+            [2, 2, 1, 4, 2, 2, 3, 5],
+            [3, 1, 2, 4, 3, 1, 2, 1],
+            [4, 1, 5, 3, 2, 3, 4, 1],
+            [2, 3, 4, 7, 8, 2, 2, "B"],
+        ],
+        maxMoves: 1,
+        goals: [{ current: 0, goalType: "blocked", target: 1 }],
     },
 ];
 

@@ -358,7 +358,7 @@ export class Match3Game {
                 goalType: goal.goalType || "created", // Default to "created" if not specified
             };
 
-            if (goal.goalType === "blocked") {
+            if (goal.goalType === "blocked" && !levelGoal.target) {
                 levelGoal.target = this.initialBlockedTileCount;
             }
 

@@ -121,7 +121,6 @@ function goalProgressDelta(newGoals, oldGoals) {
 export function findSolutionPath(game, options = {}) {
     const { maxDepth = 10, beamWidth = 3 } = options;
     const seed = deriveSeed(game);
-    const initialBlockedTileCount = game.initialBlockedTileCount ?? 0;
 
     const rootGoals = cloneGoals(game.levelGoals);
     if (areGoalsSatisfied(rootGoals)) {
@@ -165,7 +164,6 @@ export function findSolutionPath(game, options = {}) {
                 const result = simulateMove(simGame, swap, {
                     rng: childRng,
                     levelGoals: node.goals,
-                    initialBlockedTileCount,
                 });
 
                 if (!result.valid) continue;
