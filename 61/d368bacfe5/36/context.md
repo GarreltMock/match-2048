@@ -69,3 +69,29 @@ We need to check if the joker is already unlocked before the hint-system can sug
 
 Lets make the penalty for using joker overall a little higher. Maybe we can add a factor value we can fine tune?
 
+### Prompt 14
+
+Hm I have situations where almost the same result can be reached either through a joker usage, but also through a normal swap. Like there is the last blocked tile and I can just do a 3-tile merge next to it, but the hint is to use the joker, which even costs 1 coin.
+Can we prefer the swap there
+
+### Prompt 15
+
+We added the cascade for the hammer joker without new spawning tiles.
+Maybe we should do that for every action the hint-system tries?
+
+### Prompt 16
+
+But do we also do cascadeAndScore for normal swaps? Nothing to do with joker
+
+### Prompt 17
+
+But this was not the case before right?
+
+### Prompt 18
+
+How do you think does that change affect performance of the hint-system?
+
+### Prompt 19
+
+but I think it is more correct to evaluate what value the chain reactions have too right? The first swap itself does not need to have such a strong position in the value
+
