@@ -1,0 +1,55 @@
+We want to radically improve the Hint system, or better say expand its functionality. Especially I want it to include the special tile features and also the joker usages. We need to probably include them in the possible moves. For now let's just keep that we can do one move with it and check the score as we have it before, I guess.
+
+For the UX I probably for the special tiles just want to have the same UI as for a normal swap, I guess. Two tiles that should move should wiggle to each other so we can maybe reuse what we have. If we want to use a joker maybe we can pulse the joker and the tile on which it should be used, or maybe the two tiles if it is a swap.
+
+What we really need to consider is if we use the hammer as a move, for example for a blocked tile, then we maybe should not give it such a high score. Just using a hammer for a block tile is not really worth doing and would probably be always the suggested move but maybe it's only valuable if it is the last block tile or something. I don't know if there could be a smart rule or a smart scoring for that. Maybe using the hammer joker on a block tile would also have a penalty or something, or we can add a fixed rule that it only should do the hammer on the last block tile or something you can think about that.
+
+Let's do that for now. If it helps you you can already think about how we could improve this even more by using a small beam search, like we do for the simulator to calculate the saw off-hint. I maybe would like for the Hint system to have a small beam search with just two steps but we can for sure do that in a second step. If it helps you to already think about that for the changes go for it. 
+Ah and one more thing because we have a lot of configurable special tile features and also a lot of jokers. Let's just focus on:
+- the free swap
+- the directional free swap
+- the teleport
+Also consider the free swap and directional free swap with extended free swap. And for the joker we can just consider the hammer, halver and the swap for now.
+
+---
+
+[Request interrupted by user for tool use]
+
+---
+
+Continue
+
+---
+
+[Request interrupted by user]
+
+---
+
+continue
+
+---
+
+This seems to work quite well.
+A few adjustments maybe.
+1. You said: Hammer-on-normal skipped. But actually because of the gravity it can actually have a score right?
+2. For the teleport hint-ux / design. Can we maybe even have a diagonal transform on that?
+3. Make sure to give the hint-tiles a really high z-index.
+4. Maybe we should also adjust the penalty for Joker based on their usage cost (free, or coin cost)
+
+What do you think?
+
+---
+
+continue
+
+---
+
+continue
+
+---
+
+continue
+
+---
+
+Continue
