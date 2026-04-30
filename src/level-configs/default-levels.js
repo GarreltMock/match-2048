@@ -5,15 +5,15 @@ export default [
         boardWidth: 5,
         boardHeight: 5,
         boardPreset: [
-            [1, 2, 1, 1, 2],
-            [3, 1, 3, 2, 2],
-            [1, 3, 1, 3, 1],
+            [1, 3, 1, 1, 2],
+            [2, 1, 1, 2, 1],
+            [2, 1, 3, 1, 2],
             [4, 4, 2, 1, 2],
             [1, 1, 3, 2, 4],
         ],
-        maxMoves: 10,
+        maxMoves: 20,
         goals: [{ tileValue: 5, target: 1, current: 0, goalType: "created" }],
-        spawnableTiles: [1, 2, 3],
+        spawnableTiles: [1, 2],
         showGoalDialog: "created",
         tutorialSwaps: [
             {
@@ -42,13 +42,12 @@ export default [
             [4, 2, 1, 2, 3, 1],
             [2, 3, 4, 1, 1, 3],
             [2, 1, 1, 3, 1, 4],
-            ["B", "B", "B", "B", "B", "B"],
-            ["B", "B", "B", "B", "B", "B"],
+            [1, "B", "B", "B", "B", 2],
+            [4, "B", "B", "B", "B", 1],
         ],
-        blockedTiles: [{ row: 4 }, { row: 5 }],
         goals: [
-            { current: 0, goalType: "blocked" },
             { tileValue: 5, target: 3, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked", target: 8 },
         ],
         tutorialSwaps: [
             {
@@ -65,7 +64,6 @@ export default [
         unlockFeature: "power_up_1",
         maxMoves: 40,
         blockedTiles: [
-            { row: 4, col: [1, 2, 3, 4, 5, 6] },
             { row: 5, col: [1, 2, 3, 4, 5, 6] },
             { row: 6, col: [1, 2, 3, 4, 5, 6] },
             { row: 7, col: [1, 2, 3, 4, 5, 6] },
@@ -80,12 +78,12 @@ export default [
         title: "✂️",
         unlockFeature: "power_up_2",
         maxMoves: 38,
-        boardHeight: 10,
-        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 8 }, { row: 9 }],
+        boardHeight: 9,
+        blockedTiles: [{ row: 3 }, { row: 4 }, { row: 5 }],
         goals: [
-            { current: 0, goalType: "blocked" },
-            { tileValue: 5, target: 4, current: 0, goalType: "created" },
+            { tileValue: 5, target: 3, current: 0, goalType: "created" },
             { tileValue: 6, target: 1, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked" },
         ],
     },
     {
@@ -99,29 +97,101 @@ export default [
             { row: 4, col: 8 },
             { row: 5, col: [0, 1, 7, 8] },
             { row: 6, col: [0, 1, 2, 6, 7, 8] },
-            { row: 7, col: [0, 1, 2, 3, 5, 6, 7, 8] },
+            { row: 7, col: [1, 2, 3, 5, 6, 7] },
             { row: 8 },
         ],
         goals: [
-            { current: 0, goalType: "blocked" },
             { tileValue: 6, target: 2, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked" },
         ],
     },
     {
         level: 7,
         maxMoves: 34,
         boardHeight: 9,
-        blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }, { col: 0 }, { col: 7 }],
+        blockedTiles: [{ row: 3 }, { row: 6 }],
         goals: [
-            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
         level: 8,
+        maxMoves: 32,
+        boardWidth: 9,
+        blockedTiles: [{ col: 3 }, { col: 4 }, { col: 5 }],
+        goals: [
+            { tileValue: 6, target: 4, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked" },
+        ],
+    },
+    {
+        level: 9,
+        title: "🔥 Streak",
+        unlockFeature: "streak",
+        maxMoves: 34,
+        blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }],
+        goals: [
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked" },
+        ],
+    },
+    {
+        level: 10,
+        maxMoves: 34,
+        boardHeight: 9,
+        blockedTiles: [{ row: 3 }, { row: 7 }, { row: 8 }],
+        goals: [
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
+    },
+
+    {
+        level: 11,
+        maxMoves: 34,
+        blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
+
+        goals: [
+            { tileValue: 7, target: 1, current: 0, goalType: "created" },
+            { current: 0, goalType: "blocked" },
+        ],
+    },
+    {
+        level: 12,
+        maxMoves: 38,
+        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
+        goals: [
+            { current: 0, goalType: "blocked" },
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+        ],
+    },
+    {
+        level: 13,
+        maxMoves: 30,
+        boardWidth: 6,
+        boardHeight: 10,
+        blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+        goals: [
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
+    },
+    {
+        level: 14,
+        maxMoves: 30,
+        boardHeight: 9,
+        blockedTiles: [{ row: 6 }, { row: 7 }, { row: 8 }, { col: 0 }, { col: 7 }],
+        goals: [
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
+    },
+    {
+        level: 15,
         title: "💸 PoS",
         // freeExtraMoves: true,
-        maxMoves: 30,
+        maxMoves: 32,
         blockedTiles: [{ row: 4 }, { row: 5 }, { row: 6 }, { row: 7 }],
         goals: [
             { tileValue: 8, target: 1, current: 0, goalType: "created" },
@@ -129,32 +199,50 @@ export default [
         ],
     },
     {
-        level: 9,
-        title: "🔥 Streak",
-        unlockFeature: "streak",
+        level: 16,
         maxMoves: 38,
-        blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
+        boardHeight: 9,
+        boardWidth: 9,
+        blockedTiles: [{ col: 0 }, { col: 4 }, { col: 8 }],
         goals: [
             { tileValue: 6, target: 8, current: 0, goalType: "created" },
             { goalType: "blocked", current: 0 },
         ],
     },
     {
-        level: 10,
+        level: 17,
         title: "Movable Blocked",
-        maxMoves: 20,
+        showGoalDialog: "blocked_movable",
+        maxMoves: 30,
+        boardPreset: [
+            [],
+            [],
+            [],
+            [],
+            [, , 5],
+            ["BM", "BM", "BM", 5, 5, "BM", "BM", "BM"],
+            ["BM", "BM", "BM", "BM", "BM", "BM", "BM", "BM"],
+            ["BM", "BM", "BM", "BM", "BM", "BM", "BM", "BM"],
+        ],
+        goals: [{ goalType: "blocked", current: 0, target: 22 }],
+    },
+    {
+        level: 17,
+        maxMoves: 30,
         blockedTiles: [
             { row: 0, movable: true },
             { row: 1, movable: true },
             { row: 2, movable: true },
             { row: 3, movable: true },
         ],
-        goals: [{ goalType: "blocked", current: 0 }],
-        showGoalDialog: "blocked_movable",
+        goals: [
+            { tileValue: 6, target: 3, current: 0, goalType: "created" },
+            { goalType: "blocked", current: 0 },
+        ],
     },
     {
-        level: 11,
-        maxMoves: 24,
+        level: 18,
+        maxMoves: 34,
         blockedTiles: [
             { row: 1, col: [1, 2, 3, 4, 5, 6], movable: true },
             { row: 2, col: [1, 6], movable: true },
@@ -164,13 +252,13 @@ export default [
             { row: 6, col: [1, 2, 3, 4, 5, 6], movable: true },
         ],
         goals: [
+            { tileValue: 6, target: 5, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
-            { tileValue: 6, target: 3, current: 0, goalType: "created" },
         ],
     },
     {
-        level: 12,
-        maxMoves: 24,
+        level: 19,
+        maxMoves: 34,
         blockedTiles: [
             { row: 3, movable: true },
             { row: 4, movable: true },
@@ -184,9 +272,9 @@ export default [
         ],
     },
     {
-        level: 13,
+        level: 20,
         boardHeight: 9,
-        maxMoves: 26,
+        maxMoves: 30,
         blockedTiles: [
             { row: 0, movable: true },
             { row: 1, movable: true },
@@ -203,7 +291,7 @@ export default [
     },
 
     {
-        level: 14,
+        level: 21,
         title: "Lifebased Blocked",
         maxMoves: 38,
         blockedTiles: [
@@ -215,7 +303,7 @@ export default [
         showGoalDialog: "blocked_with_life",
     },
     {
-        level: 15,
+        level: 22,
         boardHeight: 6,
         maxMoves: 30,
         blockedTiles: [
@@ -225,7 +313,7 @@ export default [
         goals: [{ goalType: "blocked", current: 0 }],
     },
     {
-        level: 16,
+        level: 23,
         maxMoves: 32,
         blockedTiles: [
             { row: 3, col: [3, 4], lifeValue: 32 },
@@ -241,7 +329,7 @@ export default [
         ],
     },
     {
-        level: 17,
+        level: 24,
         maxMoves: 38,
         blockedTiles: [
             { row: 0, movable: true },
@@ -256,7 +344,7 @@ export default [
         ],
     },
     {
-        level: 18,
+        level: 25,
         title: "💸 PoS",
         maxMoves: 30,
         boardWidth: 9,
@@ -285,7 +373,7 @@ export default [
         ],
     },
     {
-        level: 19,
+        level: 26,
         title: "Board Upgrades - TODO",
         maxMoves: 32,
         boardWidth: 9,
@@ -316,7 +404,7 @@ export default [
         unlockFeature: "board_upgrades",
     },
     {
-        level: 20,
+        level: 27,
         maxMoves: 46,
         blockedTiles: [
             { row: 3, movable: true },
@@ -333,7 +421,7 @@ export default [
         boardUpgrades: [6, 8],
     },
     {
-        level: 21,
+        level: 28,
         title: "Super Streak",
         maxMoves: 28,
         blockedTiles: [
@@ -347,7 +435,7 @@ export default [
         unlockFeature: "super_streak",
     },
     {
-        level: 22,
+        level: 29,
         maxMoves: 20,
         boardHeight: 9,
         blockedTiles: [{ row: 3, movable: true }, { row: 4, movable: true }, { row: 7 }, { row: 8 }],
@@ -355,7 +443,7 @@ export default [
         boardUpgrades: [5, 8],
     },
     {
-        level: 23,
+        level: 30,
         maxMoves: 25,
         boardHeight: 9,
         blockedTiles: [
@@ -373,7 +461,7 @@ export default [
         boardUpgrades: [5, 6],
     },
     {
-        level: 24,
+        level: 31,
         title: "💸 PoS",
         maxMoves: 32,
         blockedTiles: [
@@ -386,14 +474,14 @@ export default [
         boardUpgrades: [6],
     },
     {
-        level: 25,
+        level: 32,
         title: "*Active Super Streak*",
         maxMoves: 32,
         goals: [{ tileValue: 8, target: 5, current: 0, goalType: "created" }],
         boardUpgrades: [7, 8],
     },
     {
-        level: 26,
+        level: 33,
         title: "Blocked Area",
         maxMoves: 22,
         blockedTiles: [
@@ -405,7 +493,7 @@ export default [
         showGoalDialog: "blocked_area",
     },
     {
-        level: 27,
+        level: 34,
         maxMoves: 29,
         blockedTiles: [
             { row: 4, col: 0, width: 2, height: 2 },
@@ -424,7 +512,7 @@ export default [
         boardUpgrades: [6],
     },
     {
-        level: 28,
+        level: 35,
         maxMoves: 25,
         blockedTiles: [
             { row: 3, movable: true },
@@ -441,7 +529,7 @@ export default [
         boardUpgrades: [6],
     },
     {
-        level: 29,
+        level: 36,
         boardWidth: 9,
         maxMoves: 23,
         blockedTiles: [
@@ -459,7 +547,7 @@ export default [
         boardUpgrades: [6, 7],
     },
     {
-        level: 30,
+        level: 37,
         title: "Lifebased Blocked Area",
         maxMoves: 24,
         blockedTiles: [
@@ -472,7 +560,7 @@ export default [
         boardUpgrades: [6],
     },
     {
-        level: 31,
+        level: 38,
         maxMoves: 34,
         blockedTiles: [
             { row: 4, movable: true },
@@ -486,7 +574,7 @@ export default [
         boardUpgrades: [6, 8],
     },
     {
-        level: 32,
+        level: 39,
         maxMoves: 32,
         blockedTiles: [{ row: 4, col: 2, width: 4, height: 4, lifeValue: 512 }],
         goals: [
@@ -496,7 +584,7 @@ export default [
         boardUpgrades: [6],
     },
     {
-        level: 33,
+        level: 40,
         maxMoves: 34,
         blockedTiles: [
             { row: 6, col: 0, width: 2, height: 2, lifeValue: 256 },
@@ -507,7 +595,7 @@ export default [
         boardUpgrades: [6, 8],
     },
     {
-        level: 34,
+        level: 41,
         maxMoves: 36,
         blockedTiles: [
             { row: 5, col: 0, width: 8, height: 1 },
@@ -523,7 +611,7 @@ export default [
         boardUpgrades: [7],
     },
     {
-        level: 35,
+        level: 42,
         title: "💸 PoS - God Level",
         maxMoves: 36,
         boardHeight: 10,
@@ -541,7 +629,7 @@ export default [
         boardUpgrades: [6, 7, 8],
     },
     {
-        level: 36,
+        level: 43,
         maxMoves: 40,
         blockedTiles: [
             { row: 3, movable: true },
