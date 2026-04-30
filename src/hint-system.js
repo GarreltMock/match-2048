@@ -54,6 +54,8 @@ export function findBestSwap(game) {
     for (const move of candidates) {
         // Fresh working copy per evaluation so mutations don't leak.
         game.board = originalBoard.map((row) => row.map((tile) => (tile ? { ...tile } : null)));
+        game.isUserSwap = false;
+        game.lastSwapPosition = null;
         const result = evaluateMove(game, move);
         if (result !== null) evaluated.push(result);
     }
@@ -230,7 +232,8 @@ function generateTeleportCandidates(game) {
 function getPowerUpCount(game, type) {
     const counts = game.powerUpCounts?.[type];
     if (!counts) return 0;
-    return (counts.transient || 0) + (counts.persistent || 0);
+    const persistent = game.persistentPowerUpsEnabled ? (counts.persistent || 0) : 0;
+    return (counts.transient || 0) + persistent;
 }
 
 function generateJokerHammerCandidates(game) {
@@ -415,8 +418,31 @@ function evaluateHammerOnBlocked(game, row, col, tile) {
     const blockedGoalsCompleted = countBlockedGoalsCompletedByClear(game, wouldClearCount);
     baseScore += blockedGoalsCompleted * 8000;
 
-    // Clear tile and cascade — tiles above may fall and form matches.
-    game.board[row][col] = null;
+    // Mirror usePowerUpHammer: only null out cells when the blocker is actually cleared.
+    if (isBlockedWithMergeCount(tile)) {
+        // Decrement one cell; remove entire rect only when all cells reach zero.
+        const allCleared = Object.values(tile.cellMergeCounts).every((v) => v <= 1);
+        if (allCleared) {
+            for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+                for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                    game.board[r][c] = null;
+                }
+            }
+        }
+        // If not fully cleared, no holes are created so no cascade is possible.
+        else {
+            return { type: "joker_hammer", row, col, score: baseScore - computeJokerCostPenalty(game, "hammer") - HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY, matchTiles: [] };
+        }
+    } else if (isBlockedWithLife(tile) && tile.isRectangular) {
+        // Rectangular life-blocker cleared — remove all cells.
+        for (let r = tile.rectAnchor.row; r < tile.rectAnchor.row + tile.rectHeight; r++) {
+            for (let c = tile.rectAnchor.col; c < tile.rectAnchor.col + tile.rectWidth; c++) {
+                game.board[r][c] = null;
+            }
+        }
+    } else {
+        game.board[row][col] = null;
+    }
     collapseColumnsNoSpawn(game);
     const { score: cascadeScore, allMatches } = cascadeAndScore(game);
     baseScore += cascadeScore;
