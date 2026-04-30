@@ -19,13 +19,15 @@ import {
     createCursedTile,
 } from "./tile-helpers.js";
 import { hasMatchesForSwap, findMatches } from "./match-detector.js";
-import { getPowerUpCost } from "./power-ups.js";
+import { getPowerUpCost, isPowerUpButtonVisible } from "./power-ups.js";
 
 // Penalties applied to keep scarce-resource moves from dominating non-completing ties.
-const JOKER_IN_STOCK_PENALTY = 500;       // already-owned joker: small "save it" cost
-const JOKER_MOVE_COST_PENALTY = 3000;     // buying with a move: must clearly outscore a normal swap
-const JOKER_COIN_COST_FACTOR = 5;         // per-coin score discount when buying with coins
-const JOKER_COIN_BASE_PENALTY = 500;      // flat component for coin buys
+// Tune JOKER_PENALTY_FACTOR to scale all joker penalties up/down (1.0 = baseline).
+const JOKER_PENALTY_FACTOR = 1.2;
+const JOKER_IN_STOCK_PENALTY = 500 * JOKER_PENALTY_FACTOR; // already-owned joker: small "save it" cost
+const JOKER_MOVE_COST_PENALTY = 3000 * JOKER_PENALTY_FACTOR; // buying with a move: must clearly outscore a normal swap
+const JOKER_COIN_COST_FACTOR = 25 * JOKER_PENALTY_FACTOR; // per-coin score discount when buying with coins
+const JOKER_COIN_BASE_PENALTY = 500 * JOKER_PENALTY_FACTOR; // flat component for coin buys
 const SPECIAL_FREESWAP_PENALTY = 300;
 const SPECIAL_TELEPORT_PENALTY = 500;
 // Stacks on top of the joker penalty for hammer-on-blocked that doesn't complete a goal.
@@ -141,10 +143,7 @@ function isPlainSwappable(game, r1, c1, r2, c2) {
 function tileHasFreeSwap(tile, isHorizontal, isVertical) {
     if (!tile || tile.hasBeenSwapped) return false;
     if (isTileFreeSwapTile(tile) || isTileStickyFreeSwapTile(tile)) return true;
-    return (
-        (isTileFreeSwapHorizontalTile(tile) && isHorizontal) ||
-        (isTileFreeSwapVerticalTile(tile) && isVertical)
-    );
+    return (isTileFreeSwapHorizontalTile(tile) && isHorizontal) || (isTileFreeSwapVerticalTile(tile) && isVertical);
 }
 
 function generateFreeswapCandidates(game) {
@@ -263,6 +262,7 @@ function generateJokerHammerCandidates(game) {
 }
 
 function canAffordPowerUp(game, type) {
+    if (!isPowerUpButtonVisible(game, type)) return false;
     if (getPowerUpCount(game, type) > 0) return true;
     if (game.powerUpMoveCost) return (game.maxMoves ?? 0) - (game.movesUsed ?? 0) > 0;
     return (game.coins ?? 0) >= getPowerUpCost(type);
@@ -354,12 +354,8 @@ function evaluateSwapLikeMove(game, move) {
     let baseScore = calculateSwapScore(game, matches);
 
     // Pick best-scoring match group (existing heuristic: by which swapped tile is involved).
-    const matchesForTile1 = matches.filter((m) =>
-        m.tiles.some((t) => t.row === row1 && t.col === col1),
-    );
-    const matchesForTile2 = matches.filter((m) =>
-        m.tiles.some((t) => t.row === row2 && t.col === col2),
-    );
+    const matchesForTile1 = matches.filter((m) => m.tiles.some((t) => t.row === row1 && t.col === col1));
+    const matchesForTile2 = matches.filter((m) => m.tiles.some((t) => t.row === row2 && t.col === col2));
     const score1 = matchesForTile1.length > 0 ? calculateSwapScore(game, matchesForTile1) : 0;
     const score2 = matchesForTile2.length > 0 ? calculateSwapScore(game, matchesForTile2) : 0;
     const bestMatches = score1 >= score2 ? matchesForTile1 : matchesForTile2;
@@ -404,14 +400,10 @@ function computeNudgeDirections(r1, c1, r2, c2) {
     const dr = r2 - r1;
     const dc = c2 - c1;
     if (dr === 0) {
-        return dc > 0
-            ? { direction1: "right", direction2: "left" }
-            : { direction1: "left", direction2: "right" };
+        return dc > 0 ? { direction1: "right", direction2: "left" } : { direction1: "left", direction2: "right" };
     }
     if (dc === 0) {
-        return dr > 0
-            ? { direction1: "down", direction2: "up" }
-            : { direction1: "up", direction2: "down" };
+        return dr > 0 ? { direction1: "down", direction2: "up" } : { direction1: "up", direction2: "down" };
     }
     // Diagonal (teleport across both axes).
     const v = dr > 0 ? "down" : "up";
@@ -469,9 +461,7 @@ function evaluateHammerOnNormal(game, row, col) {
     const goalsCompleted = countGoalsCompletedByMatches(game, matches);
 
     // Use cost-aware penalty (with goal-completion override).
-    const penalty = goalsCompleted > 0
-        ? JOKER_GOAL_COMPLETING_PENALTY
-        : computeJokerCostPenalty(game, "hammer");
+    const penalty = goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : computeJokerCostPenalty(game, "hammer");
     const score = baseScore - penalty;
 
     const matchTiles = [];
@@ -492,11 +482,7 @@ function collapseColumnsNoSpawn(game) {
         const blockerRows = [];
         for (let r = 0; r < game.boardHeight; r++) {
             const t = game.board[r][c];
-            if (
-                t &&
-                (isBlocked(t) || isBlockedWithLife(t) || isBlockedWithMergeCount(t)) &&
-                t.immovable !== false
-            ) {
+            if (t && (isBlocked(t) || isBlockedWithLife(t) || isBlockedWithMergeCount(t)) && t.immovable !== false) {
                 blockerRows.push(r);
             }
         }
@@ -782,9 +768,7 @@ export function getMatchTilesForSwap(game, row1, col1, row2, col2) {
     const matchTiles = [];
     if (hasMatchesForSwap(game, row1, col1, row2, col2)) {
         const matches = findMatches(game);
-        const relevantMatches = matches.filter((m) =>
-            m.tiles.some((t) => t.row === row2 && t.col === col2),
-        );
+        const relevantMatches = matches.filter((m) => m.tiles.some((t) => t.row === row2 && t.col === col2));
         for (const m of relevantMatches) {
             for (const t of m.tiles) {
                 let dr = t.row;
