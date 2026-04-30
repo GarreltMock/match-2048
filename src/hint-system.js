@@ -23,7 +23,7 @@ import { getPowerUpCost, isPowerUpButtonVisible } from "./power-ups.js";
 
 // Penalties applied to keep scarce-resource moves from dominating non-completing ties.
 // Tune JOKER_PENALTY_FACTOR to scale all joker penalties up/down (1.0 = baseline).
-const JOKER_PENALTY_FACTOR = 1.2;
+const JOKER_PENALTY_FACTOR = 2;
 const JOKER_IN_STOCK_PENALTY = 500 * JOKER_PENALTY_FACTOR; // already-owned joker: small "save it" cost
 const JOKER_MOVE_COST_PENALTY = 3000 * JOKER_PENALTY_FACTOR; // buying with a move: must clearly outscore a normal swap
 const JOKER_COIN_COST_FACTOR = 25 * JOKER_PENALTY_FACTOR; // per-coin score discount when buying with coins
@@ -340,7 +340,6 @@ function evaluateMove(game, move) {
 function evaluateSwapLikeMove(game, move) {
     const { type, row1, col1, row2, col2 } = move;
 
-    // Perform the swap on the (already-fresh) working board.
     const temp = game.board[row1][col1];
     game.board[row1][col1] = game.board[row2][col2];
     game.board[row2][col2] = temp;
@@ -350,22 +349,15 @@ function evaluateSwapLikeMove(game, move) {
 
     if (!hasMatchesForSwap(game, row1, col1, row2, col2)) return null;
 
-    const matches = findMatches(game);
-    let baseScore = calculateSwapScore(game, matches);
+    const { score: baseScore, firstMatches, allMatches } = cascadeAndScore(game);
+    if (baseScore === 0) return null;
 
-    // Pick best-scoring match group (existing heuristic: by which swapped tile is involved).
-    const matchesForTile1 = matches.filter((m) => m.tiles.some((t) => t.row === row1 && t.col === col1));
-    const matchesForTile2 = matches.filter((m) => m.tiles.some((t) => t.row === row2 && t.col === col2));
-    const score1 = matchesForTile1.length > 0 ? calculateSwapScore(game, matchesForTile1) : 0;
-    const score2 = matchesForTile2.length > 0 ? calculateSwapScore(game, matchesForTile2) : 0;
-    const bestMatches = score1 >= score2 ? matchesForTile1 : matchesForTile2;
-
-    // Translate post-swap match positions back to pre-swap coords for display.
+    // Match tiles for display: first round only, translated back to pre-swap visual positions.
     const matchTiles = [];
-    for (const m of bestMatches) {
+    for (const m of firstMatches) {
         for (const tile of m.tiles) {
-            let dr = tile.row;
-            let dc = tile.col;
+            let dr = tile.row,
+                dc = tile.col;
             if (tile.row === row1 && tile.col === col1) {
                 dr = row2;
                 dc = col2;
@@ -377,23 +369,11 @@ function evaluateSwapLikeMove(game, move) {
         }
     }
 
+    const goalsCompleted = countGoalsCompletedByMatches(game, allMatches);
     const { direction1, direction2 } = computeNudgeDirections(row1, col1, row2, col2);
-    const goalsCompleted = countGoalsCompletedByMatches(game, matches);
+    const score = baseScore + applyMoveTypeAdjustment(game, type, baseScore, goalsCompleted);
 
-    let score = baseScore;
-    score += applyMoveTypeAdjustment(game, type, baseScore, goalsCompleted);
-
-    return {
-        type,
-        row1,
-        col1,
-        row2,
-        col2,
-        direction1,
-        direction2,
-        score,
-        matchTiles,
-    };
+    return { type, row1, col1, row2, col2, direction1, direction2, score, matchTiles };
 }
 
 function computeNudgeDirections(r1, c1, r2, c2) {
@@ -430,46 +410,72 @@ function evaluateHammerOnBlocked(game, row, col, tile) {
     const wouldClearCount = computeHammerClearCount(tile);
     if (wouldClearCount <= 0) return null;
 
-    // Base score mirrors `calculateSwapScore`'s blocked-clearance term.
     let baseScore = 10000 + wouldClearCount * 500;
 
     const blockedGoalsCompleted = countBlockedGoalsCompletedByClear(game, wouldClearCount);
     baseScore += blockedGoalsCompleted * 8000;
 
-    // Cost-aware joker penalty + (when not completing a blocked goal) the heavy "save it" surcharge.
+    // Clear tile and cascade — tiles above may fall and form matches.
+    game.board[row][col] = null;
+    collapseColumnsNoSpawn(game);
+    const { score: cascadeScore, allMatches } = cascadeAndScore(game);
+    baseScore += cascadeScore;
+
+    const goalsCompletedByMatches = countGoalsCompletedByMatches(game, allMatches);
+    const totalGoalsCompleted = blockedGoalsCompleted + goalsCompletedByMatches;
+
     let score = baseScore;
-    if (blockedGoalsCompleted > 0) {
-        score -= JOKER_GOAL_COMPLETING_PENALTY;
+    if (totalGoalsCompleted > 0) {
+        score -= computeJokerCostPenalty(game, "hammer") + JOKER_GOAL_COMPLETING_PENALTY;
     } else {
         score -= computeJokerCostPenalty(game, "hammer");
         score -= HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY;
     }
 
-    return { type: "joker_hammer", row, col, score, matchTiles: [] };
+    const matchTiles = [];
+    for (const m of allMatches) for (const t of m.tiles) matchTiles.push({ row: t.row, col: t.col });
+
+    return { type: "joker_hammer", row, col, score, matchTiles };
 }
 
 function evaluateHammerOnNormal(game, row, col) {
-    // Remove the tile, collapse the column (no top-spawn so this stays deterministic),
-    // then check matches anywhere on the board (gravity may also affect rows).
     game.board[row][col] = null;
     collapseColumnsNoSpawn(game);
 
-    const matches = findMatches(game);
-    if (matches.length === 0) return null;
+    const { score: baseScore, allMatches } = cascadeAndScore(game);
+    if (baseScore === 0) return null;
 
-    const baseScore = calculateSwapScore(game, matches);
-    const goalsCompleted = countGoalsCompletedByMatches(game, matches);
-
-    // Use cost-aware penalty (with goal-completion override).
-    const penalty = goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : computeJokerCostPenalty(game, "hammer");
+    const goalsCompleted = countGoalsCompletedByMatches(game, allMatches);
+    const penalty = computeJokerCostPenalty(game, "hammer") + (goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : 0);
     const score = baseScore - penalty;
 
     const matchTiles = [];
-    for (const m of matches) {
-        for (const t of m.tiles) matchTiles.push({ row: t.row, col: t.col });
-    }
+    for (const m of allMatches) for (const t of m.tiles) matchTiles.push({ row: t.row, col: t.col });
 
     return { type: "joker_hammer", row, col, score, matchTiles };
+}
+
+/**
+ * Score all matches reachable from the current board state via deterministic cascade.
+ * Each round: findMatches → calculateSwapScore → remove tiles → collapseColumnsNoSpawn.
+ * Mutates game.board. Returns accumulated score, first-round matches (for display), all matches.
+ */
+function cascadeAndScore(game) {
+    let totalScore = 0;
+    const allMatches = [];
+    let firstMatches = null;
+
+    let round = findMatches(game);
+    while (round.length > 0) {
+        if (!firstMatches) firstMatches = round;
+        totalScore += calculateSwapScore(game, round);
+        allMatches.push(...round);
+        for (const m of round) for (const t of m.tiles) game.board[t.row][t.col] = null;
+        collapseColumnsNoSpawn(game);
+        round = findMatches(game);
+    }
+
+    return { score: totalScore, firstMatches: firstMatches ?? [], allMatches };
 }
 
 /**
@@ -544,31 +550,32 @@ function evaluateHalverMove(game, move) {
         ? createCursedTile(halvedValue, tile.cursedMovesRemaining)
         : createTile(halvedValue);
 
-    const matches = findMatches(game);
-    const matchesAtTarget = matches.filter((m) => m.tiles.some((t) => t.row === row && t.col === col));
+    // Only score matches that involve the halved tile (attributable to this halver action).
+    const firstAllMatches = findMatches(game);
+    const firstMatches = firstAllMatches.filter((m) => m.tiles.some((t) => t.row === row && t.col === col));
 
-    let baseScore = matchesAtTarget.length > 0 ? calculateSwapScore(game, matchesAtTarget) : 0;
+    let baseScore = firstMatches.length > 0 ? calculateSwapScore(game, firstMatches) : 0;
+    const allMatches = [...firstMatches];
 
-    // Halver also progresses created/current goals for the resulting halved value (per power-ups.js).
-    const halverGoalProgress = countHalverGoalProgress(game, halvedValue);
-    baseScore += halverGoalProgress.progress * 100;
-    baseScore += halverGoalProgress.completed * 8000;
-
-    const goalsCompleted = countGoalsCompletedByMatches(game, matches) + halverGoalProgress.completed;
-    let score = baseScore + applyMoveTypeAdjustment(game, "joker_halver", baseScore, goalsCompleted);
-
-    const matchTiles = [];
-    for (const m of matchesAtTarget) {
-        for (const t of m.tiles) matchTiles.push({ row: t.row, col: t.col });
+    // Cascade: remove first-round matches and score chain reactions.
+    if (firstMatches.length > 0) {
+        for (const m of firstMatches) for (const t of m.tiles) game.board[t.row][t.col] = null;
+        collapseColumnsNoSpawn(game);
+        const { score: cascadeScore, allMatches: cascadeMatches } = cascadeAndScore(game);
+        baseScore += cascadeScore;
+        allMatches.push(...cascadeMatches);
     }
 
-    return {
-        type: "joker_halver",
-        row,
-        col,
-        score,
-        matchTiles,
-    };
+    const halverGoalProgress = countHalverGoalProgress(game, halvedValue);
+    baseScore += halverGoalProgress.progress * 100 + halverGoalProgress.completed * 8000;
+
+    const goalsCompleted = countGoalsCompletedByMatches(game, allMatches) + halverGoalProgress.completed;
+    const score = baseScore + applyMoveTypeAdjustment(game, "joker_halver", baseScore, goalsCompleted);
+
+    const matchTiles = [];
+    for (const m of firstMatches) for (const t of m.tiles) matchTiles.push({ row: t.row, col: t.col });
+
+    return { type: "joker_halver", row, col, score, matchTiles };
 }
 
 function countHalverGoalProgress(game, halvedValue) {
@@ -739,9 +746,9 @@ function applyMoveTypeAdjustment(game, type, _baseScore, goalsCompleted) {
         case "teleport":
             return -SPECIAL_TELEPORT_PENALTY;
         case "joker_swap":
-            return -(goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : computeJokerCostPenalty(game, "swap"));
+            return -(computeJokerCostPenalty(game, "swap") + (goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : 0));
         case "joker_halver":
-            return -(goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : computeJokerCostPenalty(game, "halve"));
+            return -(computeJokerCostPenalty(game, "halve") + (goalsCompleted > 0 ? JOKER_GOAL_COMPLETING_PENALTY : 0));
         default:
             return 0;
     }
