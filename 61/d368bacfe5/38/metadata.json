@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "afceed38-f0e8-4b92-8f2a-5100dd213be7",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-30T09:15:05.028188Z",
+  "branch": "feat/better-hints",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "styles/game.css"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "e1ae426a-aa76-4cd8-84e4-41a52b16693c",
+  "token_usage": {
+    "input_tokens": 20,
+    "cache_creation_tokens": 18446,
+    "cache_read_tokens": 356943,
+    "output_tokens": 4773,
+    "api_call_count": 16
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-30T09:15:05.008619Z",
+    "agent_lines": 0,
+    "human_added": 543,
+    "human_modified": 32,
+    "human_removed": 0,
+    "total_committed": 550,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/afceed38-f0e8-4b92-8f2a-5100dd213be7.jsonl"
+}
