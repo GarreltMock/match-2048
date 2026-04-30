@@ -41,3 +41,15 @@ solver.js:175 [solver]   swap (0,6)->(0,7): valid=true allGoalsSati...
 
 Ah. Maybe it is, because I used a boardPreset and the countBlockedTiles function does not count that correctly. Why does the simulator not use the goal objects, with the target, current fields?
 
+### Prompt 6
+
+Nice. It works.
+Explore the simulator and solver for more of these potential issue.
+One known issue is the missing boardUpgrades in the simulator.
+What else do we have?
+
+### Prompt 7
+
+Ok remove the cursed Tile thing again for now. We do not use them currently.
+Why is spawnableTileValues not used? We sometimes define spawnableTiles: [1, 2, 3], in the level config
+

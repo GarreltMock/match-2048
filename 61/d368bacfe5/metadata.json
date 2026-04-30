@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/better-hints",
-  "checkpoints_count": 77,
+  "checkpoints_count": 75,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -294,10 +294,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 1377,
-    "cache_creation_tokens": 2059109,
-    "cache_read_tokens": 62676700,
-    "output_tokens": 433990,
-    "api_call_count": 1048
+    "input_tokens": 1341,
+    "cache_creation_tokens": 2199696,
+    "cache_read_tokens": 60635686,
+    "output_tokens": 406234,
+    "api_call_count": 1015
   }
 }
