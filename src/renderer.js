@@ -110,7 +110,7 @@ export function renderBoard(game) {
     const padding = 30; // Approximate padding from CSS clamp(6px, 3vw, 15px) * 2
     const maxContentHeight = maxHeight - padding;
     const calculatedWidth = maxContentHeight * aspectRatio + padding;
-    const maxWidth = Math.min(calculatedWidth, vw * 0.9, 550);
+    const maxWidth = Math.min(calculatedWidth, vw * 0.9, 650);
 
     gameBoard.style.width = `${maxWidth}px`;
 
@@ -341,9 +341,7 @@ export function createGoalCard(game, goal) {
     goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
 
     const isRatioGoal = goal.goalType !== "blocked";
-    const goalProgressText = isRatioGoal
-        ? `${currentProgress}/${goal.target}`
-        : `${goal.target - currentProgress}`;
+    const goalProgressText = isRatioGoal ? `${currentProgress}/${goal.target}` : `${goal.target - currentProgress}`;
     const goalProgressElement = `
         <stroked-text
             text="${goalProgressText}"
@@ -388,7 +386,6 @@ function createScoreGoalCard(goal) {
         `;
     return goalCard;
 }
-
 
 export function renderBoardUpgrades(game) {
     const upgradesContainer = document.getElementById("boardUpgradesContainer");
