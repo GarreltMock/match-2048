@@ -132,7 +132,7 @@ export const GOAL_DIALOGS = {
     },
     blocked_movable: {
         title: "Movable Blocked Tiles",
-        subtitle: "You have more control how you clear these",
+        subtitle: "You can swap them with valid move",
         content: `
             <div class="goal-card goal-blocked">
                 <div class="gem tile-BLOCKED_MOVABLE goal-tile"></div>
