@@ -1,0 +1,24 @@
+Please adress/fix these findings:
+Persistent power-up counts bypass affordability
+Verwerfen
+getPowerUpCount counts persistent inventory even when persistentPowerUpsEnabled is false. canAffordPowerUp then treats disabled saved counts as usable stock and skips coin or move affordability, so hints can suggest power-up moves the player cannot actually use and the no-moves check can stay alive incorrectly.
+
+
+/Users/garreltmock/Projects/match-2048/src/hint-system.js:230-233
+[P1] hint-system.js (line 230): getPowerUpCount needs to mirror getTotalPowerUpCount by gating persistent counts behind game.persistentPowerUpsEnabled.
+P2
+Candidate evaluations leak user-swap state
+Verwerfen
+findBestSwap restores isUserSwap and lastSwapPosition only after all candidates finish. Since swap-like evaluation sets both, later hammer and halver candidates, plus cascade rounds, can run with stale user-swap context from an unrelated candidate. The real processor clears isUserSwap after the first match detection, so this can inflate scores and highlight impossible match groups.
+
+
+/Users/garreltmock/Projects/match-2048/src/hint-system.js:53-58
+[P2] hint-system.js (line 53): reset isUserSwap / lastSwapPosition for each candidate, and clear user-swap context before simulated cascades.
+P2
+Hammer simulation removes the wrong blocked cells
+Verwerfen
+evaluateHammerOnBlocked always nulls only the selected cell before collapsing. For merge-count rectangular blockers, the real hammer only decrements one cell and does not create a hole unless the rectangle is fully cleared; for rectangular life blockers, full removal clears every cell. This simulation can create cascades that cannot happen in play.
+
+
+/Users/garreltmock/Projects/match-2048/src/hint-system.js:418-420
+[P2] hint-system.js (line 418): mirror usePowerUpHammer behavior for merge-count and rectangular blocked tiles before scoring cascades.
