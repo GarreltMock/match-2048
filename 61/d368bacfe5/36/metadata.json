@@ -3,32 +3,31 @@
   "checkpoint_id": "61d368bacfe5",
   "session_id": "44462b6e-4905-4155-8a73-8f3d43aedcec",
   "strategy": "manual-commit",
-  "created_at": "2026-04-30T06:51:53.059334Z",
+  "created_at": "2026-04-30T08:33:56.666169Z",
   "branch": "feat/better-hints",
-  "checkpoints_count": 1,
+  "checkpoints_count": 2,
   "files_touched": [
-    "src/game.js",
-    "src/hint-system.js",
-    "src/renderer.js",
-    "styles/game.css"
+    "src/hint-system.js"
   ],
   "agent": "Claude Code",
-  "transcript_identifier_at_start": "4648d5c2-14c5-409b-bb36-b29e41119102",
+  "transcript_identifier_at_start": "17797b01-f801-4fa0-9a14-ddd8ab7bc222",
+  "checkpoint_transcript_start": 334,
+  "transcript_lines_at_start": 334,
   "token_usage": {
-    "input_tokens": 84,
-    "cache_creation_tokens": 502842,
-    "cache_read_tokens": 5513692,
-    "output_tokens": 63127,
-    "api_call_count": 56
+    "input_tokens": 20,
+    "cache_creation_tokens": 24377,
+    "cache_read_tokens": 448044,
+    "output_tokens": 3155,
+    "api_call_count": 17
   },
   "initial_attribution": {
-    "calculated_at": "2026-04-30T06:51:52.900981Z",
-    "agent_lines": 505,
-    "human_added": 169,
-    "human_modified": 34,
+    "calculated_at": "2026-04-30T08:33:56.470426Z",
+    "agent_lines": 0,
+    "human_added": 1,
+    "human_modified": 37,
     "human_removed": 0,
-    "total_committed": 708,
-    "agent_percentage": 71.32768361581921
+    "total_committed": 9,
+    "agent_percentage": 0
   },
   "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/44462b6e-4905-4155-8a73-8f3d43aedcec.jsonl"
 }

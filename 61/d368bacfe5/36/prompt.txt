@@ -53,3 +53,183 @@ continue
 ---
 
 Continue
+
+---
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Summary:
+1. Primary Request and Intent:
+   The user requested a major expansion of the Hint system in the match-2048 project to:
+   - Include special tile features as candidate moves: free swap, sticky free swap, directional free swap (horizontal/vertical), teleport — including the "extended free swap" mode
+   - Include joker (power-up) uses as candidate moves: hammer, halver, swap
+   - Reuse existing nudge animation UX for swap-like moves (free-swap, teleport, swap-joker); pulse joker icon + target tile for hammer/halver
+   - Smart scoring for hammer-on-blocked so it doesn't always dominate (e.g., only suggest when clearing the last blocked tile of a goal)
+   - Defer 2-step beam search as a future enhancement
+   
+   Then four refinements:
+   1. Hammer-on-normal should be scored (gravity can produce matches)
+   2. Diagonal transform for teleport hints
+   3. Higher z-index on hint tiles
+   4. Joker penalty should reflect actual cost (free in-stock vs move-cost vs coin-cost)
+
+2. Key Technical Concepts:
+   - Match-3 / 2048 hybrid game mechanics
+   - Vanilla JS ES modules, static site (no build, no package.json)
+   - Working-copy board pattern for non-destructive evaluation
+   - `calculateSwapScore` formula: formation type (300-1000), tiles cleared (×50), goal progress (×100), goals completed (×8000), blocked-clear bonus (10000+500/tile), special tile bonus (200), max value (×5), position bonus
+   - Power-up cost system: `BASE_POWERUP_COST * Math.pow(2, levelBuyCounts[type])`
+   - `game.powerUpCounts[type] = {transient, persistent}`; `getTotalPowerUpCount` sums them
+   - `game.powerUpMoveCost` flag: when true, buying joker costs a move; else costs coins
+   - Truthful UX in stochastic systems (per memory): avoid `Math.random()` in hint paths since live gameplay won't replay deterministically — `getRandomTileValue` (board.js:131) hardcodes Math.random
+   - `applyGravity` in gravity.js spawns new tiles (stochastic) — wrote `collapseColumnsNoSpawn` instead for hammer evaluation
+   - Move-type tagging with dedupe via `swapKey` for swap-like moves
+
+3. Files and Code Sections:
+
+   - **`/Users/garreltmock/.claude/plans/we-want-to-radically-twinkling-rabin.md`**
+     - Plan file written during plan mode; describes the architecture, scoring rules, UI, files, verification, deferred work
+
+   - **`src/hint-system.js`** (completely rewritten)
+     - Core file for hint computation. Refactored from `findAllValidSwaps`/`evaluateSwap` to a candidate-move pipeline with type-tagged moves
+     - Move types: `swap`, `freeswap`, `teleport`, `joker_swap`, `joker_hammer`, `joker_halver`
+     - Key functions: `findBestSwap` (entry, kept name for back-compat), `findAllCandidateMoves`, `swapKey`, `findAllValidSwaps` (kept exported for solver.js — strips type field), `generateSwapCandidates`, `generateFreeswapCandidates` (handles adjacent + extendedFreeSwap same-row/col), `generateTeleportCandidates` (non-adjacent only), `generateJokerHammerCandidates` (blocked variants + normal/cursed), `generateJokerHalverCandidates`, `generateJokerSwapCandidates`, `canAffordPowerUp`, `computeJokerCostPenalty`, `evaluateMove`, `evaluateSwapLikeMove`, `evaluateHammerMove` (dispatches), `evaluateHammerOnBlocked`, `evaluateHammerOnNormal`, `collapseColumnsNoSpawn` (deterministic gravity, no top-spawn), `evaluateHalverMove`, `computeNudgeDirections` (handles diagonal), `applyMoveTypeAdjustment` (now takes game), `calculateSwapScore` (kept exported), `countGoalsCompletedByMatches`, `countBlockedGoalsCompletedByClear`, `computeHammerClearCount`, `countHalverGoalProgress`, `getMatchTilesForSwap` (kept exported)
+     - Constants: JOKER_IN_STOCK_PENALTY=500, JOKER_MOVE_COST_PENALTY=3000, JOKER_COIN_COST_FACTOR=5, JOKER_COIN_BASE_PENALTY=500, SPECIAL_FREESWAP_PENALTY=300, SPECIAL_TELEPORT_PENALTY=500, HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY=15000, JOKER_GOAL_COMPLETING_PENALTY=200
+     - Imports: from tile-helpers (predicates, createTile, createCursedTile), match-detector (hasMatchesForSwap, findMatches), power-ups (getPowerUpCost — added later)
+     
+     Diagonal direction logic:
+     ```js
+     function computeNudgeDirections(r1, c1, r2, c2) {
+         const dr = r2 - r1;
+         const dc = c2 - c1;
+         if (dr === 0) {
+             return dc > 0 ? { direction1: "right", direction2: "left" } : { direction1: "left", direction2: "right" };
+         }
+         if (dc === 0) {
+             return dr > 0 ? { direction1: "down", direction2: "up" } : { direction1: "up", direction2: "down" };
+         }
+         const v = dr > 0 ? "down" : "up";
+         const h = dc > 0 ? "right" : "left";
+         const opp = dr > 0 ? "up" : "down";
+         const oppH = dc > 0 ? "left" : "right";
+         return { direction1: `${v}-${h}`, direction2: `${opp}-${oppH}` };
+     }
+     ```
+     
+     Cost-aware penalty:
+     ```js
+     function canAffordPowerUp(game, type) {
+         if (getPowerUpCount(game, type) > 0) return true;
+         if (game.powerUpMoveCost) return (game.maxMoves ?? 0) - (game.movesUsed ?? 0) > 0;
+         return (game.coins ?? 0) >= getPowerUpCost(type);
+     }
+     function computeJokerCostPenalty(game, type) {
+         if (getPowerUpCount(game, type) > 0) return JOKER_IN_STOCK_PENALTY;
+         if (game.powerUpMoveCost) return JOKER_MOVE_COST_PENALTY;
+         return JOKER_COIN_BASE_PENALTY + getPowerUpCost(type) * JOKER_COIN_COST_FACTOR;
+     }
+     ```
+
+   - **`src/game.js`** (showHint + clearHint)
+     - Replaced bestSwap with bestMove spread; clearHint generalized to strip all hint-* classes
+     ```js
+     showHint() {
+         if (!this.gameActive || this.animating) return;
+         const bestMove = findBestSwap(this);
+         if (!bestMove) return;
+         this.currentHint = { ...bestMove, matchTiles: bestMove.matchTiles || [] };
+         renderHintHighlight(this);
+     }
+     clearHint() {
+         if (!this.currentHint) return;
+         document.querySelectorAll('[class*="hint-"]').forEach((el) => {
+             const toRemove = Array.from(el.classList).filter((c) => c.startsWith("hint-"));
+             for (const c of toRemove) el.classList.remove(c);
+         });
+         this.currentHint = null;
+     }
+     ```
+
+   - **`src/renderer.js`** (renderHintHighlight)
+     - Type-dispatched rendering. Joker button selector: `.power-ups [data-powerup="${type}"]`
+     ```js
+     export function renderHintHighlight(game) {
+         const hint = game.currentHint;
+         if (!hint) return;
+         const tileEl = (r, c) => document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+         const jokerBtn = (type) => document.querySelector(`.power-ups [data-powerup="${type}"]`);
+         if (hint.type === "joker_hammer" || hint.type === "joker_halver") {
+             tileEl(hint.row, hint.col)?.classList.add("hint-joker-target");
+             const jokerType = hint.type === "joker_hammer" ? "hammer" : "halve";
+             jokerBtn(jokerType)?.classList.add("hint-joker-icon");
+             return;
+         }
+         const gem1 = tileEl(hint.row1, hint.col1);
+         const gem2 = tileEl(hint.row2, hint.col2);
+         if (gem1 && hint.direction1) gem1.classList.add(`hint-nudge-${hint.direction1}`);
+         if (gem2 && hint.direction2) gem2.classList.add(`hint-nudge-${hint.direction2}`);
+         if (hint.type === "joker_swap") jokerBtn("swap")?.classList.add("hint-joker-icon");
+         if (hint.matchTiles) {
+             for (const tile of hint.matchTiles) tileEl(tile.row, tile.col)?.classList.add("hint-merge-preview");
+         }
+     }
+     ```
+
+   - **`styles/game.css`**
+     - Added z-index: 1000 + position: relative to all hint nudge classes, hint-joker-target, hint-merge-preview
+     - Added 4 diagonal keyframes (hintNudgeUpLeft, UpRight, DownLeft, DownRight) using translate(±15%, ±15%)
+     - Added hintPulse keyframe (scale 1 → 1.08) for .hint-joker-target and .hint-joker-icon
+
+4. Errors and fixes:
+   - **Initial Explore agents rejected by user**: User cancelled to switch model from default to Opus 4.7 1M context. Continued after `/model` command.
+   - **Unused import diagnostics** (isJoker, baseScore param): Removed unused `isJoker` from imports; renamed `baseScore` parameter to `_baseScore` to silence unused warning.
+   - **Removed `findAllValidSwaps` export broke solver.js**: solver.js imports `findAllValidSwaps` and `calculateSwapScore`. Re-added export wrapping `generateSwapCandidates` to strip the type field for shape compatibility: `return generateSwapCandidates(game).map(({ row1, col1, row2, col2 }) => ({ row1, col1, row2, col2 }));`
+   - **Pre-existing TypeScript diagnostics** in game.js, input-handler.js, renderer.js (unused imports like savePowerUpCounts, FEATURE_KEYS): not from my changes, ignored.
+
+5. Problem Solving:
+   - **Truthful UX in stochastic systems**: Couldn't use full simulateMove/applyGravity for hammer-on-normal because top-spawn is random. Solved with `collapseColumnsNoSpawn` that only collapses existing tiles within sections delimited by immovable blockers — fully deterministic.
+   - **Hint dedupe across move types**: Used `swapKey(move)` (canonicalized as `${min}-${max}` of row*100+col) to dedupe swap-like candidates, preferring the no-penalty `swap` type over freeswap/teleport/joker_swap when the same pair appears.
+   - **Hammer scoring without dominating**: Stack `JOKER_COST_PENALTY + HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY (15000)` which exceeds the +10000 blocked bonus, so any normal match beats hammer-on-blocked unless it completes a blocked-tile goal (which restores full bonus minus only `JOKER_GOAL_COMPLETING_PENALTY=200`).
+   - **Game-over detection compatibility**: goal-tracker.js calls `findBestSwap` to detect game over; with jokers now included, game continues if jokers can save the player. Considered desirable.
+
+6. All user messages:
+   - "We want to radically improve the Hint system, or better say expand its functionality. Especially I want it to include the special tile features and also the joker usages..." (initial detailed request with specifics on free swap, directional free swap, teleport, hammer/halver/swap jokers, hammer scoring concerns, beam search consideration)
+   - "/clear" (slash command)
+   - "/model" "Continue" (after switching to Opus 4.7 1M)
+   - "[Request interrupted by user for tool use]" (rejected initial Explore agents)
+   - "Tool loaded." (after ToolSearch for ExitPlanMode)
+   - "/effort" "continue" (set medium effort, continue)
+   - "Tool loaded." (after ToolSearch for TaskCreate/TaskUpdate)
+   - "This seems to work quite well. A few adjustments maybe. 1. You said: Hammer-on-normal skipped. But actually because of the gravity it can actually have a score right? 2. For the teleport hint-ux / design. Can we maybe even have a diagonal transform on that? 3. Make sure to give the hint-tiles a really high z-index. 4. Maybe we should also adjust the penalty for Joker based on their usage cost (free, or coin cost) What do you think?"
+   - "continue continue continue Continue" (with date-change system reminder)
+   - "/rename improve-hint-system-massively" (renamed session)
+
+7. Pending Tasks:
+   - Browser testing of the implementation by the user (I cannot run a browser test in this static-site environment; flagged this explicitly)
+   - Phase 2 deferred: 2-step beam search using simulateMove with seedable RNG (blocked on `getRandomTileValue` in board.js:131 hardcoding Math.random)
+
+8. Current Work:
+   The user requested four adjustments to the working hint-system implementation. All four were completed and smoke-tested:
+   1. **Hammer-on-normal with gravity**: Added `evaluateHammerOnNormal` and `collapseColumnsNoSpawn` that deterministically collapses tiles down within sections without spawning new ones, then runs findMatches.
+   2. **Diagonal nudge for teleport**: Updated `computeNudgeDirections` to emit `down-right`, `up-left`, etc. for non-axial moves; added 4 diagonal CSS keyframes.
+   3. **High z-index**: Added `z-index: 1000; position: relative` to all hint-nudge-*, hint-joker-target, hint-merge-preview classes.
+   4. **Cost-aware joker penalty**: Replaced flat penalty with `computeJokerCostPenalty(game, type)`: in-stock=500, move-cost=3000, coin=500+cost*5. Added `canAffordPowerUp` gating on candidate generation.
+   
+   Final smoke tests confirmed: module loads cleanly, `findBestSwap` returns expected shape, normal swaps still win when matches exist, no circular import. The work appears complete pending user browser verification.
+
+9. Optional Next Step:
+   The four user-requested adjustments are complete and smoke-tested. The most recent assistant message summarized the implementation; no explicit follow-up was given by the user beyond the session rename. 
+   
+   I should not proceed with new work without user direction. If the user wants to continue, the natural next steps from the deferred plan would be: (a) browser verification of the visual hint UX (which they need to do locally), or (b) Phase 2 — implementing 2-step beam search via seedable RNG in board.js. But neither was explicitly requested in the most recent turn, so I should wait for the user to direct.
+   
+   Direct quote from the user's last technical message before the rename: "Maybe we should also adjust the penalty for Joker based on their usage cost (free, or coin cost) What do you think?" — this was the fourth adjustment, now implemented as `computeJokerCostPenalty` with in-stock/move/coin tiers.
+
+If you need specific details from before compaction (like exact code snippets, error messages, or content you generated), read the full transcript at: /Users/garreltmock/.REDACTED.jsonl
+
+---
+
+We need to check if the joker is already unlocked before the hint-system can suggest it.
+
+---
+
+Lets make the penalty for using joker overall a little higher. Maybe we can add a factor value we can fine tune?

@@ -51,3 +51,21 @@ continue
 
 Continue
 
+### Prompt 11
+
+This session is being continued from a previous conversation that ran out of context. The summary below covers the earlier portion of the conversation.
+
+Summary:
+1. Primary Request and Intent:
+   The user requested a major expansion of the Hint system in the match-2048 project to:
+   - Include special tile features as candidate moves: free swap, sticky free swap, directional free swap (horizontal/vertical), teleport — including the "extended free swap" mode
+   - Include joker (power-up) uses a...
+
+### Prompt 12
+
+We need to check if the joker is already unlocked before the hint-system can suggest it.
+
+### Prompt 13
+
+Lets make the penalty for using joker overall a little higher. Maybe we can add a factor value we can fine tune?
+
