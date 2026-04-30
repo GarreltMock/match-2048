@@ -110,7 +110,7 @@ export function renderBoard(game) {
     const padding = 30; // Approximate padding from CSS clamp(6px, 3vw, 15px) * 2
     const maxContentHeight = maxHeight - padding;
     const calculatedWidth = maxContentHeight * aspectRatio + padding;
-    const maxWidth = Math.min(calculatedWidth, vw * 0.9, 550);
+    const maxWidth = Math.min(calculatedWidth, vw * 0.9, 650);
 
     gameBoard.style.width = `${maxWidth}px`;
 
@@ -251,26 +251,33 @@ export function renderBoard(game) {
 }
 
 export function renderHintHighlight(game) {
-    if (!game.currentHint) return;
+    const hint = game.currentHint;
+    if (!hint) return;
 
-    const gem1 = document.querySelector(
-        `[data-row="${game.currentHint.row1}"][data-col="${game.currentHint.col1}"]`,
-    );
-    const gem2 = document.querySelector(
-        `[data-row="${game.currentHint.row2}"][data-col="${game.currentHint.col2}"]`,
-    );
+    const tileEl = (r, c) => document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    const jokerBtn = (type) => document.querySelector(`.power-ups [data-powerup="${type}"]`);
 
-    if (gem1 && game.currentHint.direction1) {
-        gem1.classList.add(`hint-nudge-${game.currentHint.direction1}`);
-    }
-    if (gem2 && game.currentHint.direction2) {
-        gem2.classList.add(`hint-nudge-${game.currentHint.direction2}`);
+    if (hint.type === "joker_hammer" || hint.type === "joker_halver") {
+        const target = tileEl(hint.row, hint.col);
+        target?.classList.add("hint-joker-target");
+        const jokerType = hint.type === "joker_hammer" ? "hammer" : "halve";
+        jokerBtn(jokerType)?.classList.add("hint-joker-icon");
+        return;
     }
 
-    if (game.currentHint.matchTiles) {
-        for (const tile of game.currentHint.matchTiles) {
-            const matchGem = document.querySelector(`[data-row="${tile.row}"][data-col="${tile.col}"]`);
-            matchGem?.classList.add("hint-merge-preview");
+    // Swap-like (swap, freeswap, teleport, joker_swap): nudge both endpoints.
+    const gem1 = tileEl(hint.row1, hint.col1);
+    const gem2 = tileEl(hint.row2, hint.col2);
+    if (gem1 && hint.direction1) gem1.classList.add(`hint-nudge-${hint.direction1}`);
+    if (gem2 && hint.direction2) gem2.classList.add(`hint-nudge-${hint.direction2}`);
+
+    if (hint.type === "joker_swap") {
+        jokerBtn("swap")?.classList.add("hint-joker-icon");
+    }
+
+    if (hint.matchTiles) {
+        for (const tile of hint.matchTiles) {
+            tileEl(tile.row, tile.col)?.classList.add("hint-merge-preview");
         }
     }
 }
@@ -334,9 +341,7 @@ export function createGoalCard(game, goal) {
     goalCard.className = `goal-card ${goalTypeClass} ${isCompleted ? "completed" : ""}`;
 
     const isRatioGoal = goal.goalType !== "blocked";
-    const goalProgressText = isRatioGoal
-        ? `${currentProgress}/${goal.target}`
-        : `${goal.target - currentProgress}`;
+    const goalProgressText = isRatioGoal ? `${currentProgress}/${goal.target}` : `${goal.target - currentProgress}`;
     const goalProgressElement = `
         <stroked-text
             text="${goalProgressText}"
@@ -381,7 +386,6 @@ function createScoreGoalCard(goal) {
         `;
     return goalCard;
 }
-
 
 export function renderBoardUpgrades(game) {
     const upgradesContainer = document.getElementById("boardUpgradesContainer");

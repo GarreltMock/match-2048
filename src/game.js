@@ -973,22 +973,14 @@ export class Match3Game {
             return;
         }
 
-        const bestSwap = findBestSwap(this);
+        const bestMove = findBestSwap(this);
 
-        if (!bestSwap) {
+        if (!bestMove) {
             // No valid moves available - don't show anything
             return;
         }
 
-        this.currentHint = {
-            row1: bestSwap.row1,
-            col1: bestSwap.col1,
-            row2: bestSwap.row2,
-            col2: bestSwap.col2,
-            direction1: bestSwap.direction1,
-            direction2: bestSwap.direction2,
-            matchTiles: bestSwap.matchTiles || [],
-        };
+        this.currentHint = { ...bestMove, matchTiles: bestMove.matchTiles || [] };
 
         renderHintHighlight(this);
     }
@@ -999,20 +991,10 @@ export class Match3Game {
     clearHint() {
         if (!this.currentHint) return;
 
-        // Clear nudge classes from swap tiles
-        const gem1 = document.querySelector(
-            `[data-row="${this.currentHint.row1}"][data-col="${this.currentHint.col1}"]`,
-        );
-        const gem2 = document.querySelector(
-            `[data-row="${this.currentHint.row2}"][data-col="${this.currentHint.col2}"]`,
-        );
-
-        gem1?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
-        gem2?.classList.remove("hint-nudge-up", "hint-nudge-down", "hint-nudge-left", "hint-nudge-right");
-
-        // Clear merge preview from all tiles
-        document.querySelectorAll(".hint-merge-preview").forEach((el) => {
-            el.classList.remove("hint-merge-preview");
+        // Strip every hint-* class from anything that has one (board tiles + joker buttons).
+        document.querySelectorAll('[class*="hint-"]').forEach((el) => {
+            const toRemove = Array.from(el.classList).filter((c) => c.startsWith("hint-"));
+            for (const c of toRemove) el.classList.remove(c);
         });
 
         this.currentHint = null;

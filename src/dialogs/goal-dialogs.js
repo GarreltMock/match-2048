@@ -132,7 +132,7 @@ export const GOAL_DIALOGS = {
     },
     blocked_movable: {
         title: "Movable Blocked Tiles",
-        subtitle: "You have more control how you clear these",
+        subtitle: "You can swap them with valid move",
         content: `
             <div class="goal-card goal-blocked">
                 <div class="gem tile-BLOCKED_MOVABLE goal-tile"></div>
@@ -192,8 +192,8 @@ export const GOAL_DIALOGS = {
 // Feature unlock dialogs for game mechanics
 // Power-up info keyed by type name, used to build unlock dialogs dynamically
 const POWER_UP_INFO = {
-    hammer: { name: "Hammer", icon: "🔨", description: "Remove any tile or damage blocked tiles" },
-    halve: { name: "Halver", icon: "✂️", description: "Halve the value of any tile instantly" },
+    hammer: { name: "Hammer", icon: "🔨", description: "Remove any tile" },
+    halve: { name: "Halver", icon: "✂️", description: "Halve the value of any tile" },
     swap: { name: "Swap", icon: "🔄", description: "Swap any two tiles" },
     teleport: { name: "Teleport", icon: "🚀", description: "Teleport any tile to any position" },
     wildcard: { name: "Wildcard", icon: "✨", description: "Turn any tile into a wildcard" },
