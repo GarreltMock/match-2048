@@ -3,7 +3,7 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "feat/better-hints",
-  "checkpoints_count": 76,
+  "checkpoints_count": 79,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
@@ -17,6 +17,7 @@
     "src/hint-system.js",
     "src/home-screen.js",
     "src/input-handler.js",
+    "src/level-configs/default-levels.js",
     "src/main.js",
     "src/match-detector.js",
     "src/merge-processor.js",
@@ -291,13 +292,20 @@
       "context": "/61/d368bacfe5/36/context.md",
       "content_hash": "/61/d368bacfe5/36/content_hash.txt",
       "prompt": "/61/d368bacfe5/36/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/37/metadata.json",
+      "transcript": "/61/d368bacfe5/37/full.jsonl",
+      "context": "/61/d368bacfe5/37/context.md",
+      "content_hash": "/61/d368bacfe5/37/content_hash.txt",
+      "prompt": "/61/d368bacfe5/37/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 1277,
-    "cache_creation_tokens": 1721231,
-    "cache_read_tokens": 55570038,
-    "output_tokens": 346262,
-    "api_call_count": 976
+    "input_tokens": 1321,
+    "cache_creation_tokens": 1754737,
+    "cache_read_tokens": 56348972,
+    "output_tokens": 353341,
+    "api_call_count": 995
   }
 }

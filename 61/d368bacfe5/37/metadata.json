@@ -1,0 +1,31 @@
+{
+  "cli_version": "0.4.4",
+  "checkpoint_id": "61d368bacfe5",
+  "session_id": "70067c6d-20f8-475e-b1e9-8bd4126eed2f",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-30T08:33:56.714449Z",
+  "branch": "feat/better-hints",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "src/level-configs/default-levels.js"
+  ],
+  "agent": "Claude Code",
+  "transcript_identifier_at_start": "2d79dc63-2fdf-40f7-aef5-cf2f43096a2d",
+  "token_usage": {
+    "input_tokens": 44,
+    "cache_creation_tokens": 33506,
+    "cache_read_tokens": 778934,
+    "output_tokens": 7079,
+    "api_call_count": 19
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-30T08:33:56.696915Z",
+    "agent_lines": 0,
+    "human_added": 0,
+    "human_modified": 46,
+    "human_removed": 57,
+    "total_committed": 46,
+    "agent_percentage": 0
+  },
+  "transcript_path": ".claude/projects/-Users-garreltmock-Projects-match-2048/70067c6d-20f8-475e-b1e9-8bd4126eed2f.jsonl"
+}
