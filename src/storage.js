@@ -123,6 +123,28 @@ export function resetShownGoalDialogs() {
 }
 
 /**
+ * Check if the invalid-swap explanation dialog has been shown before
+ * @returns {boolean}
+ */
+export function loadInvalidSwapDialogShown() {
+    return localStorage.getItem("match2048_invalidSwapDialogShown") === "true";
+}
+
+/**
+ * Mark the invalid-swap explanation dialog as shown.
+ */
+export function saveInvalidSwapDialogShown() {
+    localStorage.setItem("match2048_invalidSwapDialogShown", "true");
+}
+
+/**
+ * Reset the invalid-swap dialog shown flag (for testing/reset).
+ */
+export function resetInvalidSwapDialogShown() {
+    localStorage.removeItem("match2048_invalidSwapDialogShown");
+}
+
+/**
  * Load the board upgrade action setting
  * @returns {string} Action to take with smallest tiles during board upgrade ("disappear", "blocked", "blocked_movable", or "double")
  */

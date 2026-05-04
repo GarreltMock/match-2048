@@ -147,6 +147,7 @@ export class Match3Game {
         this.dragStartPos = null;
         this.animating = false;
         this.lastSwapPosition = null; // Track last swap position for special tile placement and joker activation
+        this.lastInvalidSwap = null; // Canonical key of the last invalid swap (session only) for repeated-swap detection
         this.isUserSwap = false; // Track if we're processing a user swap
         this.interruptCascade = false; // Flag to interrupt ongoing cascade animations
         this.pendingSwap = null; // Store pending swap when interrupting
