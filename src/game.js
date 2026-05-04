@@ -720,6 +720,17 @@ export class Match3Game {
         }
     }
 
+    updateHeartsDisplays() {
+        const extraMovesHeartsDisplay = document.getElementById("extra-moves-hearts-display");
+        if (extraMovesHeartsDisplay) {
+            const hearts = this.hearts;
+            extraMovesHeartsDisplay.innerHTML = `
+                <span class="heart-emoji${hearts === 0 ? " empty" : ""}">♥️</span>
+                <span class="heart-count-compact">${hearts}</span>
+            `;
+        }
+    }
+
     showGoalDialogIfNeeded() {
         // Check if levelConfig exists and has a dialog to show
         if (!this.levelConfig) return;
@@ -870,9 +881,13 @@ export class Match3Game {
         const restartBtn = document.getElementById("restartBtn");
         const continueBtn = document.getElementById("continueBtn");
         const gameBoard = document.getElementById("gameBoard");
+        const backBtn = document.getElementById("backBtn");
 
         if (gameBoard) {
             gameBoard.classList.add("level-ended");
+        }
+        if (backBtn) {
+            backBtn.style.display = "none";
         }
         if (levelSolvedSvg) {
             levelSolvedSvg.style.visibility = "hidden";
@@ -902,9 +917,13 @@ export class Match3Game {
         const levelFailedSvg = document.getElementById("levelFailedSvg");
         const failReasonText = document.getElementById("failReasonText");
         const gameBoard = document.getElementById("gameBoard");
+        const backBtn = document.getElementById("backBtn");
 
         if (gameBoard) {
             gameBoard.classList.remove("level-ended");
+        }
+        if (backBtn) {
+            backBtn.style.display = "";
         }
         if (levelFailedSvg) {
             levelFailedSvg.style.visibility = "hidden";
