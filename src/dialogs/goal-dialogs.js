@@ -2,6 +2,7 @@
 
 import { loadShownGoalDialogs, saveShownGoalDialog, isFeatureUnlocked, saveUnlockedFeature } from "../storage.js";
 import { createGoalCard } from "../renderer.js";
+import { getDisplayValue } from "../tile-helpers.js";
 
 // Short descriptions for intro dialog
 export const GOAL_TYPE_DESCRIPTIONS = {
@@ -199,17 +200,82 @@ const POWER_UP_INFO = {
     wildcard: { name: "Wildcard", icon: "✨", description: "Turn any tile into a wildcard" },
 };
 
-function buildPowerUpDialog(powerUpType) {
+// Mapping of power-up type to the formation that grants it (must mirror power-ups.js)
+const POWER_UP_FORMATION_REQUIREMENT = {
+    hammer: { type: "l_formation", name: "L-Formation" },
+    halve: { type: "t_formation", name: "T-Formation" },
+    swap: { type: "line_5", name: "5-Tile Line" },
+};
+
+function buildFormationRequirementGrid(formationType) {
+    const v = 4;
+    const tile = () => `<div class="gem tile-${v}">${getDisplayValue(v)}</div>`;
+    const empty = `<span></span>`;
+
+    switch (formationType) {
+        case "l_formation":
+            return `
+                <div class="example-grid">
+                    <div class="grid-row">${tile()} ${tile()} ${tile()}</div>
+                    <div class="grid-row">${tile()}${empty}${empty}</div>
+                    <div class="grid-row">${tile()}${empty}${empty}</div>
+                </div>`;
+        case "t_formation":
+            return `
+                <div class="example-grid">
+                    <div class="grid-row">${tile()}${empty}${empty}</div>
+                    <div class="grid-row">${tile()} ${tile()} ${tile()}</div>
+                    <div class="grid-row">${tile()}${empty}${empty}</div>
+                </div>`;
+        case "line_5":
+            return `
+                <div class="example-grid example-tiles">
+                    ${tile()} ${tile()} ${tile()} ${tile()} ${tile()}
+                </div>`;
+        default:
+            return "";
+    }
+}
+
+function buildFormationRequirementHTML(powerUpType, info) {
+    const formation = POWER_UP_FORMATION_REQUIREMENT[powerUpType];
+    if (!formation) return "";
+    return `
+        <div class="formation-example joker-formation-requirement">
+            <p>Earn by creating a ${formation.name}</p>
+            <div class="example-formations-row">
+                ${buildFormationRequirementGrid(formation.type)}
+                <div class="merge-arrow">→</div>
+                <button class="power-up-btn" title="${info.description}">
+                    <span>${info.icon}</span>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function buildPowerUpDialog(powerUpType, game) {
     const info = POWER_UP_INFO[powerUpType];
     if (!info) return null;
-    return {
-        title: `${info.name} Joker <span style="color: #aee96b">Unlocked</span>`,
-        subtitle: info.description,
-        content: `
+
+    const showFormationRequirement = game && game.formationPowerUpRewards;
+    const content = showFormationRequirement
+        ? buildFormationRequirementHTML(powerUpType, info) ||
+          `
             <button class="power-up-btn" title="${info.description}">
                 <span>${info.icon}</span>
             </button>
-        `,
+          `
+        : `
+            <button class="power-up-btn" title="${info.description}">
+                <span>${info.icon}</span>
+            </button>
+        `;
+
+    return {
+        title: `${info.name} Joker <span style="color: #aee96b">Unlocked</span>`,
+        subtitle: info.description,
+        content,
     };
 }
 
@@ -435,7 +501,7 @@ export function showFeatureUnlockDialog(featureKey, game, onClose) {
         const slotIndex = parseInt(featureKey.split("_")[2]) - 1;
         const powerUpType = game.selectedPowerUps[slotIndex];
         if (powerUpType) {
-            dialog = buildPowerUpDialog(powerUpType);
+            dialog = buildPowerUpDialog(powerUpType, game);
         }
     }
     if (!dialog) {
