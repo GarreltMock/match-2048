@@ -11,8 +11,9 @@ const DIALOG_CONTENT = {
     title: "Invalid Swap",
     subtitle: "That move doesn't create a match",
     body: `
-        <p>A valid swap moves two adjacent tiles so that 3 or more tiles of the same value line up in a row or column.</p>
-        <p>Tap the <strong>?</strong> button at the top of the game screen for a full explanation of swap rules and special tiles.</p>
+        <p style="text-align: center;">
+            Tap <span class="info-btn game-info-btn" style="position: relative;display: inline-flex;top: initial;right: initial;">?</span> in the top-right corner for more information
+        </p>
     `,
 };
 
