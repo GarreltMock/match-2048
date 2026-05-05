@@ -611,7 +611,7 @@ button {
 }
 
 .hearts-display-compact .heart-emoji {
-    font-size: clamp(20px, 5vw, 32px);
+    font-size: clamp(32px, 7vw, 48px);
     line-height: 1;
 }
 
