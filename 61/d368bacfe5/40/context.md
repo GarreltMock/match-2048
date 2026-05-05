@@ -1,0 +1,11 @@
+# Session Context
+
+## User Prompts
+
+### Prompt 1
+
+We changed a lot in the @src/dialogs/formation-tutorial.js styles so we do not duplicate gem styles.
+Look in this commit: 6b7c9b419a9ee715e199a7428c141f2b5943c8ff
+
+But we did not fix the introduction dialog to that changes in @index.html
+
