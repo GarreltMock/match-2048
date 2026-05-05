@@ -214,6 +214,7 @@ export function showExtraMovesDialog(game) {
 
     // Update coins display
     game.updateCoinsDisplays();
+    game.updateHeartsDisplays();
 
     const continueBtn = document.getElementById("extraMoves5");
     const originalRewardBox = extraMovesDialog.querySelector(".button-container:not(#tryAgainSection) .reward-box");
