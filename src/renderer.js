@@ -346,7 +346,7 @@ export function createGoalCard(game, goal) {
         <stroked-text
             text="${goalProgressText}"
             font-size="20"
-            stroke-width="8"
+            stroke-width="6"
             width="${isRatioGoal ? 150 : 100}"
             height="24"
             letter-spacing="${isRatioGoal ? 1 : 0}"
