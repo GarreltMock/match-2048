@@ -73,7 +73,8 @@
     min-height: 0;
     justify-content: center;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
+    padding-bottom: 5%;
 }
 
 .level-text {
@@ -200,7 +201,7 @@
 
 .goals-container {
     flex: 1;
-    padding: 25px 0 5px;
+    padding: 12px 0 0px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1220,7 +1221,7 @@
 
 .bottom-container {
     flex: 1 1 0;
-    min-height: clamp(100px, 20vw, 150px);
+    min-height: clamp(60px, 20vw, 100px);
     position: relative;
 }
 
