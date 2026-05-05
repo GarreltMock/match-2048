@@ -33,6 +33,7 @@ import {
     isValidTutorialPowerUpTarget,
     updateTutorialUI,
 } from "./tutorial.js";
+import { maybeShowInvalidSwapDialog, clearLastInvalidSwap } from "./dialogs/invalid-swap-dialog.js";
 
 export function setupEventListeners(game) {
     const gameBoard = document.getElementById("gameBoard");
@@ -643,6 +644,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     if (result.valid) {
         const { hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap } = result;
 
+        clearLastInvalidSwap(game);
         game.updateMovesDisplay();
 
         game.animateSwap(row1, col1, row2, col2, () => {
@@ -699,5 +701,6 @@ export function trySwap(game, row1, col1, row2, col2) {
         return true;
     } else {
         game.animateRevert(row1, col1, row2, col2);
+        maybeShowInvalidSwapDialog(game, row1, col1, row2, col2);
     }
 }

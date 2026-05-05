@@ -1344,6 +1344,21 @@ div#featureUnlockDialog {
     color: #555;
 }
 
+.invalid-swap-dialog-content {
+    color: #eee;
+    flex-direction: column;
+    text-align: left;
+    padding: 16px 8px 24px;
+}
+
+.invalid-swap-dialog-content p {
+    color: #eee;
+}
+
+.invalid-swap-dialog-content strong {
+    color: #aee96b;
+}
+
 .goal-dialog-footer {
     border-radius: 0 0 24px 24px;
     display: flex;
