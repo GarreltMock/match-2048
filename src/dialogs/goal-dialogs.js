@@ -237,19 +237,13 @@ function buildFormationRequirementGrid(formationType) {
     }
 }
 
-function buildFormationRequirementHTML(powerUpType, info) {
+function buildFormationRequirementHTML(powerUpType) {
     const formation = POWER_UP_FORMATION_REQUIREMENT[powerUpType];
     if (!formation) return "";
     return `
-        <div class="formation-example joker-formation-requirement">
+        <div class="joker-formation-requirement">
             <p>Earn by creating a ${formation.name}</p>
-            <div class="example-formations-row">
-                ${buildFormationRequirementGrid(formation.type)}
-                <div class="merge-arrow">→</div>
-                <button class="power-up-btn" title="${info.description}">
-                    <span>${info.icon}</span>
-                </button>
-            </div>
+            ${buildFormationRequirementGrid(formation.type)}
         </div>
     `;
 }
@@ -259,23 +253,17 @@ function buildPowerUpDialog(powerUpType, game) {
     if (!info) return null;
 
     const showFormationRequirement = game && game.formationPowerUpRewards;
-    const content = showFormationRequirement
-        ? buildFormationRequirementHTML(powerUpType, info) ||
-          `
-            <button class="power-up-btn" title="${info.description}">
-                <span>${info.icon}</span>
-            </button>
-          `
-        : `
-            <button class="power-up-btn" title="${info.description}">
-                <span>${info.icon}</span>
-            </button>
-        `;
+    const formationHTML = showFormationRequirement ? buildFormationRequirementHTML(powerUpType) : "";
 
     return {
         title: `${info.name} Joker <span style="color: #aee96b">Unlocked</span>`,
         subtitle: info.description,
-        content,
+        content: `
+            <button class="power-up-btn" title="${info.description}">
+                <span>${info.icon}</span>
+            </button>
+            ${formationHTML}
+        `,
     };
 }
 
