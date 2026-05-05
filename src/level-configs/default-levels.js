@@ -162,21 +162,21 @@ export default [
         maxMoves: 38,
         blockedTiles: [{ col: 0 }, { col: 1 }, { col: 6 }, { col: 7 }],
         goals: [
+            { tileValue: 7, target: 2, current: 0, goalType: "created" },
             { current: 0, goalType: "blocked" },
-            { tileValue: 7, target: 2, current: 0, goalType: "created" },
         ],
     },
-    {
-        level: 13,
-        maxMoves: 30,
-        boardWidth: 6,
-        boardHeight: 10,
-        blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
-        goals: [
-            { tileValue: 7, target: 2, current: 0, goalType: "created" },
-            { goalType: "blocked", current: 0 },
-        ],
-    },
+    // {
+    //     level: 13,
+    //     maxMoves: 30,
+    //     boardWidth: 6,
+    //     boardHeight: 10,
+    //     blockedTiles: [{ row: 5 }, { row: 6 }, { row: 7 }, { row: 8 }, { row: 9 }],
+    //     goals: [
+    //         { tileValue: 7, target: 2, current: 0, goalType: "created" },
+    //         { goalType: "blocked", current: 0 },
+    //     ],
+    // },
     {
         level: 14,
         maxMoves: 30,
