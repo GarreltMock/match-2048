@@ -23,11 +23,11 @@ import { getPowerUpCost, isPowerUpButtonVisible } from "./power-ups.js";
 
 // Penalties applied to keep scarce-resource moves from dominating non-completing ties.
 // Tune JOKER_PENALTY_FACTOR to scale all joker penalties up/down (1.0 = baseline).
-const JOKER_PENALTY_FACTOR = 2;
-const JOKER_IN_STOCK_PENALTY = 500 * JOKER_PENALTY_FACTOR; // already-owned joker: small "save it" cost
+const JOKER_PENALTY_FACTOR = 6;
+const JOKER_IN_STOCK_PENALTY = 2500 * JOKER_PENALTY_FACTOR; // already-owned joker: small "save it" cost
 const JOKER_MOVE_COST_PENALTY = 3000 * JOKER_PENALTY_FACTOR; // buying with a move: must clearly outscore a normal swap
+const JOKER_COIN_BASE_PENALTY = 4000 * JOKER_PENALTY_FACTOR; // flat component for coin buys
 const JOKER_COIN_COST_FACTOR = 25 * JOKER_PENALTY_FACTOR; // per-coin score discount when buying with coins
-const JOKER_COIN_BASE_PENALTY = 500 * JOKER_PENALTY_FACTOR; // flat component for coin buys
 const SPECIAL_FREESWAP_PENALTY = 300;
 const SPECIAL_TELEPORT_PENALTY = 500;
 // Stacks on top of the joker penalty for hammer-on-blocked that doesn't complete a goal.
@@ -190,6 +190,15 @@ function generateFreeswapCandidates(game) {
                         const t2 = game.board[r][c2];
                         if (!t2 || isBlocked(t2) || isBlockedWithLife(t2) || isRectangularBlocked(t2)) continue;
                         out.push({ type: "freeswap", row1: r, col1: c, row2: r, col2: c2 });
+                        // Passive use: non-freeswap tile initiates swap onto this freeswap tile
+                        const isTile2FreeSwap =
+                            isTileFreeSwapTile(t2) ||
+                            isTileStickyFreeSwapTile(t2) ||
+                            isTileFreeSwapHorizontalTile(t2) ||
+                            isTileFreeSwapVerticalTile(t2);
+                        if (!isTile2FreeSwap) {
+                            out.push({ type: "freeswap", row1: r, col1: c2, row2: r, col2: c });
+                        }
                     }
                 }
                 if (vertical) {
@@ -198,6 +207,15 @@ function generateFreeswapCandidates(game) {
                         const t2 = game.board[r2][c];
                         if (!t2 || isBlocked(t2) || isBlockedWithLife(t2) || isRectangularBlocked(t2)) continue;
                         out.push({ type: "freeswap", row1: r, col1: c, row2: r2, col2: c });
+                        // Passive use: non-freeswap tile initiates swap onto this freeswap tile
+                        const isTile2FreeSwap =
+                            isTileFreeSwapTile(t2) ||
+                            isTileStickyFreeSwapTile(t2) ||
+                            isTileFreeSwapHorizontalTile(t2) ||
+                            isTileFreeSwapVerticalTile(t2);
+                        if (!isTile2FreeSwap) {
+                            out.push({ type: "freeswap", row1: r2, col1: c, row2: r, col2: c });
+                        }
                     }
                 }
             }
@@ -222,6 +240,11 @@ function generateTeleportCandidates(game) {
                     if (!t2) continue;
                     if (isBlocked(t2) || isBlockedWithLife(t2) || isRectangularBlocked(t2)) continue;
                     out.push({ type: "teleport", row1: r, col1: c, row2: r2, col2: c2 });
+                    // Also allow non-teleport tiles to initiate the swap (passive use)
+                    const isTele2 = isTileTeleportTile(t2) || isWildTeleportTile(t2);
+                    if (!isTele2) {
+                        out.push({ type: "teleport", row1: r2, col1: c2, row2: r, col2: c });
+                    }
                 }
             }
         }
@@ -232,7 +255,7 @@ function generateTeleportCandidates(game) {
 function getPowerUpCount(game, type) {
     const counts = game.powerUpCounts?.[type];
     if (!counts) return 0;
-    const persistent = game.persistentPowerUpsEnabled ? (counts.persistent || 0) : 0;
+    const persistent = game.persistentPowerUpsEnabled ? counts.persistent || 0 : 0;
     return (counts.transient || 0) + persistent;
 }
 
@@ -431,7 +454,13 @@ function evaluateHammerOnBlocked(game, row, col, tile) {
         }
         // If not fully cleared, no holes are created so no cascade is possible.
         else {
-            return { type: "joker_hammer", row, col, score: baseScore - computeJokerCostPenalty(game, "hammer") - HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY, matchTiles: [] };
+            return {
+                type: "joker_hammer",
+                row,
+                col,
+                score: baseScore - computeJokerCostPenalty(game, "hammer") - HAMMER_ON_BLOCKED_NON_COMPLETING_PENALTY,
+                matchTiles: [],
+            };
         }
     } else if (isBlockedWithLife(tile) && tile.isRectangular) {
         // Rectangular life-blocker cleared — remove all cells.
