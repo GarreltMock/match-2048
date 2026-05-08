@@ -1,0 +1,18 @@
+Can you add a setting which changes the functionality of how blocked tiles are removed? What I want to change is that also the diagonally adjacent pieces are also cleared. What I also want to change is that we increase the radius of the blocked tiles clearing if we have higher values.
+
+If we have one or two number values, the two, the four, the eight, the sixteen, the thirty-two, and the sixty-four, they should only clear the adjacent blocks. If we have the 128 and 256 and 512 we clear even a radius of two blocks and then with the four number tiles (1028 and so on) we clear a radius of three. Do you get what I'm saying?
+
+---
+
+Can we put these in two settings, if it should include the diagonal + radius setting
+
+If the diagonal is not enabled but the radius is, then the radius 2 should also include the adjacent diagonal. But its not a rectanble clear then. It is like rounded corners. Was that clear?
+
+---
+
+Ok both works, but the preview does not show that correctly
+
+---
+
+I changed the impl, because our .value represent values from 1-11 and the have a base of 2 which calculates the display value.
+But it still does not work though

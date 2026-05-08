@@ -3,13 +3,15 @@
   "checkpoint_id": "61d368bacfe5",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 85,
+  "checkpoints_count": 89,
   "files_touched": [
     "CLAUDE.md",
     "index.html",
     "src/animator.js",
     "src/components/stroked-text.js",
     "src/config.js",
+    "src/dialogs/formation-tutorial.js",
+    "src/dialogs/settings-dialog.js",
     "src/formation-tutorial.js",
     "src/game.js",
     "src/goal-dialogs.js",
@@ -327,13 +329,20 @@
       "context": "/61/d368bacfe5/41/context.md",
       "content_hash": "/61/d368bacfe5/41/content_hash.txt",
       "prompt": "/61/d368bacfe5/41/prompt.txt"
+    },
+    {
+      "metadata": "/61/d368bacfe5/42/metadata.json",
+      "transcript": "/61/d368bacfe5/42/full.jsonl",
+      "context": "/61/d368bacfe5/42/context.md",
+      "content_hash": "/61/d368bacfe5/42/content_hash.txt",
+      "prompt": "/61/d368bacfe5/42/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 1418,
-    "cache_creation_tokens": 1925056,
-    "cache_read_tokens": 59092276,
-    "output_tokens": 413478,
-    "api_call_count": 1070
+    "input_tokens": 1484,
+    "cache_creation_tokens": 1985324,
+    "cache_read_tokens": 61901718,
+    "output_tokens": 433538,
+    "api_call_count": 1128
   }
 }
