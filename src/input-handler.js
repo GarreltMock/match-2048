@@ -16,6 +16,7 @@ import {
     isTileTeleportTile,
     isWildTeleportTile,
     getDisplayValue,
+    getTileValue,
     findBestJokerValue,
     getUniqueTileValues,
 } from "./tile-helpers.js";
@@ -466,12 +467,17 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
             checkCol = col1;
         }
 
-        const adjacentPositions = [
-            { row: checkRow - 1, col: checkCol },
-            { row: checkRow + 1, col: checkCol },
-            { row: checkRow, col: checkCol - 1 },
-            { row: checkRow, col: checkCol + 1 },
-        ];
+        const boardTile = game.board[tile.row][tile.col];
+        const tileVal = boardTile ? getTileValue(boardTile) : 1;
+        const radius = game.blockClearRadius ? (tileVal >= 10 ? 3 : tileVal >= 7 ? 2 : 1) : 1;
+        const adjacentPositions = [];
+        for (let dr = -radius; dr <= radius; dr++) {
+            for (let dc = -radius; dc <= radius; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                if (!game.blockClearDiagonals && Math.abs(dr) + Math.abs(dc) > radius) continue;
+                adjacentPositions.push({ row: checkRow + dr, col: checkCol + dc });
+            }
+        }
 
         for (const pos of adjacentPositions) {
             if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {

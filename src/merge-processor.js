@@ -73,8 +73,7 @@ export async function processMatches(game, { animateMerges, animateUnblocking } 
 
             // Determine swap direction the same way merge-processor does for freeswap tiles
             const swapPos = game.lastSwapPosition;
-            const isHorizontalSwap =
-                swapPos && swapPos.movedFrom ? swapPos.movedFrom.row === swapPos.row : false;
+            const isHorizontalSwap = swapPos && swapPos.movedFrom ? swapPos.movedFrom.row === swapPos.row : false;
 
             // Show each tutorial dialog and wait for user to close it
             for (const { formationType, matchGroup } of pendingTutorials) {
@@ -317,7 +316,6 @@ export function createMergedTiles(game, group, wasUserSwap = false) {
     // Check if we need to shift tile levels based on the newly created value
     // This just sets a flag and the highest value reached, doesn't execute the shift yet
     game.checkAndShiftTileLevels(newValue);
-
 }
 
 export function determineSpecialTilePosition(game, group, formationType) {
@@ -480,12 +478,16 @@ export function unblockAdjacentTiles(game, matchGroups) {
 
         // Check each tile in the original match for adjacent blocked/goal tiles
         group.tiles.forEach((matchTile) => {
-            const adjacentPositions = [
-                { row: matchTile.row - 1, col: matchTile.col }, // Up
-                { row: matchTile.row + 1, col: matchTile.col }, // Down
-                { row: matchTile.row, col: matchTile.col - 1 }, // Left
-                { row: matchTile.row, col: matchTile.col + 1 }, // Right
-            ];
+            const radius = game.blockClearRadius ? (group.value >= 10 ? 3 : group.value >= 7 ? 2 : 1) : 1;
+            const adjacentPositions = [];
+            for (let dr = -radius; dr <= radius; dr++) {
+                for (let dc = -radius; dc <= radius; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    // Without diagonals: Manhattan distance (rounded shape); with diagonals: full square
+                    if (!game.blockClearDiagonals && Math.abs(dr) + Math.abs(dc) > radius) continue;
+                    adjacentPositions.push({ row: matchTile.row + dr, col: matchTile.col + dc });
+                }
+            }
 
             adjacentPositions.forEach((pos) => {
                 // Check bounds

@@ -47,6 +47,8 @@ import {
     loadSolverHintEnabled,
     loadTryAgainEnabled,
     loadDisplayBase,
+    loadBlockClearDiagonals,
+    loadBlockClearRadius,
 } from "./storage.js";
 import { track, trackLevelSolved, trackLevelLost } from "./tracker.js";
 import { setDisplayBase } from "./tile-helpers.js";
@@ -168,6 +170,8 @@ export class Match3Game {
         this.movesMultiplier = loadMovesMultiplier();
         this.displayBase = loadDisplayBase();
         setDisplayBase(this.displayBase);
+        this.blockClearDiagonals = loadBlockClearDiagonals();
+        this.blockClearRadius = loadBlockClearRadius();
 
         this.currentLevel = loadCurrentLevel();
         this.levelGoals = [];

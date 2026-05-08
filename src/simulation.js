@@ -43,6 +43,8 @@ function createSimContext(game, board, levelGoals) {
         specialTileConfig: game.specialTileConfig,
         levelGoals,
         allowNonMatchingSwaps: false,
+        blockClearDiagonals: game.blockClearDiagonals || false,
+        blockClearRadius: game.blockClearRadius || false,
         activePowerUp: null,
         isUserSwap: false,
         lastSwapPosition: null,

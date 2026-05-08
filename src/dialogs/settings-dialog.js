@@ -12,6 +12,8 @@ import {
     saveHintsEnabled,
     saveShowSwapTargets,
     saveHintTimeoutMs,
+    saveBlockClearDiagonals,
+    saveBlockClearRadius,
     saveAllowNonMatchingSwaps,
     saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
@@ -48,6 +50,8 @@ export function setupSettingsButton(game) {
     const showSwapTargetsCheckbox = document.getElementById("showSwapTargets");
     const hintsEnabledCheckbox = document.getElementById("hintsEnabled");
     const hintTimeoutInput = document.getElementById("hintTimeoutMs");
+    const blockClearDiagonalsCheckbox = document.getElementById("blockClearDiagonals");
+    const blockClearRadiusCheckbox = document.getElementById("blockClearRadius");
     const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
     const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
@@ -159,6 +163,12 @@ export function setupSettingsButton(game) {
         }
         if (hintTimeoutInput) {
             hintTimeoutInput.value = String(game.hintTimeout);
+        }
+        if (blockClearDiagonalsCheckbox) {
+            blockClearDiagonalsCheckbox.checked = game.blockClearDiagonals;
+        }
+        if (blockClearRadiusCheckbox) {
+            blockClearRadiusCheckbox.checked = game.blockClearRadius;
         }
         if (allowNonMatchingSwapsCheckbox) {
             allowNonMatchingSwapsCheckbox.checked = game.allowNonMatchingSwaps;
@@ -289,6 +299,14 @@ export function setupSettingsButton(game) {
                     const n = parseInt(hintTimeoutInput.value, 10);
                     game.hintTimeout = Number.isFinite(n) && n >= 0 ? n : 4000;
                     saveHintTimeoutMs(game.hintTimeout);
+                }
+                if (blockClearDiagonalsCheckbox) {
+                    game.blockClearDiagonals = blockClearDiagonalsCheckbox.checked;
+                    saveBlockClearDiagonals(game.blockClearDiagonals);
+                }
+                if (blockClearRadiusCheckbox) {
+                    game.blockClearRadius = blockClearRadiusCheckbox.checked;
+                    saveBlockClearRadius(game.blockClearRadius);
                 }
                 if (allowNonMatchingSwapsCheckbox) {
                     game.allowNonMatchingSwaps = allowNonMatchingSwapsCheckbox.checked;

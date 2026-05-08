@@ -74,12 +74,15 @@ export function highlightBlockedTiles(game, matchGroups) {
 
     matchGroups.forEach((group) => {
         group.tiles.forEach((tile) => {
-            const adjacentPositions = [
-                { row: tile.row - 1, col: tile.col },
-                { row: tile.row + 1, col: tile.col },
-                { row: tile.row, col: tile.col - 1 },
-                { row: tile.row, col: tile.col + 1 },
-            ];
+            const radius = game.blockClearRadius ? (group.value >= 10 ? 3 : group.value >= 7 ? 2 : 1) : 1;
+            const adjacentPositions = [];
+            for (let dr = -radius; dr <= radius; dr++) {
+                for (let dc = -radius; dc <= radius; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    if (!game.blockClearDiagonals && Math.abs(dr) + Math.abs(dc) > radius) continue;
+                    adjacentPositions.push({ row: tile.row + dr, col: tile.col + dc });
+                }
+            }
 
             adjacentPositions.forEach((pos) => {
                 if (pos.row >= 0 && pos.row < game.boardHeight && pos.col >= 0 && pos.col < game.boardWidth) {
@@ -120,12 +123,12 @@ export function clearMergeHighlight() {
 
 // Static metadata for each formation type (keys used externally to track shown tutorials)
 export const FORMATION_TUTORIAL_DIALOGS = {
-    line_3:      { subtitle: "3-Tile Match",  title: "Line" },
-    line_4:      { subtitle: "4-Tile Match",  title: "Line" },
-    block_4:     { subtitle: "4-Tile Match",  title: "Block" },
-    line_5:      { subtitle: "5-Tile Match",  title: "Line" },
-    t_formation: { subtitle: "5-Tile Match",  title: "T-Formation" },
-    l_formation: { subtitle: "5-Tile Match",  title: "L-Formation" },
+    line_3: { subtitle: "3-Tile Match", title: "Line" },
+    line_4: { subtitle: "4-Tile Match", title: "Line" },
+    block_4: { subtitle: "4-Tile Match", title: "Block" },
+    line_5: { subtitle: "5-Tile Match", title: "Line" },
+    t_formation: { subtitle: "5-Tile Match", title: "T-Formation" },
+    l_formation: { subtitle: "5-Tile Match", title: "L-Formation" },
 };
 
 function t(value, extra = "", highlight = false) {

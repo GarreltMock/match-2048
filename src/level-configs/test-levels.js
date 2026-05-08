@@ -584,4 +584,21 @@ export default [
         maxMoves: 1,
         goals: [{ current: 0, goalType: "blocked", target: 1 }],
     },
+    {
+        level: 37,
+        title: "Blocked Radius",
+        boardPreset: [
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", 7, "B", "B", "B"],
+            ["B", "B", "B", 7, 1, 7, "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+            ["B", "B", "B", "B", "B", "B", "B", "B"],
+        ],
+        maxMoves: 10,
+        goals: [{ tileValue: 8, target: 3, current: 0, goalType: "created" }],
+    },
 ];

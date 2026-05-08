@@ -178,6 +178,22 @@ export function saveSuperUpgradeAction(action) {
     localStorage.setItem("match2048_superUpgradeAction", action);
 }
 
+export function loadBlockClearDiagonals() {
+    return localStorage.getItem("match2048_blockClearDiagonals") === "true";
+}
+
+export function saveBlockClearDiagonals(enabled) {
+    localStorage.setItem("match2048_blockClearDiagonals", String(enabled));
+}
+
+export function loadBlockClearRadius() {
+    return localStorage.getItem("match2048_blockClearRadius") === "true";
+}
+
+export function saveBlockClearRadius(enabled) {
+    localStorage.setItem("match2048_blockClearRadius", String(enabled));
+}
+
 /**
  * Load the current streak level (0-3)
  * @returns {number} Current streak level
