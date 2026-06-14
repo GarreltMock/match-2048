@@ -210,11 +210,11 @@ export function processMerges(game, matchGroups, wasUserSwap = false) {
         // Small delay to allow the render to complete
         setTimeout(() => {
             game.shiftTileLevels().then(() => {
-                game.dropGems();
+                game.maybeDropGems();
             });
         }, 50);
     } else {
-        game.dropGems();
+        game.maybeDropGems();
     }
 }
 

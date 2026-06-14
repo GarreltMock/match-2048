@@ -169,6 +169,10 @@
                     </button>
                 </div>
 
+                <button id="gravityBtn" class="gravity-btn" title="Apply gravity" style="display: none" disabled>
+                    ⬇️ <span class="gravity-btn-label">Gravity</span>
+                </button>
+
                 <div class="controls" style="display: none">
                     <button id="continueBtn" class="control-btn continue" tabindex="1">Continue</button>
                     <div class="button-container" id="nextLevelContainer" style="display: none">
@@ -591,6 +595,11 @@
                     <div class="setting-item setting-item-checkbox">
                         <label for="allowNonMatchingSwaps">Allow Non-Matching Swaps</label>
                         <input type="checkbox" id="allowNonMatchingSwaps" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="manualGravity">Manual Gravity (swap without auto-drop)</label>
+                        <input type="checkbox" id="manualGravity" />
                     </div>
 
                     <div class="setting-item setting-item-checkbox">
