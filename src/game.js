@@ -37,6 +37,7 @@ import {
     loadShowSwapTargets,
     loadHintTimeoutMs,
     loadAllowNonMatchingSwaps,
+    loadManualGravity,
     loadExtendedFreeSwap,
     loadFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
@@ -163,6 +164,8 @@ export class Match3Game {
         this.tryAgainEnabled = loadTryAgainEnabled();
         this.showSwapTargets = loadShowSwapTargets();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
+        this.manualGravity = loadManualGravity();
+        this.pendingGravity = false; // True when gravity is deferred and waiting for the manual trigger
         this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
@@ -558,6 +561,13 @@ export class Match3Game {
             });
         }
 
+        // Setup manual gravity trigger button
+        const gravityBtn = document.getElementById("gravityBtn");
+        if (gravityBtn) {
+            gravityBtn.addEventListener("click", () => this.triggerGravity());
+        }
+        this.updateGravityButton();
+
         // Setup give up dialog buttons
         this.setupGiveUpDialog();
 
@@ -614,6 +624,43 @@ export class Match3Game {
         dropGems(this);
     }
 
+    // Apply gravity, unless manual gravity is enabled - in that case defer it
+    // and wait for the player to press the gravity button.
+    maybeDropGems() {
+        if (this.manualGravity) {
+            this.pendingGravity = true;
+            // Release the interaction lock so the player can keep swapping while
+            // the board waits for gravity to be triggered manually.
+            this.animating = false;
+            this.updateGravityButton();
+            return;
+        }
+        this.dropGems();
+    }
+
+    // Run the deferred gravity (triggered by the gravity button or when the
+    // manual gravity setting is turned off while gravity is pending).
+    triggerGravity() {
+        if (!this.pendingGravity || this.animating) {
+            return;
+        }
+        this.pendingGravity = false;
+        this.updateGravityButton();
+        // Re-acquire the interaction lock for the duration of the drop/cascade.
+        this.animating = true;
+        this.dropGems();
+    }
+
+    // Show the gravity button when manual gravity is enabled and highlight it
+    // while a drop is pending.
+    updateGravityButton() {
+        const btn = document.getElementById("gravityBtn");
+        if (!btn) return;
+        btn.style.display = this.manualGravity ? "" : "none";
+        btn.classList.toggle("pending", !!this.pendingGravity);
+        btn.disabled = !this.pendingGravity;
+    }
+
     updateGoalDisplay(checkComplete = false) {
         updateGoalDisplay(this, checkComplete);
     }
@@ -648,6 +695,8 @@ export class Match3Game {
 
     startLevel() {
         // Load current level and start the game
+        this.pendingGravity = false;
+        this.updateGravityButton();
         this.loadLevel(this.currentLevel);
         this.createBoard();
         this.renderBoard();

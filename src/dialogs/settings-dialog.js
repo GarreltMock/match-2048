@@ -15,6 +15,7 @@ import {
     saveBlockClearDiagonals,
     saveBlockClearRadius,
     saveAllowNonMatchingSwaps,
+    saveManualGravity,
     saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
     savePersistentPowerUpsEnabled,
@@ -53,6 +54,7 @@ export function setupSettingsButton(game) {
     const blockClearDiagonalsCheckbox = document.getElementById("blockClearDiagonals");
     const blockClearRadiusCheckbox = document.getElementById("blockClearRadius");
     const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
+    const manualGravityCheckbox = document.getElementById("manualGravity");
     const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
@@ -172,6 +174,9 @@ export function setupSettingsButton(game) {
         }
         if (allowNonMatchingSwapsCheckbox) {
             allowNonMatchingSwapsCheckbox.checked = game.allowNonMatchingSwaps;
+        }
+        if (manualGravityCheckbox) {
+            manualGravityCheckbox.checked = game.manualGravity;
         }
         if (extendedFreeSwapCheckbox) {
             extendedFreeSwapCheckbox.checked = game.extendedFreeSwap;
@@ -311,6 +316,17 @@ export function setupSettingsButton(game) {
                 if (allowNonMatchingSwapsCheckbox) {
                     game.allowNonMatchingSwaps = allowNonMatchingSwapsCheckbox.checked;
                     saveAllowNonMatchingSwaps(game.allowNonMatchingSwaps);
+                }
+                if (manualGravityCheckbox) {
+                    game.manualGravity = manualGravityCheckbox.checked;
+                    saveManualGravity(game.manualGravity);
+                    // If manual gravity was turned off while a drop was pending,
+                    // settle the board immediately so it doesn't stay frozen.
+                    if (!game.manualGravity && game.pendingGravity && !game.animating) {
+                        game.triggerGravity();
+                    } else {
+                        game.updateGravityButton();
+                    }
                 }
                 if (extendedFreeSwapCheckbox) {
                     game.extendedFreeSwap = extendedFreeSwapCheckbox.checked;

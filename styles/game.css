@@ -1267,6 +1267,49 @@
     position: absolute;
 }
 
+/* Manual gravity trigger button */
+.gravity-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: clamp(8px, 2vw, 14px) auto 0;
+    padding: clamp(8px, 2vw, 12px) clamp(22px, 8vw, 30px);
+    border-radius: 16px;
+    border: 2px solid black;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 -4px 0 0 rgba(0, 0, 0, 0.25) inset;
+    color: white;
+    font-family: Nunito;
+    font-size: 22px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    z-index: 10;
+}
+
+.gravity-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.gravity-btn.pending {
+    background: #aee96b;
+    color: black;
+    animation: gravity-btn-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes gravity-btn-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.06);
+    }
+}
+
 /* Power-ups */
 .power-ups {
     display: flex;

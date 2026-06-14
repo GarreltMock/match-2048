@@ -451,6 +451,26 @@ export function saveAllowNonMatchingSwaps(enabled) {
     localStorage.setItem("match2048_allowNonMatchingSwaps", enabled.toString());
 }
 
+/**
+ * Load the manual gravity setting
+ * @returns {boolean} True if gravity must be triggered manually after swaps (default: false)
+ */
+export function loadManualGravity() {
+    const saved = localStorage.getItem("match2048_manualGravity");
+    if (saved === null) {
+        return false;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the manual gravity setting
+ * @param {boolean} enabled - Whether gravity should be triggered manually
+ */
+export function saveManualGravity(enabled) {
+    localStorage.setItem("match2048_manualGravity", enabled.toString());
+}
+
 export function loadExtendedFreeSwap() {
     const saved = localStorage.getItem("match2048_extendedFreeSwap");
     if (saved === null) return true;
