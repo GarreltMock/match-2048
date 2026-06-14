@@ -166,6 +166,7 @@ export class Match3Game {
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.manualGravity = loadManualGravity();
         this.pendingGravity = false; // True when gravity is deferred and waiting for the manual trigger
+        this.gravityCascadeActive = false; // True while a manual gravity trigger is running its full drop/merge cascade
         this.extendedFreeSwap = loadExtendedFreeSwap();
         this.formationPowerUpRewards = loadFormationPowerUpRewards();
         this.persistentPowerUpsEnabled = loadPersistentPowerUpsEnabled();
@@ -627,7 +628,9 @@ export class Match3Game {
     // Apply gravity, unless manual gravity is enabled - in that case defer it
     // and wait for the player to press the gravity button.
     maybeDropGems() {
-        if (this.manualGravity) {
+        // While a manual gravity trigger is running, behave like auto-gravity:
+        // keep dropping and merging until the board settles (handled in dropGems).
+        if (this.manualGravity && !this.gravityCascadeActive) {
             // Resolve every merge that the previous step created in place -
             // without dropping any tiles - so the whole merge cascade plays out
             // before gravity is deferred to the manual trigger.
@@ -655,6 +658,9 @@ export class Match3Game {
         this.updateGravityButton();
         // Re-acquire the interaction lock for the duration of the drop/cascade.
         this.animating = true;
+        // Run the full drop/merge cascade until no merges remain, like
+        // auto-gravity does (instead of stopping after a single round).
+        this.gravityCascadeActive = true;
         this.dropGems();
     }
 
@@ -703,6 +709,7 @@ export class Match3Game {
     startLevel() {
         // Load current level and start the game
         this.pendingGravity = false;
+        this.gravityCascadeActive = false;
         this.updateGravityButton();
         this.loadLevel(this.currentLevel);
         this.createBoard();

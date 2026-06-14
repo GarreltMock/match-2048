@@ -479,6 +479,10 @@ export function dropGems(game) {
             // Resolve the animation promise to signal old cascade is done
             game.animating = false;
 
+            // A user swap interrupts a manual gravity trigger; end the cascade so
+            // the interrupting swap falls back to normal manual-gravity behavior.
+            game.gravityCascadeActive = false;
+
             // Execute the pending swap if it exists and moves are available
             if (game.pendingSwap) {
                 const { row1, col1, row2, col2, tile1, tile2 } = game.pendingSwap;
@@ -508,6 +512,9 @@ export function dropGems(game) {
             game.processMatches();
         } else {
             game.animating = false;
+
+            // The manual gravity cascade has fully settled.
+            game.gravityCascadeActive = false;
 
             // Decrement cursed timers after all cascades complete
             if (game.shouldDecrementCursedTimers) {
