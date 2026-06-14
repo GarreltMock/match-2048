@@ -93,6 +93,10 @@ function startDrag(game, x, y) {
         const col = parseInt(element.dataset.col);
         const tile = game.board[row][col];
 
+        // Empty cells (rendered as targetable slots under manual gravity) can be
+        // swapped *into* but not dragged *from*.
+        if (!tile) return;
+
         // Block dragging tiles during tutorial if not part of the tutorial step
         if (isTutorialActive(game) && !canDragTileInTutorial(game, row, col)) {
             return;
@@ -509,6 +513,7 @@ function getBlockedTilesForMatch(game, matchTiles, row1, col1, row2, col2) {
  *   An invalid or disallowed swap is indicated by `valid: false`.
  */
 function tileHasFreeSwap(tile, isHorizontalSwap, isVerticalSwap) {
+    if (!tile) return false;
     if (tile.hasBeenSwapped) return false;
     if (isTileFreeSwapTile(tile) || isTileStickyFreeSwapTile(tile)) return true;
     return (
@@ -545,6 +550,9 @@ export function executeSwap(game, row1, col1, row2, col2) {
     const isSwapPowerUp = game.activePowerUp === "swap";
     const isTeleportPowerUp = game.activePowerUp === "teleport";
     const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
+    // Manual gravity leaves persistent gaps - allow moving a tile into an empty
+    // cell even when the move doesn't form a match.
+    const allowEmptyMove = game.manualGravity === true && (tile1 === null || tile2 === null);
 
     // Perform the board swap
     const temp = game.board[row1][col1];
@@ -557,7 +565,7 @@ export function executeSwap(game, row1, col1, row2, col2) {
     const hasMatch = game.hasMatchesForSwap(row1, col1, row2, col2);
 
     const validWithoutTile2FreeSwap =
-        hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || hasTeleport2 || hasFreeSwap2Extended || allowNonMatchingSwap;
+        hasMatch || isSwapPowerUp || isTeleportPowerUp || hasFreeSwap || hasTeleport || hasTeleport2 || hasFreeSwap2Extended || allowNonMatchingSwap || allowEmptyMove;
     const useTile2FreeSwap = !validWithoutTile2FreeSwap && hasFreeSwap2;
 
     if (validWithoutTile2FreeSwap || useTile2FreeSwap) {
@@ -593,6 +601,7 @@ export function executeSwap(game, row1, col1, row2, col2) {
             isSwapPowerUp,
             isTeleportPowerUp,
             allowNonMatchingSwap,
+            allowEmptyMove,
         };
     } else {
         // Revert the swap
@@ -608,6 +617,7 @@ export function executeSwap(game, row1, col1, row2, col2) {
             isSwapPowerUp,
             isTeleportPowerUp,
             allowNonMatchingSwap,
+            allowEmptyMove,
         };
     }
 }
@@ -667,7 +677,7 @@ export function trySwap(game, row1, col1, row2, col2) {
     const result = executeSwap(game, row1, col1, row2, col2);
 
     if (result.valid) {
-        const { hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap } = result;
+        const { hasMatch, hasFreeSwap, hasTeleport, isSwapPowerUp, isTeleportPowerUp, allowNonMatchingSwap, allowEmptyMove } = result;
 
         clearLastInvalidSwap(game);
         game.updateMovesDisplay();
@@ -705,7 +715,7 @@ export function trySwap(game, row1, col1, row2, col2) {
 
             if (
                 !hasMatch &&
-                (allowNonMatchingSwap || hasTeleport || isTeleportPowerUp) &&
+                (allowNonMatchingSwap || allowEmptyMove || hasTeleport || isTeleportPowerUp) &&
                 !isSwapPowerUp &&
                 !hasFreeSwap
             ) {

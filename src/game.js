@@ -628,6 +628,13 @@ export class Match3Game {
     // and wait for the player to press the gravity button.
     maybeDropGems() {
         if (this.manualGravity) {
+            // Resolve every merge that the previous step created in place -
+            // without dropping any tiles - so the whole merge cascade plays out
+            // before gravity is deferred to the manual trigger.
+            if (this.hasMatches()) {
+                this.processMatches();
+                return;
+            }
             this.pendingGravity = true;
             // Release the interaction lock so the player can keep swapping while
             // the board waits for gravity to be triggered manually.
