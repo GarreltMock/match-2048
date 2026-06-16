@@ -471,6 +471,46 @@ export function saveManualGravity(enabled) {
     localStorage.setItem("match2048_manualGravity", enabled.toString());
 }
 
+/**
+ * Load whether tiles may be swapped into empty cells under manual gravity
+ * @returns {boolean} True if swapping into empty cells is allowed (default: true)
+ */
+export function loadManualGravityEmptySwap() {
+    const saved = localStorage.getItem("match2048_manualGravityEmptySwap");
+    if (saved === null) {
+        return true;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the manual gravity empty-cell swap setting
+ * @param {boolean} enabled - Whether swapping into empty cells is allowed
+ */
+export function saveManualGravityEmptySwap(enabled) {
+    localStorage.setItem("match2048_manualGravityEmptySwap", enabled.toString());
+}
+
+/**
+ * Load whether the manual gravity trigger runs the full drop/merge cascade
+ * @returns {boolean} True for the full cascade, false for a single drop/merge round (default: true)
+ */
+export function loadManualGravityFullCascade() {
+    const saved = localStorage.getItem("match2048_manualGravityFullCascade");
+    if (saved === null) {
+        return true;
+    }
+    return saved === "true";
+}
+
+/**
+ * Save the manual gravity full-cascade setting
+ * @param {boolean} enabled - Whether the gravity trigger cascades until settled
+ */
+export function saveManualGravityFullCascade(enabled) {
+    localStorage.setItem("match2048_manualGravityFullCascade", enabled.toString());
+}
+
 export function loadExtendedFreeSwap() {
     const saved = localStorage.getItem("match2048_extendedFreeSwap");
     if (saved === null) return true;
