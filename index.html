@@ -598,11 +598,6 @@
                     </div>
 
                     <div class="setting-item setting-item-checkbox">
-                        <label for="manualGravity">Manual Gravity (swap without auto-drop)</label>
-                        <input type="checkbox" id="manualGravity" />
-                    </div>
-
-                    <div class="setting-item setting-item-checkbox">
                         <label for="extendedFreeSwap">Extended Free Swap (full row/col)</label>
                         <input type="checkbox" id="extendedFreeSwap" />
                     </div>
@@ -630,6 +625,31 @@
                     <div class="setting-item">
                         <label for="movesMultiplier">Moves Multiplier</label>
                         <input type="number" id="movesMultiplier" min="0.1" max="10" step="0.05" />
+                    </div>
+
+                    <div class="settings-section-title">Manual Gravity</div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="manualGravity">Manual Gravity (swap without auto-drop)</label>
+                        <input type="checkbox" id="manualGravity" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <label for="manualGravityEmptySwap">Swap into Empty Cells</label>
+                        <input type="checkbox" id="manualGravityEmptySwap" />
+                    </div>
+
+                    <div class="setting-item setting-item-checkbox">
+                        <details class="setting-help inline">
+                            <summary>ⓘ</summary>
+                            <div class="special-tile-help">
+                                When enabled, the gravity button runs the full drop &amp; merge cascade until no
+                                merges remain (like auto-gravity). When off, it performs a single drop &amp; merge
+                                round per press.
+                            </div>
+                        </details>
+                        <label for="manualGravityFullCascade">Full Drop Cascade</label>
+                        <input type="checkbox" id="manualGravityFullCascade" />
                     </div>
 
                     <div class="settings-section-title">PoS Extra Moves</div>

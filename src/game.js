@@ -38,6 +38,8 @@ import {
     loadHintTimeoutMs,
     loadAllowNonMatchingSwaps,
     loadManualGravity,
+    loadManualGravityEmptySwap,
+    loadManualGravityFullCascade,
     loadExtendedFreeSwap,
     loadFormationPowerUpRewards,
     loadPersistentPowerUpsEnabled,
@@ -165,6 +167,8 @@ export class Match3Game {
         this.showSwapTargets = loadShowSwapTargets();
         this.allowNonMatchingSwaps = loadAllowNonMatchingSwaps();
         this.manualGravity = loadManualGravity();
+        this.manualGravityEmptySwap = loadManualGravityEmptySwap(); // Allow swapping tiles into empty cells
+        this.manualGravityFullCascade = loadManualGravityFullCascade(); // Gravity trigger cascades until settled
         this.pendingGravity = false; // True when gravity is deferred and waiting for the manual trigger
         this.gravityCascadeActive = false; // True while a manual gravity trigger is running its full drop/merge cascade
         this.extendedFreeSwap = loadExtendedFreeSwap();
@@ -658,9 +662,11 @@ export class Match3Game {
         this.updateGravityButton();
         // Re-acquire the interaction lock for the duration of the drop/cascade.
         this.animating = true;
-        // Run the full drop/merge cascade until no merges remain, like
-        // auto-gravity does (instead of stopping after a single round).
-        this.gravityCascadeActive = true;
+        // When enabled, run the full drop/merge cascade until no merges remain,
+        // like auto-gravity does. Otherwise stop after a single drop/merge round.
+        if (this.manualGravityFullCascade) {
+            this.gravityCascadeActive = true;
+        }
         this.dropGems();
     }
 

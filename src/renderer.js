@@ -220,9 +220,10 @@ export function renderBoard(game) {
                 if (isTilePlusTile(tile)) {
                     gem.classList.add("plus-tile");
                 }
-            } else if (!tile && game.manualGravity) {
-                // Manual gravity leaves persistent gaps on the board. Render them
-                // as targetable empty slots so the player can move tiles into them.
+            } else if (!tile && game.manualGravity && game.manualGravityEmptySwap) {
+                // Manual gravity leaves persistent gaps on the board. When empty-cell
+                // swapping is enabled, render them as targetable slots so the player
+                // can move tiles into them.
                 gem.className = "gem empty-cell";
             }
 

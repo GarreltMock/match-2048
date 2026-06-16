@@ -550,9 +550,12 @@ export function executeSwap(game, row1, col1, row2, col2) {
     const isSwapPowerUp = game.activePowerUp === "swap";
     const isTeleportPowerUp = game.activePowerUp === "teleport";
     const allowNonMatchingSwap = game.allowNonMatchingSwaps === true;
-    // Manual gravity leaves persistent gaps - allow moving a tile into an empty
-    // cell even when the move doesn't form a match.
-    const allowEmptyMove = game.manualGravity === true && (tile1 === null || tile2 === null);
+    // Manual gravity leaves persistent gaps - when enabled, allow moving a tile
+    // into an empty cell even when the move doesn't form a match.
+    const allowEmptyMove =
+        game.manualGravity === true &&
+        game.manualGravityEmptySwap === true &&
+        (tile1 === null || tile2 === null);
 
     // Perform the board swap
     const temp = game.board[row1][col1];

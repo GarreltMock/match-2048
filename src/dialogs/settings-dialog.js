@@ -16,6 +16,8 @@ import {
     saveBlockClearRadius,
     saveAllowNonMatchingSwaps,
     saveManualGravity,
+    saveManualGravityEmptySwap,
+    saveManualGravityFullCascade,
     saveExtendedFreeSwap,
     saveFormationPowerUpRewards,
     savePersistentPowerUpsEnabled,
@@ -55,6 +57,8 @@ export function setupSettingsButton(game) {
     const blockClearRadiusCheckbox = document.getElementById("blockClearRadius");
     const allowNonMatchingSwapsCheckbox = document.getElementById("allowNonMatchingSwaps");
     const manualGravityCheckbox = document.getElementById("manualGravity");
+    const manualGravityEmptySwapCheckbox = document.getElementById("manualGravityEmptySwap");
+    const manualGravityFullCascadeCheckbox = document.getElementById("manualGravityFullCascade");
     const extendedFreeSwapCheckbox = document.getElementById("extendedFreeSwap");
     const formationPowerUpRewardsCheckbox = document.getElementById("formationPowerUpRewards");
     const persistentPowerUpsEnabledCheckbox = document.getElementById("persistentPowerUpsEnabled");
@@ -177,6 +181,12 @@ export function setupSettingsButton(game) {
         }
         if (manualGravityCheckbox) {
             manualGravityCheckbox.checked = game.manualGravity;
+        }
+        if (manualGravityEmptySwapCheckbox) {
+            manualGravityEmptySwapCheckbox.checked = game.manualGravityEmptySwap;
+        }
+        if (manualGravityFullCascadeCheckbox) {
+            manualGravityFullCascadeCheckbox.checked = game.manualGravityFullCascade;
         }
         if (extendedFreeSwapCheckbox) {
             extendedFreeSwapCheckbox.checked = game.extendedFreeSwap;
@@ -327,6 +337,14 @@ export function setupSettingsButton(game) {
                     } else {
                         game.updateGravityButton();
                     }
+                }
+                if (manualGravityEmptySwapCheckbox) {
+                    game.manualGravityEmptySwap = manualGravityEmptySwapCheckbox.checked;
+                    saveManualGravityEmptySwap(game.manualGravityEmptySwap);
+                }
+                if (manualGravityFullCascadeCheckbox) {
+                    game.manualGravityFullCascade = manualGravityFullCascadeCheckbox.checked;
+                    saveManualGravityFullCascade(game.manualGravityFullCascade);
                 }
                 if (extendedFreeSwapCheckbox) {
                     game.extendedFreeSwap = extendedFreeSwapCheckbox.checked;
